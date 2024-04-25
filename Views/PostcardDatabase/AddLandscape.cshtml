@@ -1,0 +1,46 @@
+﻿@model Sammlerplattform.Models.Geography
+
+@{
+    ViewData["Title"] = "Landschaft hinzufügen";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+
+    var backToList = ViewData["BackToList"] as string;
+    var sourceId = ViewData["SourceId"] as int?;
+    var city_Id = ViewData["CityId"] as int?;
+}
+
+<h1>Landschaft hinzufügen</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddGeographySubmit" asp-route-city_Id="@city_Id" asp-route-source="@backToList" asp-route-sourceId="@sourceId">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="GeographyName" class="control-label"></label>
+                <input asp-for="GeographyName" class="form-control" required maxlength="20"/>
+                <span asp-validation-for="GeographyName" class="text-danger"></span>
+            </div>
+            <div class="form-group pt-2">
+                <input type="submit" value="Erstellen" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    @if (!string.IsNullOrEmpty(backToList))
+    {
+        @if (backToList == "CreatePostcard")
+        {
+            <a asp-action="CreatePostcard" asp-controller="PostcardDatabase">Zurück</a>
+        }
+        else if (backToList == "EditPostcard")
+        {
+            <a asp-action="EditPostcard" asp-route-id="@sourceId" asp-controller="PostcardDatabase">Zurück</a>
+        }
+        else if (backToList == "AddManufacturer")
+        {
+            <a asp-action="AddManufacturer" asp-route-id="@sourceId" asp-controller="PostcardDatabase">Zurück</a>
+        }
+    }
+</div>

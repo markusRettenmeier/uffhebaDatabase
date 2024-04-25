@@ -1,0 +1,115 @@
+﻿@model IEnumerable<Sammlerplattform.Models.PostcardModel>
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@{
+    ViewData["Title"] = "Postkartenverwaltung";
+    Layout = "_LayoutSettings";
+    int count = 0;
+}
+
+<h3>@ViewData["Title"]</h3>
+<hr />
+
+<div class="btn-group" role="group" aria-label="Basic example">
+    @if ((await AuthorizationService.AuthorizeAsync(User, "SubscribedAnalysisToolPolicy")).Succeeded)
+    {
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#UploadPostcardsModal">
+            Automatischen Eintrag erstellen
+        </button>
+    }
+    <a type="button" class="btn btn-success" asp-action="CreatePostcard" asp-controller="PostcardDatabase">Manuellen Eintrag erstellen</a>
+    <button id="tooltip-SucheOpen" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="under" title="Öffne Suchleiste" type="button" onclick="openNav()"><svg viewBox="0 0 1024 1024"><path class="path1" d="M848.471 928l-263.059-263.059c-48.941 36.706-110.118 55.059-177.412 55.059-171.294 0-312-140.706-312-312s140.706-312 312-312c171.294 0 312 140.706 312 312 0 67.294-24.471 128.471-55.059 177.412l263.059 263.059-79.529 79.529zM189.623 408.078c0 121.364 97.091 218.455 218.455 218.455s218.455-97.091 218.455-218.455c0-121.364-103.159-218.455-218.455-218.455-121.364 0-218.455 97.091-218.455 218.455z"></path></svg></button>
+    <a type="button" class="btn btn-success" asp-action="DownloadPostcards" asp-controller="PostcardDatabase" asp-route-userId="@ViewData["userId"]">Alle Postkarten als YAML herunterladen</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Abbildung
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PostcardEntity.PostcardPotential_ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PostcardPotential.CityList)
+            </th>
+            <th>
+                Aktionen
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var image = @"/images/Thumbnail/" + item.PostcardScan.PostcardScan_Id + "." + item.PostcardScan.Pictures_Format;
+            <tr>
+                <td>
+                    <img src="@image" width="240" height="153" alt="" id="simplePic_@count" class="IndexMobile-Picture" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PostcardEntity.PostcardPotential_ID)
+                </td>
+                <td>
+                    @if (item.PostcardPotential.CityList.Count > 0)
+                    {
+                        <ul>
+                        @foreach (var city in item.PostcardPotential.CityList)
+                        {
+                            @foreach(var cno in city.CityNOeconymICollection){
+                                <li>@Html.DisplayFor(modelItem => cno.Oeconym.OeconymName)</li>
+                            }
+                        }
+                        </ul>
+                    }
+                </td>
+                <td>
+                    <div>
+                        <a asp-action="EditPostcard" asp-controller="PostcardDatabase" asp-route-id="@item.PostcardPotential.Product_ID">Ändern</a>
+                        | <a asp-action="DeletePostcard" asp-controller="PostcardDatabase" asp-route-potentialId="@item.PostcardPotential.Product_ID" asp-route-entityId="@item.PostcardEntity.PostcardEntity_ID">Löschen</a>
+                        | <a asp-action="DownloadPostcards" asp-controller="PostcardDatabase" asp-route-potentialId="@item.PostcardPotential.Product_ID" asp-route-userId="@ViewData["userId"]">Herunterladen als YAML</a>
+                    </div>
+                </td>
+            </tr>
+            count++;
+        }
+    </tbody>
+</table>
+
+<div id="mySidebar" class="zIndex_5 sidenav-search box-shadow">
+    <partial name="_SearchByColumn.cshtml" />
+</div>
+
+<!-- AnalysingModal -->
+<div class="modal fade" id="UploadPostcardsModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="UploadPostcardsModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Lade die Vorder- und Rückseite deiner Postkarte hoch, um sie analysieren zu können.</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="PostcardAnalysis" asp-action="AnalyzeImage" enctype="multipart/form-data">
+                <div class="modal-body ui-front modalBodyExistingPostcardPotentials">
+                    <p>Wenn möglich, dann sollten die Bilder im png-Format sein.</p>
+                    <p>Alle Bilder werden automatisch mit einem Wasserzeichen versehen, das Ihrem Nutzernamen entspricht.</p>
+                    <div class="mb-3">
+                        <label for="formFileFrontside" class="form-label">Vorderseite</label>*
+                        <input type="file" class="form-control" required name="fileFrontside" id="fileInput1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="formFileBackside" class="form-label">Rückseite</label>*
+                        <input type="file" class="form-control" required name="fileBackside" id="fileInput2">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-dark pt-2 submitButton" type="submit" onclick="startSpinner()">Bilder hochladen</button>
+                    <button class="btn btn-primary spinnerButton" type="button" disabled style="display: none">
+                        <span class="spinner-border spinner-border-sm spinnerButton" role="status" aria-hidden="true"></span>
+                        Analysiert...
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

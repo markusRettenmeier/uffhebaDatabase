@@ -1,0 +1,296 @@
+﻿@model Sammlerplattform.Models.WordCategorizationModel
+
+@{
+    var cities = ViewData["City"] as List<string>;
+    List<(string name, string geopgraphy)> cityTupleList = new();
+    if (cities is not null)
+    {
+        foreach (var city in cities)
+        {
+            var cityArray = city.Split("§§");
+            cityTupleList.Add((cityArray[0], cityArray[1]));
+        }
+    }
+    var buildings = ViewData["Building"] as List<string>;
+    var publishers = ViewData["Publisher"] as List<string>;
+    List<(string name, string city, string geography)> publisherTupleList = new();
+    if (publishers is not null)
+    {
+        foreach (var publisher in publishers)
+        {
+            var publisherArray = publisher.Split("§§");
+            publisherTupleList.Add((publisherArray[0], publisherArray[1], publisherArray[2]));
+        }
+    }
+    var authorArtists = ViewData["AuthorArtist"] as List<string>;
+    var adresses = ViewData["Address"] as List<string>;
+    List<(string foreName, string surName, string street, string Streetnumber, string City)> adressTupleList = new();
+    if (adresses is not null)
+    {
+        foreach (var adress in adresses)
+        {
+            var adressArray = adress.Split("§§");
+            adressTupleList.Add((adressArray[0], adressArray[1], adressArray[2], adressArray[3], adressArray[4]));
+        }
+    }
+    var postmarks = ViewData["Postmark"] as List<string>;
+    List<(string city, string geographyOfCity, string date, string text)> postmarkTupleList = new();
+    if (postmarks is not null)
+    {
+        foreach (var postmark in postmarks)
+        {
+            var postmarkArray = postmark.Split("§§");
+            postmarkTupleList.Add((postmarkArray[0], postmarkArray[1], postmarkArray[2], postmarkArray[3]));
+        }
+    }
+
+    var stamp = ViewData["Stamp"] as string;
+    var text = ViewData["Text"] as string;
+    var dateList = ViewData["Date"] as List<string>;
+    var yearList = ViewData["Year"] as List<string>;
+    var numberList = ViewData["Nummer"] as List<string>;
+    var geographyList = ViewData["Landschaft"] as List<string>;
+    var nameList = ViewData["Namen"] as List<string>;
+    var occasionList = ViewData["Occasion"] as List<string>;
+    var streetList = ViewData["Street"] as List<string>;
+    var pathFrontside = ViewData["PathFrontside"] as string;
+    var pathBackside = ViewData["PathBackside"] as string;
+    var frontsideOfImg = @"/images/Zwischenablage/" + System.IO.Path.GetFileName(pathFrontside);
+    var backsideOfImg = @"/images/Zwischenablage/" + System.IO.Path.GetFileName(pathBackside);
+}
+
+<div class="row position-relative">
+    <input type="hidden" name="pathFrontside" value="@pathFrontside" />
+    <input type="hidden" name="pathBackside" value="@pathBackside" />
+    <div class="col">
+        <div class="card m-2" width>
+            <img src="@frontsideOfImg" class="card-img-top">
+            <div class="card-body">
+                <p class="card-text">Vorderseite</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card m-2" width>
+            <img src="@backsideOfImg" class="card-img-top">
+            <div class="card-body">
+                <p class="card-text">Rückseite</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="appendConcludedLists" style="display:none"></div>
+@{
+    if (cityTupleList is not null && cityTupleList.Count > 0)
+    {
+        <div class="mb-3">
+            <label>Orte auf der Ansichtskarte</label>
+            <div class="row align-items-start">
+                <div class="col">
+                    Ortsname
+                </div>
+                <div class="col">
+                    Beiname
+                </div>
+            </div>
+            @foreach (var city in cityTupleList)
+            {
+                <div class="row align-items-start">
+                    <div class="col">
+                        <input type="text" class="form-control dataSet City" value="@city.Item1" aria-label="Ortsname">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control dataSet City" value="@city.Item2" aria-label="Beiname">
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    if (buildings is not null && buildings.Count > 0)
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Gebäude</label>
+            @foreach (string building in buildings)
+            {
+                <input type="text" class="form-control" value="@building" aria-label="Gebäude" name="BuildingList">
+            }
+        </div>
+    }
+    if (publisherTupleList is not null && publisherTupleList.Count > 0)
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Verlag</label>
+            <div class="row align-items-start">
+                <div class="col">
+                    Verlagsname
+                </div>
+                <div class="col">
+                    Verlagsort
+                </div>
+                <div class="col">
+                    Beiname des Verlagsortes
+                </div>
+            </div>
+            @foreach (var publisher in publisherTupleList)
+            {
+                <div class="row align-items-start">
+                    <div class="col">
+                        <input type="text" class="form-control dataSet PublisherAnalysis" value="@publisher.name" aria-label="Verlagsname">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control dataSet PublisherAnalysis" value="@publisher.city" aria-label="Verlagsort">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control dataSet PublisherAnalysis" value="@publisher.geography" aria-label="Beiname des Verlagsortes">
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    if (authorArtists is not null && authorArtists.Count > 0)
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Autor/Künstler</label>
+            @foreach (string aa in authorArtists)
+            {
+                <div class="input-group">
+                    <input type="text" class="form-control" value="@aa" aria-label="Künstler/Autor" name="AuthorArtistList">
+                </div>
+            }
+        </div>
+    }
+    if (adressTupleList != default && adressTupleList.Count > 0)
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Adresse</label>
+            <div class="row align-items-start">
+                <div class="col">
+                    Vorname
+                </div>
+                <div class="col">
+                    Nachname
+                </div>
+                <div class="col">
+                    Straße
+                </div>
+                <div class="col">
+                    Hausnummer
+                </div>
+                <div class="col">
+                    Ort
+                </div>
+            </div>
+            @foreach (var adress in adressTupleList)
+            {
+                <div class="row align-items-start">
+                    <div class="col">
+                        <input type="text" class="form-control dataSet Address" value="@adress.foreName" aria-label="Vorname">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control dataSet Address" value="@adress.surName" aria-label="Nachname">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control dataSet Address" value="@adress.street" aria-label="Straße">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control dataSet Address" value="@adress.Streetnumber" aria-label="Hausnummer">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control dataSet Address" value="@adress.City" aria-label="Adressort">
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    if (!string.IsNullOrEmpty(text))
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Text</label>
+            <div class="input-group">
+                <textarea type="text" cols="30" rows="5" class="form-control" aria-label="Briefmarke" name="TextList">@text</textarea>
+            </div>
+        </div>
+    }
+    if (dateList is not null && dateList.Count > 0)
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Datümer</label>
+            @foreach (string date in dateList)
+            {
+                <div class="input-group">
+                    <input type="text" class="form-control" value="@date" aria-label="Datum" name="DateList">
+                </div>
+            }
+        </div>
+    }
+    if (yearList is not null && yearList.Count > 0)
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Jahre</label>
+            @foreach (string year in yearList)
+            {
+                <div class="input-group">
+                    <input type="text" class="form-control" value="@year" aria-label="Jahr" name="YearList">
+                </div>
+            }
+        </div>
+    }
+    if (numberList is not null && numberList.Count > 0)
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Nummern</label>
+            @foreach (string nu in numberList)
+            {
+                <div class="input-group">
+                    <input type="text" class="form-control" value="@nu" aria-label="Nummer" name="NumberList">
+                </div>
+            }
+        </div>
+    }
+    if (geographyList is not null && geographyList.Count > 0)
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Landschaftspunkte</label>
+            @foreach (string ls in geographyList)
+            {
+                <div class="input-group">
+                    <input type="text" class="form-control" value="@ls" aria-label="Landschaft" name="GeographyList">
+                </div>
+            }
+        </div>
+    }
+    if (nameList is not null && nameList.Count > 0)
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Namen</label>
+            @foreach (string name in nameList)
+            {
+                <div class="input-group">
+                    <input type="text" class="form-control disabled" value="@name" aria-label="Namen" name="NameList">
+                </div>
+            }
+        </div>
+    }
+    if (occasionList is not null && occasionList.Count > 0)
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Anlässe</label>
+            @foreach (string occasion in occasionList)
+            {
+                <input type="text" class="form-control" value="@occasion" aria-label="Anlass" name="OccasionList">
+            }
+        </div>
+    }
+    if (streetList is not null && streetList.Count > 0)
+    {
+        <div class="mb-3">
+            <label for="basic-url" class="form-label">Straßenzüge</label>
+            @foreach (string street in streetList)
+            {
+                <div class="input-group">
+                    <input type="text" class="form-control" value="@street" aria-label="Straße" name="StreetNameList">
+                </div>
+            }
+        </div>
+    }
+}

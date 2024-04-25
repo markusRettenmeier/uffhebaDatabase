@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Abonnements verwalten";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+
+    int? diskspaceState = ViewData["DiskspaceState"] as int?;
+    var diskspaceDisclaimerDate = ViewData["DiskspaceDisclaimerTimestamp"] as DateTime?;
+    int? analysisState = ViewData["AnalysisState"] as int?;
+    DateTime? analysisDisclaimerDate = ViewData["AnalysisDisclaimerDate"] as DateTime?;
+}
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-4 mb-3 d-flex align-items-stretch">
+        <div class="card" style="width: 18rem;">
+            <img src="~/images/RoboterLupe.jpg" height="250px" class="card-img-top" alt="Analysetool">
+            <div class="card-body">
+                <partial name="~/Views/Shared/_AnalysistoolPricingDescription.cshtml" />
+                @if (analysisState == 0)
+                {
+                    <form asp-action="CheckoutSubmit" method="POST" asp-route-email="@ViewData["EMail"]">
+                        <input type="hidden" name="lookup_key" value="SubLookupAnalysisToolMonthly" />
+                        <button class="btn-success btn" id="checkout-and-portal-button" type="submit">Abo abschließen</button>
+                    </form>
+                    <p>Wenn Sie abonniert haben, dann werden Sie ausgeloggt und müssen sich wieder neu einloggen. Damit die Änderung wirksam wird.</p>
+                }
+                else if (analysisState == 1)
+                {
+                    <p class="card-text">Wenn Sie künden, läuft das Abonnement noch 3 Monate weiter.</p>
+                    <form asp-action="SubscriptionCancelSubmit" method="POST" asp-route-id="@ViewData["AnalysisId"]" asp-route-subscriptionName="Analysetool" asp-route-email="@ViewData["EMail"]">
+                        <button class="btn-danger btn" id="checkout-and-portal-button" type="submit">Abo beenden</button>
+                    </form>
+                    @if (DateTime.Now < analysisDisclaimerDate)
+                    {
+                        <p class="card-text">Sie können Ihr Abonnement bis zu 14 Tage nach Abschluss widerrufen.</p>
+                        <form asp-action="SubscriptionDisclaimerSubmit" method="POST" asp-route-id="@ViewData["AnalysisId"]" asp-route-subscriptionName="Analysetool" asp-route-email="@ViewData["EMail"]">
+                            <button class="btn-danger btn" id="checkout-and-portal-button" type="submit">Abo widerrufen</button>
+                        </form>
+                    }
+                }
+                @if (analysisState == 2)
+                {
+                    <p class="card-text">Das Abonnement wird in 1 Monat beendet.</p>
+                    <form asp-action="CancelSubscriptionCancelSubmit" method="POST" asp-route-id="@ViewData["AnalysisId"]" asp-route-subscriptionName="Analysetool" asp-route-email="@ViewData["EMail"]">
+                        <button class="btn-success btn" id="checkout-and-portal-button" type="submit">Abo weiterführen</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-3 d-flex align-items-stretch">
+        <div class="card" style="width: 18rem;">
+            <img src="~/images/istockphoto-157334670-612x612.jpg" height="250px" class="card-img-top" alt="datenbank">
+            <div class="card-body">
+                <partial name="~/Views/Shared/_DiskSpacePricingDescription.cshtml" />
+                @if (diskspaceState == 0)
+                {
+                    <form asp-action="CheckoutSubmit" method="POST" asp-route-email="@ViewData["EMail"]">
+                        <input type="hidden" name="lookup_key" value="SubLookupDiskSpaceMonthly" />
+                        <button class="btn-success btn" id="checkout-and-portal-button" type="submit">Abo abschließen</button>
+                    </form>
+                    <p>Wenn Sie abonniert haben, dann werden Sie ausgeloggt und müssen sich wieder neu einloggen.Damit die Änderung wirksam wird.</p>
+                }
+                else if (diskspaceState == 1)
+                {
+                    <p class="card-text">Wenn Sie künden, läuft das Abonnement noch 3 Monate weiter.</p>
+                    <form asp-action="SubscriptionCancelSubmit" asp-route-id="@ViewData["DiskspaceId"]" asp-route-subscriptionName="Datenbank" asp-route-email="@ViewData["EMail"]">
+                        <button class="btn-danger btn" id="checkout-and-portal-button" type="submit">Abo beenden</button>
+                    </form>
+                    @if (DateTime.Now < diskspaceDisclaimerDate)
+                    {
+                        <p class="card-text">Sie können Ihr Abonnement bis zu 14 Tage nach Abschluss widerrufen.</p>
+                        <form asp-action="SubscriptionDisclaimerSubmit" asp-route-id="@ViewData["DiskspaceId"]" asp-route-subscriptionName="Datenbank" asp-route-email="@ViewData["EMail"]">
+                            <button class="btn-danger btn" id="checkout-and-portal-button" type="submit">Abo widerrufen</button>
+                        </form>
+                    }
+                }
+                @if (diskspaceState == 2)
+                {
+                    <p class="card-text">Das Abonnement wird in 1 Monat beendet. <b>Wenn Sie ihren Datenbestand nicht sichern, wird dieser verloren gehen.</b></p>
+                    <form asp-action="CancelSubscriptionCancelSubmit" asp-route-id="@ViewData["DiskspaceId"]" asp-route-subscriptionName="Datenbank" asp-route-email="@ViewData["EMail"]">
+                        <button class="btn-success btn" id="checkout-and-portal-button" type="submit">Abo weiterführen</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+        <div class="col-lg-2"></div>
+</div>
+
+<partial name="~/Views/Shared/_PricingDescription.cshtml" />
+
+<a asp-action="Profile" asp-controller="UserSettings">Zum Profil zurückkehren</a>

@@ -1,0 +1,46 @@
+﻿<form asp-controller="PostcardDatabase" asp-action="AdministerCollectionPostcard">
+    <div class="d-grid gap-2 m-2 sidenav-search-upperPart">
+        <button type="button" class="btn-close" aria-label="Close" onclick="closeNav()"></button>
+        <input type="submit" value="Suche starten" class="btn btn-primary submitButton" onclick="SetSessionStorageData()" />
+        <button class="btn btn-primary spinnerButton" disabled style="display: none;">
+            <span class="spinner-border spinner-border-sm" role="status"></span>
+            Suche wurde gestartet...
+        </button>
+    </div>
+    <div class="container-fluid DivToTransmit">
+        <div class="row SbCDiv" id="form-holder_0" >
+            <div class="col input-group">
+                <button id="removeColumn_0" type="button" class="btn btn-outline-danger removeColumn" style="display:none">-</button>
+                <select name="columnName" id="columnName_0" class="form-select ColumnDropDown">
+                    <option value="Choose_Column" selected>Wähle Spalte</option>
+                    <option value="City">Ort</option>
+                    <option value="Postalcode">PLZ</option>
+                </select>
+            </div>
+            <div class="col">
+                <div class="new_chq" id="newChq_0">
+                    <div id="DivAdd_0" class="DivAdd">
+                    </div>
+                </div>
+                <input type="hidden" value="1" class="total_input" id="total_input0">
+            </div>
+        </div>
+        <div class="form-holder-append"></div>
+    </div>
+</form>
+<div class="text-center mt-2">
+    <div class="btn-group" role="group" aria-label="addCol reset">
+        <button class="btn btn-primary addColumn" type="button">Spalte hinzufügen</button>
+        <button class="btn btn-outline-primary searchReset" onclick="searchReset()">Zurücksetzen</button>
+    </div>
+</div>
+
+<script>
+    var script = document.createElement('script');
+    script.src = "/lib/SearchByColumn/SearchByColumn.js";
+    setTimeout(function () {
+        document.body.appendChild(script);
+    }, 2000);
+</script>
+
+

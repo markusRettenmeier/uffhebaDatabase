@@ -1,0 +1,63 @@
+﻿@model Sammlerplattform.Models.CityParameterModel
+
+@{
+    ViewData["Title"] = "Ort ändern";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>Bei jedem Ort muss zwingend eine PLZ hinzugefügt werden. Es können mehr als ein Ortsname angegeben werden.</p>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CreateCitySubmit" asp-controller="CityDatabase">
+            <input type="hidden" asp-for="City.City_ID" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="input-group pb-1 postalcodeOriginalCreateCity">
+                <input type="hidden" asp-for="Postalcode.Postalcode_ID" />
+                <button class="btn btn-danger removePostalcodeCreateCity" id="1">-</button>
+                <div class="form-floating">
+                    <input asp-for="Postalcode.PostalcodeNumber" class="form-control InputPostalcodeNumber" />
+                    <label asp-for="Postalcode.PostalcodeNumber" class="form-label"></label>
+                    <span asp-validation-for="Postalcode.PostalcodeNumber" class="text-danger"></span>
+                </div>
+                <button class="btn btn-success addPostalcodeCreateCity">+</button>
+            </div>
+            <div class="input-group pb-1 oeconymOriginalCreateCity">
+                <input type="hidden" asp-for="Oeconym.Oeconym_ID" />
+                <button class="btn btn-danger removeOeconymCreateCity" id="1">-</button>
+                <div class="form-floating">
+                    <input asp-for="Oeconym.OeconymName" class="form-control InputOeconymName" id="InputOeconymName_1" />
+                    <label asp-for="Oeconym.OeconymName" class="form-label"></label>
+                    <span asp-validation-for="Oeconym.OeconymName" class="text-danger"></span>
+                </div>
+                <div class="form-floating">
+                    <input asp-for="CityNOeconym.CurrentName" class="form-control InputCurrentName" id="InputCurrentName_1" />
+                    <label asp-for="CityNOeconym.CurrentName" class="form-label"></label>
+                    <span asp-validation-for="CityNOeconym.CurrentName" class="text-danger"></span>
+                </div>
+                <button class="btn btn-success addOeconymCreateCity">+</button>
+            </div>
+            <div class="form-floating">
+                <label asp-for="City.Byname" class="control-label"></label>
+                <input asp-for="City.Byname" class="form-control" aria-label="Beiname" />
+                <span asp-validation-for="City.Byname" class="text-danger"></span>
+            </div>
+            <div class="form-floating">
+                <input type="hidden" asp-for="Geography.Geography_ID" />
+                <label asp-for="Geography.GeographyName" class="control-label"></label>
+                <input asp-for="Geography.GeographyName" class="form-control" aria-label="Geografische Zuordnung" />
+                <span asp-validation-for="Geography.GeographyName" class="text-danger"></span>
+            </div>
+            <input type="submit" class="pt-2" value="Erstellen" class="btn btn-primary" />
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

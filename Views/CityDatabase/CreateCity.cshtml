@@ -1,0 +1,118 @@
+﻿@model Sammlerplattform.Models.CityParameterModel
+
+@{
+    ViewData["Title"] = "Ort hinzufügen";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>Bei jedem Ort muss zwingend eine PLZ hinzugefügt werden. Es können mehr als eine PLZ und Ortsname angegeben werden.</p>
+
+<hr />
+<form asp-action="CreateCitySubmit" asp-controller="CityDatabase">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div id="appendConcludedLists"></div>
+    <input type="hidden" class="postalcodeNumberList" name="PostalcodeNumberList" />
+    <div class="input-group pb-1 postalcodeOriginalCreateCity">
+        <button class="btn btn-danger removePostalcodeCreateCity" id="1" style="display: none">-</button>
+        <div class="form-floating">
+            <input asp-for="Postalcode.PostalcodeNumber" class="form-control InputPostalcodeNumber" name="PostalcodeNumberList" id="InputPostalcodeNumber_1" />
+            <label asp-for="Postalcode.PostalcodeNumber" class="form-label"></label>
+            <span asp-validation-for="Postalcode.PostalcodeNumber" class="text-danger"></span>
+        </div>
+        <button type="button" class="btn btn-success addPostalcodeCreateCity">+</button>
+    </div>
+    <div class="appendPostalcodeCreateCity"></div>
+    <div class="input-group pb-1 oeconymOriginalCreateCity">
+        <button class="btn btn-danger removeOeconymCreateCity" id="1" style="display: none">-</button>
+        <div class="form-floating">
+            <input asp-for="Oeconym.OeconymName" class="form-control InputOeconymName" id="InputOeconymName_1" />
+            <label asp-for="Oeconym.OeconymName" class="form-label"></label>
+            <span asp-validation-for="Oeconym.OeconymName" class="text-danger"></span>
+        </div>
+        <div class="form-group form-check pe-5 ps-5">
+            <label class="form-check-label">
+                <input class="form-check-input InputCurrentName" asp-for="CityNOeconym.CurrentName" id="InputCurrentName_1" /> @Html.DisplayNameFor(model => model.CityNOeconym.CurrentName)
+            </label>
+        </div>
+        <button type="button" class="btn btn-success addOeconymCreateCity">+</button>
+    </div>
+    <div class="appendOeconymCreateCity"></div>
+    <div class="form-floating pb-1">
+        <input asp-for="City.Byname" class="form-control" aria-label="Beiname"
+               data-bs-toggle="tooltip-byname" data-bs-placement="top"
+               data-bs-custom-class="byname-tooltip"
+               data-bs-title="Betrifft z.B. 'Universitätsstadt' oder 'Elbflorenz'" />
+        <label asp-for="City.Byname" class="control-label"></label>
+        <span asp-validation-for="City.Byname" class="text-danger"></span>
+    </div>
+    <div class="form-floating pb-1">
+        <input asp-for="Geography.GeographyName" class="form-control InputGeographyName" aria-label="Geographie Zuordnung"
+               data-bs-toggle="tooltip-geography" data-bs-placement="top"
+               data-bs-custom-class="geography-tooltip"
+               data-bs-title="Betrifft z.B. 'Elbe' oder 'Weinstraße'" />
+        <label asp-for="Geography.GeographyName" class="control-label"></label>
+        <span asp-validation-for="Geography.GeographyName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <label asp-for="City.ParentCity_ID" class="control-label"></label>
+            <input asp-for="City.ParentCity_ID" id="parentCityInput" type="hidden" />
+            <table class="table" id="cityTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Orts_ID</th>
+                        <th scope="col">Ort</th>
+                        <th scope="col">PLZ</th>
+                        <th scope="col">Beiname</th>
+                        <th scope="col">Geographischer Bezug</th>
+                        <th scope="col">Weitere Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope="col" id="city_ID"></td>
+                        <td scope="col" id="city"></td>
+                        <td scope="col" id="postalcode"></td>
+                        <td scope="col" id="byname"></td>
+                        <td scope="col" id="geography"></td>
+                        <td scope="col">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary AddParentCityButton" data-bs-toggle="modal" data-bs-target="#IsCityExistingModal">
+                                    Ort auswählen
+                                </button>
+                                <button type="button" id="clearOneRowCityTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary createCitySubmitButton">Erstellen</button>
+</form>
+
+<a asp-action="AdministerCollectionCity" asp-controller="CityDatabase">Zurück zur Liste</a>
+
+<partial name="~/Views/CityDatabase/_SearchForCity.cshtml" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<script>
+    // Initialize all tooltips
+    setTimeout(function () {
+        var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip-byname"]'));
+        var tooltipList = tooltips.map(function (tooltipEl) {
+            return new bootstrap.Tooltip(tooltipEl);
+        });
+        var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip-geography"]'));
+        var tooltipList = tooltips.map(function (tooltipEl) {
+            return new bootstrap.Tooltip(tooltipEl);
+        });
+    }, 500);
+</script>
+

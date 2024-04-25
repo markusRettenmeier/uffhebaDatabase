@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Postkarten analysieren";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+}
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<p>Lade die Vorder- und Rückseite deiner Postkarte hoch, um sie analysieren zu können.</p>
+<form asp-controller="PostcardAnalysis" asp-action="AnalyzeImage" enctype="multipart/form-data">
+    <div class="modal-body ui-front modalBodyExistingPostcardPotentials">
+        <p>Wenn möglich, dann sollten die Bilder im png-Format sein.</p>
+        <p>Alle Bilder werden automatisch mit einem Wasserzeichen versehen, das Ihrem Nutzernamen entspricht.</p>
+        <div class="mb-3">
+            <label for="formFileFrontside" class="form-label">Vorderseite</label>*
+            <input type="file" class="form-control" required name="fileFrontside" id="fileInput1">
+        </div>
+        <div class="mb-3">
+            <label for="formFileBackside" class="form-label">Rückseite</label>*
+            <input type="file" class="form-control" required name="fileBackside" id="fileInput2">
+        </div>
+    </div>
+    <button class="btn btn-primary submitButton" type="submit" onclick="startSpinner()">Analyse starten</button>
+    <button class="btn btn-primary spinnerButton" type="button" disabled style="display: none">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Analysiert...
+    </button>
+</form>
+
+<a asp-action="Profile" asp-controller="UserSettings">Zurück zur Liste</a>

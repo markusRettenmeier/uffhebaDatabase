@@ -1,0 +1,51 @@
+﻿@model Sammlerplattform.Models.Era
+
+@{
+    ViewData["Title"] = "Neue Ära";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+
+    var backToList = ViewData["BackToList"] as string;
+    var sourceId = ViewData["SourceId"] as int?;
+}
+
+<h1>Ära hinzufügen</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddEraSubmit" asp-controller="PostcardDatabase" asp-route-source="@backToList" asp-route-sourceId="@sourceId">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="EraLong" class="control-label"></label>*
+                <input asp-for="EraLong" class="form-control" maxlength="50" required/>
+                <span asp-validation-for="EraLong" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EraShort" class="control-label"></label>
+                <input asp-for="EraShort" class="form-control" maxlength="10" />
+                <span asp-validation-for="EraShort" class="text-danger"></span>
+            </div>
+            <div class="form-group pt-2">
+                <input type="submit" value="Erstellen" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    @if (!string.IsNullOrEmpty(backToList))
+    {
+        @if (backToList == "CreatePostcard")
+        {
+            <a asp-action="CreatePostcard" asp-controller="PostcardDatabase">Zurück zur Belegeingabe</a>
+        }
+        else if (backToList == "EditPostcard")
+        {
+            <a asp-action="EditPostcard" asp-route-id="@sourceId" asp-controller="PostcardDatabase">Zurück zur Belegeingabe</a>
+        }
+    }
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

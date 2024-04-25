@@ -1,0 +1,66 @@
+﻿@model Sammlerplattform.Models.AuthorArtist
+
+@{
+    ViewData["Title"] = "AddAuthorArtist";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+
+    var backToList = ViewData["BackToList"] as string;
+    var id = ViewData["SourceId"] as int?;
+}
+
+<h4>Autor/ Künstler hinzufügen</h4>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddAuthorArtistSubmit" asp-route-source="@backToList" asp-route-sourceId="@id">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="AAName" class="control-label"></label>*
+                <input asp-for="AAName" class="form-control" required maxlength="50"/>
+                <span asp-validation-for="AAName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ArtistDescription" class="control-label"></label>
+                <input asp-for="ArtistDescription" class="form-control" />
+                <span asp-validation-for="ArtistDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Prizes" class="control-label"></label>
+                <input asp-for="Prizes" class="form-control" />
+                <span asp-validation-for="Prizes" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Profession" class="control-label"></label>
+                <input asp-for="Profession" class="form-control" />
+                <span asp-validation-for="Profession" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AASignature" class="control-label"></label>
+                <input asp-for="AASignature" class="form-control" />
+                <span asp-validation-for="AASignature" class="text-danger"></span>
+            </div>
+            <div class="form-group pt-2">
+                <input type="submit" value="Erstellen" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    @if (!string.IsNullOrEmpty(backToList))
+    {
+        @if (backToList == "CreatePostcard")
+        {
+            <a asp-action="CreatePostcard" asp-controller="PostcardDatabase">Zurück</a>
+        }
+        else if (backToList == "EditPostcard")
+        {
+            <a asp-action="EditPostcard" asp-route-id="@id" asp-controller="PostcardDatabase">Zurück</a>
+        }
+    }
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

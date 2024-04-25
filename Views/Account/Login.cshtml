@@ -1,0 +1,99 @@
+﻿@model Sammlerplattform.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h3>@ViewData["Title"]</h3>
+<form id="account" asp-controller="Account" asp-action="LoginPost" method="post">
+    <p>Nutze einen lokalen Account, um dich einzuloggen.</p>
+    <hr />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-floating pb-1">
+        <input type="email" asp-for="Email" class="form-control" autocomplete="EMail" required />
+        <label asp-for="Email" class="form-label"></label>
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-floating pb-1">
+        <input asp-for="Password" class="form-control" autocomplete="current-password" required />
+        <label asp-for="Password" class="form-label"></label>
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Anmelden</button>
+    </div>
+</form>
+<div>
+    <p>
+        <a href="#forgot-password" data-bs-toggle="modal" data-bs-target="#forgot-password">Passwort vergessen?</a>
+    </p>
+    <p>
+        <a href="#registerModal" data-bs-target="#registerModal" data-bs-toggle="modal">Als neuen Nutzer registrieren</a>
+    </p>
+    <p>
+        <a href="#ResendEmailConfirmationModal" data-bs-target="#ResendEmailConfirmationModal" data-bs-toggle="modal">E-Mail-Bestätigung erneut senden</a>
+    </p>
+</div>
+
+<!--modal2-->
+<div class="modal fade" id="forgot-password" tabindex="0" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Link wird an Ihre E-Mail gesendet</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="ForgotPasswordSubmit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-floating">
+                        <input asp-for="Email" class="form-control" autocomplete="E-Mail" required />
+                        <label asp-for="Email"></label>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary mt-1">Passwort zurücksetzen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Hier können Sie sich registrieren</h4>
+                <button type="button" class="btn-close pt-1" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <partial name="_RegisterPartial.cshtml" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ResendEmailConfirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">E-Mail-Bestätigung erneut senden</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <form asp-action="ResendEmailSubmit" asp-controller="Account">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-floating">
+                        <input asp-for="Email" autocomplete="E-Mail" class="form-control" required />
+                        <label asp-for="Email"></label>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <button type="submit" class="w-100 btn btn-lg btn-primary mt-1">Erneut senden</button>
+            </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

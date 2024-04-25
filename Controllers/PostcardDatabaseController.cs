@@ -1,0 +1,1646 @@
+﻿using ImageMagick;
+using LinqKit;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
+using Sammlerplattform.Controllers.PictureAnaylsis;
+using Sammlerplattform.Data;
+using Sammlerplattform.Models;
+using Sammlerplattform.Services;
+using System.Globalization;
+using System.IO.Compression;
+using System.Transactions;
+
+namespace Sammlerplattform.Controllers
+{
+    [Authorize(Policy = "SubscribedDiskspacePolicy")]
+    public class PostcardDatabaseController(IWebHostEnvironment hostEnvironment, UserManager<UsingIdentityUser> userManager,
+        DbIdentityContext dbIdentityContext, ILogger<PostcardDatabaseController> logger, IProcessCity processCity) : Controller
+    {
+        private readonly IWebHostEnvironment _hostEnvironment = hostEnvironment;
+        private readonly UserManager<UsingIdentityUser> _userManager = userManager;
+        private readonly DbIdentityContext _dbIdentityContext = dbIdentityContext;
+        private readonly ILogger<PostcardDatabaseController> _logger = logger;
+
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
+            CultureInfo cultureInfo = CultureInfo.GetCultureInfo("de-DE");
+            Thread.CurrentThread.CurrentCulture = cultureInfo;
+            Thread.CurrentThread.CurrentUICulture = cultureInfo;
+        }
+
+        public async Task<ActionResult> AdministerCollectionPostcard(string statusMessage, PostcardSearchParameters postcardSearchParameters)
+        {
+            var predicate = PredicateBuilder.New<PostcardModel>();
+            var userId = _userManager.GetUserId(User);
+            IQueryable<PostcardModel> collectionPostcard = from user in _userManager.Users
+                                                           join pe in _dbIdentityContext.PostcardEntity
+                                                           on user.Id equals pe.UsingIdentityUsers_ID
+                                                           join Scan in _dbIdentityContext.PostcardScan
+                                                           on pe.PostcardEntity_ID equals Scan.PostcardEntity_ID
+                                                           join pp in _dbIdentityContext.PostcardPotential
+                                                                .Include(c => c.CityList)
+                                                                .ThenInclude(o => o.PostalcodeICollection)
+                                                                .Include(pp => pp.CityList)
+                                                                .ThenInclude(city => city.CityNOeconymICollection.Where(x => x.CurrentName)).ThenInclude(x => x.Oeconym)
+                                                           on pe.PostcardPotential_ID equals pp.Product_ID
+                                                           where user.Id == userId
+                                                           && Scan.Frontside == true
+                                                           select new PostcardModel { PostcardEntity = pe, PostcardPotential = pp, PostcardScan = Scan, UsingIdentityUser = user };
+
+            if (postcardSearchParameters.SearchCity != null)
+            {
+                foreach (var cityName in postcardSearchParameters.SearchCity)
+                {
+                    if (!string.IsNullOrEmpty(cityName))
+                    {
+                        predicate = predicate.Or(x => x.PostcardPotential.CityList.Any(x => x.CityNOeconymICollection.Any(y => y.Oeconym.OeconymName == cityName)));
+                    }
+                }
+            }
+
+            if (postcardSearchParameters.SearchPostalcode != null)
+            {
+                foreach (var postalcode in postcardSearchParameters.SearchPostalcode)
+                {
+                    if (!string.IsNullOrEmpty(postalcode))
+                    {
+                        var selectPostalcode = (from p in _dbIdentityContext.Postalcode.Include(c => c.CityICollection)
+                                                where p.PostalcodeNumber == postalcode
+                                                select p).FirstOrDefault();
+                        if (selectPostalcode != null && selectPostalcode.CityICollection != null)
+                        {
+                            foreach (var city in selectPostalcode.CityICollection)
+                            {
+                                predicate = predicate.Or(x => x.PostcardPotential.CityList.Contains(city));
+                            }
+                        }
+                        else
+                        {
+                            predicate = predicate.Or(x => x.PostcardPotential.CityList.Contains(new()));
+                        }
+                    }
+                }
+            }
+            if (predicate.IsStarted == true)
+                collectionPostcard = collectionPostcard.Where(predicate);
+
+            _ = Directory.CreateDirectory(Path.Combine(_hostEnvironment.WebRootPath, "images/Klein"));
+            _ = Directory.CreateDirectory(Path.Combine(_hostEnvironment.WebRootPath, "images/Normal"));
+            _ = Directory.CreateDirectory(Path.Combine(_hostEnvironment.WebRootPath, "images/Thumbnail"));
+
+            ViewData["StatusMessage"] = statusMessage;
+            ViewData["userId"] = userId;
+
+            return View(await collectionPostcard.ToListAsync());
+        }
+
+        public IActionResult CreatePostcard()
+        {
+            ViewData["BackToList"] = "CreatePostcard";
+
+            return View();
+        }
+        public async Task<ActionResult> CreatePostcardSubmit(PostcardAnalyzeResultParameters parameters, PostcardModel postcardModel, IFormFile Frontside, IFormFile Backside, string pathFrontside, string pathBackside)
+        {
+            UsingIdentityUser user = await _userManager.GetUserAsync(User) ?? throw new NullReferenceException("user");
+            int id = 0;
+            string statusMessage = string.Empty;
+
+            bool isComingFromAnalysis = false;
+            if (!string.IsNullOrEmpty(pathFrontside))
+            {
+                isComingFromAnalysis = true;
+                DbActionsPostcard dbChangesPostcard = new(_dbIdentityContext, _userManager, processCity, _logger);
+                dbChangesPostcard.ProcessAnalysisResultParameters(parameters, postcardModel);
+            }
+
+            try
+            {
+                using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+                PostcardImprint? newPostcardImprint = null;
+                if (postcardModel.HasImage)
+                {
+                    newPostcardImprint = new();
+                    if (!string.IsNullOrEmpty(postcardModel.ColorImage))
+                    {
+                        newPostcardImprint.ColorImage_ID = int.Parse(postcardModel.ColorImage[1..], System.Globalization.NumberStyles.HexNumber);
+                    }
+
+                    newPostcardImprint.Era_ID = postcardModel.PostcardImprint.Era_ID;
+                    newPostcardImprint.ImagePerception = postcardModel.PostcardImprint.ImagePerception;
+                    newPostcardImprint.ArtistAuthor_ID = postcardModel.PostcardImprint.ArtistAuthor_ID;
+                    newPostcardImprint.ImageYear = postcardModel.PostcardImprint.ImageYear;
+                    newPostcardImprint.ColorProcessing = postcardModel.PostcardImprint.ColorProcessing;
+                    newPostcardImprint.Buildings = postcardModel.PostcardImprint.Buildings;
+                    newPostcardImprint.FullScreen = postcardModel.PostcardImprint.FullScreen;
+                    newPostcardImprint.PictureCount = postcardModel.PostcardImprint.PictureCount;
+                    newPostcardImprint.Passepartout = postcardModel.PostcardImprint.Passepartout;
+                    switch (postcardModel.PostcardPotential.Formats)
+                    {
+                        // Format klein T74
+                        case 1:
+                            newPostcardImprint.Width = 10.5;
+                            newPostcardImprint.Height = 14.8;
+                            break;
+                        // Format groß T76
+                        case 2:
+                            newPostcardImprint.Width = 10.5;
+                            newPostcardImprint.Height = 21;
+                            break;
+                        // Format Übergroß
+                        case 3:
+                            newPostcardImprint.Width = 12.5;
+                            newPostcardImprint.Height = 23.5;
+                            break;
+                    }
+
+                    //there is anyway a limited number of choice, so it would rarely create a new databse entry
+                    Printing? newPrinting = null;
+                    if (postcardModel.Printing.Technique > 0 || postcardModel.Printing.Style > 0)
+                    {
+                        Printing? printingSelect = await (from p in _dbIdentityContext.Printing
+                                                          where p.Technique == postcardModel.Printing.Technique
+                                                          && p.Style == postcardModel.Printing.Style
+                                                          select p).FirstOrDefaultAsync();
+
+                        if (printingSelect != null)
+                        {
+                            newPrinting = printingSelect;
+                        }
+                        else
+                        {
+                            newPrinting = new()
+                            {
+                                Technique = postcardModel.Printing.Technique,
+                                Style = postcardModel.Printing.Style
+                            };
+                            _ = _dbIdentityContext.Add(newPrinting);
+                            _ = await _dbIdentityContext.SaveChangesAsync();
+                        }
+                        if (newPrinting != null)
+                        {
+                            newPostcardImprint.Printing_ID = newPrinting.Printing_ID;
+                        }
+                    }
+                    _ = _dbIdentityContext.Add(newPostcardImprint);
+                    _ = await _dbIdentityContext.SaveChangesAsync();
+                }
+
+                PostcardPotential newPostcardPotential = new()
+                {
+                    OfficialBusiness = postcardModel.PostcardPotential.OfficialBusiness
+                    ,
+                    Fieldpost = postcardModel.PostcardPotential.Fieldpost
+                    ,
+                    Formats = postcardModel.PostcardPotential.Formats
+                    ,
+                    ISBN = postcardModel.PostcardPotential.ISBN
+                    ,
+                    ProductionYear = postcardModel.PostcardPotential.ProductionYear
+                    ,
+                    CardType = postcardModel.PostcardPotential.CardType
+                    ,
+                    SerialNumber = postcardModel.PostcardPotential.SerialNumber
+                    ,
+                    CardSeries = postcardModel.PostcardPotential.CardSeries
+                    ,
+                    Leporello = postcardModel.PostcardPotential.Leporello
+                    ,
+                    CorrugatedEdge = postcardModel.PostcardPotential.CorrugatedEdge
+                    ,
+                    Propaganda = postcardModel.PostcardPotential.Propaganda
+                    ,
+                    Ornament = postcardModel.PostcardPotential.Ornament
+                };
+                foreach (int cityID in postcardModel.CityIDList)
+                {
+                    City? city = (from c in _dbIdentityContext.City where c.City_ID == cityID select c).FirstOrDefault();
+                    if (city != null)
+                    {
+                        newPostcardPotential.CityList.Add(city);
+                        city.PostcardPotentialList.Add(newPostcardPotential);
+                    }
+                }
+                //If postcardModel gets filled by parameters
+                foreach ((City City, List<Postalcode> PostalcodeList, Geography Geography) cityTuple in postcardModel.CityTupleList)
+                {
+                    newPostcardPotential.CityList.Add(cityTuple.City);
+                    City? city = (from c in _dbIdentityContext.City where c.City_ID == cityTuple.City.City_ID select c).FirstOrDefault();
+                    city?.PostcardPotentialList.Add(newPostcardPotential);
+                }
+                if (newPostcardImprint != null && newPostcardImprint.Image_ID > 0)
+                {
+                    newPostcardPotential.PostcardImprint_ID = newPostcardImprint.Image_ID;
+                }
+
+                _ = _dbIdentityContext.Add(newPostcardPotential);
+                _ = await _dbIdentityContext.SaveChangesAsync();
+
+                Person? newSender = new();
+                if (postcardModel.HasSender)
+                {
+                    Person? checkExistingSender = (from p in _dbIdentityContext.Person
+                                                   where p.Name == postcardModel.PersonSender.Name
+                                                   select p).FirstOrDefault();
+                    if (checkExistingSender == null &&
+                        postcardModel.PersonSender.Name != null)
+                    {
+                        newSender.Name = postcardModel.PersonSender.Name;
+                        _ = _dbIdentityContext.Add(newSender);
+                        _ = await _dbIdentityContext.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        newSender = checkExistingSender;
+                    }
+                }
+
+                Person? newReceiver = null;
+                if (postcardModel.HasReceiver)
+                {
+                    Person? selectPerson = await (from pe in _dbIdentityContext.Person.Include(x => x.City)
+                                                  where pe.Name == postcardModel.PersonReceiver.Name
+                                                  && pe.Street == postcardModel.PersonReceiver.Street
+                                                  && pe.HouseNumber == postcardModel.PersonReceiver.HouseNumber
+                                                  && pe.City_ID == postcardModel.PersonReceiver.City_ID
+                                                  select pe).FirstOrDefaultAsync();
+                    if (selectPerson == null)
+                    {
+                        newReceiver = new()
+                        {
+                            Name = postcardModel.PersonReceiver.Name,
+                            Street = postcardModel.PersonReceiver.Street,
+                            HouseNumber = postcardModel.PersonReceiver.HouseNumber,
+                            City_ID = postcardModel.PersonReceiver.City_ID
+                        };
+                        _ = _dbIdentityContext.Add(newReceiver);
+                        _ = await _dbIdentityContext.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        newReceiver = selectPerson;
+                    }
+                }
+
+                PostcardEntity newPostcardEntity = new()
+                {
+                    PostcardPotential_ID = newPostcardPotential.Product_ID,
+                    FilingLocation = postcardModel.PostcardEntity.FilingLocation,
+                    Charge = postcardModel.PostcardEntity.Charge,
+                    ConditionOfCard = postcardModel.PostcardEntity.ConditionOfCard,
+                    DateInText = postcardModel.PostcardEntity.DateInText,
+                    UsingIdentityUsers_ID = user.Id,
+                    Text = postcardModel.PostcardEntity.Text
+                };
+                decimal? priceDecimal = null;
+                if (!string.IsNullOrEmpty(postcardModel.PriceString))
+                    priceDecimal = decimal.Parse(postcardModel.PriceString);
+
+                newPostcardEntity.Price = priceDecimal;
+                if (!string.IsNullOrEmpty(postcardModel.ColorRALPrinting))
+                    newPostcardEntity.ColorRALPrintingBackside = int.Parse(postcardModel.ColorRALPrinting[1..], System.Globalization.NumberStyles.HexNumber);
+                if (!string.IsNullOrEmpty(postcardModel.ColorRALWriting))
+                    newPostcardEntity.ColorRALWritingFrontside = int.Parse(postcardModel.ColorRALWriting[1..], System.Globalization.NumberStyles.HexNumber);
+
+                if (newSender != null && newSender.Person_ID != 0)
+                    newPostcardEntity.Sender_ID = newSender.Person_ID;
+                if (newReceiver != null && newReceiver.Person_ID != 0)
+                    newPostcardEntity.Receiver_ID = newReceiver.Person_ID;
+
+                _ = _dbIdentityContext.Add(newPostcardEntity);
+                _ = await _dbIdentityContext.SaveChangesAsync();
+
+                foreach (string? publisher in postcardModel.ManufacturerIDCityIDList)
+                {
+                    if (publisher is not null && publisher.Contains("§§"))
+                    {
+                        string[] splittedPublisher = publisher.Split("§§");
+                        if (string.IsNullOrEmpty(splittedPublisher[0]))
+                            continue;
+
+                        int? cityId = null;
+                        IQueryable<PostcardEntityNManufacturerNCity> selectPEPC = from pepc in _dbIdentityContext.PostcardEntityNManufacturerNCity
+                                                                                  where pepc.PostcardEntity_ID == newPostcardEntity.PostcardEntity_ID
+                                                                                  && pepc.Publisher_ID == short.Parse(splittedPublisher[0])
+                                                                                  select pepc;
+                        if (!string.IsNullOrEmpty(splittedPublisher[1]))
+                        {
+                            cityId = short.Parse(splittedPublisher[1]);
+                            selectPEPC = selectPEPC.Where(p => p.City_ID == cityId);
+                        }
+
+                        if (selectPEPC.FirstOrDefault() == null)
+                        {
+                            PostcardEntityNManufacturerNCity newPostcardEntityPublishrCity = new()
+                            {
+                                PostcardEntity_ID = newPostcardEntity.PostcardEntity_ID,
+                                Publisher_ID = short.Parse(splittedPublisher[0]),
+                                City_ID = cityId
+                            };
+                            _ = _dbIdentityContext.Add(newPostcardEntityPublishrCity);
+                        }
+                    }
+                }
+                /// If coming from Analysis
+                foreach ((Manufacturer manufacturer, City? city, List<City> cityList) in postcardModel.ManufacturerTupleList)
+                {
+                    if (manufacturer != null)
+                    {
+                        IQueryable<PostcardEntityNManufacturerNCity> selectPEPC = from pepc in _dbIdentityContext.PostcardEntityNManufacturerNCity
+                                                                                  where pepc.PostcardEntity_ID == newPostcardEntity.PostcardEntity_ID
+                                                                                  && pepc.Publisher_ID == manufacturer.Manufacturer_ID
+                                                                                  select pepc;
+                        if (city != null)
+                        {
+                            selectPEPC = selectPEPC.Where(p => p.City_ID == city.City_ID);
+                        }
+
+                        if (selectPEPC.FirstOrDefault() == null)
+                        {
+                            PostcardEntityNManufacturerNCity newPostcardEntityPublishrCity = new()
+                            {
+                                PostcardEntity_ID = newPostcardEntity.PostcardEntity_ID,
+                                Publisher_ID = manufacturer.Manufacturer_ID
+                            };
+                            if (city != null)
+                            {
+                                newPostcardEntityPublishrCity.City_ID = city.City_ID;
+                            }
+
+                            _ = _dbIdentityContext.Add(newPostcardEntityPublishrCity);
+                        }
+                    }
+                }
+                _ = await _dbIdentityContext.SaveChangesAsync();
+
+                if (user.UserName == null)
+                {
+                    throw new NullReferenceException("userName zu Id " + user.Id);
+                }
+
+                string currentFileName = string.IsNullOrEmpty(pathFrontside) ? PicturePreprocess.SaveFileForAnalysis(Frontside, _hostEnvironment) : pathFrontside;
+                _ = await CreatePostcardScan(currentFileName, true, newPostcardEntity.PostcardEntity_ID, user, false);
+
+                if (Backside != null || !string.IsNullOrEmpty(pathBackside))
+                {
+                    currentFileName = string.IsNullOrEmpty(pathBackside) && Backside != null
+                        ? PicturePreprocess.SaveFileForAnalysis(Backside, _hostEnvironment)
+                        : pathBackside;
+                    _ = await CreatePostcardScan(currentFileName, false, newPostcardEntity.PostcardEntity_ID, user, false);
+                }
+                id = newPostcardPotential.Product_ID;
+
+                statusMessage = "Erstellung erfolgreich.";
+                scope.Complete();
+            }
+            catch (TransactionAbortedException ex)
+            {
+                //DeletePictures
+                _logger.LogError("CreatePostcardSubmit abgebrochen mit Exception {ex}", ex);
+                statusMessage = "Erstellung wurde abgebrochen. Fehler wurde gemeldet.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("CreatePostcardSubmit abgebrochen mit Exception {ex}", ex);
+                statusMessage = "Erstellung wurde abgebrochen. Fehler wurde gemeldet.";
+            }
+
+            return isComingFromAnalysis
+                ? RedirectToAction(nameof(EditPostcard), new { id })
+                : (ActionResult)RedirectToAction("AdministerCollectionPostcard", "PostcardDatabase", new { statusMessage });
+        } // END CreatePostcard
+
+
+        private async Task<PostcardScan> CreatePostcardScan(string fileName, bool Frontside, int? Postcard_ID, UsingIdentityUser user, bool replaceOldScan)
+        {
+            string wwwRootPath = _hostEnvironment.WebRootPath;
+            string pathNormal = Path.Combine(wwwRootPath, "images/Normal");
+            string pathSmall = Path.Combine(wwwRootPath, "images/Klein");
+            string pathThumbnail = Path.Combine(wwwRootPath, "images/Thumbnail");
+            string pathFile = string.Empty;
+            string pathOriginal = Path.Combine(wwwRootPath, "images/Original");
+            DateTime currentDate = DateTime.Now;
+            PostcardScan postcardScan = new();
+
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                string[] scanName = fileName.Split(".");
+                if (scanName[1] == string.Empty)
+                {
+                    scanName[1] = "png";
+                }
+
+                string ImgName = string.Empty;
+
+                if (replaceOldScan)
+                {
+                    PostcardScan selectScan = (from s in _dbIdentityContext.PostcardScan
+                                               where s.PostcardEntity_ID == Postcard_ID
+                                               && s.Frontside == Frontside
+                                               select s).FirstOrDefault() ?? throw new NullReferenceException("scanSelect");
+                    ImgName = selectScan.PostcardScan_Id.ToString() + "." + selectScan.Pictures_Format;
+                    postcardScan = selectScan;
+                }
+                else
+                {
+                    PostcardScan newPostcardScan = new()
+                    {
+                        Pictures_Format = scanName[1].Trim(),
+                        Frontside = Frontside
+                    };
+                    if (Postcard_ID != null)
+                    {
+                        newPostcardScan.PostcardEntity_ID = (int)Postcard_ID;
+                    }
+
+                    _ = _dbIdentityContext.Add(newPostcardScan);
+                    try
+                    {
+                        _ = await _dbIdentityContext.SaveChangesAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError("ProcessAnalysisResultParameters publisher abgebrochen mit Exception {ex}, name {scanName[1].Trim()}.",
+                                    ex, scanName[1].Trim());
+                    }
+
+                    ImgName = newPostcardScan.PostcardScan_Id.ToString() + "." + newPostcardScan.Pictures_Format;
+                    postcardScan = newPostcardScan;
+                }
+                //string fileName2 = Path.GetFullPath(fileName);
+
+                MagickReadSettings readSettings = new()
+                {
+                    Font = "Calibri",
+                    TextGravity = Gravity.Center,
+                    BackgroundColor = MagickColors.Transparent,
+                    FillColor = MagickColors.LightGray,
+                    Height = 200, // height of text box
+                    Width = 400 // width of text box                        
+                };
+                MagickImage watermark = new($"caption:{user.UserName}", readSettings);
+                watermark.Rotate(315.00);
+
+                using MagickImage image = new(fileName);
+                image.Quality = 30;
+                image.Format = MagickFormat.Png;
+
+                // Normal Version                        
+                if (image.Width > image.Height)
+                {
+                    //Add the watermark layer on top of the background image
+                    image.Composite(watermark, Gravity.Center, 600, 350, CompositeOperator.Over);
+                    image.Composite(watermark, Gravity.Center, -600, -350, CompositeOperator.Over);
+                }
+                else if (image.Height > image.Width)
+                {
+                    image.Composite(watermark, Gravity.Center, 420, 680, CompositeOperator.Over);
+                    image.Composite(watermark, Gravity.Center, -420, -680, CompositeOperator.Over);
+                }
+                else
+                {
+                    image.Composite(watermark, Gravity.Center, 0, 0, CompositeOperator.Over);
+                }
+                pathFile = Path.Combine(pathNormal, ImgName);
+                if (replaceOldScan)
+                {
+                    System.IO.File.Delete(pathFile + ".png");
+                }
+
+                image.Write(pathFile);
+
+                if (Frontside)
+                {
+                    // Für kleine Version
+                    if (image.Width > image.Height)
+                    {
+                        image.Scale(498, 322);
+                    }
+                    else if (image.Height > image.Width)
+
+                    {
+                        image.Scale(498, 708);
+                        image.Crop(498, 322);
+                    }
+                    pathFile = Path.Combine(pathSmall, ImgName);
+                    if (replaceOldScan)
+                    {
+                        System.IO.File.Delete(pathFile + ".png");
+                    }
+
+                    image.Write(pathFile);
+
+                    //Thumbnail erstellen, wegen Normal immer Querformat
+                    if (image.Width > image.Height)
+                    {
+                        image.Thumbnail(240, 153);
+                    }
+                    pathFile = Path.Combine(pathThumbnail, ImgName);
+                    if (replaceOldScan)
+                    {
+                        System.IO.File.Delete(pathFile + ".png");
+                    }
+
+                    image.Write(pathFile);
+                }
+
+                System.IO.File.Move(fileName, Path.Combine(pathOriginal, ImgName));
+            }
+
+            return postcardScan;
+        }
+
+        public ActionResult EditPostcard(int id, string statusMessage)
+        {
+            var userId = _userManager.GetUserId(User);
+            UsingIdentityUser? userAllowed = (from user in _userManager.Users
+                                              join postcards in _dbIdentityContext.PostcardEntity
+                                              on user.Id equals postcards.UsingIdentityUsers_ID
+                                              join pso in _dbIdentityContext.PostcardPotential
+                                              on postcards.PostcardPotential_ID equals pso.Product_ID
+                                              where user.Id == userId
+                                              && pso.Product_ID == id
+                                              select user).FirstOrDefault();
+            if (userAllowed != null && userId != null)
+            {
+                DbActionsPostcard dbChangesPostcard = new(_dbIdentityContext, _userManager, processCity, _logger);
+                PostcardModel selectPostcard = dbChangesPostcard.QueryPostcardModel(userId).Where(x => x.PostcardPotential.Product_ID.Equals(id)).First();
+
+                if (selectPostcard.PostcardImprint != null && selectPostcard.PostcardImprint.Image_ID > 0)
+                {
+                    selectPostcard.HasImage = true;
+                }
+
+                if (selectPostcard.PersonSender != null && selectPostcard.PersonSender.Person_ID > 0)
+                {
+                    selectPostcard.HasSender = true;
+                }
+
+                if (selectPostcard.PersonReceiver != null && selectPostcard.PersonReceiver.Person_ID > 0)
+                {
+                    selectPostcard.HasReceiver = true;
+                }
+
+                ViewData["BackToList"] = "EditPostcard";
+                ViewData["SourceId"] = selectPostcard.PostcardPotential.Product_ID;
+                ViewData["StatusMessage"] = statusMessage;
+
+                return View(selectPostcard);
+            }
+            else
+            {
+                return RedirectToAction("AdministerCollectionPostcard", "PostcardDatabase");
+            }
+        }
+        public async Task<IActionResult> EditPostcardSubmit(IFormFile Frontside, IFormFile Backside, PostcardModel postcardModel)
+        {
+            string statusMessage = string.Empty;
+
+            UsingIdentityUser user = await _userManager.GetUserAsync(User) ?? throw new NullReferenceException("user in EditPostcardSubmit");
+            if (user.UserName == null)
+            {
+                ArgumentNullException argumentNullExceptionEditPostcard = new(user.UserName, "UserName fehlt");
+                throw argumentNullExceptionEditPostcard;
+            }
+
+            PostcardPotential selectPostcardPotential = (from p in _dbIdentityContext.PostcardPotential.Include(c => c.CityList)
+                                                         where p.Product_ID == postcardModel.PostcardPotential.Product_ID
+                                                         select p).First();
+
+            try
+            {
+                using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+                PostcardImprint? newPostcardImprint = null;
+                if (postcardModel.HasImage)
+                {
+                    PostcardImprint? selectImageImprint = (from p in _dbIdentityContext.PostcardImprint
+                                                           where p.Image_ID == postcardModel.PostcardImprint.Image_ID
+                                                           select p).FirstOrDefault();
+                    if (selectImageImprint != null)
+                    {
+                        selectImageImprint.PictureCount = postcardModel.PostcardImprint.PictureCount;
+                        selectImageImprint.FullScreen = postcardModel.PostcardImprint.FullScreen;
+                        selectImageImprint.Passepartout = postcardModel.PostcardImprint.Passepartout;
+                        selectImageImprint.CirculationSize = postcardModel.PostcardImprint.CirculationSize;
+                        selectImageImprint.ImagePerception = postcardModel.PostcardImprint.ImagePerception;
+                        selectImageImprint.ArtistAuthor_ID = postcardModel.PostcardImprint.ArtistAuthor_ID;
+                        selectImageImprint.ImageYear = postcardModel.PostcardImprint.ImageYear;
+                        selectImageImprint.Era_ID = postcardModel.PostcardImprint.Era_ID;
+                        selectImageImprint.ColorProcessing = postcardModel.PostcardImprint.ColorProcessing;
+                        selectImageImprint.Buildings = postcardModel.PostcardImprint.Buildings;
+                        if (!string.IsNullOrEmpty(postcardModel.ColorImage))
+                        {
+                            selectImageImprint.ColorImage_ID = int.Parse(postcardModel.ColorImage[1..], System.Globalization.NumberStyles.HexNumber);
+                        }
+
+                        switch (postcardModel.PostcardPotential.Formats)
+                        {
+                            // Format klein T74
+                            case 1:
+                                selectImageImprint.Width = 10.5;
+                                selectImageImprint.Height = 14.8;
+                                break;
+                            // Format groß T76
+                            case 2:
+                                selectImageImprint.Width = 10.5;
+                                selectImageImprint.Height = 21;
+                                break;
+                            // Format Übergroß
+                            case 3:
+                                selectImageImprint.Width = 12.5;
+                                selectImageImprint.Height = 23.5;
+                                break;
+                        }
+
+                        if (selectImageImprint.Printing_ID != null)
+                        {
+                            Printing selectPrinting = (from p in _dbIdentityContext.Printing
+                                                       where p.Printing_ID == selectImageImprint.Printing_ID
+                                                       select p).First();
+                            if ((postcardModel.Printing.Technique > 0 && selectPrinting.Technique != postcardModel.Printing.Technique)
+                                || (postcardModel.Printing.Style > 0 && selectPrinting.Style != postcardModel.Printing.Style))
+                            {
+                                Printing? newPrinting = null;
+                                Printing? printingSelect = (from p in _dbIdentityContext.Printing
+                                                            where p.Technique == postcardModel.Printing.Technique
+                                                            && p.Style == postcardModel.Printing.Style
+                                                            select p).FirstOrDefault();
+
+                                if (printingSelect != null)
+                                {
+                                    newPrinting = printingSelect;
+                                }
+                                else
+                                {
+                                    newPrinting = new()
+                                    {
+                                        Technique = postcardModel.Printing.Technique,
+                                        Style = postcardModel.Printing.Style
+                                    };
+                                    _ = _dbIdentityContext.Add(newPrinting);
+                                    _ = await _dbIdentityContext.SaveChangesAsync();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //there is anyway a limited number of choice, so it would rarely create a new databse entry
+                            Printing? newPrinting = null;
+                            if (postcardModel.Printing.Technique > 0 || postcardModel.Printing.Style > 0)
+                            {
+                                Printing? printingSelect = (from p in _dbIdentityContext.Printing
+                                                            where p.Technique == postcardModel.Printing.Technique
+                                                            && p.Style == postcardModel.Printing.Style
+                                                            select p).FirstOrDefault();
+
+                                if (printingSelect != null)
+                                {
+                                    newPrinting = printingSelect;
+                                }
+                                else
+                                {
+                                    newPrinting = new()
+                                    {
+                                        Technique = postcardModel.Printing.Technique,
+                                        Style = postcardModel.Printing.Style
+                                    };
+                                    _ = _dbIdentityContext.Add(newPrinting);
+                                    _ = await _dbIdentityContext.SaveChangesAsync();
+                                }
+                            }
+                            if (newPrinting != null)
+                            {
+                                selectImageImprint.Printing_ID = newPrinting.Printing_ID;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        newPostcardImprint = new()
+                        {
+                            PictureCount = postcardModel.PostcardImprint.PictureCount,
+                            FullScreen = postcardModel.PostcardImprint.FullScreen,
+                            Passepartout = postcardModel.PostcardImprint.Passepartout,
+                            CirculationSize = postcardModel.PostcardImprint.CirculationSize,
+                            ImagePerception = postcardModel.PostcardImprint.ImagePerception,
+                            ArtistAuthor_ID = postcardModel.PostcardImprint.ArtistAuthor_ID,
+                            ImageYear = postcardModel.PostcardImprint.ImageYear,
+                            Era_ID = postcardModel.PostcardImprint.Era_ID,
+                            ColorProcessing = postcardModel.PostcardImprint.ColorProcessing
+                        };
+                        if (!string.IsNullOrEmpty(postcardModel.ColorImage))
+                        {
+                            newPostcardImprint.ColorImage_ID = int.Parse(postcardModel.ColorImage[1..], System.Globalization.NumberStyles.HexNumber);
+                        }
+
+                        switch (postcardModel.PostcardPotential.Formats)
+                        {
+                            // Format klein T74
+                            case 1:
+                                newPostcardImprint.Width = 10.5;
+                                newPostcardImprint.Height = 14.8;
+                                break;
+                            // Format groß T76
+                            case 2:
+                                newPostcardImprint.Width = 10.5;
+                                newPostcardImprint.Height = 21;
+                                break;
+                            // Format Übergroß
+                            case 3:
+                                newPostcardImprint.Width = 12.5;
+                                newPostcardImprint.Height = 23.5;
+                                break;
+                        }
+
+                        //there is anyway a limited number of choice, so it would rarely create a new databse entry
+                        Printing? newPrinting = null;
+                        if (postcardModel.Printing.Technique > 0 || postcardModel.Printing.Style > 0)
+                        {
+                            Printing? printingSelect = (from p in _dbIdentityContext.Printing
+                                                        where p.Technique == postcardModel.Printing.Technique
+                                                        && p.Style == postcardModel.Printing.Style
+                                                        select p).FirstOrDefault();
+
+                            if (printingSelect != null)
+                            {
+                                newPrinting = printingSelect;
+                            }
+                            else
+                            {
+                                newPrinting = new()
+                                {
+                                    Technique = postcardModel.Printing.Technique,
+                                    Style = postcardModel.Printing.Style
+                                };
+                                _ = _dbIdentityContext.Add(newPrinting);
+                                _ = await _dbIdentityContext.SaveChangesAsync();
+                            }
+                            if (newPrinting != null)
+                            {
+                                newPostcardImprint.Printing_ID = newPrinting.Printing_ID;
+                            }
+                        }
+                        _ = _dbIdentityContext.Add(newPostcardImprint);
+                    }
+                }
+                else if (postcardModel.PostcardImprint.Image_ID > 0)
+                {
+                    selectPostcardPotential.PostcardImprint_ID = null;
+                    _ = await _dbIdentityContext.SaveChangesAsync();
+
+                    List<PostcardPotential> selectAllPotentialsWithImprint = [.. (from p in _dbIdentityContext.PostcardPotential
+                                                                              where p.PostcardImprint_ID == postcardModel.PostcardImprint.Image_ID
+                                                                              select p)];
+                    if (selectAllPotentialsWithImprint == null || selectAllPotentialsWithImprint.Count == 0)
+                    {
+                        PostcardImprint selectImageImprint = (from p in _dbIdentityContext.PostcardImprint
+                                                              where p.Image_ID == postcardModel.PostcardImprint.Image_ID
+                                                              select p).First();
+                        _ = _dbIdentityContext.Remove(selectImageImprint);
+                    }
+                }
+                else
+                {
+                    // Do Nothing
+                }
+                _ = await _dbIdentityContext.SaveChangesAsync();
+
+                selectPostcardPotential.OfficialBusiness = postcardModel.PostcardPotential.OfficialBusiness;
+                selectPostcardPotential.Fieldpost = postcardModel.PostcardPotential.Fieldpost;
+                selectPostcardPotential.Formats = postcardModel.PostcardPotential.Formats;
+                selectPostcardPotential.ISBN = postcardModel.PostcardPotential.ISBN;
+                selectPostcardPotential.ProductionYear = postcardModel.PostcardPotential.ProductionYear;
+                selectPostcardPotential.CardType = postcardModel.PostcardPotential.CardType;
+                selectPostcardPotential.SerialNumber = postcardModel.PostcardPotential.SerialNumber;
+                selectPostcardPotential.CardSeries = postcardModel.PostcardPotential.CardSeries;
+                selectPostcardPotential.Leporello = postcardModel.PostcardPotential.Leporello;
+                selectPostcardPotential.CorrugatedEdge = postcardModel.PostcardPotential.CorrugatedEdge;
+                selectPostcardPotential.Propaganda = postcardModel.PostcardPotential.Propaganda;
+                selectPostcardPotential.Ornament = postcardModel.PostcardPotential.Ornament;
+                List<int> cityIdsCurrentList = [];
+                foreach (City city in selectPostcardPotential.CityList)
+                {
+                    cityIdsCurrentList.Add(city.City_ID);
+                }
+                List<int> cityIDsInsertList = [];
+                foreach (int cityID in postcardModel.CityIDList)
+                {
+                    City? city = (from c in _dbIdentityContext.City where c.City_ID.Equals(cityID) select c).FirstOrDefault();
+                    if (city != null && !selectPostcardPotential.CityList.Contains(city))
+                    {
+                        selectPostcardPotential.CityList.Add(city);
+                    }
+                    cityIDsInsertList.Add(cityID);
+                }
+                foreach (int currentId in cityIdsCurrentList)
+                {
+                    if (!cityIDsInsertList.Contains(currentId))
+                    {
+                        City selectCity = (from c in _dbIdentityContext.City
+                                           where c.City_ID == currentId
+                                           select c).First();
+                        _ = selectPostcardPotential.CityList.Remove(selectCity);
+                    }
+                }
+                if (newPostcardImprint != null)
+                {
+                    selectPostcardPotential.PostcardImprint_ID = newPostcardImprint.Image_ID;
+                }
+
+                _ = await _dbIdentityContext.SaveChangesAsync();
+
+                PostcardEntity selectPostcardEntity = (from p in _dbIdentityContext.PostcardEntity
+                                                       where p.PostcardPotential_ID == postcardModel.PostcardPotential.Product_ID
+                                                       select p).First();
+
+                Person? newSender = null;
+                if (postcardModel.HasSender)
+                {
+                    if (postcardModel.PersonSender is not null)
+                    {
+                        if (postcardModel.PersonSender.Person_ID == 0)
+                        {
+                            if (postcardModel.PersonSender.Name != null)
+                            {
+                                newSender = new()
+                                {
+                                    Name = postcardModel.PersonSender.Name
+                                };
+                                _ = _dbIdentityContext.Add(newSender);
+                                _ = await _dbIdentityContext.SaveChangesAsync();
+                            }
+                        }
+                        else
+                        {
+                            Person? SenderSQL = await (from p in _dbIdentityContext.Person
+                                                       where p.Person_ID == postcardModel.PersonSender.Person_ID
+                                                       select p).FirstOrDefaultAsync();
+                            newSender = SenderSQL;
+                        }
+                    }
+                }
+                else if (postcardModel.PersonSender.Person_ID > 0)
+                {
+                    selectPostcardEntity.Sender_ID = null;
+                    _ = await _dbIdentityContext.SaveChangesAsync();
+
+                    List<PostcardEntity> selectAllEntitiesWithSender = [.. (from p in _dbIdentityContext.PostcardEntity
+                                                                        where p.Sender_ID == postcardModel.PersonSender.Person_ID
+                                                                        select p)];
+                    if (selectAllEntitiesWithSender == null || selectAllEntitiesWithSender.Count == 0)
+                    {
+                        Person SenderSQL = (from p in _dbIdentityContext.Person
+                                            where p.Person_ID == postcardModel.PersonSender.Person_ID
+                                            select p).First();
+                        _ = _dbIdentityContext.Remove(SenderSQL);
+                        _ = await _dbIdentityContext.SaveChangesAsync();
+                    }
+                }
+
+                Person? newReceiver = null;
+                if (postcardModel.HasReceiver)
+                {
+                    if (postcardModel.PersonReceiver != null)
+                    {
+                        if (postcardModel.PersonReceiver.Person_ID == 0)
+                        {
+                            newReceiver = new()
+                            {
+                                Name = postcardModel.PersonReceiver.Name,
+                                Street = postcardModel.PersonReceiver.Street,
+                                HouseNumber = postcardModel.PersonReceiver.HouseNumber,
+                                City_ID = postcardModel.PersonReceiver.City_ID
+                            };
+                            _ = _dbIdentityContext.Add(newReceiver);
+                        }
+                        else
+                        {
+                            Person ReceiverSQL = await (from p in _dbIdentityContext.Person
+                                                        where p.Person_ID == postcardModel.PersonReceiver.Person_ID
+                                                        select p).FirstAsync();
+                            ReceiverSQL.Name = postcardModel.PersonReceiver.Name;
+                            ReceiverSQL.Street = postcardModel.PersonReceiver.Street;
+                            ReceiverSQL.HouseNumber = postcardModel.PersonReceiver.HouseNumber;
+                            ReceiverSQL.City_ID = postcardModel.PersonReceiver.City_ID;
+
+                            if (postcardModel.PersonReceiver.City_ID > 0)
+                            {
+                                City selectCity = (from c in _dbIdentityContext.City
+                                                   where c.City_ID == postcardModel.PersonReceiver.City_ID
+                                                   select c).First();
+                                ReceiverSQL.City = selectCity;
+                            }
+
+                            newReceiver = ReceiverSQL;
+                        }
+                        _ = await _dbIdentityContext.SaveChangesAsync();
+                    }
+                }
+                else if (postcardModel.PersonReceiver.Person_ID > 0)
+                {
+                    selectPostcardEntity.Receiver_ID = null;
+                    _ = await _dbIdentityContext.SaveChangesAsync();
+
+
+                    List<PostcardEntity> selectAllEntitiesWithReceiver = [.. (from p in _dbIdentityContext.PostcardEntity
+                                                                          where p.Sender_ID == postcardModel.PersonReceiver.Person_ID
+                                                                          select p)];
+                    if (selectAllEntitiesWithReceiver == null || selectAllEntitiesWithReceiver.Count == 0)
+                    {
+                        Person ReceiverSQL = await (from p in _dbIdentityContext.Person
+                                                    where p.Person_ID == postcardModel.PersonReceiver.Person_ID
+                                                    select p).FirstAsync();
+                        _ = _dbIdentityContext.Remove(ReceiverSQL);
+                        _ = await _dbIdentityContext.SaveChangesAsync();
+                    }
+                }
+
+                selectPostcardEntity.FilingLocation = postcardModel.PostcardEntity.FilingLocation;
+                selectPostcardEntity.Charge = postcardModel.PostcardEntity.Charge;
+                selectPostcardEntity.DateInText = postcardModel.PostcardEntity.DateInText;
+                selectPostcardEntity.ConditionOfCard = postcardModel.PostcardEntity.ConditionOfCard;
+                selectPostcardEntity.FilingLocation = postcardModel.PostcardEntity.FilingLocation;
+                selectPostcardEntity.Text = postcardModel.PostcardEntity.Text;
+                decimal? priceDecimal = null;
+                if (!string.IsNullOrEmpty(postcardModel.PriceString))
+                    priceDecimal = decimal.Parse(postcardModel.PriceString);
+                selectPostcardEntity.Price = priceDecimal;
+
+                if (newSender != null && newSender.Person_ID != 0)
+                    selectPostcardEntity.Sender_ID = newSender.Person_ID;
+                if (newReceiver != null && newReceiver.Person_ID != 0)
+                    selectPostcardEntity.Receiver_ID = newReceiver.Person_ID;
+
+                if (!string.IsNullOrEmpty(postcardModel.ColorRALWriting))
+                    selectPostcardEntity.ColorRALWritingFrontside = int.Parse(postcardModel.ColorRALWriting[1..], System.Globalization.NumberStyles.HexNumber);
+                if (!string.IsNullOrEmpty(postcardModel.ColorRALPrinting))
+                    selectPostcardEntity.ColorRALPrintingBackside = int.Parse(postcardModel.ColorRALPrinting[1..], System.Globalization.NumberStyles.HexNumber);
+
+                _ = await _dbIdentityContext.SaveChangesAsync();
+
+                List<int> PepcIDsBeginningList = [.. (from pepc in _dbIdentityContext.PostcardEntityNManufacturerNCity
+                                                  where pepc.PostcardEntity_ID == selectPostcardEntity.PostcardEntity_ID
+                                                  select pepc.PostcardEntityNManufacturerNCity_ID)];
+                List<int> PepcIDsInsertList = [];
+                foreach (string? publisher in postcardModel.ManufacturerIDCityIDList)
+                {
+                    if (publisher is not null && publisher.Contains("§§"))
+                    {
+                        string[] splittedPublisher = publisher.Split("§§");
+                        if (string.IsNullOrEmpty(splittedPublisher[0]))
+                            continue;
+
+                        int? cityId = null;
+                        IQueryable<PostcardEntityNManufacturerNCity> selectPEPC = from pepc in _dbIdentityContext.PostcardEntityNManufacturerNCity
+                                                                                  where pepc.PostcardEntity_ID == selectPostcardEntity.PostcardEntity_ID
+                                                                                  && pepc.Publisher_ID == short.Parse(splittedPublisher[0])
+                                                                                  select pepc;
+                        if (!string.IsNullOrEmpty(splittedPublisher[1]) && short.Parse(splittedPublisher[1]) > 0)
+                        {
+                            cityId = short.Parse(splittedPublisher[1]);
+                            selectPEPC = selectPEPC.Where(p => p.City_ID == cityId);
+                        }
+                        PostcardEntityNManufacturerNCity? postcardEntityNManufacturerNCity = selectPEPC.FirstOrDefault();
+
+                        if (postcardEntityNManufacturerNCity == null)
+                        {
+                            PostcardEntityNManufacturerNCity newPostcardEntityPublishrCity = new()
+                            {
+                                PostcardEntity_ID = selectPostcardEntity.PostcardEntity_ID,
+                                Publisher_ID = short.Parse(splittedPublisher[0]),
+                                City_ID = cityId
+                            };
+                            _ = _dbIdentityContext.Add(newPostcardEntityPublishrCity);
+
+                            postcardEntityNManufacturerNCity = newPostcardEntityPublishrCity;
+                            _ = await _dbIdentityContext.SaveChangesAsync();
+                        }
+
+                        if (postcardEntityNManufacturerNCity != null)
+                        {
+                            PepcIDsInsertList.Add(postcardEntityNManufacturerNCity.PostcardEntityNManufacturerNCity_ID);
+                        }
+                    }
+                }
+                foreach (int beginnId in PepcIDsBeginningList)
+                {
+                    if (!PepcIDsInsertList.Contains(beginnId))
+                    {
+                        PostcardEntityNManufacturerNCity pepcToDelete = (from pepc in _dbIdentityContext.PostcardEntityNManufacturerNCity
+                                                                         where pepc.PostcardEntityNManufacturerNCity_ID == beginnId
+                                                                         select pepc).First() ?? throw new NullReferenceException();
+                        _ = _dbIdentityContext.PostcardEntityNManufacturerNCity.Remove(pepcToDelete);
+                    }
+                }
+                _ = await _dbIdentityContext.SaveChangesAsync();
+
+                string currentFileName = string.Empty;
+                if (Frontside != null)
+                {
+                    currentFileName = PicturePreprocess.SaveFileForAnalysis(Frontside, _hostEnvironment);
+                    _ = await CreatePostcardScan(currentFileName, true, selectPostcardEntity.PostcardEntity_ID, user, true);
+                    statusMessage = "Bitte leeren Sie Ihren Cache, damit die Änderung sichtbar wird";
+                }
+
+                if (Backside != null)
+                {
+                    currentFileName = PicturePreprocess.SaveFileForAnalysis(Backside, _hostEnvironment);
+                    _ = await CreatePostcardScan(currentFileName, false, selectPostcardEntity.PostcardEntity_ID, user, true);
+                    statusMessage = "Bitte leeren Sie Ihren Cache, damit die Änderung sichtbar wird";
+                }
+
+                transactionScope.Complete();
+            }
+            catch (TransactionAbortedException ex)
+            {
+                // DeletePictures
+                _logger.LogError("EditPostcardSubmit abgebrochen mit Exception {ex}", ex);
+                statusMessage = "Erstellung wurde abgebrochen. Fehler wurde gemeldet.";
+            }
+
+            return RedirectToAction("AdministerCollectionPostcard", "PostcardDatabase", new { statusMessage });
+        } // End EditPostcardSubmit
+
+        public async Task<IActionResult> DeletePostcard(int potentialId, int entityId)
+        {
+            int PostcardEntityCount = (from pp in _dbIdentityContext.PostcardPotential
+                                       join pe in _dbIdentityContext.PostcardEntity
+                                       on pp.Product_ID equals pe.PostcardPotential_ID
+                                       where pp.Product_ID == potentialId
+                                       select pe).Count();
+            if (PostcardEntityCount > 0)
+            {
+                try
+                {
+                    using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
+                    PostcardModel PostcardsSelect = (from p in _dbIdentityContext.PostcardPotential
+                                                     join e in _dbIdentityContext.PostcardEntity on p.Product_ID equals e.PostcardPotential_ID
+                                                     join i in _dbIdentityContext.PostcardImprint on p.PostcardImprint_ID equals i.Image_ID
+                                                     where e.PostcardEntity_ID == entityId
+                                                     select new PostcardModel
+                                                     {
+                                                         PostcardPotential = p,
+                                                         PostcardEntity = e,
+                                                         PostcardImprint = i,
+                                                         PostcardScanList = (from Scan in _dbIdentityContext.PostcardScan
+                                                                             join pe in _dbIdentityContext.PostcardEntity
+                                                                             on Scan.PostcardEntity_ID equals pe.PostcardEntity_ID
+                                                                             where pe.PostcardEntity_ID == e.PostcardEntity_ID
+                                                                             select Scan).ToList()
+                                                     })
+                                           .First() ?? throw new NullReferenceException("PostcardsSelect");
+
+                    foreach (PostcardScan scan in PostcardsSelect.PostcardScanList)
+                    {
+                        if (scan.Frontside)
+                        {
+                            try
+                            {
+                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
+                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
+                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
+                            }
+                            catch
+                            {
+                                _logger.LogError("DeletePostcardEntity: PostcardScan nicht gefunden: {scan.PostcardScan_Id}.{scan.Pictures_Format}", scan.PostcardScan_Id, scan.Pictures_Format);
+                            }
+                        }
+                        else
+                        {
+                            System.IO.File.Delete("wwwroot/images/Normal/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
+                        }
+                        _ = _dbIdentityContext.Remove(scan);
+                        _ = await _dbIdentityContext.SaveChangesAsync();
+                    }
+
+                    _ = _dbIdentityContext.Remove(PostcardsSelect.PostcardPotential);
+                    _ = await _dbIdentityContext.SaveChangesAsync();
+                    _ = _dbIdentityContext.Remove(PostcardsSelect.PostcardImprint);
+                    _ = await _dbIdentityContext.SaveChangesAsync();
+
+                    scope.Complete();
+                }
+                catch (TransactionAbortedException ex)
+                {
+                    _logger.LogError("DeletePostcard wurde abgebrochen mit Exception {ex}", ex);
+                }
+            }
+            else
+            {
+                return NotFound("Entität wurde nicht gefunden");
+            }
+
+            return RedirectToAction("AdministerCollectionPostcard", "PostcardDatabase");
+        }
+
+        public async Task<IActionResult> DownloadPostcards(string userId, int? potentialId = null)
+        {
+            var sourceDir = Path.Combine(_hostEnvironment.WebRootPath, Path.Combine("images","Original"));
+            string downloadFolder = Path.Combine(_hostEnvironment.WebRootPath, "Download_" + userId);
+            string zipFile = Path.Combine(_hostEnvironment.WebRootPath, "Download_" + userId + ".zip");
+
+            _ = Directory.CreateDirectory(downloadFolder);
+
+            DbActionsPostcard dbChangesPostcard = new(_dbIdentityContext, _userManager, processCity, _logger);
+            List<PostcardModel> postcardList = [];
+            if (potentialId == null)
+                postcardList = [.. dbChangesPostcard.QueryPostcardModel(userId)];
+            else
+                postcardList = [.. dbChangesPostcard.QueryPostcardModel(userId).Where(x => x.PostcardPotential.Product_ID.Equals(potentialId))];
+
+            foreach (PostcardModel postcard in postcardList)
+            {
+                foreach (PostcardScan scan in postcard.PostcardScanList)
+                {
+                    string sourceFilePath = Path.Combine(sourceDir, scan.PostcardScan_Id.ToString() + ".png");
+                    string targetFilePath = Path.Combine(downloadFolder, scan.PostcardScan_Id.ToString() + ".png");
+                    System.IO.File.Copy(sourceFilePath, targetFilePath,true);
+                }
+            }
+
+            string yamlFile = Path.Combine(downloadFolder, "PostcardDatas.yaml");
+            if (!System.IO.File.Exists(yamlFile))
+            {
+                // Create a file to write to.
+                using FileStream sw = System.IO.File.Create(yamlFile);
+                byte[] yaml = [];
+                foreach (var postcard in postcardList)
+                {
+                    Sammlerplattform.Models.Download.PostcardDownloadModel postcardDownloadModel = YamlProcessor.ComposeForDownload(postcard, _dbIdentityContext, processCity);
+                    var spty = YamlProcessor.SerializePostcardToYaml(postcardDownloadModel);
+                    sw.Write(spty);
+                }
+            }
+
+            ZipFile.CreateFromDirectory(downloadFolder, zipFile);
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(zipFile, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+
+            Directory.Delete(downloadFolder,true);
+            System.IO.File.Delete(zipFile);
+
+            return File(memory, "application/zip", Path.GetFileName(zipFile));
+        }
+
+        public ActionResult AddEra(int sourceId, string source, string statusMessage)
+        {
+            ViewData["SourceId"] = sourceId;
+            ViewData["BackToList"] = source;
+            ViewData["StatusMessage"] = statusMessage;
+            return View();
+        }
+        public async Task<ActionResult> AddEraSubmit(Era era, string sourceId, string source)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(AddEra), new { sourceId, source, statusMessage = "Eingaben ungültig." });
+            }
+
+            string statusMessage = string.Empty;
+            Era? EraSelect = (from e in _dbIdentityContext.Era
+                              where e.EraLong == era.EraLong
+                              select e).FirstOrDefault();
+            if (EraSelect == null)
+            {
+                Era newEra = new()
+                {
+                    EraLong = era.EraLong,
+                    EraShort = era.EraShort
+                };
+
+                _ = _dbIdentityContext.Add(newEra);
+                try
+                {
+                    _ = await _dbIdentityContext.SaveChangesAsync();
+                    statusMessage = "Ära wurde erstellt.";
+                }
+                catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+                {
+                    _logger.LogError("AddEraSubmit fehlgeschlagen mit Exception: {ex}, EraLong: {era.EraLong}, EraShort: {era.EraShort}",
+                        ex, era.EraLong, era.EraShort);
+                    statusMessage = "Es ist ein Fehler beim Hinzufügen der Ära augetreten. Der Support wurde benachrichtigt.";
+                }
+            }
+            else
+            {
+                statusMessage = "Ära existiert bereits.";
+            }
+
+            return RedirectToAction(nameof(AddEra), new { sourceId, source, statusMessage });
+        }
+    }
+
+
+    [Authorize(Policy = "SubscribedDiskspacePolicy")]
+    public class DbActionsPostcard (DbIdentityContext _dbIdentityContext, UserManager<UsingIdentityUser> userManager, IProcessCity processCity, ILogger<PostcardDatabaseController> _logger)
+    {
+        public IQueryable<PostcardModel> QueryPostcardModel(string userId)
+        {
+            CityParameterModel cityParameterModel = new();
+#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises. Cause of Bug https://github.com/dotnet/efcore/issues/17212
+            var postcardQuery = from pse in _dbIdentityContext.PostcardEntity
+                                join pso in _dbIdentityContext.PostcardPotential
+                                    .Include(x => x.CityList).ThenInclude(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
+                                    .Include(x => x.CityList).ThenInclude(x => x.PostalcodeICollection)
+                                    .Include(y => y.CityList).ThenInclude(x => x.Geography)
+                                on pse.PostcardPotential_ID equals pso.Product_ID
+                                join picture in _dbIdentityContext.PostcardImprint
+                                on pso.PostcardImprint_ID equals picture.Image_ID into LeftOuterPic
+                                from subPic in LeftOuterPic.DefaultIfEmpty()
+                                join print in _dbIdentityContext.Printing
+                                on subPic.Printing_ID equals print.Printing_ID into LeftOuterPrint
+                                from subPostPrint in LeftOuterPrint.DefaultIfEmpty()
+                                join perse in _dbIdentityContext.Person
+                                on pse.Sender_ID equals perse.Person_ID into LeftOuterSender
+                                from subPostSender in LeftOuterSender.DefaultIfEmpty()
+                                join perRe in _dbIdentityContext.Person
+                                    .Include(x => x.City).ThenInclude(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
+                                    .Include(x => x.City).ThenInclude(x => x.PostalcodeICollection)
+                                    .Include(y => y.City).ThenInclude(x => x.Geography)
+                                on pse.Receiver_ID equals perRe.Person_ID into LeftOuterReceiver
+                                from subPostReceiver in LeftOuterReceiver.DefaultIfEmpty()
+                                join aa in _dbIdentityContext.AuthorArtist
+                                on subPic.ArtistAuthor_ID equals aa.AuthorArtist_ID into LeftOuterAuthor
+                                from subPostAA in LeftOuterAuthor.DefaultIfEmpty()
+                                join era in _dbIdentityContext.Era
+                                on subPic.Era_ID equals era.Era_ID into LeftOuterEra
+                                from subPostEra in LeftOuterEra.DefaultIfEmpty()
+                                join user in userManager.Users
+                                on pse.UsingIdentityUsers_ID equals user.Id
+                                where user.Id == userId
+                                select new PostcardModel
+                                {
+                                    PostcardEntity = pse,
+                                    PostcardPotential = pso,
+                                    PostcardImprint = subPic,
+                                    PostcardScanList = (from Scan in _dbIdentityContext.PostcardScan
+                                                        join pe in _dbIdentityContext.PostcardEntity
+                                                        on Scan.PostcardEntity_ID equals pe.PostcardEntity_ID
+                                                        where pe.PostcardEntity_ID == pse.PostcardEntity_ID
+                                                        select Scan).ToList(),
+                                    Printing = subPostPrint,
+                                    PersonSender = subPostSender,
+                                    PersonReceiver = subPostReceiver,
+                                    AuthorArtist = subPostAA,
+                                    Eras = subPostEra,
+                                    ManufacturerTupleList = (from p in _dbIdentityContext.Manufacturer
+                                                             join pemc in _dbIdentityContext.PostcardEntityNManufacturerNCity
+                                                             on p.Manufacturer_ID equals pemc.Publisher_ID
+                                                             join c in _dbIdentityContext.City.Include(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
+                                                             on pemc.City_ID equals c.City_ID into leftOuterCity
+                                                             from subc in leftOuterCity.DefaultIfEmpty()
+                                                             where pemc.PostcardEntity_ID == pse.PostcardEntity_ID
+                                                             select new ValueTuple<Manufacturer, City, List<City>>
+                                                             (
+                                                                 p,
+                                                                 subc,
+                                                                 (from c in _dbIdentityContext.City.Include(m => m.ManufacturerList)
+                                                                  .Include(x => x.Geography)
+                                                                  .Include(x => x.CityNOeconymICollection.Where(y => y.CurrentName)).ThenInclude(x => x.Oeconym)
+                                                                  where c.ManufacturerList.Any(c => c.Manufacturer_ID.Equals(p.Manufacturer_ID))
+                                                                  select c).ToList()
+                                                              )).ToList()
+                                };
+#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
+
+            return postcardQuery;
+        }
+
+        public void ProcessAnalysisResultParameters(PostcardAnalyzeResultParameters parameters, PostcardModel postcardModel)
+        {
+            // AuthorArtist Eintrag wird erstellt, aber es gibt keine Verknüpfung zur Postkarte
+            if (parameters.AuthorArtistList.Count > 0)
+            {
+                foreach (string authorArtist in parameters.AuthorArtistList)
+                {
+                    if (!string.IsNullOrEmpty(authorArtist))
+                    {
+                        AuthorArtist? selectAA = (from aa in _dbIdentityContext.AuthorArtist
+                                                  where aa.AAName == authorArtist
+                                                  select aa).FirstOrDefault();
+                        if (selectAA is not null)
+                        {
+                            postcardModel.AuthorArtist = selectAA;
+                        }
+                        else
+                        {
+                            AuthorArtist newAuthorArtist = new()
+                            {
+                                AAName = authorArtist
+                            };
+                            _ = _dbIdentityContext.Add(newAuthorArtist);
+                            try
+                            {
+                                _ = _dbIdentityContext.SaveChanges();
+                            }
+                            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+                            {
+                                _logger.LogError("ProcessAnalysisResultParameters Authorartist abgebrochen mit Exception {ex}, Name {authorArtist}.",
+                                    ex, authorArtist);
+                            }
+
+                            postcardModel.AuthorArtist = newAuthorArtist;
+                        }
+
+                        // There should be only one Author/Artist
+                        break;
+                    }
+                }
+                postcardModel.HasImage = true;
+            }
+
+            if (parameters.BuildingList.Count > 0)
+            {
+                foreach (string building in parameters.BuildingList)
+                {
+                    if (!string.IsNullOrEmpty(building))
+                    {
+                        postcardModel.PostcardImprint.Buildings += building.ToString() + ";";
+                    }
+                }
+                postcardModel.HasImage = true;
+            }
+
+            if (parameters.TextList.Count > 0)
+            {
+                foreach (string text in parameters.TextList)
+                {
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        postcardModel.PostcardEntity.Text += text + " ";
+                    }
+                }
+            }
+
+            if (parameters.CityList.Count > 0)
+            {
+                List<(string City, string geographyOfCity)> cities = [];
+                foreach (string? city in parameters.CityList)
+                {
+                    if (city is not null && city.Contains("§§"))
+                    {
+                        string[] splittedCity = city.Split("§§");
+                        cities.Add((splittedCity[0], splittedCity[1]));
+                    }
+                }
+
+                foreach ((string City, string GeographyOfCity) in cities)
+                {
+                    if (!string.IsNullOrEmpty(City))
+                    {
+                        CityParameterModel cityParameterModel = new()
+                        {
+                            Oeconym = new Oeconym() { OeconymName = City },
+                            Geography = new Geography() { GeographyName = GeographyOfCity }
+                        };
+                        var selectCity = processCity.GetCitiesWithPredicates(cityParameterModel).FirstOrDefault();
+                        if (selectCity == null)
+                        {
+                            var (city, statuscode, message) = processCity.CreateCity(cityParameterModel);
+                            if (statuscode != 201)
+                            {
+                                _logger.LogError(message);
+                            }
+                            else
+                            {
+                                postcardModel.CityTupleList.Add((city, city.PostalcodeICollection.ToList(), city.Geography!));
+                            }
+                        }
+                        else
+                        {
+                            postcardModel.CityTupleList.Add((selectCity, selectCity.PostalcodeICollection.ToList(), new()));
+                        }
+                    }
+                }
+                postcardModel.HasImage = true;
+            }
+
+            // TODOsammlerdb: Orte werden nicht erstellt, und falls zugeordnet(z.B. Berlin zu Verlag der keine Ort hat)
+            if (parameters.PublisherList.Count > 0)
+            {
+                List<(string name, string city, string geography)> publishers = [];
+                foreach (string? publisher in parameters.PublisherList)
+                {
+                    if (publisher is not null && publisher.Contains("§§"))
+                    {
+                        string[] splittedPublisher = publisher.Split("§§");
+                        publishers.Add((splittedPublisher[0], splittedPublisher[1], splittedPublisher[2]));
+                    }
+                }
+
+                foreach ((string name, string city, string geography) in publishers)
+                {
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        continue;
+                    }
+
+                    CityParameterModel cityParameterModel = new()
+                    {
+                        Oeconym = new Oeconym() { OeconymName = city },
+                        Geography = new Geography() { GeographyName = geography }
+                    };
+                    var selectedCity = processCity.GetCitiesWithPredicates(cityParameterModel).FirstOrDefault();
+
+                    selectedCity ??= processCity.CreateCity(cityParameterModel).city;
+
+                    Manufacturer? selectPublisher = (from p in _dbIdentityContext.Manufacturer
+                                                     where p.ManufacturerName.Equals(name)
+                                                     select p).FirstOrDefault();
+
+                    if (selectPublisher == null)
+                    {
+                        Manufacturer newPublisher = new()
+                        {
+                            ManufacturerName = name
+                        };
+                        if (selectedCity != null)
+                        {
+                            newPublisher.CityList ??= [];
+                            newPublisher.CityList.Add(selectedCity);
+                        }
+                        _ = _dbIdentityContext.Add(newPublisher);
+                        try
+                        {
+                            _ = _dbIdentityContext.SaveChanges();
+                        }
+                        catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+                        {
+                            _logger.LogError("ProcessAnalysisResultParameters publisher abgebrochen mit Exception {ex}, Name {name}.",
+                                    ex, name);
+                        }
+
+                        if (selectedCity == null)
+                        {
+                            postcardModel.ManufacturerTupleList.Add((newPublisher, new(), []));
+                        }
+                        else
+                        {
+                            postcardModel.ManufacturerTupleList.Add((newPublisher, selectedCity, []));
+                        }
+                    }
+                    else
+                    {
+                        selectPublisher.CityList ??= [];
+                        selectPublisher.CityList.Add(selectedCity);
+                        _ = _dbIdentityContext.SaveChanges();
+                        postcardModel.ManufacturerTupleList.Add((selectPublisher, selectedCity, []));
+                    }
+                }
+            }
+
+            // TODOsammlerdb: Person wird nicht gespeichert
+            if (parameters.AddressList.Count > 0)
+            {
+                List<(string name, string street, string Streetnumber, string PLZ, string City)> addressTupleList = [];
+                foreach (string? address in parameters.AddressList)
+                {
+                    if (address is not null && address.Contains("§§"))
+                    {
+                        string[] splittedAddresses = address.Split("§§");
+                        addressTupleList.Add((splittedAddresses[0] + splittedAddresses[1], splittedAddresses[2], splittedAddresses[3], string.Empty, splittedAddresses[4]));
+                    }
+                }
+
+                foreach ((string name, string street, string Streetnumber, string PLZ, string City) address in addressTupleList)
+                {
+                    City? selectCity = (from c in _dbIdentityContext.City.Include(x =>x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
+                                        where c.CityNOeconymICollection.Any(x => x.Oeconym.OeconymName.Equals(address.City))
+                                        select c).FirstOrDefault();
+
+                    IQueryable<Person> selectPerson = from p in _dbIdentityContext.Person.Include(x => x.City)
+                                                      where p.Name != null && p.Name!.Equals(address.name)
+                                                      && ((p.Street != null && p.Street!.Equals(address.street))
+                                                      || p.HouseNumber.Equals(address.Streetnumber))
+                                                      select p;
+                    if (selectCity != null)
+                    {
+                        selectPerson = selectPerson.Where(x => x.City != null && x.City.City_ID.Equals(selectCity.City_ID));
+                    }
+
+                    List<Person> personCityTupleList = [.. selectPerson];
+
+                    if (personCityTupleList.Count > 0)
+                    {
+                        //
+                        int maxAmount = 0;
+                        if (!string.IsNullOrEmpty(address.City))
+                        {
+                            maxAmount++;
+                        }
+
+                        if (!string.IsNullOrEmpty(address.street))
+                        {
+                            maxAmount++;
+                        }
+
+                        if (!string.IsNullOrEmpty(address.Streetnumber))
+                        {
+                            maxAmount++;
+                        }
+
+                        if (maxAmount > 0)
+                        {
+                            Dictionary<int, int> personFit = [];
+                            foreach (Person? p in selectPerson)
+                            {
+                                int amount = 0;
+                                if (!string.IsNullOrEmpty(address.City) && p.City != null && p.City.CityNOeconymICollection.Any(x => x.Oeconym.OeconymName.Equals(address.City)))
+                                {
+                                    amount++;
+                                }
+
+                                if (!string.IsNullOrEmpty(address.street) && !string.IsNullOrEmpty(p.Street) && p.Street.Equals(address.street))
+                                {
+                                    amount++;
+                                }
+
+                                if (!string.IsNullOrEmpty(address.Streetnumber) && p.HouseNumber.Equals(address.Streetnumber))
+                                {
+                                    amount++;
+                                }
+
+                                personFit.Add(p.Person_ID, amount);
+                            }
+                            int personID = personFit.MaxBy(x => x.Value).Key;
+                            int maxAmountSelected = personFit.MaxBy(x => x.Value).Value;
+
+                            if (maxAmountSelected > 0)
+                            {
+                                if (maxAmountSelected > maxAmount)
+                                {
+                                    Console.WriteLine("Fehler CreatePostcard adress maxAmountSelected>maxAmount");
+                                }
+                                else if (maxAmount > maxAmountSelected)
+                                {
+                                    postcardModel.PersonReceiverTuple = CreatePerson(address);
+                                }
+                                else
+                                {
+                                    Person? anonymousPersonSelect = selectPerson.FirstOrDefault(x => x.Person_ID.Equals(personID));
+                                    if (anonymousPersonSelect != default)
+                                    {
+                                        postcardModel.PersonReceiverTuple = (anonymousPersonSelect, anonymousPersonSelect.City);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                    else
+                    {
+                        postcardModel.PersonReceiverTuple = CreatePerson(address);
+                    }
+                }
+                postcardModel.HasReceiver = true;
+            }
+        }
+
+        public (Person, City?) CreatePerson((string name, string street, string streetnumber, string postalcode, string city) address)
+        {
+            Person newPerson = new()
+            {
+                Name = address.name,
+                Street = address.street
+            };
+            City city = new();
+
+            try
+            {
+                newPerson.HouseNumber = short.Parse(address.streetnumber);
+            }
+            catch
+            {
+                newPerson.HouseNumber = 0;
+            }
+
+            if (!string.IsNullOrEmpty(address.city))
+            {
+                CityParameterModel cityParameterModel = new()
+                {
+                    Oeconym = new Oeconym() { OeconymName = address.city },
+                    Postalcode = new Postalcode() { PostalcodeNumber = address.postalcode}
+                };
+                var selectedCity = processCity.GetCitiesWithPredicates(cityParameterModel).FirstOrDefault();
+                selectedCity ??= processCity.CreateCity(cityParameterModel).city;
+                city = selectedCity;
+
+                newPerson.City_ID = city.City_ID;
+                newPerson.City = city;
+                _ = _dbIdentityContext.SaveChanges();
+            }
+
+            return (newPerson, city);
+        }
+    }
+}

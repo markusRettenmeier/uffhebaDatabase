@@ -1,0 +1,12 @@
+﻿@{
+    string? statusMessage = ViewData["StatusMessage"] as string;
+}
+
+@if (!String.IsNullOrEmpty(statusMessage))
+{
+    var statusMessageClass = Model.StartsWith("Error") ? "danger" : "success";
+    <div class="alert alert-@statusMessageClass alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @statusMessage
+    </div>
+}

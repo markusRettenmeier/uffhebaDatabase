@@ -1,0 +1,43 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@{
+    ViewData["Title"] = "Analyseergebnis";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div id="AnalysisDiv">
+    <h1>Ergebnis der Analyse</h1>
+    @if ((await AuthorizationService.AuthorizeAsync(User, "SubscribedDiskspacePolicy")).Succeeded)
+    {
+        <form asp-controller="PostcardDatabase" asp-action="CreatePostcardSubmit">
+            <partial name="~/Views/PostcardAnalysis/_AnalysisResultDatas.cshtml" />
+            <button type="submit" class="btn btn-success" onclick="ConcludeLists()">Akzeptieren und erstellen</button>
+        </form>
+    }
+    else if ((await AuthorizationService.AuthorizeAsync(User, "SubscribedAnalysisToolPolicy")).Succeeded)
+    {
+        <form asp-controller="PostcardAnalysis" asp-action="DownloadAnalysisResultYaml" asp-route-userId="@ViewData["userId"]">
+            <partial name="~/Views/PostcardAnalysis/_AnalysisResultDatas.cshtml" />
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <button id="generatePDF" type="button" class="btn btn-outline-dark">Als PDF exportieren</button>
+                <button type="submit" class="btn btn-success" onclick="ConcludeLists()">Als YAML exportieren</button>
+            </div>
+        </form>
+    }
+</div>
+
+<div>
+@if ((await AuthorizationService.AuthorizeAsync(User, "SubscribedDiskspacePolicy")).Succeeded)
+{
+    <a asp-action="AdministerCollectionPostcard" asp-controller="PostcardDatabase">Zurück zur Liste</a>
+}
+else if ((await AuthorizationService.AuthorizeAsync(User, "SubscribedAnalysisToolPolicy")).Succeeded)
+{
+    <a asp-action="UploadPictures" asp-controller="PostcardAnalysis">Zurück zur Liste</a>
+}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>

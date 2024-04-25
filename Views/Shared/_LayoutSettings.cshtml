@@ -1,0 +1,101 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
+<!DOCTYPE html>
+<html lang="de-de">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SammlerDB</title>
+    <link rel="preload" as="font">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" media="print" onload="this.media='all'">
+    <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.min.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand fs-2" asp-controller="Home" asp-action="Frontpage">SammlerDB</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="UserSettings" asp-action="Profile">Profil</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Zu den Seiten
+                            </a>
+                            <ul class="dropdown-menu" style="background-color: #FFFFF0">
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="CityDatabase" asp-action="AdministerCollectionCity">Orte verwalten</a>
+                                </li>
+                                @if ((await AuthorizationService.AuthorizeAsync(User, "SubscribedDiskspacePolicy")).Succeeded)
+                                {
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="PostcardDatabase" asp-action="AdministerCollectionPostcard">Postkarten verwalten</a>
+                                    </li>
+                                }
+                                else if ((await AuthorizationService.AuthorizeAsync(User, "SubscribedAnalysisToolPolicy")).Succeeded)
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="PostcardAnalysis" asp-action="UploadPictures">Postkarte analysieren</a>
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Logout">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container page-wrap pt-2 pb-3">
+        <main role="main">
+            <partial name="_StatusMessage" for="@ViewData["StatusMessage"]" />
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="mt-3">
+        <ul class="nav fixed-bottom">
+            <li class="nav-item">
+                <label class="nav-link"> &copy; 2024 - uffheba -</label>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="PrivacyImprint">Datenschutz & Impressum</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="TermsAndConditions">AGB</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Disclaimer">Widerrufsrecht</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="ReferenceList">Referenzliste</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Documentation">Dokumentation</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="https://bitbucket.org/mark_da_rat/plattformcode/src">Quellcode</a>
+            </li>
+        </ul>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/api.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

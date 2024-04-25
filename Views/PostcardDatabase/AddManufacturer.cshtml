@@ -1,0 +1,66 @@
+﻿@model Sammlerplattform.Models.Manufacturer
+
+@{
+    ViewData["Title"] = "HerstellerHinzufügen";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+
+    var backToList = ViewData["BackToList"] as string;
+    var id = ViewData["SourceId"] as int?;
+    var reason = ViewData["Reason"] as string;
+}
+
+@if (reason == "AddWholeManufacturer")
+{
+    <h1>Hersteller, optional mit Ort, hinzufügen</h1>
+}
+else
+{
+    <h1>Ort zu Hersteller hinzufügen</h1>
+}
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddManufacturerSubmit" asp-controller="PostcardDatabase" asp-route-source="@backToList" asp-route-sourceId="@id" asp-route-reason="@reason">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ManufacturerName" class="control-label"></label>*
+                <input asp-for="ManufacturerName" class="form-control storeInput" required maxlength="100"/>
+                <span asp-validation-for="ManufacturerName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Ort</label>
+                <input name="city_ID" class="form-control" id="InputOeconymID_Manufacturer" type="hidden"/>
+                <input class="form-control InputCity storeInput" id="InputCity_Manufacturer" />
+            </div>
+            <div class="form-group pt-2">
+                @if (reason == "AddWholeManufacturer")
+                {
+                    <input type="submit" value="Erstellen" class="btn btn-primary" />
+                }
+                else
+                {
+                    <input type="submit" value="Hinzufügen" class="btn btn-primary" />
+                }                
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    @if (!string.IsNullOrEmpty(backToList))
+    {
+        @if (backToList == "CreatePostcard")
+        {
+            <a asp-action="CreatePostcard" asp-controller="PostcardDatabase">Zurück</a>
+        }
+        else if (backToList == "EditPostcard")
+        {
+            <a asp-action="EditPostcard" asp-route-id="@id" asp-controller="PostcardDatabase">Zurück</a>
+        }
+    }
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

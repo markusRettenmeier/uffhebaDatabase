@@ -1,0 +1,101 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Sammlerplattform.Data;
+using System.Linq.Expressions;
+using System.Reflection;
+
+namespace Sammlerplattform.Controllers.DAL
+{
+    public class GenericRepository<TEntity>(DbIdentityContext context) where TEntity : class
+    {
+        private static readonly char[] charArray = [','];
+        internal DbIdentityContext context = context;
+        internal DbSet<TEntity> dbSet = context.Set<TEntity>();
+
+        public virtual IEnumerable<TEntity> Get(
+            Expression<Func<TEntity, bool>>? filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
+            string includeProperties = ""
+            )
+        {
+            IQueryable<TEntity> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            foreach (var includeProperty in includeProperties.Split
+                (charArray, StringSplitOptions.RemoveEmptyEntries))
+            {
+                //if (includeProperty.Contains('.'))
+                //{
+                //    var splittedproperty = includeProperties.Split('.');
+                //    query = query.Include(includeProperty);
+                //}
+                query = query.Include(includeProperty);
+            }
+
+            if (orderBy != null)
+            {
+                return [.. orderBy(query)];
+            }
+            else
+            {
+                return [.. query];
+            }
+        }
+
+        public virtual TEntity? GetByID(object id)
+        {
+            return dbSet.Find(id);
+        }
+
+        public virtual TEntity Insert(TEntity entity)
+        {
+            EntityEntry<TEntity> entityEntry = dbSet.Add(entity);
+            if (entityEntry != null)
+                return entityEntry.Entity;
+            else
+                throw new NullReferenceException();
+        }
+
+        public void AddMemberToCollection<TMember>(TEntity parentEntity,
+                                                   Expression<Func<TEntity, ICollection<TMember>>> navigationProperty,
+                                                   TMember member)
+        where TMember : class
+        {
+            var property = (navigationProperty.Body as MemberExpression)?.Member as PropertyInfo;
+            var collection = property?.GetValue(parentEntity) as ICollection<TMember>;
+            collection?.Add(member);
+        }
+
+        public void SetForeignKey<TProperty>(TEntity entity, Expression<Func<TEntity, TProperty>> foreignKeyProperty, TProperty value)
+        {
+            var property = (foreignKeyProperty.Body as MemberExpression)?.Member as PropertyInfo;
+            property?.SetValue(entity, value);
+        }
+
+        public virtual void Delete(object id)
+        {
+            TEntity? entityToDelete = dbSet.Find(id);
+            if(entityToDelete != null)
+                Delete(entityToDelete);
+        }
+
+        public virtual void Delete(TEntity entityToDelete)
+        {
+            if (context.Entry(entityToDelete).State.Equals(EntityState.Detached))
+            {
+                dbSet.Attach(entityToDelete);
+            }
+            dbSet.Remove(entityToDelete);
+        }
+
+        public virtual void Update(TEntity entityToUpdate)
+        {
+            dbSet.Attach(entityToUpdate);
+            context.Entry(entityToUpdate).State.Equals(EntityState.Modified);
+        }
+    }
+}
