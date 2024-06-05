@@ -66,6 +66,8 @@ builder.Services.AddScoped<IProcessPostalcode, PostalcodeProcessor>();
 builder.Services.AddScoped<IProcessEra, EraProcessor>();
 builder.Services.AddScoped<IProcessCity, CityProcessor>();
 builder.Services.AddScoped<IProcessCityNOeconym, CityNOeconymProcessor>();
+builder.Services.AddScoped<IManufactoryRepository, ManufactoryRepository>();
+builder.Services.AddScoped<IProcessManufactory, ManufactoryProcessor>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
@@ -84,6 +86,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseResponseCaching();
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCookiePolicy();
 app.UseRouting();

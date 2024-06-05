@@ -1,9 +1,7 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models;
 using Stripe;
@@ -94,8 +92,8 @@ namespace Sammlerplattform.Controllers
         [HttpPost]
         public async Task<ActionResult> CheckoutSubmit(string email, string lookup_key)
         {
-            var request = HttpContext.Request;
-            var domain = $"{request.Scheme}://{request.Host}";
+            HttpRequest request = HttpContext.Request;
+            string domain = $"{request.Scheme}://{request.Host}";
 
             PriceListOptions priceOptions = new()
             {
@@ -109,7 +107,7 @@ namespace Sammlerplattform.Controllers
 
                 SessionCreateOptions options = new();
                 UsingIdentityUser user = await _userManager.FindByEmailAsync(email) ?? throw new NullReferenceException();
-                
+
                 int daysThisMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
                 int daysNextMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month + 1);
                 int daysPassedThisMonth = DateTime.Now.Day;
@@ -132,7 +130,7 @@ namespace Sammlerplattform.Controllers
                             new SessionSubscriptionDataOptions
                             {
                                 TrialPeriodDays = remainingTestDays,
-                            },                        
+                            },
                         SuccessUrl = domain + "/Account/Logout?returnUrl=%2FAccount%2FLogin",
                         CancelUrl = domain + "/UserSettings/Profile?statusMessage=Cancel"
                     }
@@ -270,7 +268,10 @@ namespace Sammlerplattform.Controllers
             // at https://dashboard.stripe.com/webhooks
             string? endpointSecret = configuration.GetValue<string>("StripeWebhooks");
             if (endpointSecret == null)
+            {
                 _logger.LogError("Kein StripeWebhookKey");
+            }
+
             try
             {
                 Event stripeEvent = EventUtility.ParseEvent(json);
@@ -293,7 +294,7 @@ namespace Sammlerplattform.Controllers
                 else if (stripeEvent.Type == Events.CustomerSubscriptionCreated)
                 {
                     if (stripeEvent.Data.Object is Subscription subscription)
-                    {    
+                    {
                         UsingIdentityUser user = (from u in _dbidentityContext.Users
                                                   where u.StripeCustomer_ID == subscription.CustomerId
                                                   select u).First();
@@ -307,10 +308,15 @@ namespace Sammlerplattform.Controllers
 
                         foreach (SubscriptionItem data in subscription.Items.Data)
                         {
-                            if(data.Price.LookupKey == "SubLookupAnalysisToolMonthly")
+                            if (data.Price.LookupKey == "SubLookupAnalysisToolMonthly")
+                            {
                                 _ = await _userManager.AddClaimAsync(user, new Claim("SubscribedAnalysisTool", subscriptionItems.First().Id));
-                            else if(data.Price.LookupKey == "SubLookupDiskSpaceMonthly")
+                            }
+                            else if (data.Price.LookupKey == "SubLookupDiskSpaceMonthly")
+                            {
                                 _ = await _userManager.AddClaimAsync(user, new Claim("SubscribedDiskspace", subscriptionItems.First().Id));
+                            }
+
                             await SendSubscriptionCreatedMail(user, data, subscription.TrialEnd);
                         }
                     }
@@ -334,15 +340,17 @@ namespace Sammlerplattform.Controllers
                         }
                     }
                 }
-                else if(stripeEvent.Type == Events.CustomerSubscriptionTrialWillEnd)
+                else if (stripeEvent.Type == Events.CustomerSubscriptionTrialWillEnd)
                 {
                     if (stripeEvent.Data.Object is Subscription subscription)
                     {
                         UsingIdentityUser user = (from u in _dbidentityContext.Users
                                                   where u.StripeCustomer_ID == subscription.CustomerId
                                                   select u).First();
-                        if(user.Email != null)
+                        if (user.Email != null)
+                        {
                             await emailSender.SendEmailAsync(user.Email, "Probezeit läuft ab", "Ihre Probezeit läuft in 3 Tagen ab. Wenn Sie Ihr Abonnement nicht kündigen, dann wird dieses automatisch kostenpflichtig.");
+                        }
                     }
                 }
                 else if (stripeEvent.Type == Events.InvoiceCreated)
@@ -395,11 +403,7 @@ namespace Sammlerplattform.Controllers
 
         private async Task SendSubscriptionCreatedMail(UsingIdentityUser user, SubscriptionItem data, DateTime? trialEnd)
         {
-            string kindOfSubscription;
-            if ( data.Price.LookupKey == "SubLookupDiskSpaceMonthly")
-                kindOfSubscription = "Speicherlatz";
-            else
-                kindOfSubscription = "Analysetool";
+            string kindOfSubscription = data.Price.LookupKey == "SubLookupDiskSpaceMonthly" ? "Speicherlatz" : "Analysetool";
             string? checkOutUrl = Url.Action(
                 "Checkout", "Payment",
                 new { user.Email },
@@ -416,13 +420,20 @@ namespace Sammlerplattform.Controllers
                 eMailtext = $"Ihr Abonnement {kindOfSubscription} wurde erfolgreich abgeschlossen. Sie können das Abo einfach unter <a href='{HtmlEncoder.Default.Encode(checkOutUrl)}'>Abonnements verwalten</a> widerrufen." +
                     $"<br />Es gelten unsere <a href='{HtmlEncoder.Default.Encode(termsAndConditionsUrl)}'>AGB</a> Hier finden Sie unsere <a href='{HtmlEncoder.Default.Encode(disclaimerUrl)}'>Widerrufsbelehrung</a>.";
             }
-            if(trialEnd != null)
+            if (trialEnd != null)
+            {
                 eMailtext += $"<br />Sie können das Produkt bis {trialEnd.Value.Day}.{trialEnd.Value.Month}.{trialEnd.Value.Year} testen. Danach läuft dieses Abonnement unbefristet. Es hat <strong>keine Mindestvertragslaufzeit</strong>. Bei einer Kündigung läuft der Vertrag noch 1 Monat weiter.";
+            }
             else
+            {
                 eMailtext += $"<br />Sie können das Produkt bis Mitte des darauffolgenden Monats testen. Danach läuft dieses Abonnement unbefristet. Es hat <strong>keine Mindestvertragslaufzeit</strong>. Bei einer Kündigung läuft der Vertrag noch 1 Monat weiter.";
+            }
+
             eMailtext += $"<br />Anbei finden Sie die AGB, das Widerrufsrecht, die Preisbildung.";
             if (user.Email != null)
+            {
                 await emailSender.SendEmailAsync(user.Email, "Abonnement abgeschlossen", eMailtext);
+            }
         }
 
         public async Task AddCustomerToUser(Customer customer)

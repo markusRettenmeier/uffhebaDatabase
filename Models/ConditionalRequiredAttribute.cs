@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Sammlerplattform.Models
 {
@@ -10,13 +9,13 @@ namespace Sammlerplattform.Models
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var dependentProperty = validationContext.ObjectType.GetProperty(DependentPropertyName);
+            System.Reflection.PropertyInfo? dependentProperty = validationContext.ObjectType.GetProperty(DependentPropertyName);
             if (dependentProperty == null)
             {
                 return new ValidationResult($"Unknown property: {DependentPropertyName}");
             }
 
-            var dependentPropertyValue = dependentProperty.GetValue(validationContext.ObjectInstance);
+            object? dependentPropertyValue = dependentProperty.GetValue(validationContext.ObjectInstance);
             if (dependentPropertyValue != null && dependentPropertyValue.Equals(TargetValue))
             {
                 // If dependent property matches the target value, require validation

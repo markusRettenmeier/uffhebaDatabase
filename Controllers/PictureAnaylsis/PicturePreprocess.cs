@@ -162,7 +162,7 @@ namespace Sammlerplattform.Controllers.PictureAnaylsis
             fileName = random.Next(1, 1000) + DateTime.Now.ToString("_ddMMyyhhmmss");
             //int frontsideNr = random.Next(1, 1000) + DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second + DateTime.Now.Millisecond + DateTime.Now.Microsecond;
             pathFile = Path.Combine(pathTemp, fileName + ".png");
-            
+
             ms = new MemoryStream();
             fileToAnalyze.CopyTo(ms);
             ms.Position = 0;

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sammlerplattform.Models
+namespace Sammlerplattform.Models.CityDatabase
 {
     public class Oeconym
     {
@@ -9,10 +9,11 @@ namespace Sammlerplattform.Models
         [Key]
         public int Oeconym_ID { get; set; }
 
-        [Required(ErrorMessage = "Bitte Name eingeben")]
-        [StringLength(50)]
+        [Required(ErrorMessage = "Bitte Ortsname eingeben")]
+        [StringLength(80)]
         [Display(Name = "Ortsname (auch alt)")]
+        [RegularExpression(@"^[a-zA-Z]{1,50}$", ErrorMessage = "Der Ortsname darf nur Buchstaben und max. 50 Zeichen enthalten.")]
         public required string OeconymName { get; set; }
-        public ICollection<CityNOeconym> CityNOeconyms { get; set; } = [];
+        public ICollection<CityNOeconym> CityNOeconymICollection { get; set; } = [];
     }
 }

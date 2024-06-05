@@ -3,19 +3,19 @@
         source: '/api/collections/autocompleteGeographyName'
     })
 })
-$(document.body).on('keydown', 'input.InputAuthorArtist', function (event) {
-    $(this).autocomplete({
-        source: '/api/collections/autocompleteAuthorArtist'
-    })
-})
 $(document.body).on('keydown', 'input.InputEra', function (event) {
     $(this).autocomplete({
         source: '/api/collections/autocompleteEra'
     })
 })
-$(document.body).on('keydown', 'input.InputManufacturer', function (event) {
+$(document.body).on('keydown', 'input.InputManufactory', function (event) {
     $(this).autocomplete({
-        source: '/api/collections/autocompleteManufacturer'
+        source: '/api/collections/autocompleteManufactory'
+    })
+})
+$(document.body).on('keydown', 'input.InputProductionFacility', function (event) {
+    $(this).autocomplete({
+        source: '/api/collections/autocompleteProductionFacility'
     })
 })
 
@@ -25,19 +25,21 @@ $(function () {
     })
 })
 $(function () {
-    $(document.body).on('change', 'input.InputAuthorArtist', function (event) {
-        callAjaxAuthorArtistID()
-    })
-})
-$(function () {
     $(document.body).on('change', 'input.InputEra', function (event) {
-        callAjaxEraID()
+        var currentId = $(this).prop('id').split('_').pop()
+        callAjaxEraID(currentId)
     })
 })
 $(function () {
-    $(document.body).on('change', 'input.InputManufacturer', function (event) {
+    $(document.body).on('change', 'input.InputManufactory', function (event) {
         var currentId = $(this).prop('id').split('_').pop()
-        callAjaxManufacturerID(currentId)
+        callAjaxManufactoryID(currentId)
+    })
+})
+$(function () {
+    $(document.body).on('change', 'input.InputProductionFacility', function (event) {
+        var currentId = $(this).prop('id').split('_').pop()
+        callAjaxProductionFacilityID(currentId)
     })
 })
 
@@ -56,38 +58,23 @@ function callAjaxGeographyID(InputId) {
         })
     }
 }
-function callAjaxAuthorArtistID() {
-    var aa = $('.InputAuthorArtist').val()
-    if (aa != '') {
-        $.ajax({
-            url: '/api/collections/autocompleteAuthorArtistID',
-            data: { term: aa },
-            success: function (result) {
-                $('.InputAuthorArtistID').val(result)
-                if (result == '')
-                    $('.InputAuthorArtist').val('Bitte Autor/Künstler erstellen').css('color', 'red')
-                else
-                    $('.InputAuthorArtist').css('color', 'black')
-            },
-            error: function (xhr, status, error) {
-                sendErrorMessage(xhr)
-            }
-        })
-    }
-}
 
-function callAjaxEraID() {
-    var era = $('.InputEra').val()
+function callAjaxEraID(Id) {
+    var era = $('#InputEra_' + Id).val()
     if (era != '') {
         $.ajax({
             url: '/api/collections/autocompleteEraID',
             data: { term: era },
             success: function (result) {
-                $('.InputEraID').val(result)
                 if (result == '')
-                    $('.InputEra').val('Bitte Ära erfassen').css('color', 'red')
-                else
-                    $('.InputEra').css('color', 'black')
+                    $('#InputEra_' + Id).val('Bitte Verlag erstellen').css('color', 'red')
+                else {
+                    $('.InputEraID_' + Id).val(result)
+                    if (result == '')
+                        $('.InputEra').val('Bitte Ära erfassen').css('color', 'red')
+                    else
+                        $('.InputEra').css('color', 'black')
+                }
             },
             error: function (xhr, status, error) {
                 sendErrorMessage(xhr)
@@ -96,22 +83,22 @@ function callAjaxEraID() {
     }
 }
 
-function callAjaxManufacturerID(Id) {
-    var manufacturer = $('#InputManufacturer_' + Id).val()
-    if (manufacturer != '') {
+function callAjaxManufactoryID(Id) {
+    var manufactory = $('#InputManufactory_' + Id).val()
+    if (manufactory != '') {
         $.ajax({
-            url: '/api/collections/autocompleteManufacturerID',
-            data: { term: manufacturer },
+            url: '/api/collections/autocompleteManufactoryID',
+            data: { term: manufactory },
             success: function (result) {
                 if (result == '')
-                    $('#InputManufacturer_' + Id).val('Bitte Verlag erstellen').css('color', 'red')
+                    $('#InputManufactory_' + Id).val('Bitte Verlag erstellen').css('color', 'red')
                 else {
-                    $('#InputManufacturerID_' + Id).val(result)
+                    $('#InputManufactoryID_' + Id).val(result)
                     $.ajax({
-                        url: '/api/collections/autocompleteCityOfManufacturer',
+                        url: '/api/collections/autocompleteCityOfManufactory',
                         data: { term: result },
                         success: function (newResult) {
-                            let select = document.getElementById('TownOfManufacturerSelect_' + Id)
+                            let select = document.getElementById('TownOfManufactorySelect_' + Id)
                             // if sth else was selected before, replaceChildren clears the former options
                             select.replaceChildren()
                             createOptionInSelect('', select, 'Wählen Sie einen Ort aus, falls genannt')
@@ -142,16 +129,36 @@ function callAjaxManufacturerID(Id) {
     }
 }
 
+function callAjaxProductionFacilityID() {
+    var industrialSector = $('.InputProductionFacility').val()
+    if (industrialSector != '') {
+        $.ajax({
+            url: '/api/collections/autocompleteProductionFacilityID',
+            data: { term: industrialSector },
+            success: function (result) {
+                $('.InputProductionFacilityID').val(result)
+                if (result == '')
+                    $('.InputProductionFacility').val('Bitte Branche über Administrator erfassen').css('color', 'red')
+                else
+                    $('.InputProductionFacility').css('color', 'black')
+            },
+            error: function (xhr, status, error) {
+                sendErrorMessage(xhr)
+            }
+        })
+    }
+}
+
 $(".ExistingCitiesSearchSubmit").on('click', function () {
     var city = $('.InputOeconymSearch').val()
     $.ajax({
         url: '/api/collections/listCities',
         data: { term: city },
         success: function (result) {
-            let myTable = document.getElementById("citySearchResultTable")
             let TableBody = document.getElementById('citySearchResultTableBody')
             if (TableBody != null)
                 TableBody.remove()
+            let myTable = document.getElementById("citySearchResultTable")
             let mybody = myTable.createTBody()
             mybody.setAttribute('id', 'citySearchResultTableBody');
             if (result.length > 0) {
@@ -159,9 +166,11 @@ $(".ExistingCitiesSearchSubmit").on('click', function () {
                     var innerHtml = '<tr id="citySearchResult_' + count + '">'
                     innerHtml = CitySearchResultInnerHtml(innerHtml, count, element)
                     if (window.location.href.indexOf('PostcardDatabase') > -1) {
-                        innerHtml += '<td id="citySearchResultAction_' + count + '" ><div class="btn-group" role="group" aria-label="Assign City"><button class="btn btn-primary" id="citySearchResult_' + count + '" onclick="AddCityToPostcard(' + count + ')">Zu Postkarte hinzufügen</button><button class="btn btn-primary" id="citySearchResult_' + count + '" onclick="AddCityToReceiver(' + count + ')">Zu Empfänger hinzufügen</button></div></td></tr >'
+                        innerHtml += '<td id="citySearchResultAction_' + count + '" ><div class="btn-group" role="group" aria-label="Assign City"><button class="btn btn-primary " id="citySearchResult_' + count + '" onclick="AddCityToPostcard(' + count + ')" type="button">Zu Postkarte hinzufügen</button><button type="button" class="btn btn-primary" id="citySearchResult_' + count + '" onclick="AddCityToReceiver(' + count + ')">Zu Empfänger hinzufügen</button></div></td></tr >'
                     } else if (window.location.href.indexOf('CityDatabase') > -1) {
-                        innerHtml += '<td id="citySearchResultAction_' + count + '"><button class="btn btn-primary" id="citySearchResult_' + count + '" onclick="AddParentCity(' + count + ')">Auswählen</button></td></tr>'
+                        innerHtml += '<td id="citySearchResultAction_' + count + '"><button class="btn btn-primary SearchResultButton" id="citySearchResult_' + count + '" onclick="AddParentCity(' + count + ')" type="button">Auswählen</button></td></tr>'
+                    } else if (window.location.href.indexOf('ManufactoryDatabase') > -1) {
+                        innerHtml += '<td id="citySearchResultAction_' + count + '"><button class="btn btn-primary SearchResultButton" id="citySearchResult_' + count + '" onclick="AddCityToManufactory(' + count + ')" type="button">Auswählen</button></td></tr>'
                     }
                     $('#citySearchResultTable').find('tbody').append(innerHtml)
                 });
@@ -187,6 +196,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+$(".createManufactorySubmitApiButton").on('click', function () {
+    var manufactoryName = $(".ManufactoryModalInputName").val()
+    var productionFacilityName = $(".ManufactoryModalInputProductionFacility").val()
+
+    const createManufactorySpan = $("#createManufactorySpan");
+    if (manufactoryName == undefined) {
+        displayErrorMessage(createManufactorySpan, 'Herstellername fehlt');
+    } else {
+        var requestData = {
+            Manufactory: {
+                ManufactoryName: manufactoryName
+            },
+            ProductionFacility: {
+                ProductionFacilityName: productionFacilityName
+            }
+        };
+        $.ajax({
+            url: '/Api/ManufactoryDatabaseRestAPI/CreateManufactorySubmit',
+            data: JSON.stringify(requestData),
+            type: "POST",
+            contentType: "application/json",
+            success: function (result) {
+                $("#createManufactorySpan").text(result);
+            },
+            error: function (xhr, status, error) {
+                sendErrorMessage(xhr)
+            }
+        });
+    }
+})
+
 $(".createCitySubmitApiButton").on('click', function () {
     var postalcodeNumberList = [];
     $(".CityModalInputPostalcodeNumber").each(function () {
@@ -205,12 +245,6 @@ $(".createCitySubmitApiButton").on('click', function () {
     } else if (oeconymList.length === '') {
         displayErrorMessage(createCitySpan, 'Ort fehlt');
     } else {
-        //var requestData = {
-        //    OeconymList: oeconymList,
-        //    GeographyName: geographyName,
-        //    Byname: Byname,
-        //    PostalcodeNumberList: postalcodeNumberList
-        //};
         var requestData = {
             City: {
                 Byname: Byname

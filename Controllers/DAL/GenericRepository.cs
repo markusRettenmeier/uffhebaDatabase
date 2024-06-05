@@ -25,25 +25,13 @@ namespace Sammlerplattform.Controllers.DAL
                 query = query.Where(filter);
             }
 
-            foreach (var includeProperty in includeProperties.Split
+            foreach (string includeProperty in includeProperties.Split
                 (charArray, StringSplitOptions.RemoveEmptyEntries))
             {
-                //if (includeProperty.Contains('.'))
-                //{
-                //    var splittedproperty = includeProperties.Split('.');
-                //    query = query.Include(includeProperty);
-                //}
                 query = query.Include(includeProperty);
             }
 
-            if (orderBy != null)
-            {
-                return [.. orderBy(query)];
-            }
-            else
-            {
-                return [.. query];
-            }
+            return orderBy != null ? ([.. orderBy(query)]) : ([.. query]);
         }
 
         public virtual TEntity? GetByID(object id)
@@ -54,10 +42,7 @@ namespace Sammlerplattform.Controllers.DAL
         public virtual TEntity Insert(TEntity entity)
         {
             EntityEntry<TEntity> entityEntry = dbSet.Add(entity);
-            if (entityEntry != null)
-                return entityEntry.Entity;
-            else
-                throw new NullReferenceException();
+            return entityEntry != null ? entityEntry.Entity : throw new NullReferenceException();
         }
 
         public void AddMemberToCollection<TMember>(TEntity parentEntity,
@@ -65,37 +50,48 @@ namespace Sammlerplattform.Controllers.DAL
                                                    TMember member)
         where TMember : class
         {
-            var property = (navigationProperty.Body as MemberExpression)?.Member as PropertyInfo;
-            var collection = property?.GetValue(parentEntity) as ICollection<TMember>;
+            PropertyInfo? property = (navigationProperty.Body as MemberExpression)?.Member as PropertyInfo;
+            ICollection<TMember>? collection = property?.GetValue(parentEntity) as ICollection<TMember>;
             collection?.Add(member);
+        }
+        public void RemoveMemberFromCollection<TMember>(TEntity parentEntity,
+                                            Expression<Func<TEntity, ICollection<TMember>>> navigationProperty,
+                                            TMember member)
+        where TMember : class
+        {
+            PropertyInfo? property = (navigationProperty.Body as MemberExpression)?.Member as PropertyInfo;
+            ICollection<TMember>? collection = property?.GetValue(parentEntity) as ICollection<TMember>;
+            _ = (collection?.Remove(member));
         }
 
         public void SetForeignKey<TProperty>(TEntity entity, Expression<Func<TEntity, TProperty>> foreignKeyProperty, TProperty value)
         {
-            var property = (foreignKeyProperty.Body as MemberExpression)?.Member as PropertyInfo;
+            PropertyInfo? property = (foreignKeyProperty.Body as MemberExpression)?.Member as PropertyInfo;
             property?.SetValue(entity, value);
         }
 
         public virtual void Delete(object id)
         {
             TEntity? entityToDelete = dbSet.Find(id);
-            if(entityToDelete != null)
+            if (entityToDelete != null)
+            {
                 Delete(entityToDelete);
+            }
         }
 
         public virtual void Delete(TEntity entityToDelete)
         {
             if (context.Entry(entityToDelete).State.Equals(EntityState.Detached))
             {
-                dbSet.Attach(entityToDelete);
+                _ = dbSet.Attach(entityToDelete);
             }
-            dbSet.Remove(entityToDelete);
+            _ = dbSet.Remove(entityToDelete);
         }
 
         public virtual void Update(TEntity entityToUpdate)
         {
-            dbSet.Attach(entityToUpdate);
-            context.Entry(entityToUpdate).State.Equals(EntityState.Modified);
+            _ = dbSet.Attach(entityToUpdate);
+            _ = context.Entry(entityToUpdate).State.Equals(EntityState.Modified);
         }
     }
 }

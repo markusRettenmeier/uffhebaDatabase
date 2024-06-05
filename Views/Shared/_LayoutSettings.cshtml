@@ -33,6 +33,9 @@
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="CityDatabase" asp-action="AdministerCollectionCity">Orte verwalten</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="ManufactoryDatabase" asp-action="AdministerCollectionManufactory">Hersteller verwalten</a>
+                                </li>
                                 @if ((await AuthorizationService.AuthorizeAsync(User, "SubscribedDiskspacePolicy")).Succeeded)
                                 {
                                     <li><hr class="dropdown-divider"></li>
@@ -85,17 +88,17 @@
             <li class="nav-item">
                 <a class="nav-link" asp-controller="Home" asp-action="Documentation">Dokumentation</a>
             </li>
-            <li class="nav-item">
+            @* <li class="nav-item">
                 <a class="nav-link" href="https://bitbucket.org/mark_da_rat/plattformcode/src">Quellcode</a>
-            </li>
+            </li> *@
         </ul>
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/api.js" asp-append-version="true"></script>
+    <script src="~/js/site.min.js" asp-append-version="true"></script>
+    <script src="~/js/api.min.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

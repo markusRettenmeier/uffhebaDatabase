@@ -1,15 +1,14 @@
 ﻿using LinqKit;
-using Sammlerplattform.Models;
 using System.Linq.Expressions;
 
 namespace Sammlerplattform.Controllers.GenericClasses
 {
     public class GenericLambdas
     {
-        public static Expression<Func<PostcardModel, bool>> CreateLambdaStringContainsJoin(string table, string columnName, ICollection<string> searchValues)
+        public static Expression<Func<T, bool>> CreateLambdaStringContainsJoin<T>(string table, string columnName, ICollection<string> searchValues)
         {
-            ExpressionStarter<PostcardModel> predicateloc = PredicateBuilder.New<PostcardModel>();
-            ParameterExpression eParam = Expression.Parameter(typeof(PostcardModel), "c");
+            ExpressionStarter<T> predicateloc = PredicateBuilder.New<T>();
+            ParameterExpression eParam = Expression.Parameter(typeof(T), "c");
             System.Reflection.MethodInfo? method = typeof(string).GetMethod("Contains", [typeof(string)]);
             if (method is null)
             {
@@ -21,7 +20,7 @@ namespace Sammlerplattform.Controllers.GenericClasses
                 if (!string.IsNullOrWhiteSpace(searchValue))
                 {
                     MethodCallExpression call = Expression.Call(Expression.Property(Expression.Property(eParam, table), columnName), method, Expression.Constant(searchValue));
-                    Expression<Func<PostcardModel, bool>> lambda = Expression.Lambda<Func<PostcardModel, bool>>(call, eParam);
+                    Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(call, eParam);
                     predicateloc = predicateloc.Or(lambda);
                 }
             }
@@ -29,10 +28,10 @@ namespace Sammlerplattform.Controllers.GenericClasses
             return predicateloc;
         }
 
-        public static Expression<Func<PostcardModel, bool>> CreateLambdaStringEqualsJoin(string table, string columnName, ICollection<string> searchValues)
+        public static Expression<Func<T, bool>> CreateLambdaStringEqualsJoin<T>(string table, string columnName, ICollection<string> searchValues)
         {
-            ExpressionStarter<PostcardModel> predicateloc = PredicateBuilder.New<PostcardModel>();
-            ParameterExpression pe = Expression.Parameter(typeof(PostcardModel), "c");
+            ExpressionStarter<T> predicateloc = PredicateBuilder.New<T>();
+            ParameterExpression pe = Expression.Parameter(typeof(T), "c");
             MemberExpression column = Expression.Property(Expression.Property(pe, table), columnName);
             System.Reflection.MethodInfo? method = searchValues.GetType().GetMethod("Equals");
             if (method is null)
@@ -46,7 +45,7 @@ namespace Sammlerplattform.Controllers.GenericClasses
                 {
                     ConstantExpression constant = Expression.Constant(searchvalue.Trim());
                     MethodCallExpression callPredicate = Expression.Call(constant, method, column);
-                    Expression<Func<PostcardModel, bool>> lambda = Expression.Lambda<Func<PostcardModel, bool>>(callPredicate, pe);
+                    Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(callPredicate, pe);
                     predicateloc = predicateloc.Or(lambda);
                 }
             }
@@ -54,22 +53,22 @@ namespace Sammlerplattform.Controllers.GenericClasses
             return predicateloc;
         }
 
-        public static Expression<Func<PostcardModel, bool>> CreateLambdaSpanNullIntJoin(string table, string columnName, ICollection<int> searchValues)
+        public static Expression<Func<T, bool>> CreateLambdaSpanNullIntJoin<T>(string table, string columnName, ICollection<int> searchValues)
         {
-            ExpressionStarter<PostcardModel> predicateloc = PredicateBuilder.New<PostcardModel>();
-            ParameterExpression pe = Expression.Parameter(typeof(PostcardModel), "s");
+            ExpressionStarter<T> predicateloc = PredicateBuilder.New<T>();
+            ParameterExpression pe = Expression.Parameter(typeof(T), "s");
             MemberExpression column = Expression.Property(Expression.Property(pe, table), columnName);
 
             if (searchValues.Count == 1)
             {
                 ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
-                predicateloc = Expression.Lambda<Func<PostcardModel, bool>>(Equal(column, constant), [pe]);
+                predicateloc = Expression.Lambda<Func<T, bool>>(Equal(column, constant), [pe]);
             }
             else if (searchValues.Count == 2)
             {
                 ConstantExpression constant0 = Expression.Constant(searchValues.ToArray()[0]);
                 ConstantExpression constant1 = Expression.Constant(searchValues.ToArray()[1]);
-                predicateloc = Expression.Lambda<Func<PostcardModel, bool>>(
+                predicateloc = Expression.Lambda<Func<T, bool>>(
                     Expression.AndAlso(
                         GreaterThanOrEqual(column, constant0),
                         LessThanOrEqual(column, constant1)),
@@ -80,23 +79,23 @@ namespace Sammlerplattform.Controllers.GenericClasses
                 foreach (int value in searchValues)
                 {
                     ConstantExpression constant = Expression.Constant(value);
-                    Expression<Func<PostcardModel, bool>> lambda = Expression.Lambda<Func<PostcardModel, bool>>(
+                    Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(
                         Equal(column, constant), [pe]);
                     predicateloc = predicateloc.Or(lambda);
                 }
             }
             return predicateloc;
         }
-        public static Expression<Func<PostcardModel, bool>> CreateLambdaSpanIntJoin(string table, string columnName, ICollection<int> searchValues)
+        public static Expression<Func<T, bool>> CreateLambdaSpanIntJoin<T>(string table, string columnName, ICollection<int> searchValues)
         {
-            ExpressionStarter<PostcardModel> predicateloc = PredicateBuilder.New<PostcardModel>();
+            ExpressionStarter<T> predicateloc = PredicateBuilder.New<T>();
             System.Reflection.MethodInfo? method = searchValues.GetType().GetMethod("Equals");
             if (method == null)
             {
                 return predicateloc;
             }
 
-            ParameterExpression pe = Expression.Parameter(typeof(PostcardModel), "s");
+            ParameterExpression pe = Expression.Parameter(typeof(T), "s");
             MemberExpression column = Expression.Property(Expression.Property(pe, table), columnName);
 
             if (searchValues.Count == 1)
@@ -104,14 +103,14 @@ namespace Sammlerplattform.Controllers.GenericClasses
                 ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
                 UnaryExpression converted = Expression.Convert(constant, typeof(object));
                 MethodCallExpression callPredicate = Expression.Call(column, method, converted);
-                Expression<Func<PostcardModel, bool>> lambda = Expression.Lambda<Func<PostcardModel, bool>>(callPredicate, pe);
+                Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(callPredicate, pe);
                 predicateloc = predicateloc.Or(lambda);
             }
             else if (searchValues.Count == 2)
             {
                 ConstantExpression constant0 = Expression.Constant(searchValues.ToArray()[0]);
                 ConstantExpression constant1 = Expression.Constant(searchValues.ToArray()[1]);
-                predicateloc = Expression.Lambda<Func<PostcardModel, bool>>(
+                predicateloc = Expression.Lambda<Func<T, bool>>(
                     Expression.AndAlso(
                         GreaterThanOrEqual(column, constant0),
                         LessThanOrEqual(column, constant1)),
@@ -124,30 +123,30 @@ namespace Sammlerplattform.Controllers.GenericClasses
                     ConstantExpression constant = Expression.Constant(value);
                     UnaryExpression converted = Expression.Convert(constant, typeof(object));
                     MethodCallExpression callPredicate = Expression.Call(column, method, converted);
-                    Expression<Func<PostcardModel, bool>> lambda = Expression.Lambda<Func<PostcardModel, bool>>(callPredicate, pe);
+                    Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(callPredicate, pe);
                     predicateloc = predicateloc.Or(lambda);
                 }
             }
             return predicateloc;
         }
 
-        public static Expression<Func<PostcardModel, bool>> CreateLambdaSpanDateTimeJoin(string table, string columnName, ICollection<DateTime> searchValues)
+        public static Expression<Func<T, bool>> CreateLambdaSpanDateTimeJoin<T>(string table, string columnName, ICollection<DateTime> searchValues)
         {
-            ExpressionStarter<PostcardModel> predicateloc = PredicateBuilder.New<PostcardModel>();
+            ExpressionStarter<T> predicateloc = PredicateBuilder.New<T>();
 
-            ParameterExpression pe = Expression.Parameter(typeof(PostcardModel), "s");
+            ParameterExpression pe = Expression.Parameter(typeof(T), "s");
             MemberExpression column = Expression.Property(Expression.Property(pe, table), columnName);
 
             if (searchValues.Count == 1)
             {
                 ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
-                predicateloc = Expression.Lambda<Func<PostcardModel, bool>>(Equal(column, constant), [pe]);
+                predicateloc = Expression.Lambda<Func<T, bool>>(Equal(column, constant), [pe]);
             }
             else if (searchValues.Count == 2)
             {
                 ConstantExpression constant0 = Expression.Constant(searchValues.ToArray()[0]);
                 ConstantExpression constant1 = Expression.Constant(searchValues.ToArray()[1]);
-                predicateloc = Expression.Lambda<Func<PostcardModel, bool>>(
+                predicateloc = Expression.Lambda<Func<T, bool>>(
                     Expression.AndAlso(
                         GreaterThanOrEqual(column, constant0),
                         LessThanOrEqual(column, constant1)),
@@ -156,9 +155,9 @@ namespace Sammlerplattform.Controllers.GenericClasses
             return predicateloc;
         }
 
-        public static Expression<Func<PostcardModel, bool>> CreateLambdaSpanDateTimeYearJoin(string table, string columnName, ICollection<int> searchValues)
+        public static Expression<Func<T, bool>> CreateLambdaSpanDateTimeYearJoin<T>(string table, string columnName, ICollection<int> searchValues)
         {
-            ParameterExpression pe = Expression.Parameter(typeof(PostcardModel), "s");
+            ParameterExpression pe = Expression.Parameter(typeof(T), "s");
             MemberExpression column = Expression.Property(Expression.Property(pe, table), columnName);
             string stringDate_Beginning = string.Empty;
             string stringDate_Ending = string.Empty;
@@ -175,7 +174,7 @@ namespace Sammlerplattform.Controllers.GenericClasses
             }
             ConstantExpression constant0 = Expression.Constant(Convert.ToDateTime(stringDate_Beginning));
             ConstantExpression constant1 = Expression.Constant(Convert.ToDateTime(stringDate_Ending));
-            ExpressionStarter<PostcardModel> predicateloc = Expression.Lambda<Func<PostcardModel, bool>>(
+            ExpressionStarter<T> predicateloc = Expression.Lambda<Func<T, bool>>(
                 Expression.AndAlso(
                     GreaterThanOrEqual(column, constant0),
                     LessThanOrEqual(column, constant1)),
@@ -183,23 +182,23 @@ namespace Sammlerplattform.Controllers.GenericClasses
             return predicateloc;
         }
 
-        public static Expression<Func<PostcardModel, bool>> CreateLambdaSpanDecimalJoin(string table, string columnName, ICollection<decimal> searchValues)
+        public static Expression<Func<T, bool>> CreateLambdaSpanDecimalJoin<T>(string table, string columnName, ICollection<decimal> searchValues)
         {
-            ExpressionStarter<PostcardModel> predicateloc = PredicateBuilder.New<PostcardModel>();
+            ExpressionStarter<T> predicateloc = PredicateBuilder.New<T>();
 
-            ParameterExpression pe = Expression.Parameter(typeof(PostcardModel), "s");
+            ParameterExpression pe = Expression.Parameter(typeof(T), "s");
             MemberExpression column = Expression.Property(Expression.Property(pe, table), columnName);
 
             if (searchValues.Count == 1)
             {
                 ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
-                predicateloc = Expression.Lambda<Func<PostcardModel, bool>>(Equal(column, constant), [pe]);
+                predicateloc = Expression.Lambda<Func<T, bool>>(Equal(column, constant), [pe]);
             }
             else if (searchValues.Count == 2)
             {
                 ConstantExpression constant0 = Expression.Constant(searchValues.ToArray()[0]);
                 ConstantExpression constant1 = Expression.Constant(searchValues.ToArray()[1]);
-                predicateloc = Expression.Lambda<Func<PostcardModel, bool>>(
+                predicateloc = Expression.Lambda<Func<T, bool>>(
                     Expression.AndAlso(
                         GreaterThanOrEqual(column, constant0),
                         LessThanOrEqual(column, constant1)),

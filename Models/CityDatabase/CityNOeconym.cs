@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sammlerplattform.Models
+namespace Sammlerplattform.Models.CityDatabase
 {
     public class CityNOeconym
     {
@@ -13,7 +13,7 @@ namespace Sammlerplattform.Models
         public int Oeconym_ID { get; set; }
         public Oeconym Oeconym { get; set; } = new() { OeconymName = "" };
 
-        [Display(Name ="Aktueller Name")]
+        [Display(Name = "Aktueller Name")]
         public bool CurrentName { get; set; }
     }
 }

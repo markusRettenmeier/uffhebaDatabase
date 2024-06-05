@@ -65,9 +65,9 @@
                 </td>
                 <td>
                     <div>
-                        <a asp-action="EditPostcard" asp-controller="PostcardDatabase" asp-route-id="@item.PostcardPotential.Product_ID">Ändern</a>
-                        | <a asp-action="DeletePostcard" asp-controller="PostcardDatabase" asp-route-potentialId="@item.PostcardPotential.Product_ID" asp-route-entityId="@item.PostcardEntity.PostcardEntity_ID">Löschen</a>
-                        | <a asp-action="DownloadPostcards" asp-controller="PostcardDatabase" asp-route-potentialId="@item.PostcardPotential.Product_ID" asp-route-userId="@ViewData["userId"]">Herunterladen als YAML</a>
+                        <a asp-action="EditPostcard" asp-controller="PostcardDatabase" asp-route-id="@item.PostcardPotential.PostcardPotential_ID">Ändern</a>
+                        | <a asp-action="DeletePostcard" asp-controller="PostcardDatabase" asp-route-potentialId="@item.PostcardPotential.PostcardPotential_ID" asp-route-entityId="@item.PostcardEntity.PostcardEntity_ID">Löschen</a>
+                        | <a asp-action="DownloadPostcards" asp-controller="PostcardDatabase" asp-route-potentialId="@item.PostcardPotential.PostcardPotential_ID" asp-route-userId="@ViewData["userId"]">Herunterladen als YAML</a>
                     </div>
                 </td>
             </tr>

@@ -2,7 +2,7 @@
 
 namespace Sammlerplattform.Models
 {
-    public class StampPotential : Product
+    public class StampPotential : ProductPotential
     {
         [Display(Name = "Markenart")]
         public int? StampType { get; set; }

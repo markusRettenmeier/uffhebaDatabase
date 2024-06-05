@@ -7,6 +7,7 @@ using Sammlerplattform.Controllers.PictureAnaylsis;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models;
 using Sammlerplattform.Services;
+using System.Data.Entity;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 
@@ -50,13 +51,14 @@ namespace Sammlerplattform.Controllers
                 ],
                 Publishers =
                 [
-                    .. (from p in _dbIdentityContext.Manufacturer
-                        select p.ManufacturerName),
+                    .. (from p in _dbIdentityContext.Manufactory
+                        select p.ManufactoryName),
                 ],
                 AuthorArtists =
                 [
-                    .. (from aa in _dbIdentityContext.AuthorArtist
-                        select aa.AAName),
+                    .. (from aa in _dbIdentityContext.Person.Include(x => x.ProfessionICollection)
+                        where aa.ProfessionICollection.Any(x => x.ProfessionName.Equals(1) || x.ProfessionName.Equals(2))
+                        select aa.Name),
                 ]
             };
             List<string> buildingList = [];
@@ -605,13 +607,14 @@ namespace Sammlerplattform.Controllers
                 ],
                 Publishers =
                 [
-                    .. (from p in _dbIdentityContext.Manufacturer
-                        select p.ManufacturerName),
+                    .. (from p in _dbIdentityContext.Manufactory
+                        select p.ManufactoryName),
                 ],
                 AuthorArtists =
                 [
-                    .. (from aa in _dbIdentityContext.AuthorArtist
-                        select aa.AAName),
+                    .. (from aa in _dbIdentityContext.Person.Include(x => x.ProfessionICollection)
+                        where aa.ProfessionICollection.Any(x => x.ProfessionName.Equals(1) || x.ProfessionName.Equals(2))
+                        select aa.Name),
                 ]
             };
             //var eraSelect = (from e in _dbIdentityContext.Era
@@ -767,13 +770,13 @@ namespace Sammlerplattform.Controllers
                 using FileStream sw = System.IO.File.Create(yamlFile);
                 byte[] yaml = [];
                 Sammlerplattform.Models.Download.PostcardDownloadModel postcardDownloadModel = YamlProcessor.ComposeForDownload(postcardModel, _dbIdentityContext, processCity);
-                var spty = YamlProcessor.SerializePostcardToYaml(postcardDownloadModel);
+                byte[] spty = YamlProcessor.SerializePostcardToYaml(postcardDownloadModel);
                 sw.Write(spty);
             }
 
             ZipFile.CreateFromDirectory(downloadFolder, zipFile);
-            var memory = new MemoryStream();
-            using (var stream = new FileStream(zipFile, FileMode.Open))
+            MemoryStream memory = new();
+            using (FileStream stream = new(zipFile, FileMode.Open))
             {
                 await stream.CopyToAsync(memory);
             }

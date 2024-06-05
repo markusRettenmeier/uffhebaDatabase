@@ -6,8 +6,13 @@ var oldColumn;
 
 const columns = [
     ['Product_ID', 'number']
-    , ['City', 'text']
     , ['Postalcode', 'text']
+    , ['Oeconym', 'text']
+    , ['Byname', 'text']
+    , ['Geography', 'text']
+    , ['ParentCity', 'text']
+    , ['Manufactory', 'text']
+    , ['ProductionFacility', 'text']
     //, ['SerialNumber', 'text']
     //, ['ProductionYear', 'number']
     //, ['AAName', 'text']
@@ -20,7 +25,7 @@ const columns = [
     //, ['ColorProcessing', 'multiselect']
     //, ['ColorImage', 'text']
     //, ['ImageYear', 'number']
-    //, ['ManufacturerName', 'text']
+    //, ['ManufactoryName', 'text']
     //, ['Name', 'text']
     //, ['ThreePictures', 'checkbox']
     //, ['FourPictures', 'checkbox']
@@ -55,7 +60,7 @@ $('body').on('click', '.ColumnDropDown', SelectedColumns)
 $('body').on('change', '.ColumnDropDown', ChooseColumn);
 $('body').on('click', '.AddPeriod', function () { addField($(this).parent().prop('id').split('_').pop()) });
 
-if (window.location.href.indexOf('/AdministerCollectionPostcard') > -1) {
+if (window.location.href.indexOf('/AdministerCollection') > -1) {
     let columnNo = 0;
     for (let i = 0; i < columns.length; i++) {
         if (sessionStorage.getItem(columns[i][0]) != null) {
@@ -175,8 +180,9 @@ function SelectedColumns() {
 }
 
 function ChooseColumn() {
-    let parentId = $(this).parent().parent().prop('id').split('_').pop();
-    let column = $(this).children(':selected').val();
+    let parentId = $(this).parent().parent().prop('id').split('_').pop()
+    let column = $(this).children(':selected').val()
+    let index = 0
 
     if(oldColumn != 'Choose_Column')
         columnsSelected.splice(columnsSelected.indexOf(oldColumn), 1);

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
-namespace Sammlerplattform.Models
+namespace Sammlerplattform.Models.Account
 {
     public class RegisterViewModel : IdentityUser
     {

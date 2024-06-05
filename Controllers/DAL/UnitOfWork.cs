@@ -1,5 +1,8 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models;
+using Sammlerplattform.Models.BrickDatabase;
+using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Models.ManufactoryDatabase;
 
 namespace Sammlerplattform.Controllers.DAL
 {
@@ -11,12 +14,16 @@ namespace Sammlerplattform.Controllers.DAL
         private GenericRepository<Era>? eraRepository;
         private GenericRepository<Geography>? geographyRepository;
         private GenericRepository<CityNOeconym>? cityNOeconymRepository;
+        private GenericRepository<Manufactory>? manufactoryRepository;
+        private GenericRepository<ProductionFacility>? productionFacilityRepository;
+        private GenericRepository<BrickPotential>? brickPotentialRepository;
+        private GenericRepository<BrickEntity>? brickEntityRepository;
 
         public GenericRepository<City> CityRepository
         {
             get
             {
-                this.cityRepository ??= new GenericRepository<City>(context);
+                cityRepository ??= new GenericRepository<City>(context);
                 return cityRepository;
             }
         }
@@ -24,7 +31,7 @@ namespace Sammlerplattform.Controllers.DAL
         {
             get
             {
-                this.oeconymRepository ??= new GenericRepository<Oeconym>(context);
+                oeconymRepository ??= new GenericRepository<Oeconym>(context);
                 return oeconymRepository;
             }
         }
@@ -32,7 +39,7 @@ namespace Sammlerplattform.Controllers.DAL
         {
             get
             {
-                this.cityNOeconymRepository ??= new GenericRepository<CityNOeconym> (context);
+                cityNOeconymRepository ??= new GenericRepository<CityNOeconym>(context);
                 return cityNOeconymRepository;
             }
         }
@@ -40,7 +47,7 @@ namespace Sammlerplattform.Controllers.DAL
         {
             get
             {
-                this.postalcodeRepository = new GenericRepository<Postalcode>(context);
+                postalcodeRepository = new GenericRepository<Postalcode>(context);
                 return postalcodeRepository;
             }
         }
@@ -48,7 +55,7 @@ namespace Sammlerplattform.Controllers.DAL
         {
             get
             {
-                this.eraRepository ??= new GenericRepository<Era>(context);
+                eraRepository ??= new GenericRepository<Era>(context);
                 return eraRepository;
             }
         }
@@ -56,28 +63,60 @@ namespace Sammlerplattform.Controllers.DAL
         {
             get
             {
-                this.geographyRepository ??= new GenericRepository<Geography> (context);
+                geographyRepository ??= new GenericRepository<Geography>(context);
                 return geographyRepository;
             }
-       }
+        }
+        public GenericRepository<Manufactory> ManufactoryRepository
+        {
+            get
+            {
+                manufactoryRepository ??= new GenericRepository<Manufactory>(context);
+                return manufactoryRepository;
+            }
+        }
+        public GenericRepository<ProductionFacility> ProductionFacilityRepository
+        {
+            get
+            {
+                productionFacilityRepository ??= new GenericRepository<ProductionFacility>(context);
+                return productionFacilityRepository;
+            }
+        }
+        public GenericRepository<BrickPotential> BrickPotentialRepository
+        {
+            get
+            {
+                brickPotentialRepository ??= new GenericRepository<BrickPotential>(context);
+                return brickPotentialRepository;
+            }
+        }
+        public GenericRepository<BrickEntity> BrickEntityRepository
+        {
+            get
+            {
+                brickEntityRepository ??= new GenericRepository<BrickEntity>(context);
+                return brickEntityRepository;
+            }
+        }
 
         public void Save()
         {
-            context.SaveChanges();
+            _ = context.SaveChanges();
         }
 
         private bool disposed = false;
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!disposed)
             {
                 if (disposing)
                 {
                     context.Dispose();
                 }
             }
-            this.disposed = true;
+            disposed = true;
         }
 
         public void Dispose()
@@ -87,7 +126,7 @@ namespace Sammlerplattform.Controllers.DAL
         }
     }
 
-    public interface IUnitOfWork: IDisposable
+    public interface IUnitOfWork : IDisposable
     {
         GenericRepository<City> CityRepository { get; }
         GenericRepository<Oeconym> OeconymRepository { get; }
@@ -95,6 +134,10 @@ namespace Sammlerplattform.Controllers.DAL
         GenericRepository<Era> EraRepository { get; }
         GenericRepository<Geography> GeographyRepository { get; }
         GenericRepository<CityNOeconym> CityNOeconymRepository { get; }
+        GenericRepository<Manufactory> ManufactoryRepository { get; }
+        GenericRepository<ProductionFacility> ProductionFacilityRepository { get; }
+        GenericRepository<BrickPotential> BrickPotentialRepository { get; }
+        GenericRepository<BrickEntity> BrickEntityRepository { get; }
         void Save();
     }
 }

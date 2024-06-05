@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models
 {
-    public class StampEntity : ProductEntity
+    public class StampEntity : ProductEntity<StampConditionType>
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
@@ -33,5 +33,10 @@ namespace Sammlerplattform.Models
 
         [Display(Name = "StampColor")]
         public int? StampColor { get; set; }
+    }
+
+    public enum StampConditionType
+    {
+
     }
 }

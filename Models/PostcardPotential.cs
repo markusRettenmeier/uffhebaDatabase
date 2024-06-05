@@ -1,20 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sammlerplattform.Models.CityDatabase;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models
 {
-    public class PostcardPotential : Product
+    public class PostcardPotential : ProductPotential
     {
+        [Display(Name = "Belegnummer")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
+        public int PostcardPotential_ID { get; set; }
+
         [Display(Name = "Orte")]
         public List<City> CityList { get; set; } = [];
-
-        [Display(Name = "Dienstsache")]
-        public bool OfficialBusiness { get; set; }
-
-        [Display(Name = "Wellrand")]
-        public bool CorrugatedEdge { get; set; }
-
-        [Display(Name = "Feldpost")]
-        public bool Fieldpost { get; set; }
 
         [Display(Name = "Format")]
         public int? Formats { get; set; }
@@ -24,17 +22,6 @@ namespace Sammlerplattform.Models
 
         [Display(Name = "Kartenserie")]
         public int? CardSeries { get; set; }
-        public bool Leporello { get; set; }
         public int? PostcardImprint_ID { get; set; }
-
-        //[Display(Name = "Abrisspostkarte")]
-        //public bool TearOffPostcard { get; set; }
-
-        //[Display(Name = "Aufstellkarte")]
-        //public bool SetUpPostcard { get; set; }
-        public bool Propaganda { get; set; }
-
-        [Display(Name = "Schmuckkarte")]
-        public bool Ornament { get; set; }
     }
 }

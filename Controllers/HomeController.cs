@@ -18,11 +18,13 @@ namespace Sammlerplattform.Controllers
             // Move this to a scheduled task, when a server was booked
             string[] files = Directory.GetFiles(Path.Combine(_hostEnvironment.WebRootPath, "images/Zwischenablage"));
             DateTime dtNow = DateTime.Now;
-            foreach (var file in files)
+            foreach (string file in files)
             {
                 DateTime dtFile = System.IO.File.GetLastAccessTime(file);
                 if (dtFile.AddDays(2) < dtNow)
+                {
                     System.IO.File.Delete(file);
+                }
             }
 
             ViewData["StatusMessage"] = statusMessage;

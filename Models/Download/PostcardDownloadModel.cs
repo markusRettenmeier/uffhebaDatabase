@@ -11,6 +11,6 @@
         ////public Stamp Stamp { get; set; } = new();
         ////public Postmark SenderPostmark { get; set; } = new();
         ////public Postmark RecipientPostmark { get; set; } = new();
-        public List<Manufacturer> Manufacturers { get; set; } = [];
+        public List<Manufactory> Manufactorys { get; set; } = [];
     }
 }

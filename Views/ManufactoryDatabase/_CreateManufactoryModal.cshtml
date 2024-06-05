@@ -1,0 +1,39 @@
+﻿@model Sammlerplattform.Models.ManufactoryDatabase.ManufactoryOperationParameterModel
+<div class="modal fade" id="CreateManufactoryModal" tabindex="-1" aria-labelledby="CreateManufactoryModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Hersteller, optional mit Ort, estellen
+                    <br />
+                    Für mehr Details z.B. Standorte, gehen Sie zu <a asp-action="CreateManufactory" asp-controller="ManufactoryDatabase">Hersteller erstellen</a> <strong>Jedoch gehen dann alle bisherige Eintäge in dieser Maske verloren.</strong>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ui-front">
+                <span id="createManufactorySpan" style="color: green"></span>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Manufactory.ManufactoryName" class="control-label"></label>*
+                    <input asp-for="Manufactory.ManufactoryName" class="form-control ManufactoryModalInputName" required maxlength="100" />
+                    <span asp-validation-for="Manufactory.ManufactoryName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ProductionFacility.ProductionFacilityName" class="control-label"></label>
+                    <input asp-for="ProductionFacility.ProductionFacilityName" class="form-control InputProductionFacility ManufactoryModalInputProductionFacility" />
+                    <span asp-validation-for="ProductionFacility.ProductionFacilityName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                <input type="button" value="Erstellen" class="btn btn-primary createManufactorySubmitApiButton" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Sammlerplattform.Models
+namespace Sammlerplattform.Models.UserSettings
 {
     [Keyless]
     public class UserWithPhoto

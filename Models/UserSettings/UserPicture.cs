@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sammlerplattform.Models
+namespace Sammlerplattform.Models.UserSettings
 {
     public class UserPicture
     {

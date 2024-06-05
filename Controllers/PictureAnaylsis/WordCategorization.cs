@@ -16,9 +16,6 @@ namespace Sammlerplattform.Controllers.PictureAnaylsis
             string buildingWordlist = Path.Combine(Path.Combine(_hostEnvironment.WebRootPath, "dic"), "Gebäude_WhiteList.txt");
             List<string> buildingsList = [.. File.ReadAllLines(buildingWordlist)];
             wordCategorizationModel.Buildings = buildingsList;
-            string authorArtistWordlist = Path.Combine(Path.Combine(_hostEnvironment.WebRootPath, "dic"), "KünstlerAutor_WhiteList.txt");
-            List<string> authorArtist = [.. File.ReadAllLines(authorArtistWordlist)];
-            wordCategorizationModel.AuthorArtistKeywordList = authorArtist;
             string occasionWordlist = Path.Combine(Path.Combine(_hostEnvironment.WebRootPath, "dic"), "Anlässe_WhiteList.txt");
             List<string> occasion = [.. File.ReadAllLines(occasionWordlist)];
             wordCategorizationModel.OccasionKeywordList = occasion;

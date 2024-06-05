@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models;
+using Sammlerplattform.Models.UserSettings;
 using Stripe;
 using System.Linq.Dynamic.Core;
 using System.Text.Json;
@@ -67,7 +68,7 @@ namespace Sammlerplattform.Controllers
                 }
             }
             currentFee /= 100;
-                
+
 
             string subName = string.Empty;
             subName = subscription switch
@@ -215,7 +216,7 @@ namespace Sammlerplattform.Controllers
 
                 List<PostcardModel> CollectionUser = [.. (from u in _userManager.Users
                                                   join e in _dbIdentityContext.PostcardEntity on u.Id equals e.UsingIdentityUsers_ID
-                                                  join p in _dbIdentityContext.PostcardPotential on e.PostcardPotential_ID equals p.Product_ID
+                                                  join p in _dbIdentityContext.PostcardPotential on e.PostcardPotential_ID equals p.PostcardPotential_ID
                                                   join i in _dbIdentityContext.PostcardImprint on p.PostcardImprint_ID equals i.Image_ID into leftOuterImprint
                                                     from subImprint in leftOuterImprint.DefaultIfEmpty()
                                                   where u.Id == user.Id
@@ -260,11 +261,11 @@ namespace Sammlerplattform.Controllers
                     }
                 }
 
-                var userPictureJoin = (from u in _dbIdentityContext.Users
-                                       join p in _dbIdentityContext.UserPicture
-                                       on u.Id equals p.UsingIdentityUsers_ID
-                                       where u.Id == user.Id
-                                       select p).FirstOrDefault();
+                UserPicture? userPictureJoin = (from u in _dbIdentityContext.Users
+                                                join p in _dbIdentityContext.UserPicture
+                                                on u.Id equals p.UsingIdentityUsers_ID
+                                                where u.Id == user.Id
+                                                select p).FirstOrDefault();
                 if (userPictureJoin != null)
                 {
                     _ = _dbIdentityContext.Remove(userPictureJoin);

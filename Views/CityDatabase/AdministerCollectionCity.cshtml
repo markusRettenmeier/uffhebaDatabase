@@ -1,5 +1,6 @@
-﻿@model IEnumerable<Sammlerplattform.Models.CityParameterModel>
+﻿@model IEnumerable<CityOperationParameterModel>
 @using Microsoft.AspNetCore.Authorization
+@using Sammlerplattform.Models.CityDatabase
 @inject IAuthorizationService AuthorizationService
 @{
     ViewData["Title"] = "Ortsverwaltung";
@@ -12,8 +13,8 @@
 <hr />
 
 <div class="btn-group" role="group" aria-label="">
-    <a type="button" class="btn btn-success" asp-action="CreateCity" asp-controller="CityDatabase">Eintrag erstellen</a>
-    @* <button id="tooltip-SucheOpen" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="under" title="Öffne Suchleiste" type="button" onclick="openNav()"><svg viewBox="0 0 1024 1024"><path class="path1" d="M848.471 928l-263.059-263.059c-48.941 36.706-110.118 55.059-177.412 55.059-171.294 0-312-140.706-312-312s140.706-312 312-312c171.294 0 312 140.706 312 312 0 67.294-24.471 128.471-55.059 177.412l263.059 263.059-79.529 79.529zM189.623 408.078c0 121.364 97.091 218.455 218.455 218.455s218.455-97.091 218.455-218.455c0-121.364-103.159-218.455-218.455-218.455-121.364 0-218.455 97.091-218.455 218.455z"></path></svg></button> *@
+    <a type="button" class="btn btn-success CreateCityButton" asp-action="CreateCity" asp-controller="CityDatabase">Eintrag erstellen</a>
+    <button id="tooltip-SucheOpen" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="under" title="Öffne Suchleiste" type="button" onclick="openNav()"><svg viewBox="0 0 1024 1024"><path class="path1" d="M848.471 928l-263.059-263.059c-48.941 36.706-110.118 55.059-177.412 55.059-171.294 0-312-140.706-312-312s140.706-312 312-312c171.294 0 312 140.706 312 312 0 67.294-24.471 128.471-55.059 177.412l263.059 263.059-79.529 79.529zM189.623 408.078c0 121.364 97.091 218.455 218.455 218.455s218.455-97.091 218.455-218.455c0-121.364-103.159-218.455-218.455-218.455-121.364 0-218.455 97.091-218.455 218.455z"></path></svg></button>
 </div>
 
 <table class="table">
@@ -30,6 +31,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Geography.GeographyName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.City.ParentCity_ID)
             </th>
             <th>
                 Aktionen
@@ -54,7 +58,7 @@
                     }
                     else
                     {
-                        oeconymCollection += cno.Oeconym.OeconymName;
+                        oeconymCollection += cno.Oeconym.OeconymName + ", ";
                     }
                 }
                 
@@ -62,7 +66,7 @@
                     <td>
                         @postalcodeCollection
                     </td>
-                    <td>
+                    <td id="oeconym_@count">
                         @Html.Raw(oeconymCollection)
                     </td>
                     <td>
@@ -74,9 +78,16 @@
                         }
                     </td>
                     <td>
+                        @if (item.City.ParentCity != null)
+                        {
+                            var cnoParent = item.City.ParentCity.CityNOeconymICollection;
+                            var oeconymParent = cnoParent.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
+                            @oeconymParent
+                        }
+                    </td>
+                    <td>
                         <div>
-                            @* <a asp-action="EditCity" asp-controller="CityDatabase" asp-route-id="@item.City.City_ID">Ändern</a>
-                            | <a asp-action="DownloadCity" asp-controller="CityDatabase" asp-route-potentialId="@item.City.City_ID">Herunterladen als YAML</a> *@
+                            <a class="EditCityButton" asp-action="EditCity" asp-controller="CityDatabase" asp-route-id="@item.City.City_ID">Ändern</a>
                         </div>
                     </td>
                 </tr>
@@ -86,6 +97,6 @@
     </tbody>
 </table>
 
-@* <div id="mySidebar" class="zIndex_5 sidenav-search box-shadow">
+<div id="mySidebar" class="zIndex_5 sidenav-search box-shadow">
     <partial name="_SearchByColumn.cshtml" />
-</div> *@
+</div>

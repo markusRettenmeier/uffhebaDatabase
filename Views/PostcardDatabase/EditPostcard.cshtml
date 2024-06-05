@@ -1,4 +1,5 @@
 ﻿@using System.Drawing;
+@using Sammlerplattform.Models.CityDatabase;
 @model Sammlerplattform.Models.PostcardModel
 
 @{
@@ -30,7 +31,7 @@
 <form asp-action="EditPostcardSubmit" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div id="appendConcludedLists" style="display:none"></div>
-    <input type="hidden" asp-for="PostcardPotential.Product_ID" />
+    <input type="hidden" asp-for="PostcardPotential.PostcardPotential_ID" />
     <input type="hidden" asp-for="PostcardEntity.PostcardEntity_ID" />
     @if (!string.IsNullOrEmpty(pathFrontside))
     {
@@ -78,16 +79,16 @@
     }
     <div class="accordion pt-2" id="accordionExample">
         <div class="accordion-item">
-            <h2 class="accordion-header" id="headingOne">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+            <h2 class="accordion-header" id="headingPostcard">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePostcard" aria-expanded="false" aria-controls="collapsePostcard">
                     Postkarte
                 </button>
             </h2>
-            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div id="collapsePostcard" class="accordion-collapse collapse show" aria-labelledby="headingPostcard" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
                     <div class="form-group">
-                        <label asp-for="PostcardPotential.Product_ID" class="control-label"></label>
-                        <input asp-for="PostcardPotential.Product_ID" class="form-control" type="text" readonly />
+                        <label asp-for="PostcardPotential.PostcardPotential_ID" class="control-label"></label>
+                        <input asp-for="PostcardPotential.PostcardPotential_ID" class="form-control" type="text" readonly />
                     </div>
                     <label asp-for="PostcardPotential.CityList" class="control-label"></label>
                     <table class="table" id="cityTable">
@@ -107,7 +108,7 @@
                             @foreach (var city in Model.PostcardPotential.CityList)
                             {
                                 <tr id="trCity_@count">
-                                        <td scope="col" class="InputPostcardCityID">@city.City_ID</td>
+                                    <td scope="col" class="InputPostcardCityID">@city.City_ID</td>
                                     <td scope="col">
                                     @foreach(var cno in city.CityNOeconymICollection)
                                         {
@@ -129,7 +130,9 @@
                                         }
                                     </td>
                                     <td scope="col">@city.Byname</td>
-                                    <td scope="col">@if(city.Geography != null) { @city.Geography.GeographyName}</td>
+                                    <td scope="col">
+                                    @if(city.Geography != null) 
+                                    { @city.Geography.GeographyName}</td>
                                     <td scope="col">
                                         <button type="button" id="@count" class="btn btn-outline-danger DeleteCity">Entfernen</button>
                                     </td>
@@ -151,11 +154,6 @@
                         <label asp-for="PostcardEntity.Charge" class="control-label"></label>
                         <input asp-for="PostcardEntity.Charge" class="form-control storeInput" type="text" />
                         <span asp-validation-for="PostcardEntity.Charge" class="text-danger"></span>
-                    </div>
-                    <div class="form-group form-check">
-                        <label class="form-check-label">
-                            <input class="form-check-input storeInput" asp-for="PostcardPotential.OfficialBusiness" /> @Html.DisplayNameFor(model => model.PostcardPotential.OfficialBusiness)
-                        </label>
                     </div>
                     <div class="form-group">
                         <label asp-for="PostcardEntity.Text" class="control-label"></label>
@@ -193,11 +191,6 @@
                             <input type="color" class="color storeInput" id="color_RALPrinting" value="@colorRALPrinting" />
                         }
                     </div>
-                    <div class="form-group form-check">
-                        <label class="form-check-label">
-                            <input class="form-check-input storeInput" asp-for="PostcardPotential.Fieldpost" /> @Html.DisplayNameFor(model => model.PostcardPotential.Fieldpost)
-                        </label>
-                    </div>
                     <div class="form-group">
                         <label asp-for="PostcardPotential.Formats" class="control-label"></label>
                         <select asp-for="PostcardPotential.Formats" class="form-select storeInput">
@@ -220,21 +213,6 @@
                         <input asp-for="PostcardPotential.CardSeries" class="form-control storeInput" />
                         <span asp-validation-for="PostcardPotential.CardSeries" class="text-danger"></span>
                     </div>
-                    <div class="form-group form-check">
-                        <label class="form-check-label">
-                            <input class="form-check-input storeInput" asp-for="PostcardPotential.Leporello" /> @Html.DisplayNameFor(model => model.PostcardPotential.Leporello)
-                        </label>
-                    </div>
-                    <div class="form-group form-check">
-                        <label class="form-check-label">
-                            <input class="form-check-input storeInput" asp-for="PostcardPotential.CorrugatedEdge" /> @Html.DisplayNameFor(model => model.PostcardPotential.CorrugatedEdge)
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="PostcardPotential.ProductionYear" class="control-label"></label>
-                        <input asp-for="PostcardPotential.ProductionYear" class="form-control storeInput" />
-                        <span asp-validation-for="PostcardPotential.ProductionYear" class="text-danger"></span>
-                    </div>
                     <div class="form-group">
                         <label asp-for="PostcardPotential.SerialNumber" class="control-label"></label>
                         <input asp-for="PostcardPotential.SerialNumber" class="form-control storeInput" />
@@ -251,26 +229,46 @@
                         <span asp-validation-for="PostcardEntity.Price" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="PostcardEntity.ConditionOfCard" class="control-label"></label>
-                        <select asp-for="PostcardEntity.ConditionOfCard" class="form-select storeInput">
-                            <option value="" selected>Zustand wählen</option>
-                            <option value="1">ug,ungebraucht</option>
-                            <option value="2">ugbs,beschrieben, jedoch nicht gelaufen</option>
-                            <option value="3">gbmm, gelaufen mit Marke</option>
-                            <option value="4">gbom, gelaufen, jedoch ohne Marke, bzw. Marke entfernt</option>
-                            <option value="5">r, repariert</option>
+                        <label asp-for="PostcardEntity.ConditionEnum" class="control-label"></label>
+                        <select asp-for="PostcardEntity.ConditionEnum" class="form-select storeInput">
+                            @foreach(Enum conditionValue in Enum.GetValues(typeof(PostcardConditionType)))
+                            {
+                                if (Convert.ToInt32(conditionValue) == Model.PostcardEntity.ConditionInt){
+                                    <option value="@conditionValue" selected>@conditionValue.GetDescription()</option>
+                                }
+                                else
+                                {
+                                    <option value="@conditionValue">@conditionValue.GetDescription()</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PostcardEntity.MaterialEnum" class="control-label"></label>
+                        <select asp-for="PostcardEntity.MaterialEnum" class="form-select storeInput">
+                            @foreach (int materialValue in Enum.GetValues(typeof(MaterialType)))
+                            {
+                                if (Convert.ToInt32(materialValue) == Model.PostcardEntity.MaterialInt)
+                                {
+                                    <option value="@materialValue" selected>@((MaterialType)materialValue)</option>
+                                }
+                                else
+                                {
+                                    <option value="@materialValue">@((MaterialType)materialValue)</option>
+                                }
+                            }
                         </select>
                     </div>
                 </div>
             </div>
         </div>
         <div class="accordion-item">
-            <h2 class="accordion-header" id="headingTwo">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            <h2 class="accordion-header" id="headingImage">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseImage" aria-expanded="false" aria-controls="collapseImage">
                     Bild
                 </button>
             </h2>
-            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+            <div id="collapseImage" class="accordion-collapse collapse" aria-labelledby="headingImage" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
                     <input type="hidden" asp-for="PostcardImprint.Image_ID" />
                     <input class="form-check-input checkDisablity" id="checkImage" asp-for="HasImage" /> @Html.DisplayNameFor(model => model.HasImage)
@@ -303,11 +301,11 @@
                                     <div class="col">
                                         <label asp-for="PostcardImprint.Era_ID" class="control-label"></label>
                                         <input asp-for="PostcardImprint.Era_ID" class="form-control InputEraID storeInput" type="hidden" />
-                                        <input asp-for="Eras.EraLong" class="form-control InputEra storeInput" id="PostcardImprint_Era" />
+                                        <input asp-for="Era.EraLong" class="form-control InputEra storeInput" id="PostcardImprint_Era" />
                                         <span asp-validation-for="PostcardImprint.Era_ID" class="text-danger"></span>
                                     </div>
                                     <div class="col">
-                                        <a asp-action="AddEra" asp-controller="PostcardDatabase" asp-route-source="EditPostcard" asp-route-sourceId="@Model.PostcardPotential.Product_ID" class="StoreInputs">Neue Ära hinzufügen</a>
+                                        <a asp-action="AddEra" asp-controller="PostcardDatabase" asp-route-source="EditPostcard" asp-route-sourceId="@Model.PostcardPotential.PostcardPotential_ID" class="StoreInputs">Neue Ära hinzufügen</a>
                                     </div>
                                 </div>
                             </div>
@@ -367,19 +365,12 @@
                                     }
                                 </div>
                             }
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-group">
+                                   @*  <div class="form-group">
                                         <label asp-for="PostcardImprint.ArtistAuthor_ID" class="control-label"></label>
                                         <input asp-for="PostcardImprint.ArtistAuthor_ID" class="form-control InputAuthorArtistID storeInput" type="hidden" />
                                         <input class="form-control InputAuthorArtist storeInput" />
                                         <span asp-validation-for="PostcardImprint.ArtistAuthor_ID" class="text-danger"></span>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <a asp-action="AddAuthorArtist" asp-controller="PostcardDatabase" asp-route-source="EditPostcard" asp-route-sourceId="@Model.PostcardPotential.Product_ID" class="StoreInputs">Neuer Künstler/Autor hinzufügen</a>
-                                </div>
-                            </div>
+                                    </div> *@
                             <div class="form-group">
                                 <label asp-for="PostcardImprint.Buildings" class="control-label"></label>
                                 <input asp-for="PostcardImprint.Buildings" class="form-control storeInput" />
@@ -446,11 +437,11 @@
                                     <div class="col">
                                         <label asp-for="PostcardImprint.Era_ID" class="control-label"></label>
                                         <input asp-for="PostcardImprint.Era_ID" class="form-control InputEraID storeInput" type="hidden" />
-                                        <input asp-for="Eras.EraLong" class="form-control InputEra storeInput" id="PostcardImprint_Era" />
+                                        <input asp-for="Era.EraLong" class="form-control InputEra storeInput" id="PostcardImprint_Era" />
                                         <span asp-validation-for="PostcardImprint.Era_ID" class="text-danger"></span>
                                     </div>
                                     <div class="col">
-                                        <a asp-action="AddEra" asp-controller="PostcardDatabase" asp-route-source="EditPostcard" asp-route-sourceId="@Model.PostcardPotential.Product_ID" class="StoreInputs">Neue Ära hinzufügen</a>
+                                        <a asp-action="AddEra" asp-controller="PostcardDatabase" asp-route-source="EditPostcard" asp-route-sourceId="@Model.PostcardPotential.PostcardPotential_ID" class="StoreInputs">Neue Ära hinzufügen</a>
                                     </div>
                                 </div>
                             </div>
@@ -510,19 +501,12 @@
                                     }
                                 </div>
                             }
-                            <div class="row">
-                                <div class="col">
                                     <div class="form-group">
                                         <label asp-for="PostcardImprint.ArtistAuthor_ID" class="control-label"></label>
                                         <input asp-for="PostcardImprint.ArtistAuthor_ID" class="form-control InputAuthorArtistID storeInput" type="hidden" />
                                         <input class="form-control InputAuthorArtist storeInput" />
                                         <span asp-validation-for="PostcardImprint.ArtistAuthor_ID" class="text-danger"></span>
                                     </div>
-                                </div>
-                                <div class="col">
-                                    <a asp-action="AddAuthorArtist" asp-controller="PostcardDatabase" asp-route-source="EditPostcard" asp-route-sourceId="@Model.PostcardPotential.Product_ID" class="StoreInputs">Neuer Künstler/Autor hinzufügen</a>
-                                </div>
-                            </div>
                             <div class="form-group">
                                 <label asp-for="PostcardImprint.Buildings" class="control-label"></label>
                                 <input asp-for="PostcardImprint.Buildings" class="form-control storeInput" />
@@ -563,13 +547,54 @@
                 </div>
             </div>
         </div>
+        @* <div class="accordion-item">
+            <h2 class="accordion-header" id="headingManufacturingDate">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufacturingDate" aria-expanded="false" aria-controls="collapseManufacturingDate">
+                    Herstellungszeit
+                </button>
+            </h2>
+            <div id="collapseManufacturingDate" class="accordion-collapse collapse" aria-labelledby="headingManufacturingDate" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                <div class="form-group">
+                    <label asp-for="ManufacturingDate.ExactYear"></label>
+                    <input asp-for="ManufacturingDate.ExactYear" class="form-control" />
+                    <span asp-validation-for="ManufacturingDate.ExactYear" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ManufacturingDate.StartYear"></label>
+                    <input asp-for="ManufacturingDate.StartYear" class="form-control" />
+                    <span asp-validation-for="ManufacturingDate.StartYear" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ManufacturingDate.EndYear"></label>
+                    <input asp-for="ManufacturingDate.EndYear" class="form-control" />
+                    <span asp-validation-for="ManufacturingDate.EndYear" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ManufacturingDate.IsApproximate"></label>
+                    <input asp-for="ManufacturingDate.IsApproximate" class="form-control" />
+                    <span asp-validation-for="ManufacturingDate.IsApproximate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ManufacturingDate.Note"></label>
+                    <input asp-for="ManufacturingDate.Note" class="form-control" />
+                    <span asp-validation-for="ManufacturingDate.Note" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ManufacturingDate.Era.EraLong"></label>
+                        <input asp-for="ManufacturingDate.Era.EraLong" class="form-control" />
+                        <span asp-validation-for="ManufacturingDate.Era.EraLong" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div> *@
         <div class="accordion-item">
-            <h2 class="accordion-header" id="headingThree">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+            <h2 class="accordion-header" id="headingSenderReciever">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSenderReciever" aria-expanded="false" aria-controls="collapseSenderReciever">
                     Sender/Empfänger
                 </button>
             </h2>
-            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+            <div id="collapseSenderReciever" class="accordion-collapse collapse" aria-labelledby="headingSenderReciever" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
                     <input type="hidden" asp-for="PersonSender.Person_ID" />
                     <input type="hidden" asp-for="PersonReceiver.Person_ID" />
@@ -754,36 +779,36 @@
             </div>
         </div>
         <div class="accordion-item">
-            <h2 class="accordion-header" id="headingSix">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+            <h2 class="accordion-header" id="headingPublisher">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePublisher" aria-expanded="false" aria-controls="collapsePublisher">
                     Verlage
                 </button>
             </h2>
-            <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#accordionExample">
+            <div id="collapsePublisher" class="accordion-collapse collapse" aria-labelledby="headingPublisher" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
                     <div class="row">
-                        <div class="col FirstManufacturer" style="display: none">
+                        <div class="col FirstManufactory" style="display: none">
                             <div class="input-group">
-                                <input type="hidden" class="form-control dataSet storeInput InputManufacturerID PublisherCreateEdit" id="InputManufacturerID_0" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
-                                <input class="form-control storeInput InputManufacturer" id="InputManufacturer_0" placeholder="Verlag" aria-label="Verlag" />
-                                <select class="form-select dataSet storeInput TownOfManufacturerSelect PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufacturerSelect_0">
+                                <input type="hidden" class="form-control dataSet storeInput InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_0" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
+                                <input class="form-control storeInput InputManufactory" id="InputManufactory_0" placeholder="Verlag" aria-label="Verlag" />
+                                <select class="form-select dataSet storeInput TownOfManufactorySelect PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
                                 </select>
-                                <span asp-validation-for="Manufacturer.Manufacturer_ID" class="text-danger"></span>
-                                <button type="button" class="form-control btn btn-danger DeleteManufacturer" id="DeleteManufacturer_0">Verlag von Karte entfernen</button>
+                                <span asp-validation-for="Manufactory.Manufactory_ID" class="text-danger"></span>
+                                <button type="button" class="form-control btn btn-danger DeleteManufactory" id="DeleteManufactory_0">Verlag von Karte entfernen</button>
                             </div>
                         </div>
-                        <div class="AppendManufacturerHere">
-                            @if (Model != null && Model.ManufacturerTupleList != null)
+                        <div class="AppendManufactoryHere">
+                            @if (Model != null && Model.ManufactoryTupleList != null)
                             {
                                 int manCount = 0;
-                                foreach (var pemc in Model.ManufacturerTupleList)
+                                foreach (var pemc in Model.ManufactoryTupleList)
                                 {
                                     manCount++;
-                                    <div class="col" id="DivManufacturer_@manCount">
+                                    <div class="col" id="DivManufactory_@manCount">
                                         <div class="input-group">
-                                            <input type="hidden" class="form-control dataSet storeInput InputManufacturerID PublisherCreateEdit" id="InputManufacturerID_@manCount" value="@pemc.publisher.Manufacturer_ID" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
-                                            <input class="form-control storeInput InputManufacturer" id="InputManufacturer_@manCount" value="@pemc.publisher.ManufacturerName" placeholder="Verlag" aria-label="Verlag" />
-                                            <select class="form-select dataSet storeInput TownOfManufacturerSelect PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufacturerSelect_0">
+                                            <input type="hidden" class="form-control dataSet storeInput InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_@manCount" value="@pemc.publisher.Manufactory_ID" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
+                                            <input class="form-control storeInput InputManufactory" id="InputManufactory_@manCount" value="@pemc.publisher.ManufactoryName" placeholder="Verlag" aria-label="Verlag" />
+                                            <select class="form-select dataSet storeInput TownOfManufactorySelect PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
                                                 @if (pemc.city != null && pemc.city.City_ID > 0)
                                                 {
                                                     <option value="0"></option>
@@ -797,7 +822,7 @@
                                                     string geographyName = string.Empty;
                                                     if (cl.Geography!= null && !string.IsNullOrEmpty(cl.Geography.GeographyName))
                                                         geographyName = " (" + cl.Geography.GeographyName + ")";
-                                                    string oeconym = cl.CityNOeconymICollection.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
+                                                    var oeconym = cl.CityNOeconymICollection.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
                                                     if (oeconym == null)
                                                         continue;
                                                     if (pemc.city != null && cl.City_ID == pemc.city.City_ID)
@@ -810,8 +835,8 @@
                                                     }
                                                 }
                                             </select>
-                                            <span asp-validation-for="Manufacturer.Manufacturer_ID" class="text-danger"></span>
-                                            <button type="button" class="form-control btn btn-danger DeleteManufacturer" id="@manCount">Verlag von Karte entfernen</button>
+                                            <span asp-validation-for="Manufactory.Manufactory_ID" class="text-danger"></span>
+                                            <button type="button" class="form-control btn btn-danger DeleteManufactory" id="@manCount">Verlag von Karte entfernen</button>
                                         </div>
                                     </div>
                                 }
@@ -819,12 +844,10 @@
                         </div>
                         <div class="col">
                             <div class="btn-group" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-primary AddMoreManufacturers">Der Karte mehr Verlage hinzufügen</button>
-                                @if (Model != null)
-                                {
-                                    <a asp-action="AddManufacturer" asp-controller="PostcardDatabase" asp-route-source="EditPostcard" asp-route-sourceId="@Model.PostcardPotential.Product_ID" asp-route-reason="AddWholeManufacturer" type="button" class="btn btn-success StoreInputs">Neuer Verlag mit Ort hinzufügen</a>
-                                    <a asp-action="AddManufacturer" asp-controller="PostcardDatabase" asp-route-source="EditPostcard" asp-route-sourceId="@Model.PostcardPotential.Product_ID" asp-route-reason="AddCityToManufacturer" type="button" class="btn btn-success StoreInputs">Ort zu Verlag hinzufügen</a>
-                                }
+                                <button type="button" class="btn btn-primary AddMoreManufactorys">Der Karte mehr Verlage hinzufügen</button>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CreateManufactoryModal">
+                                    Hersteller-Schnellerfassung
+                                </button>
                             </div>
                         </div>
                     </div>

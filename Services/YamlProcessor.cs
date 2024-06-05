@@ -2,6 +2,7 @@
 using Sammlerplattform.Controllers;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models;
+using Sammlerplattform.Models.CityDatabase;
 using Sammlerplattform.Models.Download;
 using YamlDotNet.Serialization;
 
@@ -11,25 +12,27 @@ namespace Sammlerplattform.Services
     {
         public static byte[] SerializePostcardToYaml(PostcardDownloadModel model)
         {
-            var serializer = new SerializerBuilder()
+            ISerializer serializer = new SerializerBuilder()
                 .Build();
-            var yaml = "# ----------Start----------\r\n" + serializer.Serialize(model);
+            string yaml = "# ----------Start----------\r\n" + serializer.Serialize(model);
             yaml += "# -----------End-----------";
 
-            var buffer = new MemoryStream();
-            using (var writer = new StreamWriter(buffer))
+            MemoryStream buffer = new();
+            using (StreamWriter writer = new(buffer))
             {
                 serializer.Serialize(writer, yaml);
             }
 
-            var bytes = buffer.ToArray();
+            byte[] bytes = buffer.ToArray();
 
             return bytes;
         }
 
         public static PostcardDownloadModel ComposeForDownload(PostcardModel selectPostcard, DbIdentityContext dbIdentityContext, IProcessCity processCity)
         {
-            CityParameterModel cityParameterModel = new();
+            CityOperationParameterModel cityParameterModel = new();
+
+            string? test = ((MaterialType)selectPostcard.PostcardEntity.MaterialInt).ToString();
 
             PostcardDownloadModel? postcardDownloadModel = new()
             {
@@ -40,7 +43,7 @@ namespace Sammlerplattform.Services
                                         join l in dbIdentityContext.Geography
                                         on c.Geography_ID equals l.Geography_ID into outerLeftGeography
                                         from subl in outerLeftGeography.DefaultIfEmpty()
-                                        where c.PostcardPotentialList.Any(x => x.Product_ID.Equals(selectPostcard.PostcardPotential.Product_ID))
+                                        where c.PostcardPotentialList.Any(x => x.PostcardPotential_ID.Equals(selectPostcard.PostcardPotential.PostcardPotential_ID))
                                         select new Sammlerplattform.Models.Download.City
                                         {
                                             Oeconym = dbIdentityContext.City.Where(x => x.City_ID.Equals(c.City_ID)).SelectMany(x => x.CityNOeconymICollection.Select(y =>
@@ -51,38 +54,29 @@ namespace Sammlerplattform.Services
                                                    )).ToList(),
                                             Byname = subl.GeographyName
                                         })],
-                    ProductionYear = selectPostcard.PostcardPotential.ProductionYear,
                     Immaterial = selectPostcard.PostcardPotential.Immaterial,
                     SerialNumber = selectPostcard.PostcardPotential.SerialNumber,
-                    ISBN = selectPostcard.PostcardPotential.ISBN,
-                    ProductionSize = selectPostcard.PostcardPotential.ProductionSize,
-                    OfficialBusiness = selectPostcard.PostcardPotential.OfficialBusiness,
-                    CorrugatedEdge = selectPostcard.PostcardPotential.CorrugatedEdge,
-                    Fieldpost = selectPostcard.PostcardPotential.Fieldpost,
+                    ProductionSize = selectPostcard.PostcardEntity.ProductionSize,
                     Formats = selectPostcard.PostcardPotential.Formats,
                     CardType = selectPostcard.PostcardPotential.CardType,
                     CardSeries = selectPostcard.PostcardPotential.CardSeries,
-                    Leporello = selectPostcard.PostcardPotential.Leporello,
-                    Propaganda = selectPostcard.PostcardPotential.Propaganda,
-                    Ornament = selectPostcard.PostcardPotential.Ornament,
                     FilingLocation = selectPostcard.PostcardEntity.FilingLocation,
                     Charge = selectPostcard.PostcardEntity.Charge,
                     Price = selectPostcard.PostcardEntity.Price,
                     Fake = selectPostcard.PostcardEntity.Fake,
-                    Material = selectPostcard.PostcardEntity.Material,
+                    Material = selectPostcard.PostcardEntity.MaterialEnum.ToString(),
                     ColorRALWritingFrontside = ColorConverter.ArgbToHex(selectPostcard.PostcardEntity.ColorRALWritingFrontside),
                     ColorRALPrintingBackside = ColorConverter.ArgbToHex(selectPostcard.PostcardEntity.ColorRALPrintingBackside),
-                    ConditionOfCard = selectPostcard.PostcardEntity.ConditionOfCard,
-                    DateInText = selectPostcard.PostcardEntity.DateInText,
+                    ConditionOfCard = selectPostcard.PostcardEntity.ConditionEnum.ToString(),
                     Text = selectPostcard.PostcardEntity.Text
                 },
                 Artist = new Sammlerplattform.Models.Download.Artist
                 {
-                    Name = selectPostcard.AuthorArtist?.AAName,
-                    Description = selectPostcard.AuthorArtist?.ArtistDescription,
-                    Prizes = selectPostcard.AuthorArtist?.Prizes,
-                    Profession = selectPostcard.AuthorArtist?.Profession,
-                    Signature = selectPostcard.AuthorArtist?.AASignature
+                    Name = selectPostcard.AuthorArtist?.Name,
+                    Description = selectPostcard.AuthorArtist?.PersonDescription,
+                    Prizes = selectPostcard.AuthorArtist?.PrizeICollection.Select(x => x.PrizeName).ToString(),
+                    Profession = selectPostcard.AuthorArtist?.ProfessionICollection.Select(x => x.ProfessionName).ToString(),
+                    Signature = selectPostcard.AuthorArtist?.PersonSignature
                 },
                 Image = new Sammlerplattform.Models.Download.Image
                 {
@@ -91,8 +85,8 @@ namespace Sammlerplattform.Services
                     ColorProcessing = selectPostcard.PostcardImprint?.ColorProcessing,
                     ImageColor = ColorConverter.ArgbToHex(selectPostcard.PostcardImprint?.ColorImage_ID),
                     ImageYear = selectPostcard.PostcardImprint?.ImageYear,
-                    EraLong = selectPostcard.Eras?.EraLong,
-                    EraShort = selectPostcard.Eras?.EraShort,
+                    EraLong = selectPostcard.Era?.EraLong,
+                    EraShort = selectPostcard.Era?.EraShort,
                     Passepartout = selectPostcard.PostcardImprint?.Passepartout,
                     FullScreen = selectPostcard.PostcardImprint?.FullScreen,
                     CirculationSize = selectPostcard.PostcardImprint?.CirculationSize,
@@ -106,7 +100,7 @@ namespace Sammlerplattform.Services
                     Name = selectPostcard.PersonReceiver?.Name,
                     Street = selectPostcard.PersonReceiver?.Street,
                     Streetnumber = selectPostcard.PersonReceiver?.HouseNumber,
-                    City = (from c in processCity.GetCitiesWithPredicates(cityParameterModel)
+                    City = (from c in processCity.GetCityWithPredicates(processCity.CityParametersOperationToSearch(cityParameterModel))
                             where c.Person != null && selectPostcard.PersonReceiver != null && c.Person.Person_ID == selectPostcard.PersonReceiver.Person_ID
                             select new Sammlerplattform.Models.Download.City
                             {
@@ -116,22 +110,22 @@ namespace Sammlerplattform.Services
                                 Geography = c.Geography
                             }).FirstOrDefault()
                 },
-                Manufacturers = [.. (from p in dbIdentityContext.Manufacturer
-                                 join pemc in dbIdentityContext.PostcardEntityNManufacturerNCity
-                    on p.Manufacturer_ID equals pemc.Publisher_ID
+                Manufactorys = [.. (from p in dbIdentityContext.Manufactory
+                                 join pemc in dbIdentityContext.PostcardEntityNManufactoryNCity
+                                on p.Manufactory_ID equals pemc.Publisher_ID
                                  join c in dbIdentityContext.City.Include(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
                                  on pemc.City_ID equals c.City_ID into leftOuterCity
                                  from subc in leftOuterCity.DefaultIfEmpty()
                                  where pemc.PostcardEntity_ID == selectPostcard.PostcardEntity.PostcardEntity_ID
-                                 select new Sammlerplattform.Models.Download.Manufacturer
+                                 select new Sammlerplattform.Models.Download.Manufactory
                                          {
-                                              Name =  p.ManufacturerName,
+                                              Name =  p.ManufactoryName,
                                      City = subc.CityNOeconymICollection.Where(x => x.CurrentName == true).Select(x => x.Oeconym.OeconymName).First(),
-                                      CityByname = (from c in dbIdentityContext.City.Include(m => m.ManufacturerList)
+                                      CityByname = (from c in dbIdentityContext.City.Include(m => m.ManufactoryList)
                                               join l in dbIdentityContext.Geography
                                               on c.Geography_ID equals l.Geography_ID into leftOuterGeography
                                               from subl in leftOuterGeography.DefaultIfEmpty()
-                                              where c.ManufacturerList.Any(c => c.Manufacturer_ID.Equals(p.Manufacturer_ID))
+                                              where c.ManufactoryList.Any(c => c.Manufactory_ID.Equals(p.Manufactory_ID))
                                               select subl.GeographyName).FirstOrDefault()
                                           })]
             };

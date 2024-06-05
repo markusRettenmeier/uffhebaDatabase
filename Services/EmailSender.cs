@@ -26,17 +26,17 @@ namespace Sammlerplattform.Services
         public async Task Execute(string apiKey, string subject, string message, string toEmail)
         {
             SendGridClient client = new(apiKey);
-            var fromEmail = new EmailAddress("noreply@sammlerdb.de", "sammlerdb"); 
-            var sendGridToEmail = new EmailAddress(toEmail);
-            var plainTextContent = "Guten Tag" +
+            EmailAddress fromEmail = new("noreply@sammlerdb.de", "sammlerdb");
+            EmailAddress sendGridToEmail = new(toEmail);
+            string plainTextContent = "Guten Tag" +
                             "<br />" + message +
                             "<br />Dies ist eine automatisch generierte Mail. Bei Fragen, wenden Sie sich bitte an service@uffheba.software." +
                             "<br /><br />Viele Grüße";
-            var htmlContent = "Guten Tag" +
+            string htmlContent = "Guten Tag" +
                             "<br />" + message +
                             "<br />Dies ist eine automatisch generierte Mail. Bei Fragen, wenden Sie sich bitte an service@uffheba.software." +
                             "<br />Viele Grüße";
-            var msg = MailHelper.CreateSingleEmail(fromEmail, sendGridToEmail, subject, plainTextContent, htmlContent);
+            SendGridMessage msg = MailHelper.CreateSingleEmail(fromEmail, sendGridToEmail, subject, plainTextContent, htmlContent);
             if (subject == "Abonnement abgeschlossen")
             {
                 AttachFile(msg, "Verbraucher-Widerrufsbelehrung_für_Dienstleistungen.pdf", Path.Combine(hostEnvironment.WebRootPath, "doc\\Verbraucher-Widerrufsbelehrung_für_Dienstleistungen.pdf"));
@@ -57,8 +57,8 @@ namespace Sammlerplattform.Services
 
         private static void AttachFile(SendGridMessage msg, string name, string path)
         {
-            var bytes = File.ReadAllBytes(path);
-            var file = Convert.ToBase64String(bytes);
+            byte[] bytes = File.ReadAllBytes(path);
+            string file = Convert.ToBase64String(bytes);
             msg.AddAttachment(name, file);
         }
     }

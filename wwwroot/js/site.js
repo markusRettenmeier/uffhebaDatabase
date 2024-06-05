@@ -92,7 +92,7 @@ function ImageColorChange() {
         $('.colorImage').hide()
 }
 
-//Wenn AddCity, AddEera, AddManufacturer geklickt wurde, dann sollen bereits eingegebene Daten gesichert werden
+//Wenn AddEera geklickt wurde, dann sollen bereits eingegebene Daten gesichert werden
 $('body').on('click', '.StoreInputs', StoreInputs)
 function StoreInputs() {
     document.querySelectorAll(".storeInput").forEach((el, idx) => {
@@ -107,7 +107,7 @@ function StoreInputs() {
     });
 }
 
-//Aus AddCity, AddEra, AddManufacturer zurück, sollen alle zuvor zwischengespeicherte Daten automaitsch wieder befülltl werden
+//Aus AddCity, AddEra, AddManufactory zurück, sollen alle zuvor zwischengespeicherte Daten automaitsch wieder befülltl werden
 if (window.location.href.indexOf('Database/Create') > -1) {
     for (const [key, value] of Object.entries(sessionStorage)) {
         let keyArray = key.split('_')
@@ -116,8 +116,8 @@ if (window.location.href.indexOf('Database/Create') > -1) {
                 case "InputCity":
                     AddMoreCities()
                     break;
-                case "ManufacturerID":
-                    AddMoreManufacturer()
+                case "ManufactoryID":
+                    AddMoreManufactory()
                     break;
             }
         }
@@ -147,8 +147,8 @@ $('.declineAnalyzedValue').on('click', function () {
 function ConcludeLists() {
     var publisher = '';
     var publisherCount = 0;
-    var manufacturerIDCityID = '';
-    var manufacturerIDCityIDCount = 0;
+    var manufactoryIDCityID = '';
+    var manufactoryIDCityIDCount = 0;
     var mcc = 0;
     var address = '';
     var adressCount = 0;
@@ -161,11 +161,11 @@ function ConcludeLists() {
             createNewInput('PublisherList', publisher)
             publisherCount = 0
             publisher = ''
-        } else if (manufacturerIDCityIDCount == 2) {
+        } else if (manufactoryIDCityIDCount == 2) {
             if (mcc > 2)
-                createNewInput('ManufacturerIDCityIDList', manufacturerIDCityID)
-            manufacturerIDCityIDCount = 0
-            manufacturerIDCityID = ''
+                createNewInput('ManufactoryIDCityIDList', manufactoryIDCityID)
+            manufactoryIDCityIDCount = 0
+            manufactoryIDCityID = ''
         }
 
         let currentClass = inputs[i].className
@@ -182,8 +182,8 @@ function ConcludeLists() {
                 break
             case findTerm('PublisherCreateEdit'):
                 if (inputs[i].value != undefined)                
-                    manufacturerIDCityID += inputs[i].value + '§§'
-                manufacturerIDCityIDCount++
+                    manufactoryIDCityID += inputs[i].value + '§§'
+                manufactoryIDCityIDCount++
                 mcc++
                 break
             case findTerm('Address'):
@@ -198,10 +198,10 @@ function ConcludeLists() {
         createNewInput('PublisherList', publisher)
         publisherCount = 0
         publisher = ''
-    } else if (manufacturerIDCityIDCount == 2) {
-        createNewInput('ManufacturerIDCityIDList', manufacturerIDCityID)
-        manufacturerIDCityIDCount = 0
-        manufacturerIDCityID = ''
+    } else if (manufactoryIDCityIDCount == 2) {
+        createNewInput('ManufactoryIDCityIDList', manufactoryIDCityID)
+        manufactoryIDCityIDCount = 0
+        manufactoryIDCityID = ''
     } else if (adressCount == 5) {
         createNewInput('AddressList', address)
         adressCount = 0
@@ -226,27 +226,44 @@ function createNewInput(name, value) {
     }).appendTo('form')
 }
 
-function AddCityToPostcard(buttonId) {
-    var lastId = $('#cityTable tr:last').attr('id')
-    var lastNumber = parseInt(lastId.split('_').pop()) + 1
-
-    var innerHtml = '<tr id="trCity_' + lastNumber + '">'
-    var value = document.getElementById('citySearchResultcityID_' + buttonId).innerHTML
-    innerHtml += '<td scope="col" class="InputPostcardCityID">' + value + '</td>'
-    value = document.getElementById('citySearchResultOecoynm_' + buttonId).innerHTML
-    innerHtml += '<td scope="col">' + value + '</td>'
-    value = document.getElementById('citySearchResultPostalcode_' + buttonId).innerHTML
-    innerHtml += '<td scope="col">' + value + '</td>'
-    value = document.getElementById('citySearchResultByname_' + buttonId).innerHTML
-    innerHtml += '<td scope="col">' + value + '</td>'
-    value = document.getElementById('citySearchResultGeography_' + buttonId).innerHTML
-    innerHtml += '<td scope="col" id="geography">' + value + '</td>'
-    innerHtml += '<td scope="col"><button type="button" id="' + lastNumber + '" class="btn btn-outline-danger DeleteCity">Entfernen</button></td>'
-    innerHtml += '</tr>'
-    
-    $('#cityTable').find('tbody').append(innerHtml)
-    $('#IsCityExistingModal').modal('hide')
+function AddCityToManufactory(buttonId) {
+    RemoveRowFromTable()
+    AddCityMultiRow(buttonId);
 }
+function AddCityToPostcard(buttonId) {
+    AddCityMultiRow(buttonId);
+}
+function AddCityMultiRow(buttonId) {
+    var lastId = $('#cityTable tr:last').attr('id');
+    var lastNumber = 0;
+    if (lastId != undefined) {
+        lastNumber = parseInt(lastId.split('_').pop()) + 1
+    }
+
+    var innerHtml = '<tr id="trCity_' + lastNumber + '">';
+    var value = document.getElementById('citySearchResultcityID_' + buttonId).innerHTML;
+    innerHtml += '<td scope="col" class="InputPostcardCityID">' + value + '</td>';
+    value = document.getElementById('citySearchResultOecoynm_' + buttonId).innerHTML;
+    innerHtml += '<td scope="col">' + value + '</td>';
+    value = document.getElementById('citySearchResultPostalcode_' + buttonId).innerHTML;
+    innerHtml += '<td scope="col">' + value + '</td>';
+    value = document.getElementById('citySearchResultByname_' + buttonId).innerHTML;
+    innerHtml += '<td scope="col">' + value + '</td>';
+    value = document.getElementById('citySearchResultGeography_' + buttonId).innerHTML;
+    innerHtml += '<td scope="col" id="geography">' + value + '</td>';
+    innerHtml += '<td scope="col"><button type="button" id="' + lastNumber + '" class="btn btn-outline-danger DeleteCity">Entfernen</button></td>';
+    innerHtml += '</tr>';
+
+    $('#cityTable').find('tbody').append(innerHtml);
+    $('#IsCityExistingModal').modal('hide');
+}
+function RemoveRowFromTable() {
+    let trCity0 = document.getElementById("trCity_0");
+    if (trCity0 != null) {
+        trCity0.remove()
+    }
+}
+
 function AddCityToReceiver(buttonId) {
     //Copy results from modal to screen
     SetValueIntoTable(buttonId);
@@ -260,18 +277,6 @@ function AddParentCity(buttonId) {
     //Copy results from modal to screen
     SetValueIntoTable(buttonId);
 }
-
-$('#clearOneRowCityTable').on('click', function () {
-
-    document.getElementById('city_ID').innerHTML = ''
-    document.getElementById('city').innerHTML = ''
-    document.getElementById('postalcode').innerHTML = ''
-    document.getElementById('byname').innerHTML = ''
-    document.getElementById('geography').innerHTML = ''
-    $('#clearOneRowCityTable').hide()
-})
-
-$('body').on('click', '.AddMoreManufacturers', AddMoreManufacturers);
 function SetValueIntoTable(buttonId) {
     var value = document.getElementById('citySearchResultcityID_' + buttonId).innerHTML;
     document.getElementById('city_ID').innerHTML = value;
@@ -288,26 +293,37 @@ function SetValueIntoTable(buttonId) {
     $('#IsCityExistingModal').modal('hide')
 }
 
-function AddMoreManufacturers() {
-    let source = $('.FirstManufacturer'), clone = source.clone(true)
-    let numberOfInputs = document.getElementsByClassName('InputManufacturer').length + 1
+$('#clearOneRowCityTable').on('click', function () {
 
-    clone.attr('class', 'col').attr('id', 'DivManufacturer_' + numberOfInputs).show()
-    clone.find('.InputManufacturer').attr('id','InputManufacturer_' + numberOfInputs).val('')
-    clone.find('.InputManufacturerID')
-        .attr('id', 'InputManufacturerID_' + numberOfInputs)
-        .attr('class', 'form-control dataSet storeInput InputManufacturerID PublisherCreateEdit').val('')
-    clone.find('.TownOfManufacturerSelect')
-        .attr('id', 'TownOfManufacturerSelect_' + numberOfInputs)
-        .attr('class', 'form-select dataSet storeInput TownOfManufacturerSelect PublisherCreateEdit').val('')
-    clone.find('.DeleteManufacturer').attr('id', numberOfInputs)
+    document.getElementById('city_ID').innerHTML = ''
+    document.getElementById('city').innerHTML = ''
+    document.getElementById('postalcode').innerHTML = ''
+    document.getElementById('byname').innerHTML = ''
+    document.getElementById('geography').innerHTML = ''
+    $('#clearOneRowCityTable').hide()
+})
 
-    clone.appendTo('.AppendManufacturerHere');
+$('body').on('click', '.AddMoreManufactorys', AddMoreManufactorys);
+function AddMoreManufactorys() {
+    let source = $('.FirstManufactory'), clone = source.clone(true)
+    let numberOfInputs = document.getElementsByClassName('InputManufactory').length + 1
+
+    clone.attr('class', 'col').attr('id', 'DivManufactory_' + numberOfInputs).show()
+    clone.find('.InputManufactory').attr('id','InputManufactory_' + numberOfInputs).val('')
+    clone.find('.InputManufactoryID')
+        .attr('id', 'InputManufactoryID_' + numberOfInputs)
+        .attr('class', 'form-control dataSet storeInput InputManufactoryID PublisherCreateEdit').val('')
+    clone.find('.TownOfManufactorySelect')
+        .attr('id', 'TownOfManufactorySelect_' + numberOfInputs)
+        .attr('class', 'form-select dataSet storeInput TownOfManufactorySelect PublisherCreateEdit').val('')
+    clone.find('.DeleteManufactory').attr('id', numberOfInputs)
+
+    clone.appendTo('.AppendManufactoryHere');
 }
 
-$('.DeleteManufacturer').on('click', function() {
+$('.DeleteManufactory').on('click', function() {
     let id = $(this).prop('id')
-    $('div#DivManufacturer_' + id).remove()
+    $('div#DivManufactory_' + id).remove()
 })
 
 if (window.location.href.indexOf('CreatePostcard') > -1 || window.location.href.indexOf('EditPostcard') > -1) {
@@ -357,6 +373,56 @@ $('.removePostalcodeCreateCity').on('click', function () {
     $('div#DivPostalcode_' + id).remove()
 })
 
+$('.addCityCreateManufactory').on('click', AddCityCreateManufactory);
+function AddCityCreateManufactory() {
+    let source = $('.CityOriginalCreateManufactory'), clone = source.clone(true)
+    let lastElement = $('.InputCity').last()
+    let lastId = lastElement.attr('id')
+    let splittedId = lastId.split('_').pop()
+    let currentId = parseInt(splittedId) + 1
+
+    clone.attr('class', 'input-group pb-1 DivCity').attr('id', 'DivCity_' + currentId)
+    clone.find('.InputCity').attr('id', 'InputCity_' + currentId).val('')
+    clone.find('.addCityCreateManufactory').remove()
+    clone.find('.removeCityCreateManufactory').attr('id', currentId).show()
+
+    clone.appendTo('.appendCityCreateManufactory');
+}
+$('.removeCityCreateanufacturer').on('click', function () {
+    let id = $(this).prop('id')
+    $('div#DivCity_' + id).remove()
+})
+
+//function addDynamicElement(sourceClass, targetClass, idPrefix) {
+//    $(sourceClass).on('click', function () {
+//        let source = $(this).closest('.input-group').find(sourceClass.replace('.', ''))
+//        let clone = source.clone(true)
+//        let lastElement = $(`.${targetClass}`).last()
+//        let lastId = lastElement.attr('id')
+//        let splittedId = lastId.split('_').pop()
+//        let currentId = parseInt(splittedId) + 1
+
+//        clone.attr('class', sourceClass.replace('.', '') + ' pb-1 ' + targetClass).attr('id', targetClass.replace('.', '') + '_' + currentId)
+//        clone.find(sourceClass).attr('id', sourceClass.replace('.', '') + '_' + currentId).val('')
+//        clone.find('.add' + sourceClass.replace('.', '')).remove()
+//        clone.find('.remove' + sourceClass.replace('.', '')).attr('id', currentId).show()
+
+//        clone.appendTo('.' + targetClass);
+//    });
+//}
+
+//function removeDynamicElement(className, targetClass) {
+//    $(document).on('click', className, function () {
+//        let id = $(this).prop('id')
+//        $('div#' + targetClass.replace('.', '') + '_' + id).remove()
+//    });
+//}
+
+//addDynamicElement('.addPostalcodeCreateCity', '.appendPostalcodeCreateCity', 'DivPostalcode');
+//removeDynamicElement('.removePostalcodeCreateCity', '.appendPostalcodeCreateCity');
+//addDynamicElement('.addCityCreateManufactory', '.appendCityCreateManufactory', 'DivCity');
+//removeDynamicElement('.removeCityCreateManufactory', '.appendCityCreateManufactory');
+
 $('.addOeconymCreateCity').on('click', AddOeconymCreateCity);
 function AddOeconymCreateCity() {
     let source = $('.oeconymOriginalCreateCity'), clone = source.clone(true)
@@ -384,6 +450,11 @@ $(".createCitySubmitButton").on('click', function () {
 
     var oeconym = ''
     var count = 1;
+    $(".InputPostalcodeNumber").each(function () {
+        if (this.value != '') {
+            createNewInput('PostalcodeNumberList',this.value.trim())
+        }
+    });
     $(".InputOeconymName").each(function () {
         if (this.value != '') {
             var oeconymName = this.value.trim()
@@ -393,4 +464,8 @@ $(".createCitySubmitButton").on('click', function () {
         count++
         createNewInput('OeconymList', oeconym)
     });
+})
+$(".createCitySubmitButton").on('click', function () {
+    var value = document.getElementsByClassName('city_ID').innerHTML
+    $('#cityInput').val(value)
 })

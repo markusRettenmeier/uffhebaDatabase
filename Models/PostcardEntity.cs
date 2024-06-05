@@ -1,13 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models
 {
-    public class PostcardEntity : ProductEntity
+    public class PostcardEntity : ProductEntity<PostcardConditionType>
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        [Display(Name = "Nummer der Postkarte")]
+        [Display(Name = "ID der Postkarte")]
         public int PostcardEntity_ID { get; set; }
 
         [Display(Name = "Belegnummer")]
@@ -18,11 +19,7 @@ namespace Sammlerplattform.Models
 
         [Display(Name = "Empfänger")]
         public int? Receiver_ID { get; set; }
-
         public int? Stamp_ID { get; set; }
-
-        [Display(Name = "Zustand")]
-        public int? ConditionOfCard { get; set; }
 
         [Display(Name = "Datum im Text")]
         public DateTime? DateInText { get; set; }
@@ -35,5 +32,21 @@ namespace Sammlerplattform.Models
 
         [Display(Name = "Farbe RAL-Druck Rückseite")]
         public int? ColorRALPrintingBackside { get; set; }
+    }
+
+    public enum PostcardConditionType
+    {
+        [Description("Keine Angabe")]
+        KeineAngabe = 0,
+        [Description("Ug, ungebraucht")]
+        Ug = 1,
+        [Description("Ugbs, beschrieben, jedoch nicht gelaufen")]
+        Ugbs = 2,
+        [Description("Gbmm, gelaufen mit Marke")]
+        Gbmm = 3,
+        [Description("Gbom, gelaufen, jedoch ohne Marke, bzw. Marke entfernt")]
+        Gbom = 4,
+        [Description("R, repariert")]
+        R = 5,
     }
 }

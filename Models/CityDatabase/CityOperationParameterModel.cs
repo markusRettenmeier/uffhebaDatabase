@@ -1,6 +1,6 @@
-﻿namespace Sammlerplattform.Models
+﻿namespace Sammlerplattform.Models.CityDatabase
 {
-    public class CityParameterModel
+    public class CityOperationParameterModel
     {
         public City City { get; set; } = new();
         public Oeconym Oeconym { get; set; } = new() { OeconymName = string.Empty };

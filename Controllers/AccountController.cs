@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Shared;
 using Sammlerplattform.Models;
+using Sammlerplattform.Models.Account;
 using System.Text;
 using System.Text.Encodings.Web;
 
@@ -87,10 +87,9 @@ namespace Sammlerplattform.Controllers
                             if (_userManager.Options.SignIn.RequireConfirmedAccount)
                             {
                                 bool sentConfirmationMailSuccessfully = await RegisterConfirmation(model.Email);
-                                if (sentConfirmationMailSuccessfully == true)
-                                    return RedirectToAction(nameof(Login), new { statusMessage = "Bestätigungs-E-Mail wurde versandt." });
-                                else
-                                    return RedirectToAction(nameof(Login), new { ErrorMessage = errors, statusMessage = "Es ist ein Fehler aufgetreten." });
+                                return sentConfirmationMailSuccessfully == true
+                                    ? RedirectToAction(nameof(Login), new { statusMessage = "Bestätigungs-E-Mail wurde versandt." })
+                                    : (IActionResult)RedirectToAction(nameof(Login), new { ErrorMessage = errors, statusMessage = "Es ist ein Fehler aufgetreten." });
                             }
                             else
                             {
@@ -107,7 +106,7 @@ namespace Sammlerplattform.Controllers
                 }
             }
 
-            return RedirectToAction(nameof(Login), new { ErrorMessage = errors});
+            return RedirectToAction(nameof(Login), new { ErrorMessage = errors });
         }
 
         public async Task<bool> RegisterConfirmation(string email)
@@ -161,7 +160,7 @@ namespace Sammlerplattform.Controllers
                         if (result.IsLockedOut)
                         {
                             _logger.LogWarning("User account locked out.");
-                            return RedirectToAction(nameof(Logout), new {StatusMessage = "Sie wurde erfolgreich ausgeloggt-"});
+                            return RedirectToAction(nameof(Logout), new { StatusMessage = "Sie wurde erfolgreich ausgeloggt-" });
                         }
                         else
                         {
@@ -189,7 +188,7 @@ namespace Sammlerplattform.Controllers
                     }
                     else
                     {
-                        return RedirectToAction(nameof(Login), new { statusMessage = "Account nicht gefunden oder Passwort inkorrekt."});
+                        return RedirectToAction(nameof(Login), new { statusMessage = "Account nicht gefunden oder Passwort inkorrekt." });
                     }
 
                 }

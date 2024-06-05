@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Sammlerplattform.Models
+namespace Sammlerplattform.Models.Account
 {
     public class ResetPasswordModel
     {

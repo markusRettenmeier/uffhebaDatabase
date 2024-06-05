@@ -1,6 +1,6 @@
 ﻿namespace Sammlerplattform.Models.Download
 {
-    public class Manufacturer
+    public class Manufactory
     {
         public string? Name { get; set; }
         public string? City { get; set; }

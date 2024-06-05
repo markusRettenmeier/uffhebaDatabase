@@ -1,7 +1,8 @@
-﻿@model Sammlerplattform.Models.CityParameterModel
+﻿@model CityOperationParameterModel
+@using Sammlerplattform.Models.CityDatabase
 
 @{
-    ViewData["Title"] = "Ort hinzufügen";
+    ViewData["Title"] = "Ort erstellen";
     Layout = "~/Views/Shared/_LayoutSettings.cshtml";
 }
 
@@ -16,7 +17,7 @@
     <div class="input-group pb-1 postalcodeOriginalCreateCity">
         <button class="btn btn-danger removePostalcodeCreateCity" id="1" style="display: none">-</button>
         <div class="form-floating">
-            <input asp-for="Postalcode.PostalcodeNumber" class="form-control InputPostalcodeNumber" name="PostalcodeNumberList" id="InputPostalcodeNumber_1" />
+            <input asp-for="Postalcode.PostalcodeNumber" class="form-control InputPostalcodeNumber" id="InputPostalcodeNumber_1" />
             <label asp-for="Postalcode.PostalcodeNumber" class="form-label"></label>
             <span asp-validation-for="Postalcode.PostalcodeNumber" class="text-danger"></span>
         </div>
@@ -78,7 +79,7 @@
                         <td scope="col" id="geography"></td>
                         <td scope="col">
                             <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary AddParentCityButton" data-bs-toggle="modal" data-bs-target="#IsCityExistingModal">
+                                <button id="cityModalButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsCityExistingModal">
                                     Ort auswählen
                                 </button>
                                 <button type="button" id="clearOneRowCityTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
@@ -89,10 +90,8 @@
             </table>
         </div>
     </div>
-    <button type="submit" class="btn btn-primary createCitySubmitButton">Erstellen</button>
+    <button id="submit-button" type="submit" class="btn btn-primary createCitySubmitButton">Erstellen</button>
 </form>
-
-<a asp-action="AdministerCollectionCity" asp-controller="CityDatabase">Zurück zur Liste</a>
 
 <partial name="~/Views/CityDatabase/_SearchForCity.cshtml" />
 
