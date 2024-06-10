@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.ManufactoryDatabase;
 using Sammlerplattform.Models.PersonDatabase;
+using Sammlerplattform.Models.ProductDatabase;
 using Sammlerplattform.Models.UserSettings;
 
 
@@ -20,7 +22,7 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
     public DbSet<Person> Person { get; set; } = null!;
     public DbSet<PostcardEntity> PostcardEntity { get; set; } = null!;
     public DbSet<PostcardImprint> PostcardImprint { get; set; } = null!;
-    public DbSet<PostcardScan> PostcardScan { get; set; } = null!;
+    public DbSet<ProductPicture> ProductPicture { get; set; } = null!;
     public DbSet<PostcardPotential> PostcardPotential { get; set; } = null!;
     public DbSet<Era> Era { get; set; } = null!;
     public DbSet<Image> Image { get; set; } = null!;

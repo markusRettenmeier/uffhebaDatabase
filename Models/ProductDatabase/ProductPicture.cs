@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sammlerplattform.Models
+namespace Sammlerplattform.Models.ProductDatabase
 {
-    public class PostcardScan
+    public class ProductPicture
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public int PostcardScan_Id { get; set; }
-        public string? Pictures_Format { get; set; }
+        public int ProductPicture_Id { get; set; }
+        public string? FileExtension { get; set; }
         public bool Frontside { get; set; }
         public int PostcardEntity_ID { get; set; }
     }

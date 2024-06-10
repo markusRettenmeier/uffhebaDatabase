@@ -1,8 +1,10 @@
-﻿namespace Sammlerplattform.Models.Download
+﻿using Sammlerplattform.Models.ProductDatabase;
+
+namespace Sammlerplattform.Models.Download
 {
     public class PostcardDownloadModel
     {
-        public List<PostcardScan> Scans { get; set; } = [];
+        public List<ProductPicture> Scans { get; set; } = [];
         public Postcard Postcard { get; set; } = new();
         public Artist Artist { get; set; } = new();
         public Image Image { get; set; } = new();

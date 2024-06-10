@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
-namespace Sammlerplattform.Models;
+namespace Sammlerplattform.Models.UserSettings;
 
 // Add profile data for application users by adding properties to the UsingIdentityUser class
 public class UsingIdentityUser : IdentityUser

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 
-namespace Sammlerplattform.Models
+namespace Sammlerplattform.Models.ProductDatabase
 {
     // TPC-Inheritance
     public class ProductEntity<TConditionType>

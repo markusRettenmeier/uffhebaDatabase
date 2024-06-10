@@ -20,7 +20,7 @@
                 @if (analysisState == 0)
                 {
                     <form asp-action="CheckoutSubmit" method="POST" asp-route-email="@ViewData["EMail"]">
-                        <input type="hidden" name="lookup_key" value="SubLookupAnalysisToolMonthly" />
+                        <input type="hidden" name="lookup_key" value="@ViewData["LookupAnalysistool"]" />
                         <button class="btn-success btn" id="checkout-and-portal-button" type="submit">Abo abschließen</button>
                     </form>
                     <p>Wenn Sie abonniert haben, dann werden Sie ausgeloggt und müssen sich wieder neu einloggen. Damit die Änderung wirksam wird.</p>
@@ -57,7 +57,7 @@
                 @if (diskspaceState == 0)
                 {
                     <form asp-action="CheckoutSubmit" method="POST" asp-route-email="@ViewData["EMail"]">
-                        <input type="hidden" name="lookup_key" value="SubLookupDiskSpaceMonthly" />
+                        <input type="hidden" name="lookup_key" value="@ViewData["LookupDiskSpace"]" />
                         <button class="btn-success btn" id="checkout-and-portal-button" type="submit">Abo abschließen</button>
                     </form>
                     <p>Wenn Sie abonniert haben, dann werden Sie ausgeloggt und müssen sich wieder neu einloggen.Damit die Änderung wirksam wird.</p>

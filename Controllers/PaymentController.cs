@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Sammlerplattform.Data;
-using Sammlerplattform.Models;
+using Sammlerplattform.Models.UserSettings;
 using Stripe;
 using Stripe.Checkout;
 using System.Security.Claims;
@@ -12,11 +12,12 @@ using System.Text.Encodings.Web;
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
-    public class PaymentController(UserManager<UsingIdentityUser> userManager, ILogger<PaymentController> logger, IEmailSender emailSender) : Controller
+    public class PaymentController(UserManager<UsingIdentityUser> userManager,
+                                   IConfiguration configuration, ILogger<PaymentController> logger, IEmailSender emailSender) : Controller
     {
         private readonly UserManager<UsingIdentityUser> _userManager = userManager;
 
-        public async Task<ActionResult> Checkout(string email)
+        public async Task<ActionResult> Checkout(string email, string statusMessage)
         {
             UsingIdentityUser? user = await _userManager.FindByEmailAsync(email);
             int subDiskSpaceState = 0;
@@ -25,6 +26,8 @@ namespace Sammlerplattform.Controllers
             int subAnalysisState = 0;
             string subAnalysis_Id = string.Empty;
             DateTime analysisDisclaimerDateTime = new();
+            string? lookupDiskSpace = configuration.GetValue<string>("StripeLookupDiskSpace");
+            string? lookupAnalysistool = configuration.GetValue<string>("StripeLookupAnalysisTool");
 
             if (user != null && user.StripeCustomer_ID != null)
             {
@@ -38,23 +41,23 @@ namespace Sammlerplattform.Controllers
                     {
                         foreach (SubscriptionItem? subData in sub.Items.Data)
                         {
-                            switch (sub.Items.Data[0].Price.LookupKey)
+                            if (sub.Items.Data[0].Price.LookupKey == lookupDiskSpace)
                             {
-                                case "SubLookupDiskSpaceMonthly":
-                                    subDiskSpace_Id = sub.Id;
-                                    diskspaceDisclaimerDateTime = sub.Created;
-                                    if (sub.CancelAtPeriodEnd == true)
-                                    {
-                                        //gecanceltes Abo
-                                        subDiskSpaceState = 2;
-                                    }
-                                    else
-                                    {
-                                        //laufendes Abo
-                                        subDiskSpaceState = 1;
-                                    }
-                                    break;
-                                case "SubLookupAnalysisToolMonthly":
+                                subDiskSpace_Id = sub.Id;
+                                diskspaceDisclaimerDateTime = sub.Created;
+                                if (sub.CancelAtPeriodEnd == true)
+                                {
+                                    //gecanceltes Abo
+                                    subDiskSpaceState = 2;
+                                }
+                                else
+                                {
+                                    //laufendes Abo
+                                    subDiskSpaceState = 1;
+                                }
+                            }
+                            else if (sub.Items.Data[0].Price.LookupKey == lookupAnalysistool)
+                            {
                                     subAnalysis_Id = sub.Id;
                                     analysisDisclaimerDateTime = sub.Created;
                                     if (sub.CancelAtPeriodEnd == true)
@@ -67,7 +70,6 @@ namespace Sammlerplattform.Controllers
                                         //laufendes Abo
                                         subAnalysisState = 1;
                                     }
-                                    break;
                             }
                         }
                     }
@@ -79,12 +81,15 @@ namespace Sammlerplattform.Controllers
             }
 
             ViewData["EMail"] = email;
+            ViewData["StatusMessage"] = statusMessage;
             ViewData["DiskspaceState"] = subDiskSpaceState;
             ViewData["DiskspaceId"] = subDiskSpace_Id;
             ViewData["DiskspaceDisclaimerTimestamp"] = diskspaceDisclaimerDateTime.AddDays(15);
+            ViewData["LookupDiskSpace"] = lookupDiskSpace;
             ViewData["AnalysisState"] = subAnalysisState;
             ViewData["AnalysisId"] = subAnalysis_Id;
             ViewData["AnalysisDisclaimerDate"] = analysisDisclaimerDateTime.AddDays(15);
+            ViewData["LookupAnalysistool"] = lookupAnalysistool;
 
             return View();
         }
@@ -166,14 +171,14 @@ namespace Sammlerplattform.Controllers
                 {
                     logger.LogError("CheckoutSubmit mit {ex.Message}", ex.Message);
 
-                    return RedirectToAction("Checkout", "Payment", new { email });
+                    return RedirectToAction("Checkout", "Payment", new { email, statusMessage = ex.Message });
                 }
             }
             catch (Exception ex)
             {
                 logger.LogError("CheckoutSubmit mit {ex.Message}", ex.Message);
 
-                return RedirectToAction("Checkout", "Payment", new { email });
+                return RedirectToAction("Checkout", "Payment", new { email, statusMessage = ex.Message });
             }
         }
 
@@ -272,6 +277,9 @@ namespace Sammlerplattform.Controllers
                 _logger.LogError("Kein StripeWebhookKey");
             }
 
+            string? lookupDiskSpace = configuration.GetValue<string>("StripeLookupDiskSpace");
+            string? lookupAnalysistool = configuration.GetValue<string>("StripeLookupAnalysisTool");
+
             try
             {
                 Event stripeEvent = EventUtility.ParseEvent(json);
@@ -308,16 +316,16 @@ namespace Sammlerplattform.Controllers
 
                         foreach (SubscriptionItem data in subscription.Items.Data)
                         {
-                            if (data.Price.LookupKey == "SubLookupAnalysisToolMonthly")
+                            if (data.Price.LookupKey == lookupAnalysistool)
                             {
                                 _ = await _userManager.AddClaimAsync(user, new Claim("SubscribedAnalysisTool", subscriptionItems.First().Id));
                             }
-                            else if (data.Price.LookupKey == "SubLookupDiskSpaceMonthly")
+                            else if (data.Price.LookupKey == lookupDiskSpace)
                             {
                                 _ = await _userManager.AddClaimAsync(user, new Claim("SubscribedDiskspace", subscriptionItems.First().Id));
                             }
 
-                            await SendSubscriptionCreatedMail(user, data, subscription.TrialEnd);
+                            await SendSubscriptionCreatedMail(user, data.Price.LookupKey == lookupDiskSpace ? "Speicherlatz" : "Analysetool", subscription.TrialEnd);
                         }
                     }
 
@@ -401,9 +409,8 @@ namespace Sammlerplattform.Controllers
             }
         }
 
-        private async Task SendSubscriptionCreatedMail(UsingIdentityUser user, SubscriptionItem data, DateTime? trialEnd)
+        private async Task SendSubscriptionCreatedMail(UsingIdentityUser user, string topic, DateTime? trialEnd)
         {
-            string kindOfSubscription = data.Price.LookupKey == "SubLookupDiskSpaceMonthly" ? "Speicherlatz" : "Analysetool";
             string? checkOutUrl = Url.Action(
                 "Checkout", "Payment",
                 new { user.Email },
@@ -417,7 +424,7 @@ namespace Sammlerplattform.Controllers
             string eMailtext = "";
             if (checkOutUrl != null && termsAndConditionsUrl != null && disclaimerUrl != null)
             {
-                eMailtext = $"Ihr Abonnement {kindOfSubscription} wurde erfolgreich abgeschlossen. Sie können das Abo einfach unter <a href='{HtmlEncoder.Default.Encode(checkOutUrl)}'>Abonnements verwalten</a> widerrufen." +
+                eMailtext = $"Ihr Abonnement {topic} wurde erfolgreich abgeschlossen. Sie können das Abo einfach unter <a href='{HtmlEncoder.Default.Encode(checkOutUrl)}'>Abonnements verwalten</a> widerrufen." +
                     $"<br />Es gelten unsere <a href='{HtmlEncoder.Default.Encode(termsAndConditionsUrl)}'>AGB</a> Hier finden Sie unsere <a href='{HtmlEncoder.Default.Encode(disclaimerUrl)}'>Widerrufsbelehrung</a>.";
             }
             if (trialEnd != null)

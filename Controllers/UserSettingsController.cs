@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models;
+using Sammlerplattform.Models.ProductDatabase;
 using Sammlerplattform.Models.UserSettings;
 using Stripe;
 using System.Linq.Dynamic.Core;
@@ -226,7 +227,7 @@ namespace Sammlerplattform.Controllers
                                                       PostcardPotential = p,
                                                       PostcardImprint = subImprint,
                                                       UsingIdentityUser = u,
-                                                      PostcardScanList = (from Scan in _dbIdentityContext.PostcardScan
+                                                      ProductPictureList = (from Scan in _dbIdentityContext.ProductPicture
                                                                           join pe in _dbIdentityContext.PostcardEntity
                                                                           on Scan.PostcardEntity_ID equals pe.PostcardEntity_ID
                                                                           where pe.PostcardEntity_ID == e.PostcardEntity_ID
@@ -236,17 +237,17 @@ namespace Sammlerplattform.Controllers
                 {
                     foreach (PostcardModel? item in CollectionUser)
                     {
-                        foreach (PostcardScan scan in item.PostcardScanList)
+                        foreach (ProductPicture scan in item.ProductPictureList)
                         {
                             if (scan.Frontside)
                             {
-                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
-                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
-                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
+                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.ProductPicture_Id + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.ProductPicture_Id + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_Id + "." + scan.FileExtension);
                             }
                             else
                             {
-                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
+                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_Id + "." + scan.FileExtension);
                             }
                             _ = _dbIdentityContext.Remove(scan);
                             _ = await _dbIdentityContext.SaveChangesAsync();

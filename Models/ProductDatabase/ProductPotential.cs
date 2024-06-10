@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Sammlerplattform.Models
+namespace Sammlerplattform.Models.ProductDatabase
 {
     //TPC-Inheritance
     public abstract class ProductPotential

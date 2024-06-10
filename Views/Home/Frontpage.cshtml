@@ -2,33 +2,6 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Startseite";
-
-    var cities = ViewData["City"] as List<string>;
-    List<(string name, string Geography)> cityTupleList = new();
-    if (cities is not null)
-    {
-        foreach (var city in cities)
-        {
-            var cityArray = city.Split("§§");
-            cityTupleList.Add((cityArray[0], cityArray[1]));
-        }
-    }
-    var buildings = ViewData["Building"] as List<string>;
-    var adresses = ViewData["Address"] as List<string>;
-    List<(string foreName, string surName, string street, string Streetnumber, string City)> adressTupleList = new();
-    if (adresses is not null)
-    {
-        foreach (var adress in adresses)
-        {
-            var adressArray = adress.Split("§§");
-            adressTupleList.Add((adressArray[0], adressArray[1], adressArray[2], adressArray[3], adressArray[4]));
-        }
-    }
-    var text = ViewData["Text"] as string;
-    var pathFrontside = ViewData["PathFrontside"] as string;
-    var pathBackside = ViewData["PathBackside"] as string;
-    var frontsideForImg = @"/images/Zwischenablage/" + System.IO.Path.GetFileName(pathFrontside);
-    var backsideForImg = @"/images/Zwischenablage/" + System.IO.Path.GetFileName(pathBackside);
 }
 
 <h4>Über diese Plattform</h4>

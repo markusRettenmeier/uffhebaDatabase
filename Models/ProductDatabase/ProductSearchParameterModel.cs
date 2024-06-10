@@ -10,7 +10,7 @@
         string? SearchFake { get; set; }
         ICollection<string> SearchMaterial { get; set; }
         ICollection<string> SearchUser { get; set; }
-        ICollection<string> SearchCondiiton { get; set; }
+        ICollection<string> SearchCondition { get; set; }
         ICollection<int> SearchWidth { get; set; }
         ICollection<int> SearchHeight { get; set; }
         ICollection<int> SearchLength { get; set; }

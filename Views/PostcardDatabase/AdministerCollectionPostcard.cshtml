@@ -29,7 +29,7 @@
                 Abbildung
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PostcardEntity.PostcardPotential_ID)
+                @Html.DisplayNameFor(model => model.PostcardEntity.PostcardEntity_ID)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.PostcardPotential.CityList)
@@ -42,13 +42,13 @@
     <tbody>
         @foreach (var item in Model)
         {
-            var image = @"/images/Thumbnail/" + item.PostcardScan.PostcardScan_Id + "." + item.PostcardScan.Pictures_Format;
+            var image = @"/images/Thumbnail/" + item.ProductScan.ProductPicture_Id + "." + item.ProductScan.FileExtension;
             <tr>
                 <td>
                     <img src="@image" width="240" height="153" alt="" id="simplePic_@count" class="IndexMobile-Picture" />
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.PostcardEntity.PostcardPotential_ID)
+                    @Html.DisplayFor(modelItem => item.PostcardEntity.PostcardEntity_ID)
                 </td>
                 <td>
                     @if (item.PostcardPotential.CityList.Count > 0)
@@ -65,7 +65,7 @@
                 </td>
                 <td>
                     <div>
-                        <a asp-action="EditPostcard" asp-controller="PostcardDatabase" asp-route-id="@item.PostcardPotential.PostcardPotential_ID">Ändern</a>
+                        <a asp-action="EditPostcard" asp-controller="PostcardDatabase" asp-route-id="@item.PostcardEntity.PostcardEntity_ID">Ändern</a>
                         | <a asp-action="DeletePostcard" asp-controller="PostcardDatabase" asp-route-potentialId="@item.PostcardPotential.PostcardPotential_ID" asp-route-entityId="@item.PostcardEntity.PostcardEntity_ID">Löschen</a>
                         | <a asp-action="DownloadPostcards" asp-controller="PostcardDatabase" asp-route-potentialId="@item.PostcardPotential.PostcardPotential_ID" asp-route-userId="@ViewData["userId"]">Herunterladen als YAML</a>
                     </div>

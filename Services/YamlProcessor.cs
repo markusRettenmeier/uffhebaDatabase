@@ -4,6 +4,7 @@ using Sammlerplattform.Data;
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.CityDatabase;
 using Sammlerplattform.Models.Download;
+using Sammlerplattform.Models.ProductDatabase;
 using YamlDotNet.Serialization;
 
 namespace Sammlerplattform.Services
@@ -36,7 +37,7 @@ namespace Sammlerplattform.Services
 
             PostcardDownloadModel? postcardDownloadModel = new()
             {
-                Scans = selectPostcard.PostcardScanList,
+                Scans = selectPostcard.ProductPictureList,
                 Postcard = new Postcard
                 {
                     CitiesOnPostcard = [.. (from c in dbIdentityContext.City.Include(x => x.PostalcodeICollection)

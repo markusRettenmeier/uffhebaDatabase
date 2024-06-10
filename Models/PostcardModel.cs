@@ -1,6 +1,9 @@
 ﻿using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.ManufactoryDatabase;
 using Sammlerplattform.Models.PersonDatabase;
+using Sammlerplattform.Models.ProductDatabase;
+using Sammlerplattform.Models.UserSettings;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sammlerplattform.Models
@@ -22,8 +25,8 @@ namespace Sammlerplattform.Models
         public List<(Manufactory publisher, City? city, List<City> cityList)> ManufactoryTupleList { get; set; } = [];
         public List<string> ManufactoryIDCityIDList { get; set; } = [];
         public PostcardPotential PostcardPotential { get; set; } = new();
-        public PostcardScan PostcardScan { get; set; } = new();
-        public List<PostcardScan> PostcardScanList { get; set; } = [];
+        public ProductPicture ProductScan { get; set; } = new();
+        public List<ProductPicture> ProductPictureList { get; set; } = [];
         public Person PersonSender { get; set; } = new();
         public Person PersonReceiver { get; set; } = new();
         public (Person Person, City? City) PersonReceiverTuple { get; set; } = new();

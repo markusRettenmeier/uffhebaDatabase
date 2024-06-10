@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Controllers;
 using Sammlerplattform.Controllers.DAL;
 using Sammlerplattform.Data;
-using Sammlerplattform.Models;
+using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Services;
 using Stripe;
 using System.Text.Json.Serialization;

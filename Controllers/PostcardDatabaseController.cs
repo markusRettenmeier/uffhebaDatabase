@@ -9,8 +9,11 @@ using Sammlerplattform.Controllers.PictureAnaylsis;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.ManufactoryDatabase;
 using Sammlerplattform.Models.PersonDatabase;
+using Sammlerplattform.Models.ProductDatabase;
+using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Services;
 using System.Globalization;
 using System.IO.Compression;
@@ -42,7 +45,7 @@ namespace Sammlerplattform.Controllers
             IQueryable<PostcardModel> PostcardIQueryable = from user in _userManager.Users
                                                            join pe in _dbIdentityContext.PostcardEntity
                                                            on user.Id equals pe.UsingIdentityUsers_ID
-                                                           join Scan in _dbIdentityContext.PostcardScan
+                                                           join Scan in _dbIdentityContext.ProductPicture
                                                            on pe.PostcardEntity_ID equals Scan.PostcardEntity_ID
                                                            join pp in _dbIdentityContext.PostcardPotential
                                                                 .Include(c => c.CityList)
@@ -58,7 +61,7 @@ namespace Sammlerplattform.Controllers
                                                            ,
                                                                PostcardPotential = pp
                                                            ,
-                                                               PostcardScan = Scan
+                                                               ProductScan = Scan
                                                            ,
                                                                UsingIdentityUser = user
                                                            };
@@ -406,14 +409,14 @@ namespace Sammlerplattform.Controllers
                 }
 
                 string currentFileName = string.IsNullOrEmpty(pathFrontside) ? PicturePreprocess.SaveFileForAnalysis(Frontside, _hostEnvironment) : pathFrontside;
-                _ = await CreatePostcardScan(currentFileName, true, newPostcardEntity.PostcardEntity_ID, user, false);
+                _ = await CreateProductPicture(currentFileName, true, newPostcardEntity.PostcardEntity_ID, user, false);
 
                 if (Backside != null || !string.IsNullOrEmpty(pathBackside))
                 {
                     currentFileName = string.IsNullOrEmpty(pathBackside) && Backside != null
                         ? PicturePreprocess.SaveFileForAnalysis(Backside, _hostEnvironment)
                         : pathBackside;
-                    _ = await CreatePostcardScan(currentFileName, false, newPostcardEntity.PostcardEntity_ID, user, false);
+                    _ = await CreateProductPicture(currentFileName, false, newPostcardEntity.PostcardEntity_ID, user, false);
                 }
                 id = newPostcardPotential.PostcardPotential_ID;
 
@@ -423,13 +426,13 @@ namespace Sammlerplattform.Controllers
             catch (TransactionAbortedException ex)
             {
                 //DeletePictures
-                _logger.LogError("CreatePostcardSubmit abgebrochen mit Exception {ex}", ex);
-                statusMessage = "Erstellung wurde abgebrochen. Fehler wurde gemeldet.";
+                _logger.LogError("CreatePostcardSubmit abgebrochen mit Exception {ex.Message}", ex);
+                statusMessage = "Erstellung wurde abgebrochen. Fehler: " + ex.Message;
             }
             catch (Exception ex)
             {
-                _logger.LogError("CreatePostcardSubmit abgebrochen mit Exception {ex}", ex);
-                statusMessage = "Erstellung wurde abgebrochen. Fehler wurde gemeldet.";
+                _logger.LogError("CreatePostcardSubmit abgebrochen mit Exception {ex.Message}", ex);
+                statusMessage = "Erstellung wurde abgebrochen. Fehler: " + ex.Message;
             }
 
             return isComingFromAnalysis
@@ -438,49 +441,50 @@ namespace Sammlerplattform.Controllers
         } // END CreatePostcard
 
 
-        private async Task<PostcardScan> CreatePostcardScan(string fileName, bool Frontside, int? Postcard_ID, UsingIdentityUser user, bool replaceOldScan)
+        private async Task<ProductPicture> CreateProductPicture(string fileName, bool Frontside, int? PostcardEntity_ID, UsingIdentityUser user, bool replaceOldScan)
         {
             string wwwRootPath = _hostEnvironment.WebRootPath;
-            string pathNormal = Path.Combine(wwwRootPath, "images/Normal");
-            string pathSmall = Path.Combine(wwwRootPath, "images/Klein");
-            string pathThumbnail = Path.Combine(wwwRootPath, "images/Thumbnail");
+            string pathNormal = Path.Combine(wwwRootPath, Path.Combine("images","Normal"));
+            string pathSmall = Path.Combine(wwwRootPath, Path.Combine("images","Klein"));
+            string pathThumbnail = Path.Combine(wwwRootPath, Path.Combine("images","Thumbnail"));
             string pathFile = string.Empty;
-            string pathOriginal = Path.Combine(wwwRootPath, "images/Original");
+            string pathOriginal = Path.Combine(wwwRootPath, Path.Combine("images","Original"));
             DateTime currentDate = DateTime.Now;
-            PostcardScan postcardScan = new();
+            ProductPicture productScan = new();
 
             if (!string.IsNullOrEmpty(fileName))
             {
-                string[] scanName = fileName.Split(".");
-                if (scanName[1] == string.Empty)
+                string fileExtension = Path.GetExtension(fileName);
+                if (fileExtension == string.Empty)
                 {
-                    scanName[1] = "png";
+                    fileExtension = "png";
                 }
 
                 string ImgName = string.Empty;
 
                 if (replaceOldScan)
                 {
-                    PostcardScan selectScan = (from s in _dbIdentityContext.PostcardScan
-                                               where s.PostcardEntity_ID == Postcard_ID
+                    ProductPicture selectScan = (from s in _dbIdentityContext.ProductPicture
+                                               where s.PostcardEntity_ID == PostcardEntity_ID
                                                && s.Frontside == Frontside
                                                select s).FirstOrDefault() ?? throw new NullReferenceException("scanSelect");
-                    ImgName = selectScan.PostcardScan_Id.ToString() + "." + selectScan.Pictures_Format;
-                    postcardScan = selectScan;
+                    ImgName = selectScan.ProductPicture_Id.ToString() + "." + selectScan.FileExtension;
+                    productScan = selectScan;
                 }
                 else
                 {
-                    PostcardScan newPostcardScan = new()
+                    ProductPicture newProductScan = new()
                     {
-                        Pictures_Format = scanName[1].Trim(),
+                        FileExtension = fileExtension,
                         Frontside = Frontside
                     };
-                    if (Postcard_ID != null)
+
+                    if (PostcardEntity_ID != null)
                     {
-                        newPostcardScan.PostcardEntity_ID = (int)Postcard_ID;
+                        newProductScan.PostcardEntity_ID = (int)PostcardEntity_ID;
                     }
 
-                    _ = _dbIdentityContext.Add(newPostcardScan);
+                    _ = _dbIdentityContext.Add(newProductScan);
                     try
                     {
                         _ = await _dbIdentityContext.SaveChangesAsync();
@@ -488,13 +492,16 @@ namespace Sammlerplattform.Controllers
                     catch (Exception ex)
                     {
                         _logger.LogError("ProcessAnalysisResultParameters publisher abgebrochen mit Exception {ex}, name {scanName[1].Trim()}.",
-                                    ex, scanName[1].Trim());
+                                    ex.Message, fileExtension);
+                        if(ex.InnerException != null)
+                            throw new DbUpdateException(ex.InnerException.Message + " filename: " + fileName + " fileExtension: " + fileExtension + " Frontside: " + Frontside);
+                        else
+                            throw new DbUpdateException(ex.Message);
                     }
 
-                    ImgName = newPostcardScan.PostcardScan_Id.ToString() + "." + newPostcardScan.Pictures_Format;
-                    postcardScan = newPostcardScan;
+                    ImgName = newProductScan.ProductPicture_Id.ToString() + "." + newProductScan.FileExtension;
+                    productScan = newProductScan;
                 }
-                //string fileName2 = Path.GetFullPath(fileName);
 
                 MagickReadSettings readSettings = new()
                 {
@@ -528,12 +535,12 @@ namespace Sammlerplattform.Controllers
                 {
                     image.Composite(watermark, Gravity.Center, 0, 0, CompositeOperator.Over);
                 }
+
                 pathFile = Path.Combine(pathNormal, ImgName);
                 if (replaceOldScan)
                 {
                     System.IO.File.Delete(pathFile + ".png");
                 }
-
                 image.Write(pathFile);
 
                 if (Frontside)
@@ -574,7 +581,7 @@ namespace Sammlerplattform.Controllers
                 System.IO.File.Move(fileName, Path.Combine(pathOriginal, ImgName));
             }
 
-            return postcardScan;
+            return productScan;
         }
 
         public ActionResult EditPostcard(int id, string statusMessage)
@@ -1074,14 +1081,14 @@ namespace Sammlerplattform.Controllers
                 if (Frontside != null)
                 {
                     currentFileName = PicturePreprocess.SaveFileForAnalysis(Frontside, _hostEnvironment);
-                    _ = await CreatePostcardScan(currentFileName, true, selectPostcardEntity.PostcardEntity_ID, user, true);
+                    _ = await CreateProductPicture(currentFileName, true, selectPostcardEntity.PostcardEntity_ID, user, true);
                     statusMessage = "Bitte leeren Sie Ihren Cache, damit die Änderung sichtbar wird";
                 }
 
                 if (Backside != null)
                 {
                     currentFileName = PicturePreprocess.SaveFileForAnalysis(Backside, _hostEnvironment);
-                    _ = await CreatePostcardScan(currentFileName, false, selectPostcardEntity.PostcardEntity_ID, user, true);
+                    _ = await CreateProductPicture(currentFileName, false, selectPostcardEntity.PostcardEntity_ID, user, true);
                     statusMessage = "Bitte leeren Sie Ihren Cache, damit die Änderung sichtbar wird";
                 }
 
@@ -1090,8 +1097,8 @@ namespace Sammlerplattform.Controllers
             catch (TransactionAbortedException ex)
             {
                 // DeletePictures
-                _logger.LogError("EditPostcardSubmit abgebrochen mit Exception {ex}", ex);
-                statusMessage = "Erstellung wurde abgebrochen. Fehler wurde gemeldet.";
+                _logger.LogError("EditPostcardSubmit abgebrochen mit Exception {ex.Message}", ex);
+                statusMessage = "Erstellung wurde abgebrochen. Fehler: " + ex.Message;
             }
 
             return RedirectToAction("AdministerCollectionPostcard", "PostcardDatabase", new { statusMessage });
@@ -1118,7 +1125,7 @@ namespace Sammlerplattform.Controllers
                                                          PostcardPotential = p,
                                                          PostcardEntity = e,
                                                          PostcardImprint = i,
-                                                         PostcardScanList = (from Scan in _dbIdentityContext.PostcardScan
+                                                         ProductPictureList = (from Scan in _dbIdentityContext.ProductPicture
                                                                              join pe in _dbIdentityContext.PostcardEntity
                                                                              on Scan.PostcardEntity_ID equals pe.PostcardEntity_ID
                                                                              where pe.PostcardEntity_ID == e.PostcardEntity_ID
@@ -1126,24 +1133,24 @@ namespace Sammlerplattform.Controllers
                                                      })
                                            .First() ?? throw new NullReferenceException("PostcardsSelect");
 
-                    foreach (PostcardScan scan in PostcardsSelect.PostcardScanList)
+                    foreach (ProductPicture scan in PostcardsSelect.ProductPictureList)
                     {
                         if (scan.Frontside)
                         {
                             try
                             {
-                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
-                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
-                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
+                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.ProductPicture_Id + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.ProductPicture_Id + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_Id + "." + scan.FileExtension);
                             }
                             catch
                             {
-                                _logger.LogError("DeletePostcardEntity: PostcardScan nicht gefunden: {scan.PostcardScan_Id}.{scan.Pictures_Format}", scan.PostcardScan_Id, scan.Pictures_Format);
+                                _logger.LogError("DeletePostcardEntity: ProductPicture nicht gefunden: {scan.ProductPicture_Id}.{scan.Pictures_Format}", scan.ProductPicture_Id, scan.FileExtension);
                             }
                         }
                         else
                         {
-                            System.IO.File.Delete("wwwroot/images/Normal/" + scan.PostcardScan_Id + "." + scan.Pictures_Format);
+                            System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_Id + "." + scan.FileExtension);
                         }
                         _ = _dbIdentityContext.Remove(scan);
                         _ = await _dbIdentityContext.SaveChangesAsync();
@@ -1185,10 +1192,10 @@ namespace Sammlerplattform.Controllers
 
             foreach (PostcardModel postcard in postcardList)
             {
-                foreach (PostcardScan scan in postcard.PostcardScanList)
+                foreach (ProductPicture scan in postcard.ProductPictureList)
                 {
-                    string sourceFilePath = Path.Combine(sourceDir, scan.PostcardScan_Id.ToString() + ".png");
-                    string targetFilePath = Path.Combine(downloadFolder, scan.PostcardScan_Id.ToString() + ".png");
+                    string sourceFilePath = Path.Combine(sourceDir, scan.ProductPicture_Id.ToString() + ".png");
+                    string targetFilePath = Path.Combine(downloadFolder, scan.ProductPicture_Id.ToString() + ".png");
                     System.IO.File.Copy(sourceFilePath, targetFilePath, true);
                 }
             }
@@ -1312,7 +1319,7 @@ namespace Sammlerplattform.Controllers
                                                           PostcardEntity = pse,
                                                           PostcardPotential = pso,
                                                           PostcardImprint = subPic,
-                                                          PostcardScanList = (from Scan in _dbIdentityContext.PostcardScan
+                                                          ProductPictureList = (from Scan in _dbIdentityContext.ProductPicture
                                                                               join pe in _dbIdentityContext.PostcardEntity
                                                                               on Scan.PostcardEntity_ID equals pe.PostcardEntity_ID
                                                                               where pe.PostcardEntity_ID == pse.PostcardEntity_ID

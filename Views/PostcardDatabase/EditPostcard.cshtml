@@ -1,19 +1,20 @@
 ﻿@using System.Drawing;
 @using Sammlerplattform.Models.CityDatabase;
+@using Sammlerplattform.Models.ProductDatabase;
 @model Sammlerplattform.Models.PostcardModel
 
 @{
     ViewData["Title"] = "Postkarte ändern";
     Layout = "~/Views/Shared/_LayoutSettings.cshtml";
 
-    var frontside = Model.PostcardScanList.Where(x => x.Frontside).FirstOrDefault();
+    var frontside = Model.ProductPictureList.Where(x => x.Frontside).FirstOrDefault();
     string pathFrontside = string.Empty;
     if (frontside != null)
-        pathFrontside = @"/images/Normal/" + frontside.PostcardScan_Id + "." + frontside.Pictures_Format;
-    var backside = Model.PostcardScanList.Where(x => !x.Frontside).FirstOrDefault();
+        pathFrontside = @"/images/Normal/" + frontside.ProductPicture_Id + "." + frontside.FileExtension;
+    var backside = Model.ProductPictureList.Where(x => !x.Frontside).FirstOrDefault();
     string pathBackside = string.Empty;
     if (backside != null)
-        pathBackside = @"/images/Normal/" + backside.PostcardScan_Id + "." + backside.Pictures_Format;
+        pathBackside = @"/images/Normal/" + backside.ProductPicture_Id + "." + backside.FileExtension;
     var colorRALWriting = Sammlerplattform.Services.ColorConverter.ArgbToHex(Model.PostcardEntity.ColorRALWritingFrontside);
     string? colorImage = null;
     if (Model.PostcardImprint != null)

@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Sammlerplattform.Models;
 using Sammlerplattform.Models.Account;
+using Sammlerplattform.Models.UserSettings;
 using System.Text;
 using System.Text.Encodings.Web;
 
