@@ -1,4 +1,5 @@
-﻿using Sammlerplattform.Models.CityDatabase;
+﻿using Sammlerplattform.Models.BrickDatabase;
+using Sammlerplattform.Models.CityDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,12 +17,12 @@ namespace Sammlerplattform.Models.ManufactoryDatabase
         public required string ManufactoryName { get; set; }
 
         [Display(Name = "Standorte")]
-        public ICollection<City> CityList { get; set; } = [];
+        public ICollection<City> CityICollection { get; set; } = [];
 
         public int? ProductionFacility_ID { get; set; }
 
         [DisplayFormat(NullDisplayText = "Nicht angegeben")]
         public ProductionFacility? ProductionFacility { get; set; }
-        //public ICollection<Person> PersonICollection { get; set; } = [];
+        public ICollection<BrickEntity> BrickEntityICollection { get; set; } = [];
     }
 }

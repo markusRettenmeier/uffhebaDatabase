@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Models.ManufactoryDatabase;
+using Sammlerplattform.Models.PersonDatabase;
+using Sammlerplattform.Models.ProductPictureDatabase;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
 
 namespace Sammlerplattform.Models.ProductDatabase
 {
@@ -11,7 +12,9 @@ namespace Sammlerplattform.Models.ProductDatabase
     public class ProductEntity<TConditionType>
     {
         [Display(Name = "Ablageort")]
+        [StringLength(50)]
         public string? FilingLocation { get; set; }
+        [StringLength(3)]
         public string? Charge { get; set; }
 
         [Display(Name = "Preis")]
@@ -24,14 +27,19 @@ namespace Sammlerplattform.Models.ProductDatabase
 
         [Display(Name = "Material")]
         [NotMapped]
-        public MaterialType MaterialEnum { get; set; }
+        public MaterialType MaterialEnum
+        {
+            get
+            {
+                return (MaterialType)MaterialInt;
+            }
+            set
+            {
+                MaterialInt = (int)value;
+            }
+        }
         public int MaterialInt { get; set; }
-        public string? UsingIdentityUsers_ID { get; set; }
-
-        [Display(Name = "Erhaltungszustand")]
-        [NotMapped]
-        public TConditionType? ConditionEnum { get; set; }
-        public int ConditionInt { get; set; }
+        public string UsingIdentityUsers_ID { get; set; } = string.Empty;
 
         [Display(Name = "Breite")]
         public int? Width { get; set; }
@@ -39,42 +47,48 @@ namespace Sammlerplattform.Models.ProductDatabase
         public int? Height { get; set; }
         [Display(Name = "Länge")]
         public int? Length { get; set; }
-        //public int? ManufacturingDate_ID { get; set; }
-        //public ManufacturingDate? ManufacturingDate { get; set; }
+        public int? ManufacturingDate_ID { get; set; }
+        public ManufacturingDate? ManufacturingDate { get; set; }
 
         [Display(Name = "Bemerkung")]
         public string? Comment { get; set; }
-        //[Display(Name = "Eigentümer")]
-        //public int? Owner_ID { get; set; }
-        //public Person? Owner { get; set; }
-        //public DateTime TransferFromOwner { get; set; }
+        public int? Owner_ID { get; set; }
+        [Display(Name = "Eigentümer")]
+        public Person? Owner { get; set; }
+        [Display(Name = "Empfangsdatum")]
+        public DateTime? TransferFromOwner { get; set; }
 
         [Display(Name = "Stückzahl")]
         public int? ProductionSize { get; set; }
+
+        [Display(Name = "Erhaltungszustand")]
+        [NotMapped]
+        public TConditionType? ConditionEnum
+        {
+            get
+            {
+                return (TConditionType)Enum.ToObject(typeof(TConditionType), ConditionInt);
+            }
+            set
+            {
+                ConditionInt = Convert.ToInt32(value);
+            }
+        }
+        public int ConditionInt { get; set; }
+        public ICollection<ProductPicture> ProductPictureICollection { get; set; } = [];
     }
 
     public enum MaterialType
     {
-        KeineAngabe = 0,
-        Holz = 1,
-        Kupfer = 2,
-        Papier = 3
-    }
-    public static class EnumExtensions
-    {
-        public static string GetDescription(this Enum value)
-        {
-            FieldInfo? fi = value.GetType().GetField(value.ToString());
-            if (fi != null)
-            {
-                DescriptionAttribute[] attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-
-                return attributes != null && attributes.Length > 0 ? attributes[0].Description : value.ToString();
-            }
-            else
-            {
-                return string.Empty;
-            }
-        }
+        [Description("Keine Angabe")]
+        NoInformation = 0,
+        [Description("Holz")]
+        Wood = 1,
+        [Description("Kupfer")]
+        Copper = 2,
+        [Description("Papier")]
+        Paper = 3,
+        [Description("Lehm")]
+        Adobe = 4
     }
 }

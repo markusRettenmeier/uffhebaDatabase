@@ -10,7 +10,8 @@
     <link rel="preload" as="font">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" media="print" onload="this.media='all'">
     <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="~/css/site.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/chosen/chosen.min.css" />
 </head>
 <body>
     <header>
@@ -41,6 +42,9 @@
                                     <li><hr class="dropdown-divider"></li>
                                     <li class="nav-item">
                                         <a class="nav-link" asp-controller="PostcardDatabase" asp-action="AdministerCollectionPostcard">Postkarten verwalten</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="BrickDatabase" asp-action="AdministerCollectionBrick">Ziegel verwalten</a>
                                     </li>
                                 }
                                 else if ((await AuthorizationService.AuthorizeAsync(User, "SubscribedAnalysisToolPolicy")).Succeeded)
@@ -97,8 +101,9 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.min.js" asp-append-version="true"></script>
-    <script src="~/js/api.min.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/api.js" asp-append-version="true"></script>
+    <script src="~/lib/chosen/chosen.jquery.min.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

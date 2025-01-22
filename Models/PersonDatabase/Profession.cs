@@ -11,7 +11,7 @@ namespace Sammlerplattform.Models.PersonDatabase
 
         [StringLength(50)]
         [Display(Name = "Berufsbezeichnung")]
-        public required string ProfessionName { get; set; }
+        public required string Name { get; set; }
         public ICollection<Person> PersonICollection { get; set; } = [];
     }
 }

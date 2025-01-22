@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models;
-using Sammlerplattform.Models.ProductDatabase;
+using Sammlerplattform.Models.ProductPictureDatabase;
 using Sammlerplattform.Models.UserSettings;
 using Stripe;
 using System.Linq.Dynamic.Core;
@@ -241,13 +241,13 @@ namespace Sammlerplattform.Controllers
                         {
                             if (scan.Frontside)
                             {
-                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.ProductPicture_Id + "." + scan.FileExtension);
-                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.ProductPicture_Id + "." + scan.FileExtension);
-                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_Id + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.ProductPicture_ID + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.ProductPicture_ID + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_ID + "." + scan.FileExtension);
                             }
                             else
                             {
-                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_Id + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_ID + "." + scan.FileExtension);
                             }
                             _ = _dbIdentityContext.Remove(scan);
                             _ = await _dbIdentityContext.SaveChangesAsync();

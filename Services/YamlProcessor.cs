@@ -75,8 +75,8 @@ namespace Sammlerplattform.Services
                 {
                     Name = selectPostcard.AuthorArtist?.Name,
                     Description = selectPostcard.AuthorArtist?.PersonDescription,
-                    Prizes = selectPostcard.AuthorArtist?.PrizeICollection.Select(x => x.PrizeName).ToString(),
-                    Profession = selectPostcard.AuthorArtist?.ProfessionICollection.Select(x => x.ProfessionName).ToString(),
+                    Prizes = selectPostcard.AuthorArtist?.PrizeICollection.Select(x => x.Name).ToString(),
+                    Profession = selectPostcard.AuthorArtist?.ProfessionICollection.Select(x => x.Name).ToString(),
                     Signature = selectPostcard.AuthorArtist?.PersonSignature
                 },
                 Image = new Sammlerplattform.Models.Download.Image
@@ -99,10 +99,8 @@ namespace Sammlerplattform.Services
                 Receiver = new Sammlerplattform.Models.Download.Receiver
                 {
                     Name = selectPostcard.PersonReceiver?.Name,
-                    Street = selectPostcard.PersonReceiver?.Street,
-                    Streetnumber = selectPostcard.PersonReceiver?.HouseNumber,
                     City = (from c in processCity.GetCityWithPredicates(processCity.CityParametersOperationToSearch(cityParameterModel))
-                            where c.Person != null && selectPostcard.PersonReceiver != null && c.Person.Person_ID == selectPostcard.PersonReceiver.Person_ID
+                            where c.PersonICollection != null && selectPostcard.PersonReceiver != null && c.PersonICollection.Any(x => x.Person_ID == selectPostcard.PersonReceiver.Person_ID)
                             select new Sammlerplattform.Models.Download.City
                             {
                                 Oeconym = c.CityNOeconymICollection.Select(x => x.Oeconym.OeconymName).ToList(),

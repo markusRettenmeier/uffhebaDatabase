@@ -1,4 +1,4 @@
-﻿using Sammlerplattform.Models.ProductDatabase;
+﻿using Sammlerplattform.Models.ProductPictureDatabase;
 
 namespace Sammlerplattform.Models.Download
 {

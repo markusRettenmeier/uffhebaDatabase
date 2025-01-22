@@ -18,6 +18,7 @@ builder.Services.AddControllersWithViews()
             options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         });
 builder.Services.AddResponseCaching();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
@@ -68,7 +69,10 @@ builder.Services.AddScoped<IProcessCity, CityProcessor>();
 builder.Services.AddScoped<IProcessCityNOeconym, CityNOeconymProcessor>();
 builder.Services.AddScoped<IManufactoryRepository, ManufactoryRepository>();
 builder.Services.AddScoped<IProcessManufactory, ManufactoryProcessor>();
+builder.Services.AddScoped<IProcessBrick, BrickProcessor>();
+builder.Services.AddScoped<IProcessPerson, PersonProcessor>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<UserAccessor>();
 
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 StripeConfiguration.ApiKey = builder.Configuration.GetValue<string>("StripeKey");

@@ -58,7 +58,6 @@ function callAjaxGeographyID(InputId) {
         })
     }
 }
-
 function callAjaxEraID(Id) {
     var era = $('#InputEra_' + Id).val()
     if (era != '') {
@@ -82,7 +81,6 @@ function callAjaxEraID(Id) {
         })
     }
 }
-
 function callAjaxManufactoryID(Id) {
     var manufactory = $('#InputManufactory_' + Id).val()
     if (manufactory != '') {
@@ -112,9 +110,9 @@ function callAjaxManufactoryID(Id) {
                                     }
                                 })
                             }
-                                else {
-                                    $('#citySearchResultTable').find('tbody').append('<tr><td>Kein Eintrag vorhanden, bitte Ort erstellen</td></tr>')
-                                }
+                            else {
+                                $('#citySearchResultTable').find('tbody').append('<tr><td>Kein Eintrag vorhanden, bitte Ort erstellen</td></tr>')
+                            }
                         },
                         error: function (xhr, status, error) {
                             sendErrorMessage(xhr)
@@ -128,7 +126,6 @@ function callAjaxManufactoryID(Id) {
         })
     }
 }
-
 function callAjaxProductionFacilityID() {
     var industrialSector = $('.InputProductionFacility').val()
     if (industrialSector != '') {
@@ -148,7 +145,6 @@ function callAjaxProductionFacilityID() {
         })
     }
 }
-
 $(".ExistingCitiesSearchSubmit").on('click', function () {
     var city = $('.InputOeconymSearch').val()
     $.ajax({
@@ -166,7 +162,7 @@ $(".ExistingCitiesSearchSubmit").on('click', function () {
                     var innerHtml = '<tr id="citySearchResult_' + count + '">'
                     innerHtml = CitySearchResultInnerHtml(innerHtml, count, element)
                     if (window.location.href.indexOf('PostcardDatabase') > -1) {
-                        innerHtml += '<td id="citySearchResultAction_' + count + '" ><div class="btn-group" role="group" aria-label="Assign City"><button class="btn btn-primary " id="citySearchResult_' + count + '" onclick="AddCityToPostcard(' + count + ')" type="button">Zu Postkarte hinzufügen</button><button type="button" class="btn btn-primary" id="citySearchResult_' + count + '" onclick="AddCityToReceiver(' + count + ')">Zu Empfänger hinzufügen</button></div></td></tr >'
+                        innerHtml += '<td id="citySearchResultAction_' + count + '" ><div class="btn-group" role="group" aria-label="Assign City"><button class="btn btn-primary " id="citySearchResult_' + count + '" onclick="AddCityMultiRow(' + count + ')" type="button">Zu Postkarte hinzufügen</button><button type="button" class="btn btn-primary" id="citySearchResult_' + count + '" onclick="AddCityToReceiver(' + count + ')">Zu Empfänger hinzufügen</button></div></td></tr >'
                     } else if (window.location.href.indexOf('CityDatabase') > -1) {
                         innerHtml += '<td id="citySearchResultAction_' + count + '"><button class="btn btn-primary SearchResultButton" id="citySearchResult_' + count + '" onclick="AddParentCity(' + count + ')" type="button">Auswählen</button></td></tr>'
                     } else if (window.location.href.indexOf('ManufactoryDatabase') > -1) {
@@ -180,6 +176,140 @@ $(".ExistingCitiesSearchSubmit").on('click', function () {
             }
         },
         error: function (xhr, status, error) {
+            sendErrorMessage(xhr)
+        }
+    })
+})
+$(".ExistingBricknameSearchSubmit").on('click', function () {
+    var brickname = $('.InputBricknameSearch').val()
+    var usageInt = document.getElementById("SelectUsage").value
+    $.ajax({
+        url: '/api/collections/listBricknames',
+        data: {
+            brickname: brickname,
+            usageInt: usageInt
+        },
+        success: function (result) {
+            let TableBody = document.getElementById('bricknameSearchResultTableBody')
+            if (TableBody != null)
+                TableBody.remove()
+            let myTable = document.getElementById("bricknameSearchResultTable")
+            let mybody = myTable.createTBody()
+            mybody.setAttribute('id', 'bricknameSearchResultTableBody');
+            if (result.length > 0) {
+                result.forEach(function (element, count) {
+                    var innerHtml = '<tr id="bricknameSearchResult_' + count + '">'
+                    if (element.brickPotential != null) {
+                        innerHtml += '<td scope="row" id="bricknameSearchResultBrickPotentialID_' + count + '">' + element.brickPotential.brickPotential_ID + '</td>'
+                    } else {
+                        innerHtml += '<td scope="row" id="bricknameSearchResultBrickPotentialID_' + count + '"></td>'
+                    }
+                    innerHtml += '<td scope="row" id="bricknameSearchResultName_' + count + '">' + element.name + '</td>'
+                    if (element.brickPotential != null) {
+                        innerHtml += '<td scope="row" id="bricknameSearchResultUsage_' + count + '">' + element.brickPotential.usageEnumDescription + '</td>'
+                    }
+                    else {
+                        innerHtml += '<td scope="row" id="bricknameSearchResultUsage_' + count + '"></td>'
+                    }
+                        //innerHtml += '<td scope="row" id="bricknameSearchResultBrickPotentialID_' + count + '">' + element.brickPotential_ID + '</td>'
+                    //innerHtml += '<td scope="row" id="bricknameSearchResultName_' + count + '">'
+                    //element.bricknameICollection.forEach(function(brickname){
+                    //    innerHtml += brickname.name + ', '
+                    //})
+                    //innerHtml += '</td>'
+                    //innerHtml += '<td scope="row" id="bricknameSearchResultUsage_' + count + '">' + element.bricknameICollection[0].usageEnumDescription + '</td>'
+                    innerHtml += '<td id="bricknameSearchResultAction_' + count + '" ><button class="btn btn-primary " id="bricknameSearchResult_' + count + '" onclick="AddBrickname(' + count + ')" type="button">Hinzufügen</button></td></tr>'
+                    $('#bricknameSearchResultTable').find('tbody').append(innerHtml)
+                });
+            }
+            else {
+                $('#bricknameSearchResultTable').find('tbody').append('<tr><td>Kein Eintrag vorhanden, bitte Ort erstellen</td></tr>')
+            }
+        },
+        error: function (xhr) {
+            sendErrorMessage(xhr)
+        }
+    })
+})
+$(".ExistingManufacturerSearchSubmit").on('click', function () {
+    var manufacturer = $('.InputManufacturerNameSearch').val()
+    var signature = $('.InputManufacturerSignatureSearch').val()
+    var profession = $('.InputManufacturerProfessionSearch').val()
+    $.ajax({
+        url: '/api/collections/listManufacturers',
+        data: {
+            manufacturer: manufacturer,
+            signature: signature,
+            profession: profession
+        },
+        success: function (result) {
+            let TableBody = document.getElementById('manufacturerSearchResultTableBody')
+            if (TableBody != null)
+                TableBody.remove()
+            let myTable = document.getElementById("manufacturerSearchResultTable")
+            let mybody = myTable.createTBody()
+            mybody.setAttribute('id', 'manufacturerSearchResultTableBody');
+            if (result.length > 0) {
+                result.forEach(function (element, count) {
+                    var innerHtml = '<tr id="manufacturerSearchResult_' + count + '">'
+                    innerHtml += '<td scope="row" id="manufacturerSearchResultmanufacturerID_' + count + '">' + element.person_ID + '</td>'
+                    innerHtml += '<td scope="row" id="manufacturerSearchResultName_' + count + '">' + element.name + '</td>'
+                    innerHtml += '<td scope="row" id="manufacturerSearchResultPersonSignature_' + count + '">' + element.personSignature + '</td>'
+                    innerHtml += '<td id="manufacturerSearchResultAction_' + count + '" ><button class="btn btn-primary " id="manufacturerSearchResult_' + count + '" onclick="SetManufacturerIntoTable(' + count + ')" type="button">Hinzufügen</button></td></tr>'
+                    $('#manufacturerSearchResultTableBody').append(innerHtml)
+                });
+            }
+            else {
+                $('#manufacturerSearchResultTableBody').append('<tr><td>Kein Eintrag vorhanden, bitte Ort erstellen</td></tr>')
+            }
+        },
+        error: function (xhr) {
+            sendErrorMessage(xhr)
+        }
+    })
+})
+$(".ExistingManufactorySearchSubmit").on('click', function () {
+    var manufactory = $('.InputManufactorySearch').val()
+    var productionFacility = $('.InputProductionFacilitySearch').val()
+    var oeconym = $('.InputOeconymSearch').val()
+    $.ajax({
+        url: '/api/collections/listManufactorys',
+        data: {
+            manufactory: manufactory,
+            productionFacility: productionFacility,
+            oeconym: oeconym
+        },
+        success: function (result) {
+            let TableBody = document.getElementById('manufactorySearchResultTableBody')
+            if (TableBody != null)
+                TableBody.remove()
+            let myTable = document.getElementById("manufactorySearchResultTable")
+            let mybody = myTable.createTBody()
+            mybody.setAttribute('id', 'manufactorySearchResultTableBody');
+            if (result.length > 0) {
+                result.forEach(function (element, count) {
+                    var innerHtml = '<tr id="manufactorySearchResult_' + count + '">'
+                    innerHtml += '<td scope="row" id="manufactorySearchResultManufactoryID_' + count + '">' + element.manufactory_ID + '</td>'
+                    innerHtml += '<td scope="row" id="manufactorySearchResultName_' + count + '">' + element.manufactoryName + '</td>'
+                    innerHtml += '<td scope="row" ><select class="TownOfManufactorySelect form-select" aria-label="Ziegeleiort" id="manufactorySearchResultCity_' + count + '"></td>'
+                    innerHtml += '<td scope="row" id="manufactorySearchResultProductionFacility_' + count + '">' + element.productionFacility.productionFacilityName + '</td>'
+                    innerHtml += '<td id="manufactorySearchResultAction_' + count + '" ><button class="btn btn-primary" onclick="SetManufactoryIntoTable(' + count + ')" type="button">Hinzufügen</button></td></tr>'
+                    $('#manufactorySearchResultTable').find('tbody').append(innerHtml)
+                    let select = document.getElementById('manufactorySearchResultCity_' + count)
+                    createOptionInSelect('', select, 'Wählen Sie einen Ort aus, falls genannt')
+                    if (element.cityICollection != null) {
+                        if (element.geography != null)
+                            createOptionInSelect(element.cityICollection[0].city_ID, select, element.cityICollection[0].cityNOeconymICollection[0].oeconym.oeconymName + ' (' + element.geography.geographyName + ')')
+                        else
+                            createOptionInSelect(element.cityICollection[0].city_ID, select, element.cityICollection[0].cityNOeconymICollection[0].oeconym.oeconymName)
+                    }
+                });
+            }
+            else {
+                $('#manufactorySearchResultTable').find('tbody').append('<tr><td>Kein Eintrag vorhanden, bitte Ort erstellen</td></tr>')
+            }
+        },
+        error: function (xhr) {
             sendErrorMessage(xhr)
         }
     })

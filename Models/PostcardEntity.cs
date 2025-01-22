@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Sammlerplattform.Models.ProductDatabase;
 
 namespace Sammlerplattform.Models
 {
@@ -32,6 +33,10 @@ namespace Sammlerplattform.Models
 
         [Display(Name = "Farbe RAL-Druck Rückseite")]
         public int? ColorRALPrintingBackside { get; set; }
+        //[Display(Name = "Erhaltungszustand")]
+        //[NotMapped]
+        //public PostcardConditionType? ConditionEnum { get; set; }
+        //public int ConditionInt { get; set; }
     }
 
     public enum PostcardConditionType

@@ -10,9 +10,5 @@ namespace Sammlerplattform.Models.ProductDatabase
         [Display(Name = "Seriennummer")]
         [StringLength(50)]
         public string? SerialNumber { get; set; }
-
-        //[StringLength(13)]
-        //[Display(Name = "ISBN-Nummer")]
-        //public string? ISBN { get; set; }
     }
 }

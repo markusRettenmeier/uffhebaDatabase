@@ -19,3 +19,5 @@ Web.FTPProfile.config
 web.config
 jsonResult.json
 *.json
+wwwroot/lib/chosen/
+wwwroot/FormattedImages/

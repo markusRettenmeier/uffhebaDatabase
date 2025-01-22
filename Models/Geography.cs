@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sammlerplattform.Models.CityDatabase;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models
@@ -12,7 +13,7 @@ namespace Sammlerplattform.Models
         [ConditionalRequired("IsGeographyNameRequired", true, ErrorMessage = "Bitte geographischen Namen eingeben")]
         [StringLength(20)]
         [Display(Name = "Geografischer Name")]
-        public string? GeographyName{ get; set; }
+        public string? GeographyName { get; set; }
 
         [NotMapped]
         public bool IsGeographyNameRequired { get; set; } = true;

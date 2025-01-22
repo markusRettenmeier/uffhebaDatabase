@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sammlerplattform.Models.ManufactoryDatabase;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sammlerplattform.Models
+namespace Sammlerplattform.Models.EraDatabase
 {
     public class Era
     {
@@ -10,7 +11,7 @@ namespace Sammlerplattform.Models
         public int Era_ID { get; set; }
 
         [Display(Name = "Äralangbezeichnung")]
-        [ConditionalRequired("IsEraLongRequired", true, ErrorMessage ="Bitte Bezeichnung angeben.")]
+        [ConditionalRequired("IsEraLongRequired", true, ErrorMessage = "Bitte Bezeichnung angeben.")]
         [StringLength(50)]
         public string? EraLong { get; set; }
 
@@ -20,5 +21,12 @@ namespace Sammlerplattform.Models
         [Display(Name = "Ärakurzbezeichnung")]
         [StringLength(10)]
         public string? EraShort { get; set; }
+
+        //[Display(Name = "Startjahr")]
+        //public int? StartYear { get; set; }
+
+        //[Display(Name = "Endjahr")]
+        //public int? EndYear { get; set; }
+        //public ICollection<ManufacturingDate> ManufacturingDateICollection { get; set; } = [];
     }
 }

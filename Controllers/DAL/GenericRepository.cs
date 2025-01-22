@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Sammlerplattform.Data;
 using System.Linq.Expressions;
 using System.Reflection;
+using LinqKit;
 
 namespace Sammlerplattform.Controllers.DAL
 {

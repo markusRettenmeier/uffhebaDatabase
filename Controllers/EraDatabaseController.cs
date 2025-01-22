@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sammlerplattform.Controllers.DAL;
 using Sammlerplattform.Data;
-using Sammlerplattform.Models;
+using Sammlerplattform.Models.EraDatabase;
 
 namespace Sammlerplattform.Controllers
 {
@@ -18,14 +18,15 @@ namespace Sammlerplattform.Controllers
     {
         Task<Era> AddEraAsync(Era era);
         Era? GetEraByName(string name);
+        IEnumerable<Era> GetEraIEnumarble();
     }
 
     public class EraRepository(DbIdentityContext context) : IEraRepository
     {
         public async Task<Era> AddEraAsync(Era era)
         {
-            context.Era.Add(era);
-            await context.SaveChangesAsync();
+            _ = context.Era.Add(era);
+            _ = await context.SaveChangesAsync();
             return era;
         }
 
@@ -38,20 +39,25 @@ namespace Sammlerplattform.Controllers
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!disposed)
             {
                 if (disposing)
                 {
                     context.Dispose();
                 }
             }
-            this.disposed = true;
+            disposed = true;
         }
 
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public IEnumerable<Era> GetEraIEnumarble()
+        {
+            return [.. context.Era];
         }
     }
 
@@ -67,8 +73,8 @@ namespace Sammlerplattform.Controllers
             {
                 throw new NullReferenceException();
             }
-            var existingEra = (from e in unitOfWork.EraRepository.Get()
-                               select e).Where(x => x.EraLong != null && x.EraLong.Equals(eraLong)).FirstOrDefault();
+            Era? existingEra = (from e in unitOfWork.EraRepository.Get()
+                                select e).Where(x => x.EraLong != null && x.EraLong.Equals(eraLong)).FirstOrDefault();
 
             if (existingEra != null)
             {
@@ -76,9 +82,12 @@ namespace Sammlerplattform.Controllers
             }
             else
             {
-                var newEra = new Era { EraLong = eraLong };
-                if(string.IsNullOrEmpty(eraShort))
+                Era newEra = new() { EraLong = eraLong };
+                if (string.IsNullOrEmpty(eraShort))
+                {
                     newEra.EraShort = eraShort;
+                }
+
                 newEra = unitOfWork.EraRepository.Insert(newEra);
                 unitOfWork.Save();
                 return newEra;

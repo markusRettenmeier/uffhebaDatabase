@@ -2,7 +2,7 @@
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.ManufactoryDatabase;
 using Sammlerplattform.Models.PersonDatabase;
-using Sammlerplattform.Models.ProductDatabase;
+using Sammlerplattform.Models.ProductPictureDatabase;
 using Sammlerplattform.Models.UserSettings;
 using System.ComponentModel.DataAnnotations;
 
@@ -27,10 +27,10 @@ namespace Sammlerplattform.Models
         public PostcardPotential PostcardPotential { get; set; } = new();
         public ProductPicture ProductScan { get; set; } = new();
         public List<ProductPicture> ProductPictureList { get; set; } = [];
-        public Person PersonSender { get; set; } = new();
-        public Person PersonReceiver { get; set; } = new();
+        public Person PersonSender { get; set; } = new() { Name = string.Empty};
+        public Person PersonReceiver { get; set; } = new() { Name = string.Empty };
         public (Person Person, City? City) PersonReceiverTuple { get; set; } = new();
-        public Person AuthorArtist { get; set; } = new();
+        public Person AuthorArtist { get; set; } = new() { Name = string.Empty };
         public Printing Printing { get; set; } = new();
         public Era Era { get; set; } = new() { EraLong = string.Empty };
         public PostcardEntity PostcardEntity { get; set; } = new();

@@ -1,4 +1,5 @@
 ﻿using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Models.ProductDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Sammlerplattform.Models.BrickDatabase;
+using Sammlerplattform.Models.ProductDatabase;
 
 namespace Sammlerplattform.Models.ManufactoryDatabase
 {
@@ -18,9 +20,8 @@ namespace Sammlerplattform.Models.ManufactoryDatabase
         public bool IsApproximate { get; set; }
         [Display(Name = "Notiz")]
         public string? Note { get; set; }
-        public int Era_ID { get; set; }
-        public Era? Era { get; set; }
-        public ICollection<PostcardEntity> PostcardEntityCollection { get; set; } = [];
+        public ICollection<PostcardEntity> PostcardEntityICollection { get; set; } = [];
+        public ICollection<BrickEntity> BrickEntityICollection { get; set; } = [];
 
         public string? ValidateYears()
         {

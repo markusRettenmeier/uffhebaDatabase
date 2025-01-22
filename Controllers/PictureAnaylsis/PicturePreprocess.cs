@@ -21,6 +21,7 @@ namespace Sammlerplattform.Controllers.PictureAnaylsis
             {
                 string fileName = Path.GetFileName(formFile.FileName);
                 string pathFile = Path.Combine(Path.Combine(_hostEnvironment.WebRootPath, "DetectedText"), fileName);
+                string pathFileImage = Path.Combine(Path.Combine(_hostEnvironment.WebRootPath, "FormattedImages"), fileName);
 
                 string txt = string.Empty;
 
@@ -28,8 +29,6 @@ namespace Sammlerplattform.Controllers.PictureAnaylsis
                 formFile.CopyTo(ms);
                 ms.Position = 0;
                 MagickImage image = new(ms);
-                wordCategorizationModel.ImageWidth = image.Width;
-                wordCategorizationModel.ImageHeight = image.Height;
 
                 //google API
                 string credPath = Path.Combine(_hostEnvironment.ContentRootPath, "google_application_default_credentials.json");

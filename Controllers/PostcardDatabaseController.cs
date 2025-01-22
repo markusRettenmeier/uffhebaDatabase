@@ -12,7 +12,7 @@ using Sammlerplattform.Models.CityDatabase;
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.ManufactoryDatabase;
 using Sammlerplattform.Models.PersonDatabase;
-using Sammlerplattform.Models.ProductDatabase;
+using Sammlerplattform.Models.ProductPictureDatabase;
 using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Services;
 using System.Globalization;
@@ -23,7 +23,7 @@ namespace Sammlerplattform.Controllers
 {
     [Authorize(Policy = "SubscribedDiskspacePolicy")]
     public class PostcardDatabaseController(IWebHostEnvironment hostEnvironment, UserManager<UsingIdentityUser> userManager,
-        DbIdentityContext dbIdentityContext, ILogger<PostcardDatabaseController> logger, IProcessCity processCity, IEraRepository eraRepository) : Controller
+        DbIdentityContext dbIdentityContext, ILogger<PostcardDatabaseController> logger, IProcessCity processCity) : Controller
     {
         private readonly IWebHostEnvironment _hostEnvironment = hostEnvironment;
         private readonly UserManager<UsingIdentityUser> _userManager = userManager;
@@ -246,7 +246,7 @@ namespace Sammlerplattform.Controllers
                 _ = _dbIdentityContext.Add(newPostcardPotential);
                 _ = await _dbIdentityContext.SaveChangesAsync();
 
-                Person? newSender = new();
+                Person? newSender = new() { Name = string.Empty };
                 if (postcardModel.HasSender)
                 {
                     Person? checkExistingSender = (from p in _dbIdentityContext.Person
@@ -268,10 +268,8 @@ namespace Sammlerplattform.Controllers
                 Person? newReceiver = null;
                 if (postcardModel.HasReceiver)
                 {
-                    Person? selectPerson = await (from pe in _dbIdentityContext.Person.Include<Person, City>(x => x.City)
+                    Person? selectPerson = await (from pe in _dbIdentityContext.Person.Include(x => x.City)
                                                   where pe.Name == postcardModel.PersonReceiver.Name
-                                                  && pe.Street == postcardModel.PersonReceiver.Street
-                                                  && pe.HouseNumber == postcardModel.PersonReceiver.HouseNumber
                                                   && pe.City_ID == postcardModel.PersonReceiver.City_ID
                                                   select pe).FirstOrDefaultAsync();
                     if (selectPerson == null)
@@ -279,8 +277,6 @@ namespace Sammlerplattform.Controllers
                         newReceiver = new()
                         {
                             Name = postcardModel.PersonReceiver.Name,
-                            Street = postcardModel.PersonReceiver.Street,
-                            HouseNumber = postcardModel.PersonReceiver.HouseNumber,
                             City_ID = postcardModel.PersonReceiver.City_ID
                         };
                         _ = _dbIdentityContext.Add(newReceiver);
@@ -468,7 +464,7 @@ namespace Sammlerplattform.Controllers
                                                where s.PostcardEntity_ID == PostcardEntity_ID
                                                && s.Frontside == Frontside
                                                select s).FirstOrDefault() ?? throw new NullReferenceException("scanSelect");
-                    ImgName = selectScan.ProductPicture_Id.ToString() + "." + selectScan.FileExtension;
+                    ImgName = selectScan.ProductPicture_ID.ToString() + "." + selectScan.FileExtension;
                     productScan = selectScan;
                 }
                 else
@@ -499,7 +495,7 @@ namespace Sammlerplattform.Controllers
                             throw new DbUpdateException(ex.Message);
                     }
 
-                    ImgName = newProductScan.ProductPicture_Id.ToString() + "." + newProductScan.FileExtension;
+                    ImgName = newProductScan.ProductPicture_ID.ToString() + "." + newProductScan.FileExtension;
                     productScan = newProductScan;
                 }
 
@@ -934,8 +930,6 @@ namespace Sammlerplattform.Controllers
                             newReceiver = new()
                             {
                                 Name = postcardModel.PersonReceiver.Name,
-                                Street = postcardModel.PersonReceiver.Street,
-                                HouseNumber = postcardModel.PersonReceiver.HouseNumber,
                                 City_ID = postcardModel.PersonReceiver.City_ID
                             };
                             _ = _dbIdentityContext.Add(newReceiver);
@@ -946,8 +940,6 @@ namespace Sammlerplattform.Controllers
                                                         where p.Person_ID == postcardModel.PersonReceiver.Person_ID
                                                         select p).FirstAsync();
                             ReceiverSQL.Name = postcardModel.PersonReceiver.Name;
-                            ReceiverSQL.Street = postcardModel.PersonReceiver.Street;
-                            ReceiverSQL.HouseNumber = postcardModel.PersonReceiver.HouseNumber;
                             ReceiverSQL.City_ID = postcardModel.PersonReceiver.City_ID;
 
                             if (postcardModel.PersonReceiver.City_ID > 0)
@@ -1139,18 +1131,18 @@ namespace Sammlerplattform.Controllers
                         {
                             try
                             {
-                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.ProductPicture_Id + "." + scan.FileExtension);
-                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.ProductPicture_Id + "." + scan.FileExtension);
-                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_Id + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.ProductPicture_ID + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.ProductPicture_ID + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_ID + "." + scan.FileExtension);
                             }
                             catch
                             {
-                                _logger.LogError("DeletePostcardEntity: ProductPicture nicht gefunden: {scan.ProductPicture_Id}.{scan.Pictures_Format}", scan.ProductPicture_Id, scan.FileExtension);
+                                _logger.LogError("DeletePostcardEntity: ProductPicture nicht gefunden: {scan.ProductPicture_Id}.{scan.Pictures_Format}", scan.ProductPicture_ID, scan.FileExtension);
                             }
                         }
                         else
                         {
-                            System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_Id + "." + scan.FileExtension);
+                            System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_ID + "." + scan.FileExtension);
                         }
                         _ = _dbIdentityContext.Remove(scan);
                         _ = await _dbIdentityContext.SaveChangesAsync();
@@ -1194,8 +1186,8 @@ namespace Sammlerplattform.Controllers
             {
                 foreach (ProductPicture scan in postcard.ProductPictureList)
                 {
-                    string sourceFilePath = Path.Combine(sourceDir, scan.ProductPicture_Id.ToString() + ".png");
-                    string targetFilePath = Path.Combine(downloadFolder, scan.ProductPicture_Id.ToString() + ".png");
+                    string sourceFilePath = Path.Combine(sourceDir, scan.ProductPicture_ID.ToString() + ".png");
+                    string targetFilePath = Path.Combine(downloadFolder, scan.ProductPicture_ID.ToString() + ".png");
                     System.IO.File.Copy(sourceFilePath, targetFilePath, true);
                 }
             }
@@ -1501,8 +1493,8 @@ namespace Sammlerplattform.Controllers
                         };
                         if (selectedCity != null)
                         {
-                            newPublisher.CityList ??= [];
-                            newPublisher.CityList.Add(selectedCity);
+                            newPublisher.CityICollection ??= [];
+                            newPublisher.CityICollection.Add(selectedCity);
                         }
                         _ = _dbIdentityContext.Add(newPublisher);
                         try
@@ -1526,8 +1518,8 @@ namespace Sammlerplattform.Controllers
                     }
                     else
                     {
-                        selectPublisher.CityList ??= [];
-                        selectPublisher.CityList.Add(selectedCity);
+                        selectPublisher.CityICollection ??= [];
+                        selectPublisher.CityICollection.Add(selectedCity);
                         _ = _dbIdentityContext.SaveChanges();
                         postcardModel.ManufactoryTupleList.Add((selectPublisher, selectedCity, []));
                     }
@@ -1537,26 +1529,24 @@ namespace Sammlerplattform.Controllers
             // TODOsammlerdb: Person wird nicht gespeichert
             if (parameters.AddressList.Count > 0)
             {
-                List<(string name, string street, string Streetnumber, string PLZ, string City)> addressTupleList = [];
+                List<(string name, string PLZ, string City)> addressTupleList = [];
                 foreach (string? address in parameters.AddressList)
                 {
                     if (address is not null && address.Contains("§§"))
                     {
                         string[] splittedAddresses = address.Split("§§");
-                        addressTupleList.Add((splittedAddresses[0] + splittedAddresses[1], splittedAddresses[2], splittedAddresses[3], string.Empty, splittedAddresses[4]));
+                        addressTupleList.Add((splittedAddresses[0] + splittedAddresses[1], string.Empty, splittedAddresses[4]));
                     }
                 }
 
-                foreach ((string name, string street, string Streetnumber, string PLZ, string City) address in addressTupleList)
+                foreach ((string name, string PLZ, string City) address in addressTupleList)
                 {
                     City? selectCity = (from c in _dbIdentityContext.City.Include(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
                                         where c.CityNOeconymICollection.Any(x => x.Oeconym.OeconymName.Equals(address.City))
                                         select c).FirstOrDefault();
 
-                    IQueryable<Person> selectPerson = from p in _dbIdentityContext.Person.Include<Person, City>(x => x.City)
+                    IQueryable<Person> selectPerson = from p in _dbIdentityContext.Person.Include(x => x.City)
                                                       where p.Name != null && p.Name!.Equals(address.name)
-                                                      && ((p.Street != null && p.Street!.Equals(address.street))
-                                                      || p.HouseNumber.Equals(address.Streetnumber))
                                                       select p;
                     if (selectCity != null)
                     {
@@ -1574,16 +1564,6 @@ namespace Sammlerplattform.Controllers
                             maxAmount++;
                         }
 
-                        if (!string.IsNullOrEmpty(address.street))
-                        {
-                            maxAmount++;
-                        }
-
-                        if (!string.IsNullOrEmpty(address.Streetnumber))
-                        {
-                            maxAmount++;
-                        }
-
                         if (maxAmount > 0)
                         {
                             Dictionary<int, int> personFit = [];
@@ -1591,16 +1571,6 @@ namespace Sammlerplattform.Controllers
                             {
                                 int amount = 0;
                                 if (!string.IsNullOrEmpty(address.City) && p.City != null && p.City.CityNOeconymICollection.Any(x => x.Oeconym.OeconymName.Equals(address.City)))
-                                {
-                                    amount++;
-                                }
-
-                                if (!string.IsNullOrEmpty(address.street) && !string.IsNullOrEmpty(p.Street) && p.Street.Equals(address.street))
-                                {
-                                    amount++;
-                                }
-
-                                if (!string.IsNullOrEmpty(address.Streetnumber) && p.HouseNumber.Equals(address.Streetnumber))
                                 {
                                     amount++;
                                 }
@@ -1641,23 +1611,13 @@ namespace Sammlerplattform.Controllers
             }
         }
 
-        public (Person, City?) CreatePerson((string name, string street, string streetnumber, string postalcode, string city) address)
+        public (Person, City?) CreatePerson((string name, string postalcode, string city) address)
         {
             Person newPerson = new()
             {
-                Name = address.name,
-                Street = address.street
+                Name = address.name
             };
             City city = new();
-
-            try
-            {
-                newPerson.HouseNumber = short.Parse(address.streetnumber);
-            }
-            catch
-            {
-                newPerson.HouseNumber = 0;
-            }
 
             if (!string.IsNullOrEmpty(address.city))
             {

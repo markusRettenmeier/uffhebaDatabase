@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using LinqKit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Data;
+using Sammlerplattform.Models.BrickDatabase;
 using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Models.ManufactoryDatabase;
+using Sammlerplattform.Models.PersonDatabase;
 
 namespace Sammlerplattform.Controllers
 {
@@ -67,20 +71,20 @@ namespace Sammlerplattform.Controllers
         [HttpGet("autocompleteCityOfManufactory")]
         public IActionResult AutocompleteCityOfManufactory(int term)
         {
-            List<City> Cities = (from c in _dbIdentityContext.City.Include(m => m.ManufactoryList)
+            List<City> Cities = [.. (from c in _dbIdentityContext.City.Include(m => m.ManufactoryList)
                             .Include(x => x.Geography)
                             .Include(x => x.CityNOeconymICollection.Where(y => y.CurrentName)).ThenInclude(x => x.Oeconym)
                                  where c.ManufactoryList.Any(c => c.Manufactory_ID.Equals(term))
-                                 select c).ToList();
+                                 select c)];
             return Ok(Cities);
         }
 
         [HttpGet("autocompleteProductionFacility")]
         public IActionResult AutoCompleteProductionFacility(string term)
         {
-            List<string> productionFacilityList = (from p in _dbIdentityContext.ProductionFacility
+            List<string> productionFacilityList = [.. (from p in _dbIdentityContext.ProductionFacility
                                                    where p.ProductionFacilityName.Contains(term)
-                                                   select p.ProductionFacilityName).ToList();
+                                                   select p.ProductionFacilityName)];
             return Ok(productionFacilityList);
         }
         [HttpGet("autocompleteProductionFacilityID")]
@@ -100,6 +104,94 @@ namespace Sammlerplattform.Controllers
             List<City> CityWthItsPostalcodeAndGeography = processCity.GetCityWithPredicates(processCity.CityParametersOperationToSearch(model)).ToList();
 
             return Ok(CityWthItsPostalcodeAndGeography);
+        }
+
+        [HttpGet("listManufacturers")]
+        public IActionResult ListManufacturers(string manufacturer, string signature, string profession)
+        {
+            ExpressionStarter<Person> predicate = PredicateBuilder.New<Person>();
+            IQueryable<Person> manufacturerIQueryable = from p in _dbIdentityContext.Person.Include(y => y.ProfessionICollection)
+                                           where p.ProfessionICollection.Any(x => x.Name == profession)
+                                           select p;
+            if (!string.IsNullOrEmpty(manufacturer))
+            {
+                predicate = predicate.And(x => x.Name == manufacturer);
+            }
+            if (!string.IsNullOrEmpty(signature))
+            {
+                predicate = predicate.And(x => x.PersonSignature != null && x.PersonSignature == signature);
+            }
+
+            if (predicate.IsStarted)
+            {
+                manufacturerIQueryable = manufacturerIQueryable.Where(predicate);
+            }
+            var manufacturerList = manufacturerIQueryable.ToList();
+
+            return Ok(manufacturerList);
+        }
+
+        [HttpGet("listManufactorys")]
+        public IActionResult ListManufactorys(string manufactory, string productionFacility, string oeconym)
+        {
+            ExpressionStarter<Manufactory> predicate = PredicateBuilder.New<Manufactory>();
+            IQueryable<Manufactory> manufactoryIQueryable = from m in _dbIdentityContext.Manufactory.Include(x => x.CityICollection).ThenInclude(x => x.CityNOeconymICollection.Where(cno => cno.CurrentName)).ThenInclude(x => x.Oeconym)
+                                                                                                   .Include(x => x.ProductionFacility)
+                                                           where m.ManufactoryName.Contains(manufactory)
+                                                           && m.ProductionFacility != null && m.ProductionFacility.ProductionFacilityName == productionFacility
+                                                           select m;
+            if (!string.IsNullOrEmpty(oeconym))
+            {
+                predicate = predicate.And(x => x.CityICollection.Any(c => c.CityNOeconymICollection.Any(o => o.Oeconym.Equals(oeconym))));
+            }
+            if (predicate.IsStarted)
+            {
+                manufactoryIQueryable = manufactoryIQueryable.Where(predicate);
+            }
+            var manufactoryList = manufactoryIQueryable.ToList();
+
+            return Ok(manufactoryList);
+        }
+
+        [HttpGet("listBricknames")]
+        public IActionResult ListBricknames(string brickname, int usageInt)
+        {
+            ExpressionStarter<Brickname> predicate = PredicateBuilder.New<Brickname>();
+            IQueryable<Brickname> bricknameIQueryable = from b in _dbIdentityContext.Brickname.Include(x => x.BrickPotential)
+            select b;
+            if (!string.IsNullOrEmpty(brickname))
+            {
+                predicate = predicate.And(x => x.Name.Contains(brickname));
+            }
+            if (usageInt > 0)
+            {
+                predicate = predicate.And(x => x.BrickPotential != null && x.BrickPotential.UsageInt == usageInt);
+            }
+
+            if (predicate.IsStarted)
+            {
+                bricknameIQueryable = bricknameIQueryable.Where(predicate);
+            }
+            var bricknameList = bricknameIQueryable.OrderBy(x => x.Name).ToList();
+
+            return Ok(bricknameList);
+        }
+
+        [HttpGet("autocompleteBrickname")]
+        public IActionResult AutocompleteBrickname(string term)
+        {
+            List<string> bricknameList = [.. (from b in _dbIdentityContext.Brickname
+                                          where b.Name.Contains(term)
+                                          select b.Name)];
+            return Ok(bricknameList);
+        }
+        [HttpGet("autocompleteBricknameID")]
+        public IActionResult AutoCompleteBricknameID(string term)
+        {
+            int bricknameIDs = (from p in _dbIdentityContext.Brickname
+                                         where p.Name.Equals(term)
+                                         select p.Brickname_ID).FirstOrDefault();
+            return Ok(bricknameIDs);
         }
     }
 }

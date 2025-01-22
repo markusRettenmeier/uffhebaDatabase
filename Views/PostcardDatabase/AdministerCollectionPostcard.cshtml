@@ -42,7 +42,7 @@
     <tbody>
         @foreach (var item in Model)
         {
-            var image = @"/images/Thumbnail/" + item.ProductScan.ProductPicture_Id + "." + item.ProductScan.FileExtension;
+            var image = @"/images/Thumbnail/" + item.ProductScan.ProductPicture_ID + "." + item.ProductScan.FileExtension;
             <tr>
                 <td>
                     <img src="@image" width="240" height="153" alt="" id="simplePic_@count" class="IndexMobile-Picture" />

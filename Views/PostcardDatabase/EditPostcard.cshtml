@@ -1,4 +1,5 @@
 ﻿@using System.Drawing;
+@using Sammlerplattform.Controllers.GenericClasses
 @using Sammlerplattform.Models.CityDatabase;
 @using Sammlerplattform.Models.ProductDatabase;
 @model Sammlerplattform.Models.PostcardModel
@@ -10,11 +11,11 @@
     var frontside = Model.ProductPictureList.Where(x => x.Frontside).FirstOrDefault();
     string pathFrontside = string.Empty;
     if (frontside != null)
-        pathFrontside = @"/images/Normal/" + frontside.ProductPicture_Id + "." + frontside.FileExtension;
+        pathFrontside = @"/images/Normal/" + frontside.ProductPicture_ID + "." + frontside.FileExtension;
     var backside = Model.ProductPictureList.Where(x => !x.Frontside).FirstOrDefault();
     string pathBackside = string.Empty;
     if (backside != null)
-        pathBackside = @"/images/Normal/" + backside.ProductPicture_Id + "." + backside.FileExtension;
+        pathBackside = @"/images/Normal/" + backside.ProductPicture_ID + "." + backside.FileExtension;
     var colorRALWriting = Sammlerplattform.Services.ColorConverter.ArgbToHex(Model.PostcardEntity.ColorRALWritingFrontside);
     string? colorImage = null;
     if (Model.PostcardImprint != null)
@@ -640,20 +641,6 @@
                                     <span asp-validation-for="PersonReceiver.Name" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
-                                    <div class="row">
-                                        <div class="col">
-                                            <label asp-for="PersonReceiver.Street" class="control-label"></label>
-                                            <input asp-for="PersonReceiver.Street" class="form-control storeInput" />
-                                            <span asp-validation-for="PersonReceiver.Street" class="text-danger"></span>
-                                        </div>
-                                        <div class="col">
-                                            <label asp-for="PersonReceiver.HouseNumber" class="control-label"></label>
-                                            <input asp-for="PersonReceiver.HouseNumber" class="form-control storeInput" />
-                                            <span asp-validation-for="PersonReceiver.HouseNumber" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
                                     <label asp-for="PersonReceiver.City_ID" class="control-label"></label>
                                         <input type="hidden" asp-for="PersonReceiver.City_ID" class="form-control storeInput InputReceiverCityID" placeholder="Orts ID" aria-label="Orts ID" />
                                         <table class="table" id="cityTable">
@@ -724,20 +711,6 @@
                                     <label asp-for="PersonReceiver.Name" class="control-label"></label>
                                     <input asp-for="PersonReceiver.Name" class="form-control storeInput" />
                                     <span asp-validation-for="PersonReceiver.Name" class="text-danger"></span>
-                                </div>
-                                <div class="form-group">
-                                    <div class="row">
-                                        <div class="col">
-                                            <label asp-for="PersonReceiver.Street" class="control-label"></label>
-                                            <input asp-for="PersonReceiver.Street" class="form-control storeInput" />
-                                            <span asp-validation-for="PersonReceiver.Street" class="text-danger"></span>
-                                        </div>
-                                        <div class="col">
-                                            <label asp-for="PersonReceiver.HouseNumber" class="control-label"></label>
-                                            <input asp-for="PersonReceiver.HouseNumber" class="form-control storeInput" />
-                                            <span asp-validation-for="PersonReceiver.HouseNumber" class="text-danger"></span>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="PersonReceiver.City_ID" class="control-label"></label>

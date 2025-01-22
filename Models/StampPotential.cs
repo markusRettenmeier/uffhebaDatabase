@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Sammlerplattform.Models.ProductDatabase;
 
 namespace Sammlerplattform.Models
 {

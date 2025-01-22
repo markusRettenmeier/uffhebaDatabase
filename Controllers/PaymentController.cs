@@ -287,68 +287,28 @@ namespace Sammlerplattform.Controllers
                 stripeEvent = EventUtility.ConstructEvent(json,
                         signatureHeader, endpointSecret);
 
-                if (stripeEvent.Type == Events.CustomerCreated)
+                if (stripeEvent.Type == "customer.created")
                 {
                     if (stripeEvent.Data.Object is Customer customerCreated)
                     {
-                        UsingIdentityUser? user = await _userManager.FindByEmailAsync(customerCreated.Email);
-                        if (user != null)
-                        {
-                            user.StripeCustomer_ID = customerCreated.Id;
-                            _ = await _userManager.UpdateAsync(user);
-                        }
+                        await ConnectLocalAccountWithStripeAccount(customerCreated);
                     }
                 }
-                else if (stripeEvent.Type == Events.CustomerSubscriptionCreated)
+                else if (stripeEvent.Type == "customer.subscription.created")
                 {
                     if (stripeEvent.Data.Object is Subscription subscription)
                     {
-                        UsingIdentityUser user = (from u in _dbidentityContext.Users
-                                                  where u.StripeCustomer_ID == subscription.CustomerId
-                                                  select u).First();
-                        SubscriptionItemListOptions options = new()
-                        {
-                            Limit = 3,
-                            Subscription = subscription.Id,
-                        };
-                        SubscriptionItemService service = new();
-                        StripeList<SubscriptionItem> subscriptionItems = service.List(options);
-
-                        foreach (SubscriptionItem data in subscription.Items.Data)
-                        {
-                            if (data.Price.LookupKey == lookupAnalysistool)
-                            {
-                                _ = await _userManager.AddClaimAsync(user, new Claim("SubscribedAnalysisTool", subscriptionItems.First().Id));
-                            }
-                            else if (data.Price.LookupKey == lookupDiskSpace)
-                            {
-                                _ = await _userManager.AddClaimAsync(user, new Claim("SubscribedDiskspace", subscriptionItems.First().Id));
-                            }
-
-                            await SendSubscriptionCreatedMail(user, data.Price.LookupKey == lookupDiskSpace ? "Speicherlatz" : "Analysetool", subscription.TrialEnd);
-                        }
+                        await SaveSubscriptionIntoUserClaim(lookupDiskSpace, lookupAnalysistool, subscription);
                     }
-
-                    //Then define and call a method to handle the successful payment intent.
-                    // handleSubscriptionUpdated(subscription);
                 }
-                else if (stripeEvent.Type == Events.CustomerSubscriptionDeleted)
+                else if (stripeEvent.Type == "customer.subscription.deleted")
                 {
                     if (stripeEvent.Data.Object is Subscription subscription)
                     {
-                        var user = (from u in _dbidentityContext.Users
-                                    join c in _dbidentityContext.UserClaims
-                                    on u.Id equals c.UserId
-                                    where u.StripeCustomer_ID == subscription.CustomerId
-                                    && c.ClaimType == subscription.Items.Data[0].Price.LookupKey
-                                    select new { UsingIdentityUser = u, IdentityUserClaim = c }).First();
-                        if (user.IdentityUserClaim.ClaimValue != null)
-                        {
-                            _ = await _userManager.RemoveClaimAsync(user.UsingIdentityUser, new Claim(subscription.Items.Data[0].Price.LookupKey, user.IdentityUserClaim.ClaimValue));
-                        }
+                        await RemoveSubscriptionFromUserClaim(subscription);
                     }
                 }
-                else if (stripeEvent.Type == Events.CustomerSubscriptionTrialWillEnd)
+                else if (stripeEvent.Type == "customer.subscription.trial_will_end")
                 {
                     if (stripeEvent.Data.Object is Subscription subscription)
                     {
@@ -361,39 +321,11 @@ namespace Sammlerplattform.Controllers
                         }
                     }
                 }
-                else if (stripeEvent.Type == Events.InvoiceCreated)
+                else if (stripeEvent.Type == "invoice.created")
                 {
                     if (stripeEvent.Data.Object is Invoice invoice)
                     {
-                        int countUnits = (from u in _dbidentityContext.Users
-                                          where u.StripeCustomer_ID == invoice.CustomerId
-                                          join e in _dbidentityContext.PostcardEntity
-                                          on u.Id equals e.UsingIdentityUsers_ID
-                                          select e).Count();
-                        countUnits /= 500;
-
-                        if (countUnits > 0)
-                        {
-                            IdentityUserClaim<string> claims = (from u in _dbidentityContext.Users
-                                                                join c in _dbidentityContext.UserClaims
-                                                                on u.Id equals c.UserId
-                                                                where u.StripeCustomer_ID == invoice.CustomerId
-                                                                //&& c.ClaimType == "SubscribedDatabase"
-                                                                && c.ClaimType == "SubscribedDiskspace"
-                                                                select c).First();
-
-                            UsageRecordCreateOptions options = new()
-                            {
-                                Quantity = countUnits,
-                                Timestamp = DateTimeOffset.FromUnixTimeSeconds(1704989831).UtcDateTime,
-                                Action = "increment",
-                            };
-                            UsageRecordService usageRecordService = new();
-                            UsageRecord usageRecord = usageRecordService.Create(claims.ClaimValue, options);
-                        }
-
-                        InvoiceService invoiceService = new();
-                        _ = invoiceService.FinalizeInvoice(invoice.Id);
+                        CountUsedDiskspaceAndSendEmailWithInvoice(invoice);
                     }
                 }
                 else
@@ -406,6 +338,88 @@ namespace Sammlerplattform.Controllers
             {
                 _logger.LogError("Error: {e.Message}", e.Message);
                 return BadRequest();
+            }
+
+            async Task ConnectLocalAccountWithStripeAccount(Customer customerCreated)
+            {
+                UsingIdentityUser? user = await _userManager.FindByEmailAsync(customerCreated.Email);
+                if (user != null)
+                {
+                    user.StripeCustomer_ID = customerCreated.Id;
+                    _ = await _userManager.UpdateAsync(user);
+                }
+            }
+
+            async Task SaveSubscriptionIntoUserClaim(string? lookupDiskSpace, string? lookupAnalysistool, Subscription subscription)
+            {
+                UsingIdentityUser user = (from u in _dbidentityContext.Users
+                                          where u.StripeCustomer_ID == subscription.CustomerId
+                                          select u).First();
+                SubscriptionItemListOptions options = new()
+                {
+                    Limit = 3,
+                    Subscription = subscription.Id,
+                };
+                SubscriptionItemService service = new();
+                StripeList<SubscriptionItem> subscriptionItems = service.List(options);
+
+                foreach (SubscriptionItem data in subscription.Items.Data)
+                {
+                    if (data.Price.LookupKey == lookupAnalysistool)
+                    {
+                        _ = await _userManager.AddClaimAsync(user, new Claim("SubscribedAnalysisTool", subscriptionItems.First().Id));
+                    }
+                    else if (data.Price.LookupKey == lookupDiskSpace)
+                    {
+                        _ = await _userManager.AddClaimAsync(user, new Claim("SubscribedDiskspace", subscriptionItems.First().Id));
+                    }
+
+                    await SendSubscriptionCreatedMail(user, data.Price.LookupKey == lookupDiskSpace ? "Speicherlatz" : "Analysetool", subscription.TrialEnd);
+                }
+            }
+
+            async Task RemoveSubscriptionFromUserClaim(Subscription subscription)
+            {
+                var user = (from u in _dbidentityContext.Users
+                            join c in _dbidentityContext.UserClaims
+                            on u.Id equals c.UserId
+                            where u.StripeCustomer_ID == subscription.CustomerId
+                            && c.ClaimType == subscription.Items.Data[0].Price.LookupKey
+                            select new { UsingIdentityUser = u, IdentityUserClaim = c }).First();
+                if (user.IdentityUserClaim.ClaimValue != null)
+                {
+                    _ = await _userManager.RemoveClaimAsync(user.UsingIdentityUser, new Claim(subscription.Items.Data[0].Price.LookupKey, user.IdentityUserClaim.ClaimValue));
+                }
+            }
+
+            void CountUsedDiskspaceAndSendEmailWithInvoice(Invoice invoice)
+            {
+                int countUnits = (from u in _dbidentityContext.Users
+                                  where u.StripeCustomer_ID == invoice.CustomerId
+                                  join e in _dbidentityContext.PostcardEntity
+                                  on u.Id equals e.UsingIdentityUsers_ID
+                                  select e).Count();
+                countUnits /= 500;
+
+                if (countUnits > 0)
+                {
+                    IdentityUserClaim<string> claims = (from u in _dbidentityContext.Users
+                                                        join c in _dbidentityContext.UserClaims
+                                                        on u.Id equals c.UserId
+                                                        where u.StripeCustomer_ID == invoice.CustomerId
+                                                        && c.ClaimType == "SubscribedDiskspace"
+                                                        select c).First();
+
+                    SubscriptionItemUsageRecordCreateOptions options = new()
+                    {
+                        Quantity = countUnits
+                    };
+                    SubscriptionItemUsageRecordService usageRecordService = new();
+                    UsageRecord usageRecord = usageRecordService.Create(claims.ClaimValue, options);
+                }
+
+                InvoiceService invoiceService = new();
+                _ = invoiceService.FinalizeInvoice(invoice.Id);
             }
         }
 
@@ -462,13 +476,11 @@ namespace Sammlerplattform.Controllers
     {
         public static void SendUsageRecordAnalysisTool(string subscriptionItemId, int quantity, ILogger logger)
         {
-            UsageRecordCreateOptions options = new()
+            SubscriptionItemUsageRecordCreateOptions options = new()
             {
-                Quantity = quantity,
-                //Timestamp = DateTimeOffset.FromUnixTimeSeconds(1704989831).UtcDateTime,
-                Action = "increment",
+                Quantity = quantity
             };
-            UsageRecordService usageRecordService = new();
+            SubscriptionItemUsageRecordService usageRecordService = new();
 
             try
             {

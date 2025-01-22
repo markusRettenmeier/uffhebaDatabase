@@ -28,8 +28,8 @@ namespace Sammlerplattform.Controllers
                 throw new NullReferenceException();
             }
 
-            var existingGeography = (from l in unitOfWork.GeographyRepository.Get()
-                                      select l).Where(x => x.GeographyName != null && x.GeographyName.Equals(geographyName)).FirstOrDefault();
+            Geography? existingGeography = (from l in unitOfWork.GeographyRepository.Get()
+                                            select l).Where(x => x.GeographyName != null && x.GeographyName.Equals(geographyName)).FirstOrDefault();
 
             if (existingGeography != null)
             {
@@ -38,7 +38,7 @@ namespace Sammlerplattform.Controllers
             else
             {
                 Geography newGeography = new() { GeographyName = geographyName };
-                newGeography = unitOfWork.GeographyRepository.Insert(newGeography); 
+                newGeography = unitOfWork.GeographyRepository.Insert(newGeography);
                 unitOfWork.Save();
                 return newGeography;
             }
@@ -55,8 +55,8 @@ namespace Sammlerplattform.Controllers
     {
         public async Task<Geography> AddGeographyAsync(Geography geography)
         {
-            context.Geography.Add(geography);
-            await context.SaveChangesAsync();
+            _ = context.Geography.Add(geography);
+            _ = await context.SaveChangesAsync();
             return geography;
         }
 
@@ -66,21 +66,21 @@ namespace Sammlerplattform.Controllers
         }
         public void Save()
         {
-            context.SaveChanges();
+            _ = context.SaveChanges();
         }
 
         private bool disposed = false;
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!disposed)
             {
                 if (disposing)
                 {
                     context.Dispose();
                 }
             }
-            this.disposed = true;
+            disposed = true;
         }
 
         public void Dispose()

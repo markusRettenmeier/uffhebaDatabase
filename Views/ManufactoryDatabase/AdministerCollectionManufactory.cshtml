@@ -26,7 +26,7 @@
                  @Html.DisplayNameFor(model => model.ProductionFacility!.ProductionFacilityName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CityList)
+                @Html.DisplayNameFor(model => model.CityICollection)
             </th>
             <th>
                 Aktionen
@@ -38,9 +38,9 @@
             foreach (var item in Model)
             {
                 string cityCollection = string.Empty;
-                if(item.CityList != null)
+                if(item.CityICollection != null)
                 {
-                    @foreach (var city in item.CityList)
+                    @foreach (var city in item.CityICollection)
                     {
                         foreach (var cnoc in city.CityNOeconymICollection)
                         {

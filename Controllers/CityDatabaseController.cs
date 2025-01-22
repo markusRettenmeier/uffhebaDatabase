@@ -273,7 +273,7 @@ namespace Sammlerplattform.Controllers
     }
 
     public class CityProcessor(ICityRepository cityRepository,
-        IProcessGeography processGeography,
+                                IProcessGeography processGeography,
                                 IProcessPostalcode processPostalcode,
                                 IProcessOeconym processOeconym,
                                 IProcessCityNOeconym processCityNOeconym,
@@ -470,7 +470,7 @@ namespace Sammlerplattform.Controllers
         }
         private void RemovePostalcodeFromCity(City city)
         {
-            List<Postalcode> postalcodesToRemove = city.PostalcodeICollection.ToList();
+            List<Postalcode> postalcodesToRemove = [.. city.PostalcodeICollection];
 
             foreach (Postalcode? postalcode in postalcodesToRemove)
             {
@@ -519,7 +519,7 @@ namespace Sammlerplattform.Controllers
         }
         private void RemoveOeconymFromCity(City city)
         {
-            List<CityNOeconym> cnoToRemove = city.CityNOeconymICollection.ToList();
+            List<CityNOeconym> cnoToRemove = [.. city.CityNOeconymICollection];
 
             foreach (CityNOeconym? cno in cnoToRemove)
             {

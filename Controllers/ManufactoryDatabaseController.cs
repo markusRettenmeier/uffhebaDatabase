@@ -175,7 +175,7 @@ namespace Sammlerplattform.Controllers
                                           select c).FirstOrDefault();
                     if (existingCity != null)
                     {
-                        unitOfWork.ManufactoryRepository.AddMemberToCollection(manufactory, m => m.CityList, existingCity);
+                        unitOfWork.ManufactoryRepository.AddMemberToCollection(manufactory, m => m.CityICollection, existingCity);
                         unitOfWork.CityRepository.AddMemberToCollection(existingCity, c => c.ManufactoryList, manufactory);
                         unitOfWork.Save();
                     }
@@ -193,11 +193,11 @@ namespace Sammlerplattform.Controllers
         }
         private void RemoveCityFromManufactory(Manufactory manufactory)
         {
-            List<City> citiesToRemove = new(manufactory.CityList);
+            List<City> citiesToRemove = new(manufactory.CityICollection);
 
             foreach (City city in citiesToRemove)
             {
-                unitOfWork.ManufactoryRepository.RemoveMemberFromCollection(manufactory, m => m.CityList, city);
+                unitOfWork.ManufactoryRepository.RemoveMemberFromCollection(manufactory, m => m.CityICollection, city);
                 unitOfWork.CityRepository.RemoveMemberFromCollection(city, c => c.ManufactoryList, manufactory);
                 unitOfWork.Save();
             }
@@ -254,7 +254,7 @@ namespace Sammlerplattform.Controllers
             {
                 if (!string.IsNullOrEmpty(oeconym))
                 {
-                    predicate = predicate.And(x => x.CityList.Any(y => y.CityNOeconymICollection.Any(o => o.Oeconym.OeconymName.Contains(oeconym))));
+                    predicate = predicate.And(x => x.CityICollection.Any(y => y.CityNOeconymICollection.Any(o => o.Oeconym.OeconymName.Contains(oeconym))));
                 }
             }
             foreach (string productionFacility in model.SearchProductionFacility)
@@ -316,7 +316,7 @@ namespace Sammlerplattform.Controllers
         public IQueryable<Manufactory> GetAll()
         {
             IQueryable<Manufactory> getManufactoryQuery = from m in context.Manufactory
-                                        .Include(x => x.CityList).ThenInclude(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
+                                        .Include(x => x.CityICollection).ThenInclude(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
                                         .Include(x => x.ProductionFacility)
                                                           select m;
             return getManufactoryQuery;

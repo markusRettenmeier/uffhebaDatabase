@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Sammlerplattform.Models.ProductDatabase;
 
 namespace Sammlerplattform.Models
 {
@@ -33,6 +34,10 @@ namespace Sammlerplattform.Models
 
         [Display(Name = "StampColor")]
         public int? StampColor { get; set; }
+        //[Display(Name = "Erhaltungszustand")]
+        //[NotMapped]
+        //public StampConditionType? ConditionEnum { get; set; }
+        //public int ConditionInt { get; set; }
     }
 
     public enum StampConditionType

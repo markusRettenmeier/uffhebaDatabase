@@ -10,6 +10,7 @@ namespace Sammlerplattform.Models
         [Range(1, 10000)]
         public ICollection<int>? SearchPostcardPotential_ID { get; set; }
         public ICollection<string>? SearchSerialNumber { get; set; }
+        public ICollection<string> SearchKeywords { get; set; } = [];
         //City
         public ICollection<string>? SearchCity { get; set; }
         //Postalcode

@@ -2,7 +2,10 @@
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.BrickDatabase;
 using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.ManufactoryDatabase;
+using Sammlerplattform.Models.PersonDatabase;
+using Sammlerplattform.Models.ProductPictureDatabase;
 
 namespace Sammlerplattform.Controllers.DAL
 {
@@ -18,6 +21,11 @@ namespace Sammlerplattform.Controllers.DAL
         private GenericRepository<ProductionFacility>? productionFacilityRepository;
         private GenericRepository<BrickPotential>? brickPotentialRepository;
         private GenericRepository<BrickEntity>? brickEntityRepository;
+        private GenericRepository<Brickname>? bricknameRepository;
+        private GenericRepository<Person>? personRepository;
+        private GenericRepository<Prize>? prizeRepository;
+        private GenericRepository<Profession>? professionRepository;
+        private GenericRepository<ProductPicture>? productPictureRepository;
 
         public GenericRepository<City> CityRepository
         {
@@ -99,6 +107,46 @@ namespace Sammlerplattform.Controllers.DAL
                 return brickEntityRepository;
             }
         }
+        public GenericRepository<Brickname> BricknameRepository
+        {
+            get
+            {
+                bricknameRepository ??= new GenericRepository<Brickname>(context);
+                return bricknameRepository;
+            }
+        }
+        public GenericRepository<Person> PersonRepository
+        {
+            get
+            {
+                personRepository ??= new GenericRepository<Person>(context);
+                return personRepository;
+            }
+        }
+        public GenericRepository<Prize> PrizeRepository
+        {
+            get
+            {
+                prizeRepository ??= new GenericRepository<Prize>(context);
+                return prizeRepository;
+            }
+        }
+        public GenericRepository<Profession> ProfessionRepository
+        {
+            get
+            {
+                professionRepository ??= new GenericRepository<Profession>(context);
+                return professionRepository;
+            }
+        }
+        public GenericRepository<ProductPicture> ProductPictureRepository
+        {
+            get
+            {
+                productPictureRepository ??= new GenericRepository<ProductPicture>(context);
+                return productPictureRepository;
+            }
+        }
 
         public void Save()
         {
@@ -138,6 +186,11 @@ namespace Sammlerplattform.Controllers.DAL
         GenericRepository<ProductionFacility> ProductionFacilityRepository { get; }
         GenericRepository<BrickPotential> BrickPotentialRepository { get; }
         GenericRepository<BrickEntity> BrickEntityRepository { get; }
+        GenericRepository<Brickname> BricknameRepository { get; }
+        GenericRepository<Person> PersonRepository { get; }
+        GenericRepository<Prize> PrizeRepository { get; }
+        GenericRepository<Profession> ProfessionRepository { get; }
+        GenericRepository<ProductPicture> ProductPictureRepository { get; }
         void Save();
     }
 }

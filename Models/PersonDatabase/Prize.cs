@@ -11,7 +11,7 @@ namespace Sammlerplattform.Models.PersonDatabase
 
         [StringLength(50)]
         [Display(Name = "Preis")]
-        public required string PrizeName { get; set; }
+        public required string Name { get; set; }
 
         [StringLength(50)]
         [Display(Name = "Kategorie")]

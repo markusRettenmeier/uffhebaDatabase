@@ -1,6 +1,4 @@
-﻿using Catalyst;
-using Mosaik.Core;
-using Sammlerplattform.Models;
+﻿using Sammlerplattform.Models;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -368,25 +366,6 @@ namespace Sammlerplattform.Controllers.PictureAnaylsis
             }
 
             return weight;
-        }
-
-        public static async Task WordSemantic(IWebHostEnvironment _hostEnvironment)
-        {
-            //Hier nicht nützlich, vielleicht Rückseite
-            Catalyst.Models.German.Register();
-
-            Storage.Current = new DiskStorage("catalyst-models");
-            Pipeline nlp = await Pipeline.ForAsync(Language.German);
-            Document doc = new("M. Raible Inh. Josef Raible, Ellwangen-Jagst am Schönenberg", Language.German);
-            _ = nlp.ProcessSingle(doc);
-
-            string dir = Path.Combine(_hostEnvironment.WebRootPath, "DetectedTexts_GoogleVision");
-            string file = Path.Combine(dir, "wordSemantic.txt");
-            StreamWriter stream = new(file, true);
-            stream.Write(doc.ToJson());
-            stream.Close();
-
-            return;
         }
 
         public static double GuessForCity(string word, int idx, WordCategorizationModel model, IWebHostEnvironment _hostEnvironment, double outsideWeight)

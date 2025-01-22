@@ -45,6 +45,305 @@ function startSpinner() {
         alert('Vorder- und Rückseite werden benötigt')
 }
 
+var canvas = document.getElementById('myCanvas'),
+    ctx = canvas.getContext('2d'),
+    hasInput = false,
+    rect = canvas.getBoundingClientRect();
+
+createLinesInCanvas();
+
+function createLinesInCanvas() {
+    // Längs gestrichelte Linie
+    ctx.beginPath();
+    ctx.setLineDash([1, 2]);
+    ctx.moveTo(0, 175);
+    ctx.lineTo(700, 175);
+    ctx.stroke();
+    // Quer gestrichelte Linie
+    ctx.beginPath();
+    ctx.setLineDash([1, 2]);
+    ctx.moveTo(350, 0);
+    ctx.lineTo(350, 350);
+    ctx.stroke();
+}
+
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    removeDivsOnCanvas()
+    let inputsWithTextPosition = document.getElementsByClassName('InputWithTextPosition')
+    for (let i = 0; i < inputsWithTextPosition.length; i++) {
+        inputsWithTextPosition[i].remove()
+    }
+    if (hasInput) {
+        document.getElementById('canvasInput').remove()
+        hasInput = false
+    }
+
+    createLinesInCanvas();
+}
+
+//window.onscroll = function (e) {
+//    let divOfCanvas = document.getElementById('divOfCanvas')
+//    let pOfCanvas = document.getElementById('pOfCanvas')
+//    ////if (e.pageY === 0) {
+//    ////    divOfCanvas.style.display = 'block'; // Show canvas
+//    ////    pOfCanvas.style.display = 'none'
+//    ////} else {
+//    ////    divOfCanvas.style.display = 'none'; // Hide canvas
+//    ////    pOfCanvas.style.display = 'block'
+//    ////}
+//    if (e.pageY === 0) {
+//        canvas.poi
+//        $(".divOfCanvas").css("pointer-events", "none");
+//        pOfCanvas.style.display = 'none'
+//    } else {
+//        $(".divOfCanvas").css("pointer-events", "all");
+//        pOfCanvas.style.display = 'block'
+//    }
+//}
+
+canvas.onmousedown = function (e) {
+    if (window.scrollY > 0) {
+        e.preventDefault;
+        return false;
+    }
+
+    if (hasInput) {
+        document.getElementById('canvasInput').remove()
+        hasInput = false
+    }
+
+    var startX = e.pageX;
+    //var startY = e.clientY;
+    var startY = e.pageY;
+
+    let resizableDiv = document.createElement("div");
+    resizableDiv.className = 'resizableDiv';
+    resizableDiv.style.left = startX + 'px';
+    resizableDiv.style.top = startY + 'px';
+    resizableDiv.style.backgroundColor = 'transparent';
+    resizableDiv.style.border = '3px dashed #4286f4';
+    resizableDiv.style.position = 'fixed';
+    document.body.appendChild(resizableDiv);
+
+    // Create resizers and append to div
+    const resizerPositions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+    resizerPositions.forEach(pos => {
+        let resizer = document.createElement('div');
+        resizer.className = `resizer ${pos}`;
+        if (pos == 'top-left' || pos == 'bottom-right') {
+            resizer.style.cursor = 'nwse-resize'
+        }
+        else {
+            resizer.style.cursor = 'nesw-resize'
+        }
+        resizableDiv.appendChild(resizer);
+    });
+
+    const minimum_size = 0;
+    let original_width = 0;
+    let original_height = 0;
+    let divWidth = 0
+    let divHeight = 0
+    canvas.addEventListener('mousemove', resize)
+    canvas.onmouseup = function () {
+        canvas.removeEventListener('mousemove', resize)
+
+        if (hasInput) return;
+        addInput();
+    }
+
+    function resize(e) {
+        //    if (currentResizer.classList.contains('bottom-right')) {
+        divWidth = original_width + (e.pageX - startX);
+        divHeight = original_height + (e.pageY - startY)
+        if (divWidth > minimum_size) {
+            resizableDiv.style.width = divWidth + 'px'
+        }
+        if (divHeight > minimum_size) {
+            resizableDiv.style.height = divHeight + 'px'
+        }
+        //    }
+        //    else if (currentResizer.classList.contains('bottom-left')) {
+        //        const height = original_height + (e.clientY - startY)
+        //        const width = original_width - (e.clientX - startX)
+        //        if (height > minimum_size) {
+        //            resizableDiv.style.height = height + 'px'
+        //        }
+        //        if (width > minimum_size) {
+        //            resizableDiv.style.width = width + 'px'
+        //            resizableDiv.style.left = original_x + (e.clientX - startX) + 'px'
+        //        }
+        //    }
+        //    else if (currentResizer.classList.contains('top-right')) {
+        //        const width = original_width + (e.clientX - startX)
+        //        const height = original_height - (e.clientY - startY)
+        //        if (width > minimum_size) {
+        //            resizableDiv.style.width = width + 'px'
+        //        }
+        //        if (height > minimum_size) {
+        //            resizableDiv.style.height = height + 'px'
+        //            resizableDiv.style.top = original_y + (e.clientY - startY) + 'px'
+        //        }
+        //    }
+        //    //else {
+        //    //    const width = original_width - (e.clientX - startX)
+        //    //    const height = original_height - (e.clientY - startY)
+        //    //    if (width > minimum_size) {
+        //    //        resizableDiv.style.width = width + 'px'
+        //    //        resizableDiv.style.left = original_x + (e.clientX - startX) + 'px'
+        //    //    }
+        //    //    if (height > minimum_size) {
+        //    //        resizableDiv.style.height = height + 'px'
+        //    //        resizableDiv.style.top = original_y + (e.clientY - startY) + 'px'
+        //    //    }
+        //    //}
+    }
+
+        //function stopResize() {
+        //    window.removeEventListener('mousemove', resize)
+
+        //    if (hasInput) return;
+        //    addInput();
+        //}
+    //}
+    function addInput() {
+        var input = document.createElement('input');
+
+        input.type = 'text';
+        input.id = 'canvasInput'
+        input.style.position = 'fixed';
+        input.style.left = startX + 'px';
+        input.style.top = startY + 'px'
+
+        input.onkeydown = handleEnter;
+
+        document.body.appendChild(input);
+        removeDivsOnCanvas();
+
+        input.focus();
+
+        hasInput = true;
+    }
+
+    //Key handler for input box:
+    function handleEnter(e) {
+        var keyCode = e.keyCode;
+        if (keyCode === 13) {
+            drawText(this.value, parseInt(this.style.left, 10), parseInt(this.style.top, 10));
+            addInputWithTextAndPositions(this.value)
+            document.body.removeChild(this);
+            hasInput = false;
+        }
+    }
+
+    //Draw the text onto canvas:
+    function drawText(txt, startX, startY) {
+        ctx.textBaseline = 'top';
+        ctx.textAlign = 'left';
+        ctx.font = divHeight + 'px sans-serif';
+        ctx.fillText(txt, startX - rect.x, startY - rect.y);
+    }
+
+    function addInputWithTextAndPositions(txt) {
+        let input = document.createElement('input')
+        let xPosition = Math.round(startX - rect.x)
+        let yPosition = Math.round(startY - rect.y)
+
+        input.type = 'hidden'
+        input.className = 'InputWithTextPosition'
+        input.name = 'TextPositionString'
+        input.value = txt + '§§' + divHeight + '§§' + xPosition + '§§' + yPosition
+
+        let div = document.getElementById('AppendTextPosition')
+        div.appendChild(input);
+    }
+}
+function removeDivsOnCanvas() {
+    let divsOnCanvas = document.getElementsByClassName('resizableDiv');
+    while (divsOnCanvas.length > 0) {
+        divsOnCanvas[0].parentNode.removeChild(divsOnCanvas[0]);
+    }
+}
+
+function makeResizableDiv(div) {
+    const element = document.querySelector(div);
+    const resizers = document.querySelectorAll(div + ' .resizer')
+    const minimum_size = 20;
+    let original_width = 0;
+    let original_height = 0;
+    let original_x = 0;
+    let original_y = 0;
+    let original_mouse_x = 0;
+    let original_mouse_y = 0;
+    for (let i = 0; i < resizers.length; i++) {
+        const currentResizer = resizers[i];
+        currentResizer.addEventListener('mousedown', function (e) {
+            e.preventDefault()
+            original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
+            original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
+            original_x = element.getBoundingClientRect().left;
+            original_y = element.getBoundingClientRect().top;
+            original_mouse_x = e.pageX;
+            original_mouse_y = e.pageY;
+            window.addEventListener('mousemove', resize)
+            window.addEventListener('mouseup', stopResize)
+        })
+
+        function resize(e) {
+            if (currentResizer.classList.contains('bottom-right')) {
+                const width = original_width + (e.pageX - original_mouse_x);
+                const height = original_height + (e.pageY - original_mouse_y)
+                if (width > minimum_size) {
+                    element.style.width = width + 'px'
+                }
+                if (height > minimum_size) {
+                    element.style.height = height + 'px'
+                }
+            }
+            else if (currentResizer.classList.contains('bottom-left')) {
+                const height = original_height + (e.pageY - original_mouse_y)
+                const width = original_width - (e.pageX - original_mouse_x)
+                if (height > minimum_size) {
+                    element.style.height = height + 'px'
+                }
+                if (width > minimum_size) {
+                    element.style.width = width + 'px'
+                    element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+                }
+            }
+            else if (currentResizer.classList.contains('top-right')) {
+                const width = original_width + (e.pageX - original_mouse_x)
+                const height = original_height - (e.pageY - original_mouse_y)
+                if (width > minimum_size) {
+                    element.style.width = width + 'px'
+                }
+                if (height > minimum_size) {
+                    element.style.height = height + 'px'
+                    element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
+                }
+            }
+            else {
+                const width = original_width - (e.pageX - original_mouse_x)
+                const height = original_height - (e.pageY - original_mouse_y)
+                if (width > minimum_size) {
+                    element.style.width = width + 'px'
+                    element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+                }
+                if (height > minimum_size) {
+                    element.style.height = height + 'px'
+                    element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
+                }
+            }
+        }
+
+        function stopResize() {
+            window.removeEventListener('mousemove', resize)
+        }
+    }
+}
+
+
 //Show and hide password in Login
 $(function () {
     $('#show_password').on("mouseenter", handlerIn).on("mouseleave", handlerOut)
@@ -227,12 +526,28 @@ function createNewInput(name, value) {
 }
 
 function AddCityToManufactory(buttonId) {
-    RemoveRowFromTable()
+    RemoveRowFromTable("trCity_0")
     AddCityMultiRow(buttonId);
 }
-function AddCityToPostcard(buttonId) {
-    AddCityMultiRow(buttonId);
+
+function AddBrickname(buttonId) {
+    var value = document.getElementById('bricknameSearchResultBrickPotentialID_' + buttonId).innerHTML;
+    document.getElementById('bricknameBrickPotentialID').innerHTML = value;
+    value = document.getElementById('bricknameSearchResultName_' + buttonId).innerHTML;
+    document.getElementById('bricknameName').innerHTML = value;
+    value = document.getElementById('bricknameSearchResultUsage_' + buttonId).innerHTML;
+    document.getElementById('bricknameUsageEnum').innerHTML = value;
+
+    $('#clearOneRowBricknameTable').show()
+    $('#IsBricknameExistingModal').modal('hide')
 }
+$('#clearOneRowBricknameTable').on('click', function () {
+    document.getElementById('bricknameBrickPotentialID').innerHTML = ''
+    document.getElementById('bricknameName').innerHTML = ''
+    document.getElementById('bricknameUsageEnum').innerHTML = ''
+    $('#clearOneRowBricknameTable').hide()
+})
+
 function AddCityMultiRow(buttonId) {
     var lastId = $('#cityTable tr:last').attr('id');
     var lastNumber = 0;
@@ -257,27 +572,26 @@ function AddCityMultiRow(buttonId) {
     $('#cityTable').find('tbody').append(innerHtml);
     $('#IsCityExistingModal').modal('hide');
 }
-function RemoveRowFromTable() {
-    let trCity0 = document.getElementById("trCity_0");
-    if (trCity0 != null) {
-        trCity0.remove()
+function RemoveRowFromTable(row) {
+    let tr = document.getElementById(row);
+    if (tr != null) {
+        tr.remove()
     }
 }
 
-function AddCityToReceiver(buttonId) {
-    //Copy results from modal to screen
-    SetValueIntoTable(buttonId);
-}
 $(document).on('click', '.DeleteCity', function () {
     let id = $(this).prop('id')
     document.querySelector('#trCity_' + id)?.remove()
 })
-
+function AddCityToReceiver(buttonId) {
+    //Copy results from modal to screen
+    SetCityIntoTable(buttonId);
+}
 function AddParentCity(buttonId) {
     //Copy results from modal to screen
-    SetValueIntoTable(buttonId);
+    SetCityIntoTable(buttonId);
 }
-function SetValueIntoTable(buttonId) {
+function SetCityIntoTable(buttonId) {
     var value = document.getElementById('citySearchResultcityID_' + buttonId).innerHTML;
     document.getElementById('city_ID').innerHTML = value;
     value = document.getElementById('citySearchResultOecoynm_' + buttonId).innerHTML;
@@ -292,15 +606,74 @@ function SetValueIntoTable(buttonId) {
     $('#clearOneRowCityTable').show()
     $('#IsCityExistingModal').modal('hide')
 }
-
 $('#clearOneRowCityTable').on('click', function () {
-
     document.getElementById('city_ID').innerHTML = ''
     document.getElementById('city').innerHTML = ''
     document.getElementById('postalcode').innerHTML = ''
     document.getElementById('byname').innerHTML = ''
     document.getElementById('geography').innerHTML = ''
     $('#clearOneRowCityTable').hide()
+})
+
+function SetBricknameIntoTable(buttonId) {
+    var value = document.getElementById('bricknameSearchResultBricknameID_' + buttonId).innerHTML;
+    document.getElementById('brickname_ID').innerHTML = value;
+    value = document.getElementById('bricknameSearchResultBrickname_' + buttonId).innerHTML;
+    document.getElementById('brickname').innerHTML = value;
+    value = document.getElementById('bricknameSearchResultUsage_' + buttonId).innerHTML;
+    document.getElementById('usage').innerHTML = value;
+
+    $('#clearOneRowBricknameTable').show()
+    $('#IsBricknameExistingModal').modal('hide')
+}
+$('#clearOneRowBricknameTable').on('click', function () {
+    document.getElementById('brickname_ID').innerHTML = ''
+    document.getElementById('brickname').innerHTML = ''
+    document.getElementById('usage').innerHTML = ''
+    $('#clearOneRowBricknameTable').hide()
+})
+
+function SetManufacturerIntoTable(buttonId) {
+    var value = document.getElementById('manufacturerSearchResultmanufacturerID_' + buttonId).innerHTML;
+    document.getElementById('Manufacturer_ID').innerHTML = value;
+    value = document.getElementById('manufacturerSearchResultName_' + buttonId).innerHTML;
+    document.getElementById('ManufacturerName').innerHTML = value;
+    value = document.getElementById('manufacturerSearchResultPersonSignature_' + buttonId).innerHTML;
+    document.getElementById('ManufacturerSignature').innerHTML = value;
+
+    $('#clearOneRowManufacturerTable').show()
+    $('#IsBrickmakerExistingModal').modal('hide')
+}
+$('#clearOneRowManufacturerTable').on('click', function () {
+    document.getElementById('Manufacturer_ID').innerHTML = ''
+    document.getElementById('ManufacturerName').innerHTML = ''
+    document.getElementById('ManufacturerSignature').innerHTML = ''
+    $('#clearOneRowManufacturerTable').hide()
+})
+
+function SetManufactoryIntoTable(buttonId) {
+    var value = document.getElementById('manufactorySearchResultManufactoryID_' + buttonId).innerHTML;
+    document.getElementById('Manufactory_ID').innerHTML = value;
+    value = document.getElementById('manufactorySearchResultName_' + buttonId).innerHTML;
+    document.getElementById('ManufactoryName').innerHTML = value;
+    var select = document.getElementById('manufactorySearchResultCity_' + buttonId);
+    value = select.options[select.selectedIndex].value;
+    document.getElementById('CityOfManufactory_ID').innerHTML = value;
+    value = select.options[select.selectedIndex].text;
+    document.getElementById('CityOfManufactory').innerHTML = value;
+    value = document.getElementById('manufactorySearchResultProductionFacility_' + buttonId).innerHTML;
+    document.getElementById('ProductionFacilityName').innerHTML = value;
+
+    $('#clearOneRowManufactoryTable').show()
+    $('#IsManufactoryExistingModal').modal('hide')
+}
+$('#clearOneRowManufactoryTable').on('click', function () {
+    document.getElementById('Manufactory_ID').innerHTML = ''
+    document.getElementById('ManufactoryName').innerHTML = ''
+    document.getElementById('CityOfManufactory_ID').innerHTML = ''
+    document.getElementById('CityOfManufactory').innerHTML = ''
+    document.getElementById('ProductionFacilityName').innerHTML = ''
+    $('#clearOneRowManufactoryTable').hide()
 })
 
 $('body').on('click', '.AddMoreManufactorys', AddMoreManufactorys);
@@ -469,3 +842,10 @@ $(".createCitySubmitButton").on('click', function () {
     var value = document.getElementsByClassName('city_ID').innerHTML
     $('#cityInput').val(value)
 })
+
+if (window.location.href.indexOf('Database') > -1) {
+    $(function () {
+        $(".chosen-select").chosen()
+        $(".chosen").chosen()
+    });
+}

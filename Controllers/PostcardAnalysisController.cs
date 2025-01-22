@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Sammlerplattform.Controllers.PictureAnaylsis;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models;
+using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Services;
 using System.Data.Entity;
 using System.IO.Compression;
@@ -57,7 +58,7 @@ namespace Sammlerplattform.Controllers
                 AuthorArtists =
                 [
                     .. (from aa in _dbIdentityContext.Person.Include(x => x.ProfessionICollection)
-                        where aa.ProfessionICollection.Any(x => x.ProfessionName.Equals(1) || x.ProfessionName.Equals(2))
+                        where aa.ProfessionICollection.Any(x => x.Name.Equals(1) || x.Name.Equals(2))
                         select aa.Name),
                 ]
             };
@@ -613,7 +614,7 @@ namespace Sammlerplattform.Controllers
                 AuthorArtists =
                 [
                     .. (from aa in _dbIdentityContext.Person.Include(x => x.ProfessionICollection)
-                        where aa.ProfessionICollection.Any(x => x.ProfessionName.Equals(1) || x.ProfessionName.Equals(2))
+                        where aa.ProfessionICollection.Any(x => x.Name.Equals(1) || x.Name.Equals(2))
                         select aa.Name),
                 ]
             };

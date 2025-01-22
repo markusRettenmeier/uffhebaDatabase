@@ -1,5 +1,7 @@
 ﻿@model Sammlerplattform.Models.PostcardModel
 @using System.Web
+@using Sammlerplattform.Controllers.GenericClasses
+@using Sammlerplattform.Models.ProductDatabase
 
 @{
     ViewData["Title"] = "Postkarte erstellen";
@@ -14,14 +16,14 @@
     <div id="appendConcludedLists" style="display:none"></div>
     <p>Wenn möglich, dann sollten die Bilder im png-Format sein.</p>
     <p>Alle Bilder werden automatisch mit einem Wasserzeichen versehen, das Ihrem Nutzernamen entspricht.</p>
-        <div class="form-group">
-            <label class="control-label">Vorderseite*</label>
-            <input type="file" name="Frontside" class="form-control" required />
-        </div>
-        <div class="form-group">
-            <label class="control-label">Rückseite*</label>
-            <input type="file" name="Backside" class="form-control" />
-        </div>
+    <div class="form-group">
+        <label class="control-label">Vorderseite*</label>
+        <input type="file" name="Frontside" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label class="control-label">Rückseite*</label>
+        <input type="file" name="Backside" class="form-control" />
+    </div>
     <div class="accordion pt-2" id="accordionExample">
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingPostcard">
@@ -109,7 +111,7 @@
                     <div class="form-group">
                         <label asp-for="PostcardEntity.ConditionEnum" class="control-label"></label>
                         <select asp-for="PostcardEntity.ConditionEnum" class="form-select storeInput">
-                            @foreach(Enum conditionValue in Enum.GetValues(typeof(PostcardConditionType)))
+                            @foreach (Enum conditionValue in Enum.GetValues(typeof(PostcardConditionType)))
                             {
                                 <option value="@conditionValue">@conditionValue.GetDescription()</option>
                             }
@@ -128,7 +130,7 @@
                     <div class="form-group">
                         <label asp-for="PostcardEntity.MaterialEnum" class="control-label"></label>
                         <select asp-for="PostcardEntity.MaterialEnum" class="form-select storeInput">
-                            @foreach(int materialValue in Enum.GetValues(typeof(MaterialType)))
+                            @foreach (int materialValue in Enum.GetValues(typeof(MaterialType)))
                             {
                                 <option value="@materialValue">@((MaterialType)materialValue)</option>
                             }
@@ -147,7 +149,7 @@
                 <div class="accordion-body">
                     <input class="form-check-input checkDisablity" id="checkImage" asp-for="HasImage" /> @Html.DisplayNameFor(model => model.HasImage)
                     <div id="DivImage" style="display: none">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label class="control-label">Bilddarstellung</label>
                             <select asp-for="PostcardImprint.ImagePerception" class="form-select storeInput" id="ImagePerception">
                                 <option value="1" selected>Ausschließlich Grafik</option>
@@ -209,12 +211,12 @@
                             <input name="ColorImage" type="text" class="hex storeInput" id="hex_Image" readonly />
                             <input type="color" class="color storeInput" id="color_Image" />
                         </div>
-                                @* <div class="form-group">
-                                    <label asp-for="PostcardImprint.ArtistAuthor_ID" class="control-label"></label>
-                                    <input asp-for="PostcardImprint.ArtistAuthor_ID" class="form-control InputAuthorArtistID storeInput" type="hidden" />
-                            <input class="form-control InputAuthorArtist storeInput" />
-                                    <span asp-validation-for="PostcardImprint.ArtistAuthor_ID" class="text-danger"></span>
-                                </div> *@
+                        @* <div class="form-group">
+                        <label asp-for="PostcardImprint.ArtistAuthor_ID" class="control-label"></label>
+                        <input asp-for="PostcardImprint.ArtistAuthor_ID" class="form-control InputAuthorArtistID storeInput" type="hidden" />
+                        <input class="form-control InputAuthorArtist storeInput" />
+                        <span asp-validation-for="PostcardImprint.ArtistAuthor_ID" class="text-danger"></span>
+                        </div> *@
                         <div class="form-group">
                             <label asp-for="PostcardImprint.Buildings" class="control-label"></label>
                             <input asp-for="PostcardImprint.Buildings" class="form-control storeInput" />
@@ -255,73 +257,73 @@
             </div>
         </div>
         @* <div class="accordion-item">
-            <h2 class="accordion-header" id="headingManufacturingDate">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufacturingDate" aria-expanded="false" aria-controls="collapseManufacturingDate">
-                    Herstellungszeit
-                </button>
-            </h2>
-            <div id="collapseManufacturingDate" class="accordion-collapse collapse" aria-labelledby="headingManufacturingDate" data-bs-parent="#accordionManufacturingDate">
-                <div class="accordion-body">
-                <div class="form-group">
-                    <label asp-for="ManufacturingDate.ExactYear"></label>
-                    <input asp-for="ManufacturingDate.ExactYear" class="form-control" />
-                    <span asp-validation-for="ManufacturingDate.ExactYear" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="ManufacturingDate.StartYear"></label>
-                    <input asp-for="ManufacturingDate.StartYear" class="form-control" />
-                    <span asp-validation-for="ManufacturingDate.StartYear" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="ManufacturingDate.EndYear"></label>
-                    <input asp-for="ManufacturingDate.EndYear" class="form-control" />
-                    <span asp-validation-for="ManufacturingDate.EndYear" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                        <input class="form-check-input storeInput" asp-for="ManufacturingDate.IsApproximate" /> @Html.DisplayNameFor(model => model.ManufacturingDate.IsApproximate)
-                </div>
-                <div class="form-group">
-                    <label asp-for="ManufacturingDate.Note"></label>
-                    <input asp-for="ManufacturingDate.Note" class="form-control" />
-                    <span asp-validation-for="ManufacturingDate.Note" class="text-danger"></span>
-                </div>
-                    <div class="row">
-                        <div class="col">
-                            <label asp-for="Era.EraLong" class="control-label"></label>
-                            <input type="hidden" asp-for="ManufacturingDate.Era_ID" class="form-control InputEraID_ManufactoryDate storeInput" />
-                            <input asp-for="Era.EraLong" class="form-control InputEra storeInput" id="InputEra_ManufactoryDate" />
-                            <span asp-validation-for="ManufacturingDate.Era_ID" class="text-danger"></span>
-                            <span asp-validation-for="Era.EraLong" class="text-danger"></span>
-                        </div>
-                        <div class="col">
-                            <a asp-action="AddEra" asp-controller="PostcardDatabase" asp-route-source="CreatePostcard" class="StoreInputs">Neue Ära hinzufügen</a>
-                        </div>
-                    </div>
-            </div>
-            </div> *@
+        <h2 class="accordion-header" id="headingManufacturingDate">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufacturingDate" aria-expanded="false" aria-controls="collapseManufacturingDate">
+        Herstellungszeit
+        </button>
+        </h2>
+        <div id="collapseManufacturingDate" class="accordion-collapse collapse" aria-labelledby="headingManufacturingDate" data-bs-parent="#accordionManufacturingDate">
+        <div class="accordion-body">
+        <div class="form-group">
+        <label asp-for="ManufacturingDate.ExactYear"></label>
+        <input asp-for="ManufacturingDate.ExactYear" class="form-control" />
+        <span asp-validation-for="ManufacturingDate.ExactYear" class="text-danger"></span>
         </div>
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingSenderReceiver">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSenderReceiver" aria-expanded="false" aria-controls="collapseSenderReceiver">
-                    Sender/ Empfänger
-                </button>
-            </h2>
-            <div id="collapseSenderReceiver" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionSenderReceiver">
-                <div class="accordion-body">
-                    <input class="form-check-input checkDisablity" id="checkSender" asp-for="HasSender" /> @Html.DisplayNameFor(model => model.HasSender)
-                    <input class="form-check-input checkDisablity" id="checkReceiver" asp-for="HasReceiver" /> @Html.DisplayNameFor(model => model.HasReceiver)
-                    <div class="row">
-                        <div id="DivSender" style="display: none">
-                            <div class="col">
-                                <span>Sender</span>
-                                <div class="form-group">
-                                    <label asp-for="PersonSender.Name" class="control-label"></label>
-                                    <input asp-for="PersonSender.Name" class="form-control storeInput" />
-                                    <span asp-validation-for="PersonSender.Name" class="text-danger"></span>
-                                </div>
+        <div class="form-group">
+        <label asp-for="ManufacturingDate.StartYear"></label>
+        <input asp-for="ManufacturingDate.StartYear" class="form-control" />
+        <span asp-validation-for="ManufacturingDate.StartYear" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+        <label asp-for="ManufacturingDate.EndYear"></label>
+        <input asp-for="ManufacturingDate.EndYear" class="form-control" />
+        <span asp-validation-for="ManufacturingDate.EndYear" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+        <input class="form-check-input storeInput" asp-for="ManufacturingDate.IsApproximate" /> @Html.DisplayNameFor(model => model.ManufacturingDate.IsApproximate)
+        </div>
+        <div class="form-group">
+        <label asp-for="ManufacturingDate.Note"></label>
+        <input asp-for="ManufacturingDate.Note" class="form-control" />
+        <span asp-validation-for="ManufacturingDate.Note" class="text-danger"></span>
+        </div>
+        <div class="row">
+        <div class="col">
+        <label asp-for="Era.EraLong" class="control-label"></label>
+        <input type="hidden" asp-for="ManufacturingDate.Era_ID" class="form-control InputEraID_ManufactoryDate storeInput" />
+        <input asp-for="Era.EraLong" class="form-control InputEra storeInput" id="InputEra_ManufactoryDate" />
+        <span asp-validation-for="ManufacturingDate.Era_ID" class="text-danger"></span>
+        <span asp-validation-for="Era.EraLong" class="text-danger"></span>
+        </div>
+        <div class="col">
+        <a asp-action="AddEra" asp-controller="PostcardDatabase" asp-route-source="CreatePostcard" class="StoreInputs">Neue Ära hinzufügen</a>
+        </div>
+        </div>
+        </div>
+        </div> *@
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingSenderReceiver">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSenderReceiver" aria-expanded="false" aria-controls="collapseSenderReceiver">
+                Sender/ Empfänger
+            </button>
+        </h2>
+        <div id="collapseSenderReceiver" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionSenderReceiver">
+            <div class="accordion-body">
+                <input class="form-check-input checkDisablity" id="checkSender" asp-for="HasSender" /> @Html.DisplayNameFor(model => model.HasSender)
+                <input class="form-check-input checkDisablity" id="checkReceiver" asp-for="HasReceiver" /> @Html.DisplayNameFor(model => model.HasReceiver)
+                <div class="row">
+                    <div id="DivSender" style="display: none">
+                        <div class="col">
+                            <span>Sender</span>
+                            <div class="form-group">
+                                <label asp-for="PersonSender.Name" class="control-label"></label>
+                                <input asp-for="PersonSender.Name" class="form-control storeInput" />
+                                <span asp-validation-for="PersonSender.Name" class="text-danger"></span>
                             </div>
                         </div>
-                        <div id="DivReceiver" style="display: none">
+                    </div>
+                    <div id="DivReceiver" style="display: none">
                         <div class="col">
                             <span>Empfänger</span>
                             <div class="form-group">
@@ -330,86 +332,71 @@
                                 <span asp-validation-for="PersonReceiver.Name" class="text-danger"></span>
                             </div>
                             <div class="form-group">
-                                <div class="row">
-                                    <div class="col">
-                                        <label asp-for="PersonReceiver.Street" class="control-label"></label>
-                                        <input asp-for="PersonReceiver.Street" class="form-control storeInput" />
-                                        <span asp-validation-for="PersonReceiver.Street" class="text-danger"></span>
-                                    </div>
-                                    <div class="col">
-                                        <label asp-for="PersonReceiver.HouseNumber" class="control-label"></label>
-                                        <input asp-for="PersonReceiver.HouseNumber" class="form-control storeInput" />
-                                        <span asp-validation-for="PersonReceiver.HouseNumber" class="text-danger"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
                                 <label asp-for="PersonReceiver.City_ID" class="control-label"></label>
-                                    <input type="hidden" asp-for="PersonReceiver.City_ID" class="form-control storeInput InputReceiverCityID" id="InputCityID_PersonReceiver" placeholder="Orts ID" aria-label="Orts ID" />
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Orts_ID</th>
-                                                <th scope="col">Ort</th>
-                                                <th scope="col">PLZ</th>
-                                                <th scope="col">Beiname</th>
-                                                <th scope="col">Geographischer Bezug</th>
-                                                <th scope="col">Weitere Aktionen</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td scope="col" id="city_ID"></td>
-                                                <td scope="col" id="city"></td>
-                                                <td scope="col" id="postalcode"></td>
-                                                <td scope="col" id="byname"></td>
-                                                <td scope="col" id="geography"></td>
-                                                <td scope="col">
-                                                    <div class="btn-group" role="group">
+                                <input type="hidden" asp-for="PersonReceiver.City_ID" class="form-control storeInput InputReceiverCityID" id="InputCityID_PersonReceiver" placeholder="Orts ID" aria-label="Orts ID" />
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Orts_ID</th>
+                                            <th scope="col">Ort</th>
+                                            <th scope="col">PLZ</th>
+                                            <th scope="col">Beiname</th>
+                                            <th scope="col">Geographischer Bezug</th>
+                                            <th scope="col">Weitere Aktionen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td scope="col" id="city_ID"></td>
+                                            <td scope="col" id="city"></td>
+                                            <td scope="col" id="postalcode"></td>
+                                            <td scope="col" id="byname"></td>
+                                            <td scope="col" id="geography"></td>
+                                            <td scope="col">
+                                                <div class="btn-group" role="group">
                                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsCityExistingModal">
                                                         Ort auswählen
                                                     </button>
-                                                        <button type="button" id="clearOneRowCityTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                                    <button type="button" id="clearOneRowCityTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                        </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingManufactory">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufactory" aria-expanded="false" aria-controls="collapseManufactory">
-                    Verlage
-                </button>
-            </h2>
-            <div id="collapseManufactory" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#accordionManufacutrer">
-                <div class="accordion-body">
-                    <div class="row">
-                        <div class="col-8 FirstManufactory" style="display: none">
-                            <div class="input-group">
-                                <input type="hidden" class="form-control storeInput InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_0" aria-label="Verlagsnummer" />
-                                <input class="form-control InputManufactory storeInput" id="InputManufactory_0" placeholder="Verlag" aria-label="Verlag" />
-                                <select class="TownOfManufactorySelect form-select storeInput PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
-                                </select>
-                                <span asp-validation-for="Manufactory.Manufactory_ID" class="text-danger"></span>
-                                <button type="button" class="form-control btn btn-danger DeleteManufactory" id="DeleteManufactory_0">Verlag entfernen</button>
-                            </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingManufactory">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufactory" aria-expanded="false" aria-controls="collapseManufactory">
+                Verlage
+            </button>
+        </h2>
+        <div id="collapseManufactory" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#accordionManufacutrer">
+            <div class="accordion-body">
+                <div class="row">
+                    <div class="col-8 FirstManufactory" style="display: none">
+                        <div class="input-group">
+                            <input type="hidden" class="form-control storeInput InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_0" aria-label="Verlagsnummer" />
+                            <input class="form-control InputManufactory storeInput" id="InputManufactory_0" placeholder="Verlag" aria-label="Verlag" />
+                            <select class="TownOfManufactorySelect form-select storeInput PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
+                            </select>
+                            <span asp-validation-for="Manufactory.Manufactory_ID" class="text-danger"></span>
+                            <button type="button" class="form-control btn btn-danger DeleteManufactory" id="DeleteManufactory_0">Verlag entfernen</button>
                         </div>
-                        <div class="AppendManufactoryHere">
-                        </div>
-                        <div class="col">
-                            <div class="btn-group" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-primary AddMoreManufactorys">Der Karte mehr Verlage hinzufügen</button>
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CreateManufactoryModal">
-                                    Hersteller-Schnellerfassung
-                                </button>
-                            </div>
+                    </div>
+                    <div class="AppendManufactoryHere">
+                    </div>
+                    <div class="col">
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <button type="button" class="btn btn-primary AddMoreManufactorys">Der Karte mehr Verlage hinzufügen</button>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CreateManufactoryModal">
+                                Hersteller-Schnellerfassung
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -426,7 +413,7 @@
 <partial name="~/Views/ManufactoryDatabase/_CreateManufactoryModal.cshtml" />
 
 @section Scripts
-    {
+{
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }

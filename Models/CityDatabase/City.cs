@@ -1,4 +1,5 @@
-﻿using Sammlerplattform.Models.ManufactoryDatabase;
+﻿using Sammlerplattform.Models.BrickDatabase;
+using Sammlerplattform.Models.ManufactoryDatabase;
 using Sammlerplattform.Models.PersonDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -22,12 +23,13 @@ namespace Sammlerplattform.Models.CityDatabase
         public int? Geography_ID { get; set; }
         public Geography? Geography { get; set; }
         public ICollection<Postalcode> PostalcodeICollection { get; set; } = [];
-        public Person? Person { get; set; }
+        public ICollection<Person> PersonICollection { get; set; } = [];
 
         [Display(Name = "Ortsteil von")]
         [ForeignKey("ParentCity")]
         public int? ParentCity_ID { get; set; }
         public City? ParentCity { get; set; }
         public ICollection<City> ChildCity { get; set; } = [];
+        public ICollection<BrickEntity> BrickEntityICollection { get; set; } = [];
     }
 }
