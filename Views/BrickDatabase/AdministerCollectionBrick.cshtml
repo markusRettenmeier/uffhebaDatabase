@@ -3,7 +3,7 @@
 @inject IAuthorizationService AuthorizationService
 @{
     ViewData["Title"] = "Ziegelverwaltung";
-    Layout = "_LayoutSettings";
+    Layout = "_LayoutSettingsProduct";
     int count = 0;
 }
 
@@ -16,6 +16,7 @@
     <a type="button" class="btn btn-success" asp-action="DownloadBricks" asp-controller="BrickDatabase" asp-route-userId="@ViewData["userId"]">Alle Ziegel als YAML herunterladen</a>
 </div>
 
+<input id="productionFacilityInput" hidden value="Ziegelei">
 <table class="table">
     <thead>
         <tr>
@@ -23,7 +24,7 @@
                 Abbildung
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BrickEntity.BrickEntity_ID)
+                @Html.DisplayNameFor(model => model.BrickEntity.BrickEntityID)
             </th>
             <th>
                 Aktionen
@@ -33,19 +34,19 @@
     <tbody>
         @foreach (var item in Model)
         {
-            var image = @"/images/Thumbnail/" + item.ProductPicture.ProductPicture_ID + "." + item.ProductPicture.FileExtension;
+            var image = @"/images/Thumbnail/" + item.ProductPictureList.First().ProductPictureID + ".png";
             <tr>
                 <td>
                     <img src="@image" width="240" height="153" alt="" id="simplePic_@count" class="IndexMobile-Picture" />
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.BrickEntity.BrickEntity_ID)
+                    @Html.DisplayFor(modelItem => item.BrickEntity.BrickEntityID)
                 </td>
                 <td>
                     <div>
-                        <a asp-action="EditBrick" asp-controller="BrickDatabase" asp-route-id="@item.BrickPotential.BrickPotential_ID">Ändern</a>
-                        | <a asp-action="DeleteBrick" asp-controller="BrickDatabase" asp-route-potentialId="@item.BrickPotential.BrickPotential_ID" asp-route-entityId="@item.BrickEntity.BrickEntity_ID">Löschen</a>
-                        | <a asp-action="DownloadBricks" asp-controller="BrickDatabase" asp-route-potentialId="@item.BrickPotential.BrickPotential_ID" asp-route-userId="@ViewData["userId"]">Herunterladen als YAML</a>
+                        <a asp-action="EditBrick" asp-controller="BrickDatabase" asp-route-entityId="@item.BrickEntity.BrickEntityID">Ändern</a>
+                        | <a asp-action="DeleteBrick" asp-controller="BrickDatabase" asp-route-entityId="@item.BrickEntity.BrickEntityID">Löschen</a>
+                        | <a asp-action="DownloadBrickSubmit" asp-controller="BrickDatabase" asp-route-entityId="@item.BrickEntity.BrickEntityID" asp-route-userId="@ViewData["userId"]">Herunterladen als YAML</a>
                     </div>
                 </td>
             </tr>

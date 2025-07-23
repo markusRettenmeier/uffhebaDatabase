@@ -26,7 +26,7 @@
                  @Html.DisplayNameFor(model => model.ProductionFacility!.ProductionFacilityName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CityICollection)
+                @Html.DisplayNameFor(model => model.CityList)
             </th>
             <th>
                 Aktionen
@@ -38,11 +38,11 @@
             foreach (var item in Model)
             {
                 string cityCollection = string.Empty;
-                if(item.CityICollection != null)
+                if(item.CityList != null)
                 {
-                    @foreach (var city in item.CityICollection)
+                    @foreach (var city in item.CityList)
                     {
-                        foreach (var cnoc in city.CityNOeconymICollection)
+                        foreach (var cnoc in city.CityNOeconymList)
                         {
                             cityCollection += cnoc.Oeconym.OeconymName + ", ";
                         }
@@ -64,7 +64,7 @@
                     </td>
                     <td>
                         <div>
-                            <a asp-action="EditManufactory" asp-controller="ManufactoryDatabase" asp-route-id="@item.Manufactory_ID" class="EditManufactoryButton">Ändern</a>
+                            <a asp-action="EditManufactory" asp-controller="ManufactoryDatabase" asp-route-id="@item.ManufactoryID" class="EditManufactoryButton">Ändern</a>
                         </div>
                     </td>
                 </tr>

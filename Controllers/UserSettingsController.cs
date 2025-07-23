@@ -3,13 +3,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Sammlerplattform.Data;
-using Sammlerplattform.Models;
+using Sammlerplattform.Models.PostcardDatabase;
 using Sammlerplattform.Models.ProductPictureDatabase;
 using Sammlerplattform.Models.UserSettings;
-using Stripe;
+using Sammlerplattform.Services.EMail;
 using System.Linq.Dynamic.Core;
+using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Transactions;
 
@@ -27,46 +30,46 @@ namespace Sammlerplattform.Controllers
         private readonly DbIdentityContext _dbIdentityContext = dbIdentityContext;
         private readonly ILogger<AccountController> _logger = logger;
 
-        public async Task<IActionResult> Profile(string statusMessage, string subscription)
+        public IActionResult Profile(string statusMessage, string subscription)
         {
-            UserWithPhoto user = await (from u in _userManager.Users
-                                        join photo in _dbIdentityContext.UserPicture
-                                        on u.Id equals photo.UsingIdentityUsers_ID into gj
-                                        from subphoto in gj.DefaultIfEmpty()
-                                        where u.Id == _userManager.GetUserId(User)
-                                        select new UserWithPhoto { UsingIdentityUsers = u, UserPictured = subphoto.Photo }).FirstAsync();
+            UserWithPhoto? user = (from u in _userManager.Users
+                                   join photo in _dbIdentityContext.UserPicture
+                                   on u.Id equals photo.UsingIdentityUsers_ID into gj
+                                   from subphoto in gj.DefaultIfEmpty()
+                                   where u.Id == _userManager.GetUserId(User)
+                                   select new UserWithPhoto { UsingIdentityUsers = u, UserPictured = subphoto.Photo }).FirstOrDefault();
             if (user == null)
             {
                 return NotFound($"Unmöglich, Nutzer mit Id zu laden '{_userManager.GetUserId(User)}'.");
             }
 
-            List<IdentityUserClaim<string>> subItems = [.. (from c in _dbIdentityContext.UserClaims
+            List<IdentityUserClaim<string>> subItems = [.. from c in _dbIdentityContext.UserClaims
                                                         where c.UserId == user.UsingIdentityUsers.Id
-                                                        select c)];
+                                                        select c];
             List<string> subscribtionIds = [];
             double currentFee = 0;
             double SubscribedDiskspaceFee = 0;
 
             foreach (IdentityUserClaim<string>? item in subItems)
             {
-                if (item.ClaimType != null && item.ClaimValue != null)
-                {
-                    string subscriptionId = PaymentService.GetSubFromSubItem(item.ClaimValue, _logger);
-                    currentFee += PaymentService.GetCurrentInvoice(subscriptionId, item.ClaimValue, _logger);
+                //if (item.ClaimType != null && item.ClaimValue != null)
+                //{
+                //    string subscriptionId = PaymentService.GetSubFromSubItem(item.ClaimValue, _logger);
+                //    currentFee += PaymentService.GetCurrentInvoice(subscriptionId, item.ClaimValue, _logger);
 
-                    // Cause Databasespace is counted at end of the month
-                    if (item.ClaimType.Equals("SubscribedDiskspace"))
-                    {
-                        int countUnits = (from e in _dbIdentityContext.PostcardEntity
-                                          where e.UsingIdentityUsers_ID == user.UsingIdentityUsers.Id
-                                          select e).Count();
-                        if (countUnits > 0)
-                        {
-                            countUnits /= 500;
-                            SubscribedDiskspaceFee = countUnits + 5;
-                        }
-                    }
-                }
+                //    // Cause Databasespace is counted at end of the month
+                //    if (item.ClaimType.Equals("SubscribedDiskspace"))
+                //    {
+                //        int countUnits = (from e in _dbIdentityContext.PostcardEntity
+                //                          where e.UsingIdentityUsers_ID == user.UsingIdentityUsers.Id
+                //                          select e).Count();
+                //        if (countUnits > 0)
+                //        {
+                //            countUnits /= 500;
+                //            SubscribedDiskspaceFee = countUnits + 5;
+                //        }
+                //    }
+                //}
             }
             currentFee /= 100;
 
@@ -202,21 +205,21 @@ namespace Sammlerplattform.Controllers
             try
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
-                CustomerService service = new();
-                if (user.StripeCustomer_ID != null)
-                {
-                    try
-                    {
-                        _ = service.Delete(user.StripeCustomer_ID);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError("Abgebrochen mit Exception {ex}", ex);
-                    }
-                }
+                //CustomerService service = new();
+                //if (user.StripeCustomer_ID != null)
+                //{
+                //    try
+                //    {
+                //        _ = service.Delete(user.StripeCustomer_ID);
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        _logger.LogError("Abgebrochen mit Exception {ex}", ex);
+                //    }
+                //}
 
-                List<PostcardModel> CollectionUser = [.. (from u in _userManager.Users
-                                                  join e in _dbIdentityContext.PostcardEntity on u.Id equals e.UsingIdentityUsers_ID
+                List<PostcardModel> CollectionUser = [.. from u in _userManager.Users
+                                                  join e in _dbIdentityContext.PostcardEntity on u.Id equals e.UsingIdentityUsersID
                                                   join p in _dbIdentityContext.PostcardPotential on e.PostcardPotential_ID equals p.PostcardPotential_ID
                                                   join i in _dbIdentityContext.PostcardImprint on p.PostcardImprint_ID equals i.Image_ID into leftOuterImprint
                                                     from subImprint in leftOuterImprint.DefaultIfEmpty()
@@ -229,10 +232,10 @@ namespace Sammlerplattform.Controllers
                                                       UsingIdentityUser = u,
                                                       ProductPictureList = (from Scan in _dbIdentityContext.ProductPicture
                                                                           join pe in _dbIdentityContext.PostcardEntity
-                                                                          on Scan.PostcardEntity_ID equals pe.PostcardEntity_ID
+                                                                          on Scan.PostcardEntityID equals pe.PostcardEntity_ID
                                                                           where pe.PostcardEntity_ID == e.PostcardEntity_ID
                                                                           select Scan).ToList()
-                                                  })];
+                                                  }];
                 if (CollectionUser.Count > 0)
                 {
                     foreach (PostcardModel? item in CollectionUser)
@@ -241,13 +244,13 @@ namespace Sammlerplattform.Controllers
                         {
                             if (scan.Frontside)
                             {
-                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.ProductPicture_ID + "." + scan.FileExtension);
-                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.ProductPicture_ID + "." + scan.FileExtension);
-                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_ID + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.ProductPictureID + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.ProductPictureID + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPictureID + "." + scan.FileExtension);
                             }
                             else
                             {
-                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_ID + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPictureID + "." + scan.FileExtension);
                             }
                             _ = _dbIdentityContext.Remove(scan);
                             _ = await _dbIdentityContext.SaveChangesAsync();
@@ -349,6 +352,110 @@ namespace Sammlerplattform.Controllers
             }
 
             return RedirectToAction(nameof(Profile));
+        }
+
+        public async Task<IActionResult> ChangePassword(string statusMessage)
+        {
+            UsingIdentityUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unmöglich, Nutzer zu finden mit ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            ViewData["StatusMessage"] = statusMessage;
+
+            return View();
+        }
+
+        public async Task<IActionResult> ChangePasswordSubmit(ChangePasswordModel changePasswordModel)
+        {
+            string statusMessage = string.Empty;
+
+            UsingIdentityUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            if (changePasswordModel.OldPassword != null && changePasswordModel.NewPassword != null)
+            {
+                IdentityResult changePasswordResult = await _userManager.ChangePasswordAsync(user, changePasswordModel.OldPassword, changePasswordModel.NewPassword);
+                if (!changePasswordResult.Succeeded)
+                {
+                    foreach (IdentityError error in changePasswordResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                        statusMessage += error.Description;
+                        _logger.LogError("ChangePassword nicht erfolgreich mit Fehler {error.Description}", error.Description);
+                    }
+                    return RedirectToAction(nameof(ChangePassword), new { statusMessage });
+                }
+            }
+
+            await _signInManager.RefreshSignInAsync(user);
+
+            return RedirectToAction(nameof(ChangePassword), new { statusMessage = "Passwort erfolgreich geändert." });
+        }
+        public async Task<IActionResult> ChangeEMail(string statusMessage)
+        {
+            UsingIdentityUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unmöglich, Nutzer zu finden mit ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            string email = await _userManager.GetEmailAsync(user) ?? throw new NullReferenceException("email in LoadAsync");
+            ChangeEMailModel changeEMailModel = new()
+            {
+                Email = email,
+                IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user)
+            };
+
+            ViewData["StatusMessage"] = statusMessage;
+            ViewData["RequirePassword"] = await _userManager.HasPasswordAsync(user);
+            return View(changeEMailModel);
+        }
+
+        public async Task<IActionResult> ChangeEMailSubmit(ChangeEMailModel changeEMailModel)
+        {
+            UsingIdentityUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unmöglich, Nutzer zu finden mit ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            bool RequirePassword = await _userManager.HasPasswordAsync(user);
+            if (RequirePassword && changeEMailModel.Password != null)
+            {
+                if (!await _userManager.CheckPasswordAsync(user, changeEMailModel.Password))
+                {
+                    ModelState.AddModelError(string.Empty, "Falsches Passwort.");
+                    return RedirectToAction(nameof(Login));
+                }
+            }
+
+            string? email = await _userManager.GetEmailAsync(user);
+            if (changeEMailModel.NewEmail != email)
+            {
+                string userId = await _userManager.GetUserIdAsync(user);
+                string code = await _userManager.GenerateChangeEmailTokenAsync(user, changeEMailModel.NewEmail);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                string? callbackUrl = Url.Action(
+                    "ConfirmMailChange", "Account",
+                    new { userId, email = changeEMailModel.NewEmail, code },
+                    protocol: Request.Scheme);
+                if (callbackUrl != null)
+                {
+                    await emailSender.SendEmailAsync(
+                    changeEMailModel.NewEmail,
+                    "Bestätige deine E-Mail",
+                    $"Bitte bestätige deinen Account durch <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'> hier klicken</a>.");
+                }
+
+                return RedirectToAction(nameof(ChangeEMail), new { statusMessage = "Bestätungs-E-Mail wurde versandt. Bitte prüfe deinen Briefkasten." });
+            }
+
+            return RedirectToAction(nameof(ChangeEMail), new { statusMessage = "Deine E-Mail wurde nicht geändert." });
         }
     }
 }

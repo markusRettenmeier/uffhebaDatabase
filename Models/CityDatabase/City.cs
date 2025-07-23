@@ -1,6 +1,7 @@
 ﻿using Sammlerplattform.Models.BrickDatabase;
 using Sammlerplattform.Models.ManufactoryDatabase;
 using Sammlerplattform.Models.PersonDatabase;
+using Sammlerplattform.Models.PostcardDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,8 +11,8 @@ namespace Sammlerplattform.Models.CityDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public int City_ID { get; set; }
-        public ICollection<CityNOeconym> CityNOeconymICollection { get; set; } = [];
+        public int CityID { get; set; }
+        public List<CityNOeconym> CityNOeconymList { get; set; } = [];
         public List<PostcardPotential> PostcardPotentialList { get; set; } = [];
         public List<Manufactory> ManufactoryList { get; set; } = [];
 
@@ -20,16 +21,17 @@ namespace Sammlerplattform.Models.CityDatabase
         public string? Byname { get; set; }
 
         [Display(Name = "Namenszusatz (geografisch)")]
-        public int? Geography_ID { get; set; }
+        public int? GeographyID { get; set; }
         public Geography? Geography { get; set; }
-        public ICollection<Postalcode> PostalcodeICollection { get; set; } = [];
-        public ICollection<Person> PersonICollection { get; set; } = [];
+        public List<Postalcode> PostalcodeList { get; set; } = [];
+        public List<Person> PersonList { get; set; } = [];
 
         [Display(Name = "Ortsteil von")]
         [ForeignKey("ParentCity")]
-        public int? ParentCity_ID { get; set; }
+        public int? ParentCityID { get; set; }
         public City? ParentCity { get; set; }
-        public ICollection<City> ChildCity { get; set; } = [];
-        public ICollection<BrickEntity> BrickEntityICollection { get; set; } = [];
+        public List<City> ChildCity { get; set; } = [];
+        public List<BrickEntityNManufactoryNCity> BrickEntityNManufactoryNCityList { get; set; } = [];
+        public List<BrickEntityNCity> BrickEntityNCityList { get; set; } = [];
     }
 }

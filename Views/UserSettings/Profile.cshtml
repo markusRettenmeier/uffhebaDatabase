@@ -4,36 +4,46 @@
     ViewData["Title"] = "Benutzerprofil";
 }
 
+
+<div class="row">
+    <div class="col-md-6">
 <h3>@ViewData["Title"]</h3>
 <hr />
 
 <h5>Accountdetails</h5>
 
-<div class="form-floating">
+<label asp-for="UsingIdentityUsers.Email" class="form-label"></label>
+<div class="input-group mb-2">
+    <a type="button" asp-action="changeEMail" class="btn btn-primary">E-Mail ändern</a>
     <input asp-for="UsingIdentityUsers.Email" class="form-control" disabled />
-    <label asp-for="UsingIdentityUsers.Email" class="form-label"></label>
-    <span asp-validation-for="UsingIdentityUsers.Email" class="text-danger"></span>
 </div>
-<div class="btn-group mt-2 mb-3" role="group" aria-label="E-Mail oder Passwort ändern">
-    <a type="button" asp-action="changeEMail" asp-controller="Account" class="btn btn-primary">E-Mail ändern</a>
-    <a type="button" asp-action="ChangePassword" asp-controller="Account" class="btn btn-primary">Passwort ändern</a>
+
+<label class="form-label">Password</label>
+<div class="input-group mb-3">
+    <a type="button" asp-action="ChangePassword" class="btn btn-primary">Passwort ändern</a>
+        <input type="password" value="Password" class="form-control" disabled />
 </div>
 
 <form asp-action="ProfileChange">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="UsingIdentityUsers.Email" />
-    <div class="form-floating ">
-        <input asp-for="UsingIdentityUsers.UserName" class="form-control" />
-        <label asp-for="UsingIdentityUsers.UserName" class="form-label"></label>
-        <span asp-validation-for="UsingIdentityUsers.UserName" class="text-danger"></span>
+    <label asp-for="UsingIdentityUsers.UserName" class="form-label"></label>
+    <div class="input-group mb-2">
+        <button type="submit" class="btn btn-primary">Benutzername ändern</button>
+            <input asp-for="UsingIdentityUsers.UserName" class="form-control" />
     </div>
-    <button type="submit" class="btn btn-primary mt-2">Benutzername ändern</button>
+    <span asp-validation-for="UsingIdentityUsers.UserName" class="text-danger"></span>
 </form>
-<div class="mt-3">
-    Ihr Account beinhaltet persönliche Daten, welche Sie uns gaben. Hier wird Ihnen ermöglicht diese Daten zu herunterzuladen oder zu löschen.
+
+<hr />
+<div class="mb-3">
+    <p>
+        Ihr Account beinhaltet persönliche Daten, welche Sie uns gaben. Hier wird Ihnen ermöglicht diese Daten zu herunterzuladen oder zu löschen.
+        </p>
     <a asp-action="DownloadPersonalData" class="btn btn-primary">Accountdetails herunterladen</a>
 </div>
-<div class="mt-3 mb-5">
+<hr />
+<div class="mb-5">
     <p>
         <strong>Diese Daten zu löschen, wird für immer Ihren Account löschen, ohne Widerruf.</strong>
     </p>
@@ -45,3 +55,5 @@
 <p>Wählen Sie hier ihr Abonnement aus. Dies ermöglicht Ihnen den Speicherplatz oder/und das Analysetool zu nutzen.</p>
 <a class="btn btn-primary" asp-controller="Payment" asp-action="Checkout" asp-route-email="@Model.UsingIdentityUsers.Email">Abonnements verwalten</a>
 <p>Ihre derzeitige Beitragshöhe, falls Sie außerhalb der Probezeit sind. <h5>@ViewData["currentFee"]€</h5></p> *@
+</div>
+</div>

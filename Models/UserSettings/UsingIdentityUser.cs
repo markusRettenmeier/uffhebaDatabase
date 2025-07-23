@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Sammlerplattform.Models.BrickDatabase;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sammlerplattform.Models.UserSettings;
@@ -12,6 +13,6 @@ public class UsingIdentityUser : IdentityUser
     [Required]
     public override string? Email { get => base.Email; set => base.Email = value; }
 
-    public string? StripeCustomer_ID { get; set; }
+    public ICollection<BrickEntity> BrickEntityICollection { get; set; } = [];
 }
 

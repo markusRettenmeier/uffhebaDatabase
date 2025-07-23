@@ -1,5 +1,6 @@
 ﻿using Sammlerplattform.Models.BrickDatabase;
 using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Models.PostcardDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,7 +10,7 @@ namespace Sammlerplattform.Models.PersonDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public int Person_ID { get; set; }
+        public int PersonID { get; set; }
 
         public required string Name { get; set; }
 
@@ -30,15 +31,12 @@ namespace Sammlerplattform.Models.PersonDatabase
 
         [StringLength(30)]
         [Display(Name = "Signatur/Zeichen")]
-        public string? PersonSignature { get; set; }
+        public string? Signature { get; set; }
         //public ICollection<Image> ImageICollection { get; set; } = [];
-        public ICollection<BrickEntity> BrickEntityBrickmakerICollection { get; set; } = [];
-        public ICollection<BrickEntity> BrickEntityOwnerICollection { get; set; } = [];
-        public ICollection<PostcardEntity> PostcardEntityOwnerICollection { get; set; } = [];
         public ICollection<Profession> ProfessionICollection { get; set; } = [];
-
         public int? BirthYear { get; set; }
         public int? DeathYear { get; set; }
+        public List<BrickEntityNPerson> BrickEntityNPersonList { get; set; } = [];
     }
 }
 

@@ -2,22 +2,22 @@
 {
     public interface ICitySearchParameterModel
     {
-        ICollection<int> SearchCity_ID { get; set; }
-        ICollection<string> SearchOeconym { get; set; }
-        ICollection<string> SearchPostalcode { get; set; }
-        ICollection<string> SearchByname { get; set; }
-        ICollection<string> SearchGeography { get; set; }
-        ICollection<string> SearchParentCity { get; set; }
-        ICollection<int> SearchParentCity_ID { get; set; }
+        List<int> CityID { get; set; }
+        List<string> CityNOeconymList_Oeconym_OeconymName { get; set; }
+        List<string> PostalcodeList_PostalcodeNumber { get; set; }
+        List<string> Byname { get; set; }
+        List<string> Geography_GeographyName { get; set; }
+        List<string> ParentCity_CityNOeconymList_Oeconym_OeconymName { get; set; }
+        List<int> ParentCityID { get; set; }
     }
-    public class CitySearchParameterModel: ICitySearchParameterModel
+    public class CitySearchParameterModel : ICitySearchParameterModel
     {
-        public ICollection<int> SearchCity_ID { get; set; } = [];
-        public ICollection<string> SearchOeconym { get; set; } = [];
-        public ICollection<string> SearchPostalcode { get; set; } = [];
-        public ICollection<string> SearchByname { get; set; } = [];
-        public ICollection<string> SearchGeography { get; set; } = [];
-        public ICollection<string> SearchParentCity { get; set; } = [];
-        public ICollection<int> SearchParentCity_ID { get; set; } = [];
+        public List<int> CityID { get; set; } = [];
+        public List<string> CityNOeconymList_Oeconym_OeconymName { get; set; } = [];
+        public List<string> PostalcodeList_PostalcodeNumber { get; set; } = [];
+        public List<string> Byname { get; set; } = [];
+        public List<string> Geography_GeographyName { get; set; } = [];
+        public List<string> ParentCity_CityNOeconymList_Oeconym_OeconymName { get; set; } = [];
+        public List<int> ParentCityID { get; set; } = [];
     }
 }

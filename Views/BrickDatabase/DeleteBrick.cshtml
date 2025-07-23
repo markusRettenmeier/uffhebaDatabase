@@ -1,0 +1,239 @@
+﻿@using Sammlerplattform.Models.BrickDatabase
+@model Sammlerplattform.Models.BrickDatabase.BrickOperationParameterModel
+
+@{
+    ViewData["Title"] = "Gegenstand löschen";
+    Layout = "~/Views/Shared/_LayoutSettingsProduct.cshtml";
+}
+
+<h4>@ViewData["Title"]: @Model.BrickEntity.BrickEntityID</h4>
+<hr />
+
+<h3>Soll der Gegenstand wirklich gelöscht werden?</h3>
+<hr />
+<div>
+    <div id="container">
+        <div class="row">
+            @foreach (var picture in Model.ProductPictureList)
+            {
+                string picturePath = @"/images/Normal/" + picture.ProductPictureID + ".png";
+                <div class="col">
+                    <div class="card" style="width: 30rem;">
+                        <img src="@picturePath" class="card-img-top">
+                        <div class="card-body">
+                            <p class="card-text">@picture.Perspective</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Brickname.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Brickname.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.ReliefInt)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.ReliefEnum)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.KeywordInt)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.KeywordEnumDescription)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.FilingLocation)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.FilingLocation)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.Charge)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.Charge)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.Price)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.Price)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.Fake)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.Fake)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.MaterialInt)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.MaterialInt)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.Width)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.Width)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.Height)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.Height)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.Length)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.Length)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.ExactYear)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.ExactYear)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.StartYear)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.StartYear)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.EndYear)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.EndYear)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.IsApproximate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.IsApproximate)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.Zeit)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.Zeit)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.Era)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.Era.EraName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.Comment)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.Comment)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.TransferFromOwner)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.TransferFromOwner)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.ProductionSize)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.ProductionSize)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickEntity.ConditionInt)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickEntity.ConditionEnum)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ColorList)
+        </dt>
+        <dd class = "col-sm-10">
+            @foreach(var color in Model.ProductNColorVariantList)
+            {
+                @color.Color.Name 
+            }
+        </dd>
+        @for(int i = 0; i < Model.ManufactoryNCityList.Count; i++)
+        {
+            if(i == 0)
+            {
+                <dt class="col-sm-2">
+                    Hersteller
+                </dt>
+            } else
+            {
+                <dt class="col-sm-2">
+                </dt>
+            }
+            <dd class="col-sm-10">
+                @Model.ManufactoryNCityList[i].ManufactoryName @Model.ManufactoryNCityList[i].City
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ProcessOfManufacture)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ProcessOfManufacture.Mainprocess), 
+            @Html.DisplayFor(model => model.ProcessOfManufacture.ProcessOfManufactureName), 
+            @Html.DisplayFor(model => model.ProcessOfManufacture.Technique) 
+        </dd>
+        @for (int i = 0; i < Model.BrickEntityNPersonList.Count; i++)
+        {
+            if (i == 0)
+            {
+                <dt class="col-sm-2">
+                    Personen
+                </dt>
+            }
+            else
+            {
+                <dt class="col-sm-2">
+                </dt>
+            }
+            <dd class="col-sm-10">
+                @Model.BrickEntityNPersonList[i].Relationship: @Model.BrickEntityNPersonList[i].Person?.Name
+            </dd>
+        }
+        @for(int i = 0; i < Model.BrickEntityNCityList.Count; i++)
+        {
+            string? oeconym = Model.BrickEntityNCityList[i].City?.CityNOeconymList.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
+            string postalcode = string.Empty;
+            if (Model.BrickEntityNCityList[i].City?.PostalcodeList != null)
+            {
+                foreach (var postalcode1 in Model.BrickEntityNCityList[i].City.PostalcodeList)
+                {
+                    postalcode += postalcode1.PostalcodeNumber + ", ";
+                }
+            }
+            if(i == 0)
+            {
+                <dt class="col-sm-2">
+                    Orte
+                </dt>
+            } else
+            {
+                <dt class="col-sm-2">
+                </dt>
+            }
+            <dd class="col-sm-10">
+                @oeconym , @postalcode
+            </dd>
+        }
+    </dl>
+    
+    <form asp-action="DeleteBrickSubmit">
+        <input type="hidden" asp-for="BrickEntity.BrickEntityID" />
+        <button class="btn btn-danger">Entfernen</button>
+    </form>
+</div>

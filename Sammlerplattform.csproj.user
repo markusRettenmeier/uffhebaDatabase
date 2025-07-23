@@ -14,8 +14,8 @@
     <WebStackScaffolding_IsPartialViewSelected>False</WebStackScaffolding_IsPartialViewSelected>
     <WebStackScaffolding_IsReferencingScriptLibrariesSelected>False</WebStackScaffolding_IsReferencingScriptLibrariesSelected>
     <WebStackScaffolding_DbContextTypeFullName>Sammlerplattform.Data.DbIdentityContext</WebStackScaffolding_DbContextTypeFullName>
-    <NameOfLastUsedPublishProfile>C:\Users\User\Documents\plattformcode\Properties\PublishProfiles\FTPProfile2.pubxml</NameOfLastUsedPublishProfile>
-    <WebStackScaffolding_LayoutPageFile>_LayoutSettings.cshtml</WebStackScaffolding_LayoutPageFile>
+    <NameOfLastUsedPublishProfile>FTPProfile2</NameOfLastUsedPublishProfile>
+    <WebStackScaffolding_LayoutPageFile>_Layout</WebStackScaffolding_LayoutPageFile>
     <ActiveDebugProfile>Sammlerplattform</ActiveDebugProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

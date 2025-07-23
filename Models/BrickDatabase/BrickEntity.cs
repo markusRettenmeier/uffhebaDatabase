@@ -1,11 +1,9 @@
-﻿using Sammlerplattform.Models.CityDatabase;
-using Sammlerplattform.Models.ManufactoryDatabase;
+﻿using Sammlerplattform.Models.ProcessOfManufactureDatabase;
 using Sammlerplattform.Models.ProductDatabase;
-using Sammlerplattform.Models.PersonDatabase;
+using Sammlerplattform.Services.GenericClasses;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Sammlerplattform.Controllers.GenericClasses;
 
 namespace Sammlerplattform.Models.BrickDatabase
 {
@@ -13,47 +11,27 @@ namespace Sammlerplattform.Models.BrickDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public int BrickEntity_ID { get; set; }
-        public int? BrickPotential_ID { get; set; }
+        public int BrickEntityID { get; set; }
+        public int? BrickPotentialID { get; set; }
         public BrickPotential? BrickPotential { get; set; }
-        public int? Brickworks_ID { get; set; }
-        public Manufactory? Brickworks { get; set; }
-        public int? CityOfBrickworks_ID { get; set; }
-        public City? CityOfBrickworks { get; set; }
-        public int? Brickmaker_ID { get; set; }
-        public Person? Brickmaker { get; set; }
-
-        [Display(Name = "Relief")]
+        public List<BrickEntityNManufactoryNCity> BrickEntityNManufactoryNCityList { get; set; } = [];
+        public List<BrickEntityNPerson> BrickEntityNPersonList { get; set; } = [];
+        public List<BrickEntityNCity> BrickEntityNCityList { get; set; } = [];
         [NotMapped]
         public ReliefType ReliefEnum
         {
-            get
-            {
-                return (ReliefType)ReliefInt;
-            }
-            set
-            {
-                ReliefInt = (int)value;
-            }
+            get => (ReliefType)ReliefInt; set => ReliefInt = (int)value;
         }
+        [Display(Name = "Relief")]
         public int ReliefInt { get; set; }
 
-        [Display(Name = "Stichworte")]
-        public int KeywordInt { get; set; }
-
-        [Display(Name = "Stichworte")]
-        [NotMapped]
-        public BrickKeywordType BrickKeywordEnum
-        {
-            get
-            {
-                return (BrickKeywordType)KeywordInt;
-            }
-            set
-            {
-                KeywordInt = (int)value;
-            }
-        }
+        //[Display(Name = "Stichworte")]
+        //public int KeywordInt { get; set; }
+        //[NotMapped]
+        //public BrickKeywordType BrickKeywordEnum
+        //{
+        //    get => (BrickKeywordType)KeywordInt; set => KeywordInt = (int)value;
+        //}
 
         [NotMapped]
         public string KeywordEnumDescription
@@ -61,13 +39,15 @@ namespace Sammlerplattform.Models.BrickDatabase
             get
             {
                 Type enumType = typeof(BrickKeywordType);
-                var descriptions = new List<string>();
+                List<string> descriptions = [];
 
-                foreach (BrickKeywordType usage in Enum.GetValues(typeof(BrickKeywordType)))
+                foreach (BrickKeywordType usage in Enum.GetValues<BrickKeywordType>())
                 {
                     // Skip the 'NoInformation' flag if it is not set
                     if (usage == BrickKeywordType.NoInformation && !BrickKeywordEnum.HasFlag(BrickKeywordType.NoInformation))
+                    {
                         continue;
+                    }
 
                     if (BrickKeywordEnum.HasFlag(usage) && usage != BrickKeywordType.NoInformation)
                     {
@@ -78,7 +58,7 @@ namespace Sammlerplattform.Models.BrickDatabase
                         if (enumValueMemberInfo != null)
                         {
                             // Get the Description attribute if it exists
-                            var descriptionAttribute = enumValueMemberInfo
+                            DescriptionAttribute? descriptionAttribute = enumValueMemberInfo
                                 .GetCustomAttributes(typeof(DescriptionAttribute), false)
                                 .FirstOrDefault() as DescriptionAttribute;
 

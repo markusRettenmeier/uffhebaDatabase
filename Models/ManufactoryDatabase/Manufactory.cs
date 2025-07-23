@@ -9,7 +9,7 @@ namespace Sammlerplattform.Models.ManufactoryDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public int Manufactory_ID { get; set; }
+        public int ManufactoryID { get; set; }
 
         [Required(ErrorMessage = "Bitte befüllen.")]
         [StringLength(100)]
@@ -17,12 +17,12 @@ namespace Sammlerplattform.Models.ManufactoryDatabase
         public required string ManufactoryName { get; set; }
 
         [Display(Name = "Standorte")]
-        public ICollection<City> CityICollection { get; set; } = [];
+        public List<City> CityList { get; set; } = [];
 
         public int? ProductionFacility_ID { get; set; }
 
         [DisplayFormat(NullDisplayText = "Nicht angegeben")]
         public ProductionFacility? ProductionFacility { get; set; }
-        public ICollection<BrickEntity> BrickEntityICollection { get; set; } = [];
+        public List<BrickEntityNManufactoryNCity> BrickEntityNManufactoryNCityList { get; set; } = [];
     }
 }

@@ -21,3 +21,4 @@ jsonResult.json
 *.json
 wwwroot/lib/chosen/
 wwwroot/FormattedImages/
+wwwroot/lib/

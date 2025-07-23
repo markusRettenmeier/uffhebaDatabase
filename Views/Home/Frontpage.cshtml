@@ -1,31 +1,12 @@
-﻿@model List<Sammlerplattform.Models.UserSettings.UserWithPhoto>
+﻿@model IEnumerable<Sammlerplattform.Models.BrickDatabase.BrickOperationParameterModel>
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Startseite";
 }
 
-<h4>Über diese Plattform</h4>
-<hr />
-
-@* <p id="pOfCanvas" style="display: none">Leinwand wird nur gezeigt, wenn ganz nach oben gescrollt wurde. Sonst verschiebt sich die Anzeige</p>
-<div id="divOfCanvas" style="border-style: solid; border-width: thin; border-color: black; border-radius: 5px; width: 720px">
-    <canvas id="myCanvas" width="700" height="350" style="background: lightgrey; margin: 5px"></canvas>
-    <div>
-        <button class="btn btn-primary" id="clearCanvas" onclick="clearCanvas()" style="margin: 5px">Leinwand leeren</button>
-    </div>
-    <div id="AppendTextPosition"></div>
-</div> *@
-<p>Hallo Sammler,</p>
-<p>
-    diese Plattform soll dazu dienen Ihre Sammlung zu verwalten. Derzeit werden nur Ansichtskarten abgedeckt.
-    Daher machen Sie mit und melden Sie sich zu den folgenden oder mehr Gedanken!
-    <ul>
-        <li>Welche Merkmale sind bei Briefmarken und Stempeln wichtig?</li>
-        <li>Welche Merkmale interessieren Sie?</li>
-        <li>Sollen mehr oder andere Funktionen hinzugefügt werden?</li>
-        <li>...</li>
-    </ul> 
-</p>
-<p>Das Analysetool wird derzeit noch entwickelt und befindet sich erst in seinen Grundzügen. Wir arbeiten stetig an seiner Verbesserung.</p>
-<p>Wenden Sie sich bei allen Anliegen bitte an <strong>service@uffheba.software</strong></p>
-<hr />
+<div id="mySidebar" class="zIndex_5 sidenav-search box-shadow">
+    <form method="post" asp-controller="Home" asp-action="Frontpage">
+        <partial name="_SearchByColumn.cshtml" />
+    </form>
+</div>
+<partial name="_KurzansichtDaten.cshtml" />

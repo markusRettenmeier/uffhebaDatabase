@@ -33,7 +33,7 @@
                 @Html.DisplayNameFor(model => model.Geography.GeographyName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.City.ParentCity_ID)
+                @Html.DisplayNameFor(model => model.City.ParentCityID)
             </th>
             <th>
                 Aktionen
@@ -46,11 +46,11 @@
             {
                 string postalcodeCollection = string.Empty;
                 string oeconymCollection = string.Empty;
-                @foreach (var postalcode in item.City.PostalcodeICollection)
+                @foreach (var postalcode in item.City.PostalcodeList)
                 {
                     postalcodeCollection += postalcode.PostalcodeNumber + ", ";
                 }
-                foreach(var cno in item.City.CityNOeconymICollection)
+                foreach(var cno in item.City.CityNOeconymList)
                 {
                     if(cno.CurrentName)
                     {
@@ -80,14 +80,14 @@
                     <td>
                         @if (item.City.ParentCity != null)
                         {
-                            var cnoParent = item.City.ParentCity.CityNOeconymICollection;
+                            var cnoParent = item.City.ParentCity.CityNOeconymList;
                             var oeconymParent = cnoParent.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
                             @oeconymParent
                         }
                     </td>
                     <td>
                         <div>
-                            <a class="EditCityButton" asp-action="EditCity" asp-controller="CityDatabase" asp-route-id="@item.City.City_ID">Ändern</a>
+                            <a class="EditCityButton" asp-action="EditCity" asp-controller="CityDatabase" asp-route-id="@item.City.CityID">Ändern</a>
                         </div>
                     </td>
                 </tr>

@@ -13,7 +13,7 @@
 <hr />
 <form asp-action="EditCitySubmit" asp-controller="CityDatabase">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input asp-for="City.City_ID" type="hidden" />
+    <input asp-for="City.CityID" type="hidden" />
     <div id="appendConcludedLists"></div>
     <input type="hidden" class="postalcodeNumberList" name="PostalcodeNumberList" />
     <div class="input-group pb-1 postalcodeOriginalCreateCity">
@@ -149,8 +149,8 @@
     </div>
     <div class="form-group">
         <div class="row">
-            <label asp-for="City.ParentCity_ID" class="control-label"></label>
-            <input asp-for="City.ParentCity_ID" id="parentCityInput" type="hidden" />
+            <label asp-for="City.ParentCityID" class="control-label"></label>
+            <input asp-for="City.ParentCityID" id="parentCityInput" type="hidden" />
             <table class="table" id="cityTable">
                 <thead>
                     <tr>
@@ -167,14 +167,14 @@
                         @if (Model.City.ParentCity != null)
                         {
                             string postalcodeCollection = string.Empty;
-                            @foreach (var postalcode in Model.City.PostalcodeICollection)
+                            @foreach (var postalcode in Model.City.PostalcodeList)
                             {
                                 postalcodeCollection += postalcode.PostalcodeNumber + ", ";
                             }
-                            var cnoParent = Model.City.ParentCity.CityNOeconymICollection;
+                            var cnoParent = Model.City.ParentCity.CityNOeconymList;
                             var oeconymParent = cnoParent.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
 
-                            <td scope="col" id="city_ID">@Model.City.ParentCity.City_ID</td>
+                            <td scope="col" id="city_ID">@Model.City.ParentCity.CityID</td>
                             <td scope="col" id="city">@oeconymParent</td>
                             <td scope="col" id="postalcode">@postalcodeCollection</td>
                             <td scope="col" id="byname">@Model.City.ParentCity.Byname</td>

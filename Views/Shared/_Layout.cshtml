@@ -1,15 +1,16 @@
 ﻿<!DOCTYPE html>
-<html lang="de-de">
+<html lang="de">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Startseiten der Sammlerplattform mit detailllierter Pflege und Suche von Eigenschaften rund um Post- und Ansichtskarten" />
     <meta name="keywords" content="Ansichtskarten, Postkarten, Sammlung, Verwaltung, detaillierte Suche, datenbankgetrieben" />
     <title>@ViewData["Title"] - SammlerDB</title>
-    <link rel="preload" as="font">
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" media="print" onload="this.media='all'">
-    <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/fancybox/fancybox.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     <header>
@@ -25,7 +26,14 @@
                             <a class="nav-link" id="login" asp-controller="Account" asp-action="Login">Login/Registrierung</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Pricing">Preisbildung</a>
+                            <button id="tooltip-SucheOpen" class="btn btn-outline-dark" data-toggle="tooltip"
+                                    data-placement="under" title="Öffne Suchleiste" type="button" onclick="openNav()">
+                                <svg viewBox="0 0 1024 1024">
+                                    <path class="path1"
+                                          d="M848.471 928l-263.059-263.059c-48.941 36.706-110.118 55.059-177.412 55.059-171.294 0-312-140.706-312-312s140.706-312 312-312c171.294 0 312 140.706 312 312 0 67.294-24.471 128.471-55.059 177.412l263.059 263.059-79.529 79.529zM189.623 408.078c0 121.364 97.091 218.455 218.455 218.455s218.455-97.091 218.455-218.455c0-121.364-103.159-218.455-218.455-218.455-121.364 0-218.455 97.091-218.455 218.455z">
+                                    </path>
+                                </svg>
+                            </button>
                         </li>
                     </ul>
                 </div>
@@ -33,7 +41,7 @@
         </nav>
     </header>
 
-    <div class="container pt-2 pb-3">
+    <div class="container pb-3">
         <partial name="_CookieConsentPartial" />
         <partial name="_StatusMessage" for="@ViewData["StatusMessage"]" />
         <main role="main">
@@ -49,25 +57,24 @@
             <li class="nav-item">
                 <a class="nav-link" asp-controller="Home" asp-action="PrivacyImprint">Datenschutz & Impressum</a>
             </li>
-            @* <li class="nav-item">
-                <a class="nav-link" asp-controller="Home" asp-action="TermsAndConditions">AGB</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" asp-controller="Home" asp-action="Disclaimer">Widerrufsrecht</a>
-            </li> *@
             <li class="nav-item">
                 <a class="nav-link" asp-controller="Home" asp-action="ReferenceList">Referenzliste</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" asp-controller="Home" asp-action="Documentation">Dokumentation</a>
             </li>
+            <li>
+                <a class="nav-link" href="https://bitbucket.org/mark_da_rat/plattformcode/src/master/">Sourcecode</a>
+            </li>
         </ul>
     </footer>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery/jQuery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/fancybox/fancybox.umd.js"></script>
+    <script src="~/js/fancybox-init.js" asp-append-version="true"></script>
+    <script src="~/js/searchByColumn/SearchByColumn.min.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

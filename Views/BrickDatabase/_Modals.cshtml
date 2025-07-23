@@ -1,0 +1,155 @@
+﻿@using Sammlerplattform.Services.GenericClasses
+@model Sammlerplattform.Models.BrickDatabase.BrickOperationParameterModel
+@using Sammlerplattform.Models.BrickDatabase
+@using Sammlerplattform.Models.ProductPictureDatabase
+
+<div class="modal fade" id="IsBricknameExistingModal" tabindex="-1" aria-labelledby="IsBricknameExistingModal" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="BricknameModalLabel">Wähle den Ziegelnamen</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ui-front">
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control InputBricknameSearch" placeholder="Ziegelname" aria-label="Ziegelname" />
+                            <div class="form-group">
+                                <select class="form-select" id="SelectUsage">
+                                    <option value="">Wozu verwendet?</option>
+                                    @foreach (BrickUsageType usageValue in Enum.GetValues(typeof(BrickUsageType)))
+                                    {
+                                        <option value="@((int)usageValue)">@usageValue.GetDescription()</option>
+                                    }
+                                </select>
+                            </div>
+                            <button class="btn btn-primary ExistingBricknameSearchSubmit" type="button">Suchen</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table" id="bricknameSearchResultTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">@Html.DisplayNameFor(x => x.BrickPotential.BrickPotentialID)</th>
+                            <th scope="col">@Html.DisplayNameFor(x => x.Brickname.Name)</th>
+                            <th scope="col">@Html.DisplayNameFor(x => x.BrickPotential.UsageEnum)</th>
+                            <th scope="col">Aktionen</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="processOfManufactureModal" tabindex="-1" aria-labelledby="processOfManufactureModal" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="processOfManufactureModalLabel">Wähle den Ziegelnamen</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ui-front">
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="inputProcessOfManufactureSearch" placeholder="Herstellungsprozess" aria-label="Herstellungsprozess" />
+                            <button class="btn btn-primary processOfManufactureSearchSubmit" type="button">Suchen</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table" id="processOfManufactureSearchResultTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">@Html.DisplayNameFor(x => x.BrickEntity.ProcessOfManufactureID)</th>
+                            <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Mainprocess)</th>
+                            <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.ProcessOfManufactureName)</th>
+                            <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Technique)</th>
+                            <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Description)</th>
+                            <th scope="col">Aktionen</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="EraModal" tabindex="-1" aria-labelledby="EraModal" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="EraModalLabel">Wähle deie Ärar</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ui-front">
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="inputEraNameSearch" placeholder="Ära" aria-label="Ära" />
+                            <button class="btn btn-primary eraSearchSubmit" type="button">Suchen</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table" id="eraSearchResultTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">@Html.DisplayNameFor(x => x.Era.EraID)</th>
+                            <th scope="col">@Html.DisplayNameFor(x => x.Era.EraName)</th>
+                            <th scope="col">Aktionen</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="IsPersonExistingModal" tabindex="-1" aria-labelledby="IsPersonExistingModal" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="PersonModalLabel">Wähle die Person</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ui-front">
+                <div class="row">
+                    <div class="col-sm-12 col-sm-offset-12">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="inputPersonNameSearch" placeholder="Name" aria-label="Name der Person">
+                            <input type="text" class="form-control" id="inputPersonSignatureSearch" placeholder="Signatur" aria-label="Zeichen">
+                            <input type="text" class="form-control" id="inputPersonPseudonymSearch" placeholder="Pseudonym" aria-label="Pseudonym">
+                            <button class="btn btn-primary ExistingPersonSearchSubmit" type="button">Suchen</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table" id="personSearchResultTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">@Html.DisplayNameFor(x => x.Person.PersonID)</th>
+                            <th scope="col">@Html.DisplayNameFor(x => x.Person.Name)</th>
+                            <th scope="col">@Html.DisplayNameFor(x => x.Person.Signature)</th>
+                            <th scope="col">@Html.DisplayNameFor(x => x.Person.Pseudonym)</th>
+                            <th scope="col">Aktionen</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="~/Views/CityDatabase/_SearchForCity.cshtml" />

@@ -9,7 +9,7 @@ namespace Sammlerplattform.Models.PersonDatabase
         public List<int> CityIDList { get; set; } = [];
         public Prize Prize { get; set; } = new() { Name = string.Empty };
         public List<string> PrizeList { get; set; } = [];
-        public Profession Profession { get; set; } = new() { Name= string.Empty };
+        public Profession Profession { get; set; } = new() { Name = string.Empty };
         public List<string> ProfessionList { get; set; } = [];
     }
 }

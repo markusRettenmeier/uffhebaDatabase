@@ -6,8 +6,8 @@ namespace Sammlerplattform.Services
     {
         public string GetUserId()
         {
-            var user = httpContextAccessor.HttpContext?.User;
-            var userId = user?.FindFirstValue(ClaimTypes.NameIdentifier);
+            ClaimsPrincipal? user = httpContextAccessor.HttpContext?.User;
+            string? userId = user?.FindFirstValue(ClaimTypes.NameIdentifier);
 
             return userId ?? string.Empty;
         }

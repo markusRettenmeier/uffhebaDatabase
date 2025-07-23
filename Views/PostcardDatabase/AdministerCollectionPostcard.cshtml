@@ -1,5 +1,6 @@
-﻿@model IEnumerable<Sammlerplattform.Models.PostcardModel>
+﻿@model IEnumerable<PostcardModel>
 @using Microsoft.AspNetCore.Authorization
+@using Sammlerplattform.Models.PostcardDatabase
 @inject IAuthorizationService AuthorizationService
 @{
     ViewData["Title"] = "Postkartenverwaltung";
@@ -42,7 +43,7 @@
     <tbody>
         @foreach (var item in Model)
         {
-            var image = @"/images/Thumbnail/" + item.ProductScan.ProductPicture_ID + "." + item.ProductScan.FileExtension;
+            var image = @"/images/Thumbnail/" + item.ProductScan.ProductPictureID + "." + item.ProductScan.FileExtension;
             <tr>
                 <td>
                     <img src="@image" width="240" height="153" alt="" id="simplePic_@count" class="IndexMobile-Picture" />
@@ -56,7 +57,7 @@
                         <ul>
                         @foreach (var city in item.PostcardPotential.CityList)
                         {
-                            @foreach(var cno in city.CityNOeconymICollection){
+                            @foreach(var cno in city.CityNOeconymList){
                                 <li>@Html.DisplayFor(modelItem => cno.Oeconym.OeconymName)</li>
                             }
                         }

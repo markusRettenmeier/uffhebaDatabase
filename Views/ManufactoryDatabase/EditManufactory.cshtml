@@ -13,7 +13,7 @@
 <form asp-action="EditManufactorySubmit" asp-controller="ManufactoryDatabase">
     <div id="appendConcludedLists" style="display:none"></div>
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input asp-for="Manufactory.Manufactory_ID" type="hidden" />
+    <input asp-for="Manufactory.ManufactoryID" type="hidden" />
     <div class="form-group">
         <label asp-for="Manufactory.ManufactoryName" class="control-label"></label>*
         <input asp-for="Manufactory.ManufactoryName" class="form-control storeInput" required maxlength="100" />
@@ -31,13 +31,13 @@
             </tr>
         </thead>
         <tbody>
-            @foreach(var city in Model.Manufactory.CityICollection)
+            @foreach(var city in Model.Manufactory.CityList)
             {
                 int count = 0;
                 <tr id="trCity_@count">
-                    <td scope="col" class="InputPostcardCityID">@city.City_ID</td>
+                    <td scope="col" class="InputPostcardCityID">@city.CityID</td>
                     <td scope="col">
-                        @foreach (var cno in city.CityNOeconymICollection)
+                        @foreach (var cno in city.CityNOeconymList)
                         {
                             if (cno.CurrentName)
                             {
@@ -51,7 +51,7 @@
                         }
                     </td>
                     <td scope="col">
-                        @foreach (var postalcode in city.PostalcodeICollection)
+                        @foreach (var postalcode in city.PostalcodeList)
                         {
                             @postalcode.PostalcodeNumber
                             @separator

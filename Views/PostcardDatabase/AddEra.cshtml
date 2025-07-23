@@ -16,9 +16,9 @@
         <form asp-action="AddEraSubmit" asp-controller="PostcardDatabase" asp-route-source="@backToList" asp-route-sourceId="@sourceId">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="EraLong" class="control-label"></label>*
-                <input asp-for="EraLong" class="form-control" maxlength="50" required/>
-                <span asp-validation-for="EraLong" class="text-danger"></span>
+                <label asp-for="EraName" class="control-label"></label>*
+                <input asp-for="EraName" class="form-control" maxlength="50" required/>
+                <span asp-validation-for="EraName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="EraShort" class="control-label"></label>

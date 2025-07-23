@@ -5,87 +5,47 @@ using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models.BrickDatabase;
 using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.ManufactoryDatabase;
 using Sammlerplattform.Models.PersonDatabase;
+using Sammlerplattform.Models.ProcessOfManufactureDatabase;
+using Sammlerplattform.Services.Processes;
+using Sammlerplattform.Services.Processes.CityProcesses;
+using Sammlerplattform.Services.UnitOfWork;
 
 namespace Sammlerplattform.Controllers
 {
     [AllowAnonymous]
     [Route("api/collections")]
-    public class RestController(DbIdentityContext context, IProcessCity processCity) : Controller
+    public class RestController(DbIdentityContext context, 
+        IProcessCity processCity, 
+        IProcessManufactory processManufactory, 
+        IProcessPerson processPerson,
+        IProcessEra processEra,
+        IProcessProcessOfManufacture processProcessOfManufacture,
+        IUnitOfWork unitOfWork) : Controller
     {
         private readonly DbIdentityContext _dbIdentityContext = context;
 
-        [HttpGet("autocompleteOeconym")]
-        public IActionResult AutoCompleteCity(string term)
-        {
-            List<string> Citys = [.. (from t in _dbIdentityContext.Oeconym where t.OeconymName.Contains(term) select t.OeconymName)];
-            return Ok(Citys.Distinct());
-        }
-        [HttpGet("autocompleteCityID")]
-        public IActionResult AutoCompleteCityID(string term)
-        {
-            List<int> Citys = [.. (from t in _dbIdentityContext.City.Include(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym) where t.CityNOeconymICollection.Any(x => x.Oeconym.OeconymName.Equals(term)) select t.City_ID)];
-            return Ok(Citys);
-        }
-        [HttpGet("autocompleteGeographyName")]
-        public IActionResult AutoCompleteGeographyName(string term)
-        {
-            List<string> selectGeographyName = [.. (from l in _dbIdentityContext.Geography where l.GeographyName != null && l.GeographyName.Contains(term) select l.GeographyName)];
-            return Ok(selectGeographyName.Distinct());
-        }
         [HttpGet("autocompleteGeographyID")]
         public IActionResult AutoCompleteGeographyID(string term)
         {
             int selectGeographyId = (from l in _dbIdentityContext.Geography where l.GeographyName != null && l.GeographyName.Equals(term) select l.Geography_ID).FirstOrDefault();
             return Ok(selectGeographyId);
         }
-        [HttpGet("autocompleteEra")]
-        public IActionResult AutoCompleteEra(string term)
-        {
-            List<string> eras = [.. (from p in _dbIdentityContext.Era where p.EraLong != null && p.EraLong.Contains(term) select p.EraLong)];
-            return Ok(eras);
-        }
         [HttpGet("autocompleteEraID")]
         public IActionResult AutoCompleteEraID(string term)
         {
-            List<int> erasID = [.. (from p in _dbIdentityContext.Era where p.EraLong != null && p.EraLong.Equals(term) select p.Era_ID)];
+            List<int> erasID = [.. (from p in _dbIdentityContext.Era where p.EraName != null && p.EraName.Equals(term) select p.EraID)];
             return Ok(erasID);
-        }
-
-        [HttpGet("autocompleteManufactory")]
-        public IActionResult AutoCompleteManufactory(string term)
-        {
-            List<string> Manufactorys = [.. (from p in _dbIdentityContext.Manufactory where p.ManufactoryName != null && p.ManufactoryName.Contains(term) select p.ManufactoryName)];
-            return Ok(Manufactorys);
         }
         [HttpGet("autocompleteManufactoryID")]
         public IActionResult AutoCompleteManufactoryID(string term)
         {
             int ManufactoryIDs = (from p in _dbIdentityContext.Manufactory
                                   where p.ManufactoryName != null && p.ManufactoryName.Equals(term)
-                                  select p.Manufactory_ID).FirstOrDefault();
+                                  select p.ManufactoryID).FirstOrDefault();
             return Ok(ManufactoryIDs);
-        }
-
-        [HttpGet("autocompleteCityOfManufactory")]
-        public IActionResult AutocompleteCityOfManufactory(int term)
-        {
-            List<City> Cities = [.. (from c in _dbIdentityContext.City.Include(m => m.ManufactoryList)
-                            .Include(x => x.Geography)
-                            .Include(x => x.CityNOeconymICollection.Where(y => y.CurrentName)).ThenInclude(x => x.Oeconym)
-                                 where c.ManufactoryList.Any(c => c.Manufactory_ID.Equals(term))
-                                 select c)];
-            return Ok(Cities);
-        }
-
-        [HttpGet("autocompleteProductionFacility")]
-        public IActionResult AutoCompleteProductionFacility(string term)
-        {
-            List<string> productionFacilityList = [.. (from p in _dbIdentityContext.ProductionFacility
-                                                   where p.ProductionFacilityName.Contains(term)
-                                                   select p.ProductionFacilityName)];
-            return Ok(productionFacilityList);
         }
         [HttpGet("autocompleteProductionFacilityID")]
         public IActionResult AutoCompleteProductionFacilityID(string term)
@@ -97,11 +57,12 @@ namespace Sammlerplattform.Controllers
         }
 
         [HttpGet("listCities")]
-        public IActionResult ListCities(string term)
+        public IActionResult ListCities(string? term)
         {
-            CityOperationParameterModel model = new();
-            model.OeconymList.Add(term + "§§");
-            List<City> CityWthItsPostalcodeAndGeography = processCity.GetCityWithPredicates(processCity.CityParametersOperationToSearch(model)).ToList();
+            CitySearchParameterModel model = new();
+            if(!string.IsNullOrEmpty(term))
+                model.CityNOeconymList_Oeconym_OeconymName.Add(term);
+            List<City> CityWthItsPostalcodeAndGeography = [.. processCity.GetCityOPMWithPredicates(model).Select(c => c.City)];
 
             return Ok(CityWthItsPostalcodeAndGeography);
         }
@@ -119,7 +80,7 @@ namespace Sammlerplattform.Controllers
             }
             if (!string.IsNullOrEmpty(signature))
             {
-                predicate = predicate.And(x => x.PersonSignature != null && x.PersonSignature == signature);
+                predicate = predicate.And(x => x.Signature != null && x.Signature == signature);
             }
 
             if (predicate.IsStarted)
@@ -131,27 +92,102 @@ namespace Sammlerplattform.Controllers
             return Ok(manufacturerList);
         }
 
-        [HttpGet("listManufactorys")]
-        public IActionResult ListManufactorys(string manufactory, string productionFacility, string oeconym)
+        [HttpGet("listPersons")]
+        public IActionResult ListPersons(string? name, string? signature, string? pseudonym)
         {
-            ExpressionStarter<Manufactory> predicate = PredicateBuilder.New<Manufactory>();
-            IQueryable<Manufactory> manufactoryIQueryable = from m in _dbIdentityContext.Manufactory.Include(x => x.CityICollection).ThenInclude(x => x.CityNOeconymICollection.Where(cno => cno.CurrentName)).ThenInclude(x => x.Oeconym)
-                                                                                                   .Include(x => x.ProductionFacility)
-                                                           where m.ManufactoryName.Contains(manufactory)
-                                                           && m.ProductionFacility != null && m.ProductionFacility.ProductionFacilityName == productionFacility
-                                                           select m;
-            if (!string.IsNullOrEmpty(oeconym))
-            {
-                predicate = predicate.And(x => x.CityICollection.Any(c => c.CityNOeconymICollection.Any(o => o.Oeconym.Equals(oeconym))));
-            }
-            if (predicate.IsStarted)
-            {
-                manufactoryIQueryable = manufactoryIQueryable.Where(predicate);
-            }
-            var manufactoryList = manufactoryIQueryable.ToList();
+            PersonSearchParameterModel personSearch = new();
+            if(name != null)
+                personSearch.Name.Add(name);
+            if(signature != null)
+                personSearch.Signature.Add(signature);
+            if(pseudonym != null)
+                personSearch.Pseudonym.Add(pseudonym);
 
+            List<PersonOperationParameterModel> personList = processPerson.GetWithPredicates(personSearch);
+            List<Person> personList2 = [.. personList.Select(x => x.Person)];
+
+            return Ok(personList2);
+        }
+
+        [HttpGet("listEras")]
+        public IActionResult ListEras(string? name)
+        {
+            EraSearchParameterModel eraSearchParameter = new();
+            if(name != null)
+                eraSearchParameter.EraName.Add(name);
+
+            List<Era> eraList = [.. processEra.GetWithPredicates(eraSearchParameter)];
+
+            return Ok(eraList);
+        }
+
+        [HttpPost("listManufactorys")]
+        public IActionResult ListManufactorys([FromBody] ManufactorySearchDto dto)
+        {
+            ManufactorySearchParameterModel model = new();
+
+            if (!string.IsNullOrWhiteSpace(dto.Manufactory))
+                model.ManufactoryName.Add(dto.Manufactory);
+            if (!string.IsNullOrWhiteSpace(dto.ProductionFacility))
+                model.ProductionFacility_ProductionFacilityName.Add(dto.ProductionFacility);
+            if (!string.IsNullOrWhiteSpace(dto.Oeconomy))
+                model.Oeconym.Add(dto.Oeconomy);
+            //var manufactoryList = processManufactory.GetManufactoryWithPredicates(model).Select(m => new Manufactory
+            //{
+            //    ManufactoryID = m.Manufactory.ManufactoryID,
+            //    ManufactoryName = m.Manufactory.ManufactoryName,
+            //    CityICollection = [.. m.Manufactory.CityICollection.Select(c => new City
+            //    {
+            //        CityID = c.CityID,
+            //        CityNOeconymICollection = [.. c.CityNOeconymICollection.Where(x => x.CurrentName)]
+            //    })]
+            //});
+            var manufactoryList = processManufactory.GetManufactoryWithPredicates(model)
+                .Select(m => new ManufactoryDTO
+                {
+                    ManufactoryID = m.Manufactory.ManufactoryID,
+                    ManufactoryName = m.Manufactory.ManufactoryName,
+                    CityList = [.. m.Manufactory.CityList.Select(c => new CityDTO
+                    {
+                        CityID = c.CityID,
+                        Oeconym = c.CityNOeconymList
+                            .Where(x => x.CurrentName)
+                            .Select(x => x.Oeconym.OeconymName).FirstOrDefault()
+                    })]
+                }).ToList();
             return Ok(manufactoryList);
         }
+        public class ManufactoryDTO
+        {
+            public int ManufactoryID { get; set; }
+            public string? ManufactoryName { get; set; }
+            public List<CityDTO>? CityList { get; set; }
+        }
+
+        public class CityDTO
+        {
+            public int CityID { get; set; }
+            public string? Oeconym { get; set; }
+        }
+
+        [HttpGet("listColors")]
+        public IActionResult ListColors()
+        {
+            var colorList = unitOfWork.ColorRepository.Get()
+                .Select(x => new ColorDTO
+                {
+                    ColorID = x.ColorID,
+                    ColorName = x.Name
+                }).ToList();
+                
+            return Ok(colorList);
+        }
+        public class ColorDTO
+        {
+            public int ColorID { get; set; }
+            public string? ColorName { get; set; }
+        }
+
 
         [HttpGet("listBricknames")]
         public IActionResult ListBricknames(string brickname, int usageInt)
@@ -177,21 +213,28 @@ namespace Sammlerplattform.Controllers
             return Ok(bricknameList);
         }
 
-        [HttpGet("autocompleteBrickname")]
-        public IActionResult AutocompleteBrickname(string term)
+        [HttpGet("listProcessOfManufacture")]
+        public IActionResult ListProcessOfManufacture(string? process)
         {
-            List<string> bricknameList = [.. (from b in _dbIdentityContext.Brickname
-                                          where b.Name.Contains(term)
-                                          select b.Name)];
-            return Ok(bricknameList);
+            ProcessOfManufactureSearchParameter searchParameter = new();
+            if (!string.IsNullOrEmpty(process))
+            {
+                searchParameter.ProcessOfManufactureName.Add(process);
+                searchParameter.Mainprocess.Add(process);
+                searchParameter.Technique.Add(process);
+            }
+
+            List<ProcessOfManufacture> processOfManufactureList = [.. processProcessOfManufacture.GetWithPredicates(searchParameter)
+                 .OrderBy(x => x.Mainprocess)
+                 .ThenBy(x => x.ProcessOfManufactureName)];
+            return Ok(processOfManufactureList);
         }
-        [HttpGet("autocompleteBricknameID")]
-        public IActionResult AutoCompleteBricknameID(string term)
-        {
-            int bricknameIDs = (from p in _dbIdentityContext.Brickname
-                                         where p.Name.Equals(term)
-                                         select p.Brickname_ID).FirstOrDefault();
-            return Ok(bricknameIDs);
-        }
+    }
+
+    public class ManufactorySearchDto
+    {
+        public string? Manufactory { get; set; }
+        public string? ProductionFacility { get; set; }
+        public string? Oeconomy { get; set; }
     }
 }

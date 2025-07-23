@@ -1,8 +1,8 @@
-﻿using System.ComponentModel;
+﻿using Sammlerplattform.Models.ProductDatabase;
+using Sammlerplattform.Services.GenericClasses;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Sammlerplattform.Controllers.GenericClasses;
-using Sammlerplattform.Models.ProductDatabase;
 
 namespace Sammlerplattform.Models.BrickDatabase
 {
@@ -11,59 +11,32 @@ namespace Sammlerplattform.Models.BrickDatabase
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         [Display(Name = "Ziegelnummer")]
-        public int BrickPotential_ID { get; set; }
-        public ICollection<Brickname> BricknameSynonymICollection { get; set; } = [];
-        //public int BrickPotentialGeneric_ID { get; set; }
-        //[Display(Name = "Oberbegriff")]
-        //public BrickPotential? BrickPotentialGeneric { get; set; }
-        public ICollection<BrickPotential> BrickPotentialGeneric { get; set; } = [];
-        public ICollection<BrickPotential> BrickPotentialSpeciesICollection { get; set; } = [];
-        public ICollection<BrickEntity> BrickEntityICollection { get; set; } = [];
+        public int? BrickPotentialID { get; set; }
+        public List<Brickname> BricknameSynonymList { get; set; } = [];
+        public List<BrickEntity> BrickEntityList { get; set; } = [];
+        public int UsageInt { get; set; }
 
         [Display(Name = "Verwendung")]
         [NotMapped]
         public BrickUsageType UsageEnum
         {
-            get
-            {
-                return (BrickUsageType)UsageInt;
-            }
-            set
-            {
-                UsageInt = (int)value;
-            }
+            get => (BrickUsageType)UsageInt; set => UsageInt = (int)value;
         }
-        public int UsageInt { get; set; }
         [NotMapped]
-        //public string UsageEnumDescription
-        //{
-        //    get
-        //    {
-        //        Type enumType = typeof(BrickUsageType);
-        //        System.Reflection.MemberInfo[] memberInfos = enumType.GetMember(UsageEnum.ToString());
-        //        System.Reflection.MemberInfo? enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == enumType);
-        //        if (enumValueMemberInfo != null)
-        //        {
-        //            var descriptionAttribute = enumValueMemberInfo
-        //                .GetCustomAttributes(typeof(DescriptionAttribute), false)
-        //                .FirstOrDefault() as DescriptionAttribute;
-        //            return descriptionAttribute?.Description ?? UsageEnum.ToString();
-        //        }
-        //        else return UsageEnum.ToString();
-        //    }
-        //}
         public string UsageEnumDescription
         {
             get
             {
                 Type enumType = typeof(BrickUsageType);
-                var descriptions = new List<string>();
+                List<string> descriptions = [];
 
-                foreach (BrickUsageType usage in Enum.GetValues(typeof(BrickUsageType)))
+                foreach (BrickUsageType usage in Enum.GetValues<BrickUsageType>())
                 {
                     // Skip the 'NoInformation' flag if it is not set
                     if (usage == BrickUsageType.NoInformation && !UsageEnum.HasFlag(BrickUsageType.NoInformation))
+                    {
                         continue;
+                    }
 
                     if (UsageEnum.HasFlag(usage) && usage != BrickUsageType.NoInformation)
                     {
@@ -74,7 +47,7 @@ namespace Sammlerplattform.Models.BrickDatabase
                         if (enumValueMemberInfo != null)
                         {
                             // Get the Description attribute if it exists
-                            var descriptionAttribute = enumValueMemberInfo
+                            DescriptionAttribute? descriptionAttribute = enumValueMemberInfo
                                 .GetCustomAttributes(typeof(DescriptionAttribute), false)
                                 .FirstOrDefault() as DescriptionAttribute;
 
@@ -90,8 +63,6 @@ namespace Sammlerplattform.Models.BrickDatabase
                 return descriptions.Count > 0 ? string.Join(", ", descriptions) : BrickUsageType.NoInformation.GetDescription();
             }
         }
-
-        public string? Description { get; set; }
     }
 
     [Flags]

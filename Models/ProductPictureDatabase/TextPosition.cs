@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace Sammlerplattform.Models.ProductPictureDatabase
+﻿namespace Sammlerplattform.Models.ProductPictureDatabase
 {
     public class TextPosition
     {

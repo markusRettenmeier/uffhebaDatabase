@@ -5,23 +5,26 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
-using Sammlerplattform.Controllers.PictureAnaylsis;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.CityDatabase;
 using Sammlerplattform.Models.EraDatabase;
+using Sammlerplattform.Models.ImageDatabase;
 using Sammlerplattform.Models.ManufactoryDatabase;
 using Sammlerplattform.Models.PersonDatabase;
+using Sammlerplattform.Models.PostcardDatabase;
 using Sammlerplattform.Models.ProductPictureDatabase;
 using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Services;
+using Sammlerplattform.Services.Picture;
+using Sammlerplattform.Services.Processes.CityProcesses;
 using System.Globalization;
 using System.IO.Compression;
 using System.Transactions;
 
 namespace Sammlerplattform.Controllers
 {
-    [Authorize(Policy = "SubscribedDiskspacePolicy")]
+    [Authorize]
     public class PostcardDatabaseController(IWebHostEnvironment hostEnvironment, UserManager<UsingIdentityUser> userManager,
         DbIdentityContext dbIdentityContext, ILogger<PostcardDatabaseController> logger, IProcessCity processCity) : Controller
     {
@@ -44,14 +47,14 @@ namespace Sammlerplattform.Controllers
             string? userId = _userManager.GetUserId(User);
             IQueryable<PostcardModel> PostcardIQueryable = from user in _userManager.Users
                                                            join pe in _dbIdentityContext.PostcardEntity
-                                                           on user.Id equals pe.UsingIdentityUsers_ID
+                                                           on user.Id equals pe.UsingIdentityUsersID
                                                            join Scan in _dbIdentityContext.ProductPicture
-                                                           on pe.PostcardEntity_ID equals Scan.PostcardEntity_ID
+                                                           on pe.PostcardEntity_ID equals Scan.PostcardEntityID
                                                            join pp in _dbIdentityContext.PostcardPotential
                                                                 .Include(c => c.CityList)
-                                                                .ThenInclude(o => o.PostalcodeICollection)
+                                                                .ThenInclude(o => o.PostalcodeList)
                                                                 .Include(pp => pp.CityList)
-                                                                .ThenInclude(city => city.CityNOeconymICollection.Where(x => x.CurrentName)).ThenInclude(x => x.Oeconym)
+                                                                .ThenInclude(city => city.CityNOeconymList.Where(x => x.CurrentName)).ThenInclude(x => x.Oeconym)
                                                            on pe.PostcardPotential_ID equals pp.PostcardPotential_ID
                                                            where user.Id == userId
                                                            && Scan.Frontside == true
@@ -72,7 +75,7 @@ namespace Sammlerplattform.Controllers
                 {
                     if (!string.IsNullOrEmpty(cityName))
                     {
-                        predicate = predicate.Or(x => x.PostcardPotential.CityList.Any(x => x.CityNOeconymICollection.Any(y => y.Oeconym.OeconymName == cityName)));
+                        predicate = predicate.Or(x => x.PostcardPotential.CityList.Any(x => x.CityNOeconymList.Any(y => y.Oeconym.OeconymName == cityName)));
                     }
                 }
             }
@@ -123,7 +126,7 @@ namespace Sammlerplattform.Controllers
 
             return View();
         }
-        public async Task<ActionResult> CreatePostcardSubmit(PostcardAnalyzeResultParameters parameters, PostcardModel postcardModel, IFormFile Frontside, IFormFile Backside, string pathFrontside, string pathBackside)
+        public async Task<ActionResult> CreatePostcardSubmit(PostcardAnalyzeResultParameters parameters, PostcardModel postcardModel, IFormFile formFileFrontside, IFormFile Backside, string pathFrontside, string pathBackside)
         {
             UsingIdentityUser user = await _userManager.GetUserAsync(User) ?? throw new NullReferenceException("user");
             int id = 0;
@@ -224,7 +227,7 @@ namespace Sammlerplattform.Controllers
                 };
                 foreach (int cityID in postcardModel.CityIDList)
                 {
-                    City? city = (from c in _dbIdentityContext.City where c.City_ID == cityID select c).FirstOrDefault();
+                    City? city = (from c in _dbIdentityContext.City where c.CityID == cityID select c).FirstOrDefault();
                     if (city != null)
                     {
                         newPostcardPotential.CityList.Add(city);
@@ -235,7 +238,7 @@ namespace Sammlerplattform.Controllers
                 foreach ((City City, List<Postalcode> PostalcodeList, Geography Geography) cityTuple in postcardModel.CityTupleList)
                 {
                     newPostcardPotential.CityList.Add(cityTuple.City);
-                    City? city = (from c in _dbIdentityContext.City where c.City_ID == cityTuple.City.City_ID select c).FirstOrDefault();
+                    City? city = (from c in _dbIdentityContext.City where c.CityID == cityTuple.City.CityID select c).FirstOrDefault();
                     city?.PostcardPotentialList.Add(newPostcardPotential);
                 }
                 if (newPostcardImprint != null && newPostcardImprint.Image_ID > 0)
@@ -300,7 +303,7 @@ namespace Sammlerplattform.Controllers
                     Charge = postcardModel.PostcardEntity.Charge,
                     ConditionInt = (int)postcardModel.PostcardEntity.ConditionEnum,
                     DateInText = postcardModel.PostcardEntity.DateInText,
-                    UsingIdentityUsers_ID = user.Id,
+                    UsingIdentityUsersID = user.Id,
                     Text = postcardModel.PostcardEntity.Text,
                     MaterialInt = (int)postcardModel.PostcardEntity.MaterialEnum
                 };
@@ -321,14 +324,14 @@ namespace Sammlerplattform.Controllers
                     newPostcardEntity.ColorRALWritingFrontside = int.Parse(postcardModel.ColorRALWriting[1..], System.Globalization.NumberStyles.HexNumber);
                 }
 
-                if (newSender != null && newSender.Person_ID != 0)
+                if (newSender != null && newSender.PersonID != 0)
                 {
-                    newPostcardEntity.Sender_ID = newSender.Person_ID;
+                    newPostcardEntity.Sender_ID = newSender.PersonID;
                 }
 
-                if (newReceiver != null && newReceiver.Person_ID != 0)
+                if (newReceiver != null && newReceiver.PersonID != 0)
                 {
-                    newPostcardEntity.Receiver_ID = newReceiver.Person_ID;
+                    newPostcardEntity.Receiver_ID = newReceiver.PersonID;
                 }
 
                 _ = _dbIdentityContext.Add(newPostcardEntity);
@@ -374,11 +377,11 @@ namespace Sammlerplattform.Controllers
                     {
                         IQueryable<PostcardEntityNManufactoryNCity> selectPEPC = from pepc in _dbIdentityContext.PostcardEntityNManufactoryNCity
                                                                                  where pepc.PostcardEntity_ID == newPostcardEntity.PostcardEntity_ID
-                                                                                 && pepc.Publisher_ID == manufactory.Manufactory_ID
+                                                                                 && pepc.Publisher_ID == manufactory.ManufactoryID
                                                                                  select pepc;
                         if (city != null)
                         {
-                            selectPEPC = selectPEPC.Where(p => p.City_ID == city.City_ID);
+                            selectPEPC = selectPEPC.Where(p => p.City_ID == city.CityID);
                         }
 
                         if (selectPEPC.FirstOrDefault() == null)
@@ -386,11 +389,11 @@ namespace Sammlerplattform.Controllers
                             PostcardEntityNManufactoryNCity newPostcardEntityPublishrCity = new()
                             {
                                 PostcardEntity_ID = newPostcardEntity.PostcardEntity_ID,
-                                Publisher_ID = manufactory.Manufactory_ID
+                                Publisher_ID = manufactory.ManufactoryID
                             };
                             if (city != null)
                             {
-                                newPostcardEntityPublishrCity.City_ID = city.City_ID;
+                                newPostcardEntityPublishrCity.City_ID = city.CityID;
                             }
 
                             _ = _dbIdentityContext.Add(newPostcardEntityPublishrCity);
@@ -404,7 +407,7 @@ namespace Sammlerplattform.Controllers
                     throw new NullReferenceException("userName zu Id " + user.Id);
                 }
 
-                string currentFileName = string.IsNullOrEmpty(pathFrontside) ? PicturePreprocess.SaveFileForAnalysis(Frontside, _hostEnvironment) : pathFrontside;
+                string currentFileName = string.IsNullOrEmpty(pathFrontside) ? PicturePreprocess.SaveFileForAnalysis(formFileFrontside, _hostEnvironment) : pathFrontside;
                 _ = await CreateProductPicture(currentFileName, true, newPostcardEntity.PostcardEntity_ID, user, false);
 
                 if (Backside != null || !string.IsNullOrEmpty(pathBackside))
@@ -433,18 +436,18 @@ namespace Sammlerplattform.Controllers
 
             return isComingFromAnalysis
                 ? RedirectToAction(nameof(EditPostcard), new { id })
-                : (ActionResult)RedirectToAction("AdministerCollectionPostcard", "PostcardDatabase", new { statusMessage });
+                : RedirectToAction("AdministerCollectionPostcard", "PostcardDatabase", new { statusMessage });
         } // END CreatePostcard
 
 
         private async Task<ProductPicture> CreateProductPicture(string fileName, bool Frontside, int? PostcardEntity_ID, UsingIdentityUser user, bool replaceOldScan)
         {
             string wwwRootPath = _hostEnvironment.WebRootPath;
-            string pathNormal = Path.Combine(wwwRootPath, Path.Combine("images","Normal"));
-            string pathSmall = Path.Combine(wwwRootPath, Path.Combine("images","Klein"));
-            string pathThumbnail = Path.Combine(wwwRootPath, Path.Combine("images","Thumbnail"));
+            string pathNormal = Path.Combine(wwwRootPath, Path.Combine("images", "Normal"));
+            string pathSmall = Path.Combine(wwwRootPath, Path.Combine("images", "Klein"));
+            string pathThumbnail = Path.Combine(wwwRootPath, Path.Combine("images", "Thumbnail"));
             string pathFile = string.Empty;
-            string pathOriginal = Path.Combine(wwwRootPath, Path.Combine("images","Original"));
+            string pathOriginal = Path.Combine(wwwRootPath, Path.Combine("images", "Original"));
             DateTime currentDate = DateTime.Now;
             ProductPicture productScan = new();
 
@@ -461,10 +464,10 @@ namespace Sammlerplattform.Controllers
                 if (replaceOldScan)
                 {
                     ProductPicture selectScan = (from s in _dbIdentityContext.ProductPicture
-                                               where s.PostcardEntity_ID == PostcardEntity_ID
-                                               && s.Frontside == Frontside
-                                               select s).FirstOrDefault() ?? throw new NullReferenceException("scanSelect");
-                    ImgName = selectScan.ProductPicture_ID.ToString() + "." + selectScan.FileExtension;
+                                                 where s.PostcardEntityID == PostcardEntity_ID
+                                                 && s.Frontside == Frontside
+                                                 select s).FirstOrDefault() ?? throw new NullReferenceException("scanSelect");
+                    ImgName = selectScan.ProductPictureID.ToString() + "." + selectScan.FileExtension;
                     productScan = selectScan;
                 }
                 else
@@ -472,12 +475,12 @@ namespace Sammlerplattform.Controllers
                     ProductPicture newProductScan = new()
                     {
                         FileExtension = fileExtension,
-                        Frontside = Frontside
+                        //Frontside = Frontside
                     };
 
                     if (PostcardEntity_ID != null)
                     {
-                        newProductScan.PostcardEntity_ID = (int)PostcardEntity_ID;
+                        newProductScan.PostcardEntityID = (int)PostcardEntity_ID;
                     }
 
                     _ = _dbIdentityContext.Add(newProductScan);
@@ -489,13 +492,17 @@ namespace Sammlerplattform.Controllers
                     {
                         _logger.LogError("ProcessAnalysisResultParameters publisher abgebrochen mit Exception {ex}, name {scanName[1].Trim()}.",
                                     ex.Message, fileExtension);
-                        if(ex.InnerException != null)
+                        if (ex.InnerException != null)
+                        {
                             throw new DbUpdateException(ex.InnerException.Message + " filename: " + fileName + " fileExtension: " + fileExtension + " Frontside: " + Frontside);
+                        }
                         else
+                        {
                             throw new DbUpdateException(ex.Message);
+                        }
                     }
 
-                    ImgName = newProductScan.ProductPicture_ID.ToString() + "." + newProductScan.FileExtension;
+                    ImgName = newProductScan.ProductPictureID.ToString() + "." + newProductScan.FileExtension;
                     productScan = newProductScan;
                 }
 
@@ -585,7 +592,7 @@ namespace Sammlerplattform.Controllers
             string? userId = _userManager.GetUserId(User);
             UsingIdentityUser? userAllowed = (from user in _userManager.Users
                                               join postcards in _dbIdentityContext.PostcardEntity
-                                              on user.Id equals postcards.UsingIdentityUsers_ID
+                                              on user.Id equals postcards.UsingIdentityUsersID
                                               join pso in _dbIdentityContext.PostcardPotential
                                               on postcards.PostcardPotential_ID equals pso.PostcardPotential_ID
                                               where user.Id == userId
@@ -601,12 +608,12 @@ namespace Sammlerplattform.Controllers
                     selectPostcard.HasImage = true;
                 }
 
-                if (selectPostcard.PersonSender != null && selectPostcard.PersonSender.Person_ID > 0)
+                if (selectPostcard.PersonSender != null && selectPostcard.PersonSender.PersonID > 0)
                 {
                     selectPostcard.HasSender = true;
                 }
 
-                if (selectPostcard.PersonReceiver != null && selectPostcard.PersonReceiver.Person_ID > 0)
+                if (selectPostcard.PersonReceiver != null && selectPostcard.PersonReceiver.PersonID > 0)
                 {
                     selectPostcard.HasReceiver = true;
                 }
@@ -819,9 +826,9 @@ namespace Sammlerplattform.Controllers
                     selectPostcardPotential.PostcardImprint_ID = null;
                     _ = await _dbIdentityContext.SaveChangesAsync();
 
-                    List<PostcardPotential> selectAllPotentialsWithImprint = [.. (from p in _dbIdentityContext.PostcardPotential
+                    List<PostcardPotential> selectAllPotentialsWithImprint = [.. from p in _dbIdentityContext.PostcardPotential
                                                                               where p.PostcardImprint_ID == postcardModel.PostcardImprint.Image_ID
-                                                                              select p)];
+                                                                              select p];
                     if (selectAllPotentialsWithImprint == null || selectAllPotentialsWithImprint.Count == 0)
                     {
                         PostcardImprint selectImageImprint = (from p in _dbIdentityContext.PostcardImprint
@@ -843,12 +850,12 @@ namespace Sammlerplattform.Controllers
                 List<int> cityIdsCurrentList = [];
                 foreach (City city in selectPostcardPotential.CityList)
                 {
-                    cityIdsCurrentList.Add(city.City_ID);
+                    cityIdsCurrentList.Add(city.CityID);
                 }
                 List<int> cityIDsInsertList = [];
                 foreach (int cityID in postcardModel.CityIDList)
                 {
-                    City? city = (from c in _dbIdentityContext.City where c.City_ID.Equals(cityID) select c).FirstOrDefault();
+                    City? city = (from c in _dbIdentityContext.City where c.CityID.Equals(cityID) select c).FirstOrDefault();
                     if (city != null && !selectPostcardPotential.CityList.Contains(city))
                     {
                         selectPostcardPotential.CityList.Add(city);
@@ -860,7 +867,7 @@ namespace Sammlerplattform.Controllers
                     if (!cityIDsInsertList.Contains(currentId))
                     {
                         City selectCity = (from c in _dbIdentityContext.City
-                                           where c.City_ID == currentId
+                                           where c.CityID == currentId
                                            select c).First();
                         _ = selectPostcardPotential.CityList.Remove(selectCity);
                     }
@@ -881,7 +888,7 @@ namespace Sammlerplattform.Controllers
                 {
                     if (postcardModel.PersonSender is not null)
                     {
-                        if (postcardModel.PersonSender.Person_ID == 0)
+                        if (postcardModel.PersonSender.PersonID == 0)
                         {
                             if (postcardModel.PersonSender.Name != null)
                             {
@@ -896,24 +903,24 @@ namespace Sammlerplattform.Controllers
                         else
                         {
                             Person? SenderSQL = await (from p in _dbIdentityContext.Person
-                                                       where p.Person_ID == postcardModel.PersonSender.Person_ID
+                                                       where p.PersonID == postcardModel.PersonSender.PersonID
                                                        select p).FirstOrDefaultAsync();
                             newSender = SenderSQL;
                         }
                     }
                 }
-                else if (postcardModel.PersonSender.Person_ID > 0)
+                else if (postcardModel.PersonSender.PersonID > 0)
                 {
                     selectPostcardEntity.Sender_ID = null;
                     _ = await _dbIdentityContext.SaveChangesAsync();
 
-                    List<PostcardEntity> selectAllEntitiesWithSender = [.. (from p in _dbIdentityContext.PostcardEntity
-                                                                        where p.Sender_ID == postcardModel.PersonSender.Person_ID
-                                                                        select p)];
+                    List<PostcardEntity> selectAllEntitiesWithSender = [.. from p in _dbIdentityContext.PostcardEntity
+                                                                        where p.Sender_ID == postcardModel.PersonSender.PersonID
+                                                                        select p];
                     if (selectAllEntitiesWithSender == null || selectAllEntitiesWithSender.Count == 0)
                     {
                         Person SenderSQL = (from p in _dbIdentityContext.Person
-                                            where p.Person_ID == postcardModel.PersonSender.Person_ID
+                                            where p.PersonID == postcardModel.PersonSender.PersonID
                                             select p).First();
                         _ = _dbIdentityContext.Remove(SenderSQL);
                         _ = await _dbIdentityContext.SaveChangesAsync();
@@ -925,7 +932,7 @@ namespace Sammlerplattform.Controllers
                 {
                     if (postcardModel.PersonReceiver != null)
                     {
-                        if (postcardModel.PersonReceiver.Person_ID == 0)
+                        if (postcardModel.PersonReceiver.PersonID == 0)
                         {
                             newReceiver = new()
                             {
@@ -937,7 +944,7 @@ namespace Sammlerplattform.Controllers
                         else
                         {
                             Person ReceiverSQL = await (from p in _dbIdentityContext.Person
-                                                        where p.Person_ID == postcardModel.PersonReceiver.Person_ID
+                                                        where p.PersonID == postcardModel.PersonReceiver.PersonID
                                                         select p).FirstAsync();
                             ReceiverSQL.Name = postcardModel.PersonReceiver.Name;
                             ReceiverSQL.City_ID = postcardModel.PersonReceiver.City_ID;
@@ -945,7 +952,7 @@ namespace Sammlerplattform.Controllers
                             if (postcardModel.PersonReceiver.City_ID > 0)
                             {
                                 City selectCity = (from c in _dbIdentityContext.City
-                                                   where c.City_ID == postcardModel.PersonReceiver.City_ID
+                                                   where c.CityID == postcardModel.PersonReceiver.City_ID
                                                    select c).First();
                                 ReceiverSQL.City = selectCity;
                             }
@@ -955,19 +962,19 @@ namespace Sammlerplattform.Controllers
                         _ = await _dbIdentityContext.SaveChangesAsync();
                     }
                 }
-                else if (postcardModel.PersonReceiver.Person_ID > 0)
+                else if (postcardModel.PersonReceiver.PersonID > 0)
                 {
                     selectPostcardEntity.Receiver_ID = null;
                     _ = await _dbIdentityContext.SaveChangesAsync();
 
 
-                    List<PostcardEntity> selectAllEntitiesWithReceiver = [.. (from p in _dbIdentityContext.PostcardEntity
-                                                                          where p.Sender_ID == postcardModel.PersonReceiver.Person_ID
-                                                                          select p)];
+                    List<PostcardEntity> selectAllEntitiesWithReceiver = [.. from p in _dbIdentityContext.PostcardEntity
+                                                                          where p.Sender_ID == postcardModel.PersonReceiver.PersonID
+                                                                          select p];
                     if (selectAllEntitiesWithReceiver == null || selectAllEntitiesWithReceiver.Count == 0)
                     {
                         Person ReceiverSQL = await (from p in _dbIdentityContext.Person
-                                                    where p.Person_ID == postcardModel.PersonReceiver.Person_ID
+                                                    where p.PersonID == postcardModel.PersonReceiver.PersonID
                                                     select p).FirstAsync();
                         _ = _dbIdentityContext.Remove(ReceiverSQL);
                         _ = await _dbIdentityContext.SaveChangesAsync();
@@ -989,14 +996,14 @@ namespace Sammlerplattform.Controllers
 
                 selectPostcardEntity.Price = priceDecimal;
 
-                if (newSender != null && newSender.Person_ID != 0)
+                if (newSender != null && newSender.PersonID != 0)
                 {
-                    selectPostcardEntity.Sender_ID = newSender.Person_ID;
+                    selectPostcardEntity.Sender_ID = newSender.PersonID;
                 }
 
-                if (newReceiver != null && newReceiver.Person_ID != 0)
+                if (newReceiver != null && newReceiver.PersonID != 0)
                 {
-                    selectPostcardEntity.Receiver_ID = newReceiver.Person_ID;
+                    selectPostcardEntity.Receiver_ID = newReceiver.PersonID;
                 }
 
                 if (!string.IsNullOrEmpty(postcardModel.ColorRALWriting))
@@ -1011,9 +1018,9 @@ namespace Sammlerplattform.Controllers
 
                 _ = await _dbIdentityContext.SaveChangesAsync();
 
-                List<int> PepcIDsBeginningList = [.. (from pepc in _dbIdentityContext.PostcardEntityNManufactoryNCity
+                List<int> PepcIDsBeginningList = [.. from pepc in _dbIdentityContext.PostcardEntityNManufactoryNCity
                                                   where pepc.PostcardEntity_ID == selectPostcardEntity.PostcardEntity_ID
-                                                  select pepc.PostcardEntityNManufactoryNCity_ID)];
+                                                  select pepc.PostcardEntityNManufactoryNCity_ID];
                 List<int> PepcIDsInsertList = [];
                 foreach (string? publisher in postcardModel.ManufactoryIDCityIDList)
                 {
@@ -1118,10 +1125,10 @@ namespace Sammlerplattform.Controllers
                                                          PostcardEntity = e,
                                                          PostcardImprint = i,
                                                          ProductPictureList = (from Scan in _dbIdentityContext.ProductPicture
-                                                                             join pe in _dbIdentityContext.PostcardEntity
-                                                                             on Scan.PostcardEntity_ID equals pe.PostcardEntity_ID
-                                                                             where pe.PostcardEntity_ID == e.PostcardEntity_ID
-                                                                             select Scan).ToList()
+                                                                               join pe in _dbIdentityContext.PostcardEntity
+                                                                               on Scan.PostcardEntityID equals pe.PostcardEntity_ID
+                                                                               where pe.PostcardEntity_ID == e.PostcardEntity_ID
+                                                                               select Scan).ToList()
                                                      })
                                            .First() ?? throw new NullReferenceException("PostcardsSelect");
 
@@ -1131,18 +1138,18 @@ namespace Sammlerplattform.Controllers
                         {
                             try
                             {
-                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.ProductPicture_ID + "." + scan.FileExtension);
-                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.ProductPicture_ID + "." + scan.FileExtension);
-                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_ID + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.ProductPictureID + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.ProductPictureID + "." + scan.FileExtension);
+                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPictureID + "." + scan.FileExtension);
                             }
                             catch
                             {
-                                _logger.LogError("DeletePostcardEntity: ProductPicture nicht gefunden: {scan.ProductPicture_Id}.{scan.Pictures_Format}", scan.ProductPicture_ID, scan.FileExtension);
+                                _logger.LogError("DeletePostcardEntity: ProductPicture nicht gefunden: {scan.ProductPicture_Id}.{scan.Pictures_Format}", scan.ProductPictureID, scan.FileExtension);
                             }
                         }
                         else
                         {
-                            System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPicture_ID + "." + scan.FileExtension);
+                            System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPictureID + "." + scan.FileExtension);
                         }
                         _ = _dbIdentityContext.Remove(scan);
                         _ = await _dbIdentityContext.SaveChangesAsync();
@@ -1179,15 +1186,15 @@ namespace Sammlerplattform.Controllers
             DbActionsPostcard dbChangesPostcard = new(_dbIdentityContext, _userManager, processCity, _logger);
             List<PostcardModel> postcardList = [];
             postcardList = potentialId == null
-                ? ([.. dbChangesPostcard.QueryPostcardModel(userId)])
-                : ([.. dbChangesPostcard.QueryPostcardModel(userId).Where(x => x.PostcardPotential.PostcardPotential_ID.Equals(potentialId))]);
+                ? [.. dbChangesPostcard.QueryPostcardModel(userId)]
+                : [.. dbChangesPostcard.QueryPostcardModel(userId).Where(x => x.PostcardPotential.PostcardPotential_ID.Equals(potentialId))];
 
             foreach (PostcardModel postcard in postcardList)
             {
                 foreach (ProductPicture scan in postcard.ProductPictureList)
                 {
-                    string sourceFilePath = Path.Combine(sourceDir, scan.ProductPicture_ID.ToString() + ".png");
-                    string targetFilePath = Path.Combine(downloadFolder, scan.ProductPicture_ID.ToString() + ".png");
+                    string sourceFilePath = Path.Combine(sourceDir, scan.ProductPictureID.ToString() + ".png");
+                    string targetFilePath = Path.Combine(downloadFolder, scan.ProductPictureID.ToString() + ".png");
                     System.IO.File.Copy(sourceFilePath, targetFilePath, true);
                 }
             }
@@ -1236,13 +1243,13 @@ namespace Sammlerplattform.Controllers
 
             string statusMessage = string.Empty;
             Era? EraSelect = (from e in _dbIdentityContext.Era
-                              where e.EraLong == era.EraLong
+                              where e.EraName == era.EraName
                               select e).FirstOrDefault();
             if (EraSelect == null)
             {
                 Era newEra = new()
                 {
-                    EraLong = era.EraLong,
+                    EraName = era.EraName,
                     EraShort = era.EraShort
                 };
 
@@ -1255,7 +1262,7 @@ namespace Sammlerplattform.Controllers
                 catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
                 {
                     _logger.LogError("AddEraSubmit fehlgeschlagen mit Exception: {ex}, EraLong: {era.EraLong}, EraShort: {era.EraShort}",
-                        ex, era.EraLong, era.EraShort);
+                        ex, era.EraName, era.EraShort);
                     statusMessage = "Es ist ein Fehler beim Hinzufügen der Ära augetreten. Der Support wurde benachrichtigt.";
                 }
             }
@@ -1278,8 +1285,8 @@ namespace Sammlerplattform.Controllers
 #pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises. Cause of Bug https://github.com/dotnet/efcore/issues/17212
             IQueryable<PostcardModel> postcardQuery = from pse in _dbIdentityContext.PostcardEntity
                                                       join pso in _dbIdentityContext.PostcardPotential
-                                                          .Include(x => x.CityList).ThenInclude(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
-                                                          .Include(x => x.CityList).ThenInclude(x => x.PostalcodeICollection)
+                                                          .Include(x => x.CityList).ThenInclude(x => x.CityNOeconymList).ThenInclude(x => x.Oeconym)
+                                                          .Include(x => x.CityList).ThenInclude(x => x.PostalcodeList)
                                                           .Include(y => y.CityList).ThenInclude(x => x.Geography)
                                                       on pse.PostcardPotential_ID equals pso.PostcardPotential_ID
                                                       join picture in _dbIdentityContext.PostcardImprint
@@ -1289,22 +1296,22 @@ namespace Sammlerplattform.Controllers
                                                       on subPic.Printing_ID equals print.Printing_ID into LeftOuterPrint
                                                       from subPostPrint in LeftOuterPrint.DefaultIfEmpty()
                                                       join perse in _dbIdentityContext.Person
-                                                      on pse.Sender_ID equals perse.Person_ID into LeftOuterSender
+                                                      on pse.Sender_ID equals perse.PersonID into LeftOuterSender
                                                       from subPostSender in LeftOuterSender.DefaultIfEmpty()
                                                       join perRe in _dbIdentityContext.Person
-                                                          .Include(x => x.City).ThenInclude(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
-                                                          .Include(x => x.City).ThenInclude(x => x.PostalcodeICollection)
+                                                          .Include(x => x.City).ThenInclude(x => x.CityNOeconymList).ThenInclude(x => x.Oeconym)
+                                                          .Include(x => x.City).ThenInclude(x => x.PostalcodeList)
                                                           .Include(y => y.City).ThenInclude(x => x.Geography)
-                                                      on pse.Receiver_ID equals perRe.Person_ID into LeftOuterReceiver
+                                                      on pse.Receiver_ID equals perRe.PersonID into LeftOuterReceiver
                                                       from subPostReceiver in LeftOuterReceiver.DefaultIfEmpty()
                                                       join aa in _dbIdentityContext.Person
-                                                      on subPic.ArtistAuthor_ID equals aa.Person_ID into LeftOuterAA
+                                                      on subPic.ArtistAuthor_ID equals aa.PersonID into LeftOuterAA
                                                       from subPostAA in LeftOuterAA.DefaultIfEmpty()
                                                       join era in _dbIdentityContext.Era
-                                                      on subPic.Era_ID equals era.Era_ID into LeftOuterEra
+                                                      on subPic.Era_ID equals era.EraID into LeftOuterEra
                                                       from subPostEra in LeftOuterEra.DefaultIfEmpty()
                                                       join user in userManager.Users
-                                                      on pse.UsingIdentityUsers_ID equals user.Id
+                                                      on pse.UsingIdentityUsersID equals user.Id
                                                       where user.Id == userId
                                                       select new PostcardModel
                                                       {
@@ -1312,10 +1319,10 @@ namespace Sammlerplattform.Controllers
                                                           PostcardPotential = pso,
                                                           PostcardImprint = subPic,
                                                           ProductPictureList = (from Scan in _dbIdentityContext.ProductPicture
-                                                                              join pe in _dbIdentityContext.PostcardEntity
-                                                                              on Scan.PostcardEntity_ID equals pe.PostcardEntity_ID
-                                                                              where pe.PostcardEntity_ID == pse.PostcardEntity_ID
-                                                                              select Scan).ToList(),
+                                                                                join pe in _dbIdentityContext.PostcardEntity
+                                                                                on Scan.PostcardEntityID equals pe.PostcardEntity_ID
+                                                                                where pe.PostcardEntity_ID == pse.PostcardEntity_ID
+                                                                                select Scan).ToList(),
                                                           Printing = subPostPrint,
                                                           PersonSender = subPostSender,
                                                           PersonReceiver = subPostReceiver,
@@ -1323,9 +1330,9 @@ namespace Sammlerplattform.Controllers
                                                           Era = subPostEra,
                                                           ManufactoryTupleList = (from p in _dbIdentityContext.Manufactory
                                                                                   join pemc in _dbIdentityContext.PostcardEntityNManufactoryNCity
-                                                                                  on p.Manufactory_ID equals pemc.Publisher_ID
-                                                                                  join c in _dbIdentityContext.City.Include(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
-                                                                                  on pemc.City_ID equals c.City_ID into leftOuterCity
+                                                                                  on p.ManufactoryID equals pemc.Publisher_ID
+                                                                                  join c in _dbIdentityContext.City.Include(x => x.CityNOeconymList).ThenInclude(x => x.Oeconym)
+                                                                                  on pemc.City_ID equals c.CityID into leftOuterCity
                                                                                   from subc in leftOuterCity.DefaultIfEmpty()
                                                                                   where pemc.PostcardEntity_ID == pse.PostcardEntity_ID
                                                                                   select new ValueTuple<Manufactory, City, List<City>>
@@ -1334,8 +1341,8 @@ namespace Sammlerplattform.Controllers
                                                                                       subc,
                                                                                       (from c in _dbIdentityContext.City.Include(m => m.ManufactoryList)
                                                                                        .Include(x => x.Geography)
-                                                                                       .Include(x => x.CityNOeconymICollection.Where(y => y.CurrentName)).ThenInclude(x => x.Oeconym)
-                                                                                       where c.ManufactoryList.Any(c => c.Manufactory_ID.Equals(p.Manufactory_ID))
+                                                                                       .Include(x => x.CityNOeconymList.Where(y => y.CurrentName)).ThenInclude(x => x.Oeconym)
+                                                                                       where c.ManufactoryList.Any(c => c.ManufactoryID.Equals(p.ManufactoryID))
                                                                                        select c).ToList()
                                                                                    )).ToList()
                                                       };
@@ -1430,7 +1437,7 @@ namespace Sammlerplattform.Controllers
                             Oeconym = new Oeconym() { OeconymName = City },
                             Geography = new Geography() { GeographyName = GeographyOfCity }
                         };
-                        City? selectCity = processCity.GetCityWithPredicates(processCity.CityParametersOperationToSearch(cityParameterModel)).FirstOrDefault();
+                        City? selectCity = processCity.GetCityOPMWithPredicates(processCity.CityParametersOperationToSearch(cityParameterModel)).FirstOrDefault()?.City;
                         if (selectCity == null)
                         {
                             (City city, int statuscode, string message) = processCity.CreateCity(cityParameterModel);
@@ -1440,12 +1447,12 @@ namespace Sammlerplattform.Controllers
                             }
                             else
                             {
-                                postcardModel.CityTupleList.Add((city, city.PostalcodeICollection.ToList(), city.Geography!));
+                                postcardModel.CityTupleList.Add((city, city.PostalcodeList.ToList(), city.Geography!));
                             }
                         }
                         else
                         {
-                            postcardModel.CityTupleList.Add((selectCity, [.. selectCity.PostalcodeICollection], new()));
+                            postcardModel.CityTupleList.Add((selectCity, [.. selectCity.PostalcodeList], new() { GeographyName = string.Empty }));
                         }
                     }
                 }
@@ -1477,7 +1484,7 @@ namespace Sammlerplattform.Controllers
                         Oeconym = new Oeconym() { OeconymName = city },
                         Geography = new Geography() { GeographyName = geography }
                     };
-                    City? selectedCity = processCity.GetCityWithPredicates(processCity.CityParametersOperationToSearch(cityParameterModel)).FirstOrDefault();
+                    City? selectedCity = processCity.GetCityOPMWithPredicates(processCity.CityParametersOperationToSearch(cityParameterModel)).FirstOrDefault()?.City;
 
                     selectedCity ??= processCity.CreateCity(cityParameterModel).city;
 
@@ -1493,8 +1500,8 @@ namespace Sammlerplattform.Controllers
                         };
                         if (selectedCity != null)
                         {
-                            newPublisher.CityICollection ??= [];
-                            newPublisher.CityICollection.Add(selectedCity);
+                            newPublisher.CityList ??= [];
+                            newPublisher.CityList.Add(selectedCity);
                         }
                         _ = _dbIdentityContext.Add(newPublisher);
                         try
@@ -1518,8 +1525,8 @@ namespace Sammlerplattform.Controllers
                     }
                     else
                     {
-                        selectPublisher.CityICollection ??= [];
-                        selectPublisher.CityICollection.Add(selectedCity);
+                        selectPublisher.CityList ??= [];
+                        selectPublisher.CityList.Add(selectedCity);
                         _ = _dbIdentityContext.SaveChanges();
                         postcardModel.ManufactoryTupleList.Add((selectPublisher, selectedCity, []));
                     }
@@ -1541,8 +1548,8 @@ namespace Sammlerplattform.Controllers
 
                 foreach ((string name, string PLZ, string City) address in addressTupleList)
                 {
-                    City? selectCity = (from c in _dbIdentityContext.City.Include(x => x.CityNOeconymICollection).ThenInclude(x => x.Oeconym)
-                                        where c.CityNOeconymICollection.Any(x => x.Oeconym.OeconymName.Equals(address.City))
+                    City? selectCity = (from c in _dbIdentityContext.City.Include(x => x.CityNOeconymList).ThenInclude(x => x.Oeconym)
+                                        where c.CityNOeconymList.Any(x => x.Oeconym.OeconymName.Equals(address.City))
                                         select c).FirstOrDefault();
 
                     IQueryable<Person> selectPerson = from p in _dbIdentityContext.Person.Include(x => x.City)
@@ -1550,7 +1557,7 @@ namespace Sammlerplattform.Controllers
                                                       select p;
                     if (selectCity != null)
                     {
-                        selectPerson = selectPerson.Where(x => x.City != null && x.City.City_ID.Equals(selectCity.City_ID));
+                        selectPerson = selectPerson.Where(x => x.City != null && x.City.CityID.Equals(selectCity.CityID));
                     }
 
                     List<Person> personCityTupleList = [.. selectPerson];
@@ -1570,12 +1577,12 @@ namespace Sammlerplattform.Controllers
                             foreach (Person? p in selectPerson)
                             {
                                 int amount = 0;
-                                if (!string.IsNullOrEmpty(address.City) && p.City != null && p.City.CityNOeconymICollection.Any(x => x.Oeconym.OeconymName.Equals(address.City)))
+                                if (!string.IsNullOrEmpty(address.City) && p.City != null && p.City.CityNOeconymList.Any(x => x.Oeconym.OeconymName.Equals(address.City)))
                                 {
                                     amount++;
                                 }
 
-                                personFit.Add(p.Person_ID, amount);
+                                personFit.Add(p.PersonID, amount);
                             }
                             int personID = personFit.MaxBy(x => x.Value).Key;
                             int maxAmountSelected = personFit.MaxBy(x => x.Value).Value;
@@ -1592,7 +1599,7 @@ namespace Sammlerplattform.Controllers
                                 }
                                 else
                                 {
-                                    Person? anonymousPersonSelect = selectPerson.FirstOrDefault(x => x.Person_ID.Equals(personID));
+                                    Person? anonymousPersonSelect = selectPerson.FirstOrDefault(x => x.PersonID.Equals(personID));
                                     if (anonymousPersonSelect != default)
                                     {
                                         postcardModel.PersonReceiverTuple = (anonymousPersonSelect, anonymousPersonSelect.City);
@@ -1626,11 +1633,11 @@ namespace Sammlerplattform.Controllers
                     Oeconym = new Oeconym() { OeconymName = address.city },
                     Postalcode = new Postalcode() { PostalcodeNumber = address.postalcode }
                 };
-                City? selectedCity = processCity.GetCityWithPredicates(processCity.CityParametersOperationToSearch(cityParameterModel)).FirstOrDefault();
+                City? selectedCity = processCity.GetCityOPMWithPredicates(processCity.CityParametersOperationToSearch(cityParameterModel)).FirstOrDefault()?.City;
                 selectedCity ??= processCity.CreateCity(cityParameterModel).city;
                 city = selectedCity;
 
-                newPerson.City_ID = city.City_ID;
+                newPerson.City_ID = city.CityID;
                 newPerson.City = city;
                 _ = _dbIdentityContext.SaveChanges();
             }

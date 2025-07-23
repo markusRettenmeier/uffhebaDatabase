@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Sammlerplattform.Controllers;
-using Sammlerplattform.Controllers.DAL;
 using Sammlerplattform.Data;
+using Sammlerplattform.Models.ProductPictureDatabase;
 using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Services;
-using Stripe;
+using Sammlerplattform.Services.EMail;
+using Sammlerplattform.Services.Processes;
+using Sammlerplattform.Services.Processes.CityProcesses;
+using Sammlerplattform.Services.UnitOfWork;
 using System.Text.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -50,33 +52,29 @@ builder.Services.Configure<IdentityOptions>(options =>
 });
 
 builder.Services.AddSession();
-builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, Sammlerplattform.Services.EmailSender>();
+builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("SubscribedDiskspacePolicy", policy => policy.RequireClaim("SubscribedDiskspace"))
     .AddPolicy("SubscribedAnalysisToolPolicy", policy => policy.RequireClaim("SubscribedAnalysisTool"));
 
-builder.Services.AddScoped<ICityRepository, CityRepository>();
-builder.Services.AddScoped<IGeographyRepository, GeographyRepository>();
-builder.Services.AddScoped<IPostalcodeRepository, PostalcodeRepository>();
-builder.Services.AddScoped<IEraRepository, EraRepository>();
-builder.Services.AddScoped<IOeconymRepository, OeconymRepository>();
 builder.Services.AddScoped<IProcessGeography, GeographyProcessor>();
 builder.Services.AddScoped<IProcessOeconym, OeconymProcessor>();
 builder.Services.AddScoped<IProcessPostalcode, PostalcodeProcessor>();
 builder.Services.AddScoped<IProcessEra, EraProcessor>();
 builder.Services.AddScoped<IProcessCity, CityProcessor>();
 builder.Services.AddScoped<IProcessCityNOeconym, CityNOeconymProcessor>();
-builder.Services.AddScoped<IManufactoryRepository, ManufactoryRepository>();
 builder.Services.AddScoped<IProcessManufactory, ManufactoryProcessor>();
 builder.Services.AddScoped<IProcessBrick, BrickProcessor>();
-builder.Services.AddScoped<IProcessPerson, PersonProcessor>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IProcessProductPicture, ProductPictureProcessor>();
+builder.Services.AddScoped<IProcessPerson, PersonProcessor>();
+builder.Services.AddScoped<IProcessProcessOfManufacture, ProcessOfManufactureProcessor>();
 builder.Services.AddScoped<UserAccessor>();
 
-builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
-StripeConfiguration.ApiKey = builder.Configuration.GetValue<string>("StripeKey");
+//builder.Services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
 
+builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
 
 WebApplication app = builder.Build();

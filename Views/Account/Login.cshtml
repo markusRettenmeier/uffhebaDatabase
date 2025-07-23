@@ -3,21 +3,29 @@
     ViewData["Title"] = "Login";
 }
 
-<h3>@ViewData["Title"]</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>@ViewData["Title"]</h3>
+        <p>Nutze einen lokalen Account, um dich einzuloggen.</p>
+        <hr />
 <form id="account" asp-controller="Account" asp-action="LoginPost" method="post">
-    <p>Nutze einen lokalen Account, um dich einzuloggen.</p>
-    <hr />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-floating pb-1">
-        <input type="email" asp-for="Email" class="form-control" autocomplete="EMail" required />
-        <label asp-for="Email" class="form-label"></label>
+    <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+        <input type="email" asp-for="Email" class="form-control" required />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
-    <div class="form-floating pb-1">
-        <input asp-for="Password" class="form-control" autocomplete="current-password" required />
-        <label asp-for="Password" class="form-label"></label>
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <div class="input-group">
+                    <input asp-for="Password" class="form-control" required />
+                    <button id="show_password" class="btn btn-primary" type="button">
+                        <span class="fa-solid fa-eye-slash" id="icon"></span>
+                    </button>
+                </div>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
     <div class="form-group">
         <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Anmelden</button>
     </div>
@@ -33,20 +41,21 @@
         <a href="#ResendEmailConfirmationModal" data-bs-target="#ResendEmailConfirmationModal" data-bs-toggle="modal">E-Mail-Bestätigung erneut senden</a>
     </p>
 </div>
+</div>
+</div>
 
-<!--modal2-->
 <div class="modal fade" id="forgot-password" tabindex="0" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="myModalLabel">Link wird an Ihre E-Mail gesendet</h4>
+                <h4 class="modal-title" id="myModalLabel">Link zum Zurücksetzen des Passworts, wird an Ihre E-Mail gesendet.</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form asp-action="ForgotPasswordSubmit">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-floating">
-                        <input asp-for="Email" class="form-control" autocomplete="E-Mail" required />
+                        <input asp-for="Email" placeholder="" class="form-control" autocomplete="E-Mail" required />
                         <label asp-for="Email"></label>
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
@@ -82,7 +91,7 @@
             <form asp-action="ResendEmailSubmit" asp-controller="Account">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-floating">
-                        <input asp-for="Email" autocomplete="E-Mail" class="form-control" required />
+                        <input asp-for="Email" placeholder="" autocomplete="E-Mail" class="form-control" required />
                         <label asp-for="Email"></label>
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>

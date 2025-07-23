@@ -14,6 +14,6 @@ namespace Sammlerplattform.Models.CityDatabase
         [Display(Name = "Ortsname (auch alt)")]
         [RegularExpression(@"^[a-zA-Z]{1,50}$", ErrorMessage = "Der Ortsname darf nur Buchstaben und max. 50 Zeichen enthalten.")]
         public required string OeconymName { get; set; }
-        public ICollection<CityNOeconym> CityNOeconymICollection { get; set; } = [];
+        public List<CityNOeconym> CityNOeconymList { get; set; } = [];
     }
 }

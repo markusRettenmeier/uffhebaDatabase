@@ -1,4 +1,4 @@
-﻿using Sammlerplattform.Models.ManufactoryDatabase;
+﻿using Sammlerplattform.Models.BrickDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -8,12 +8,13 @@ namespace Sammlerplattform.Models.EraDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public int Era_ID { get; set; }
+        [Display(Name = "ÄraId")]
+        public int EraID { get; set; }
 
         [Display(Name = "Äralangbezeichnung")]
-        [ConditionalRequired("IsEraLongRequired", true, ErrorMessage = "Bitte Bezeichnung angeben.")]
+        //[ConditionalRequired("IsEraLongRequired", true, ErrorMessage = "Bitte Bezeichnung angeben.")]
         [StringLength(50)]
-        public string? EraLong { get; set; }
+        public required string EraName { get; set; }
 
         [NotMapped]
         public bool IsEraLongRequired { get; set; } = true;
@@ -28,5 +29,7 @@ namespace Sammlerplattform.Models.EraDatabase
         //[Display(Name = "Endjahr")]
         //public int? EndYear { get; set; }
         //public ICollection<ManufacturingDate> ManufacturingDateICollection { get; set; } = [];
+
+        public List<BrickEntity> BrickEntityList { get; set; } = [];
     }
 }

@@ -2,8 +2,9 @@
 {
     public class ProductPictureSearchParameterModel
     {
-        public ICollection<int> SearchProductPicture_ID { get; set; } = [];
-        public ICollection<string> SearchFileExtension { get; set; } = [];
-        public ICollection<string> SearchSide { get; set; } = [];
+        public List<int> ProductPictureID { get; set; } = [];
+        public List<string> FileExtension { get; set; } = [];
+        public bool Frontside { get; set; }
+        public List<int> BrickEntityID { get; set; } = [];
     }
 }

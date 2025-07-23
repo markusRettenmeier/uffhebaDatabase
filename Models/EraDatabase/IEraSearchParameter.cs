@@ -2,7 +2,10 @@
 {
     public interface IEraSearchParameter
     {
-        ICollection<string> SearchEraLong { get; set; }
-        ICollection<string> SearchEraShort { get; set; }
+        List<string> EraName { get; set; }
+    }
+    public class EraSearchParameterModel : IEraSearchParameter
+    {
+        public List<string> EraName { get; set; } = [];
     }
 }

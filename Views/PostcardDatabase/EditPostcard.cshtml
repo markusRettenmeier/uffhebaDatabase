@@ -1,8 +1,9 @@
 ﻿@using System.Drawing;
-@using Sammlerplattform.Controllers.GenericClasses
 @using Sammlerplattform.Models.CityDatabase;
+@using Sammlerplattform.Models.PostcardDatabase
 @using Sammlerplattform.Models.ProductDatabase;
-@model Sammlerplattform.Models.PostcardModel
+@using Sammlerplattform.Services.GenericClasses
+@model PostcardModel
 
 @{
     ViewData["Title"] = "Postkarte ändern";
@@ -11,11 +12,11 @@
     var frontside = Model.ProductPictureList.Where(x => x.Frontside).FirstOrDefault();
     string pathFrontside = string.Empty;
     if (frontside != null)
-        pathFrontside = @"/images/Normal/" + frontside.ProductPicture_ID + "." + frontside.FileExtension;
+        pathFrontside = @"/images/Normal/" + frontside.ProductPictureID + "." + frontside.FileExtension;
     var backside = Model.ProductPictureList.Where(x => !x.Frontside).FirstOrDefault();
     string pathBackside = string.Empty;
     if (backside != null)
-        pathBackside = @"/images/Normal/" + backside.ProductPicture_ID + "." + backside.FileExtension;
+        pathBackside = @"/images/Normal/" + backside.ProductPictureID + "." + backside.FileExtension;
     var colorRALWriting = Sammlerplattform.Services.ColorConverter.ArgbToHex(Model.PostcardEntity.ColorRALWritingFrontside);
     string? colorImage = null;
     if (Model.PostcardImprint != null)
@@ -39,8 +40,6 @@
     {
         <input type="hidden" name="pathFrontside" value="@pathFrontside" class="storeInput" />
         <input type="hidden" name="pathBackside" value="@pathBackside" class="storeInput" />
-        <p>Wenn möglich, dann sollten die Bilder im png-Format sein.</p>
-        <p>Alle Bilder werden automatisch mit einem Wasserzeichen versehen, das Ihrem Nutzernamen entspricht.</p>
         <div class="row position-relative">
             <div class="col">
                 <div class="card m-2" width>
@@ -59,26 +58,18 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
-            <label class="control-label">Vorderseite</label>
-            <input type="file" name="Frontside" class="form-control storeInput" />
-        </div>
-        <div class="form-group">
-            <label class="control-label">Rückseite</label>
-            <input type="file" name="Backside" class="form-control storeInput" />
-        </div>
     }
-    else
-    {
-        <div class="form-group">
-            <label class="control-label">Vorderseite</label>
-            <input type="file" name="Frontside" class="form-control" required />
-        </div>
-        <div class="form-group">
-            <label class="control-label">Rückseite</label>
-            <input type="file" name="Backside" class="form-control" />
-        </div>
-    }
+    <p>Wenn möglich, dann sollten die Bilder im png-Format sein.</p>
+    <p>Alle Bilder werden automatisch mit einem Wasserzeichen versehen, das Ihrem Nutzernamen entspricht.</p>
+    <div class="form-group">
+        <label class="control-label">Vorderseite</label>
+        <input type="file" name="Frontside" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label class="control-label">Rückseite</label>
+        <input type="file" name="Backside" class="form-control" />
+    </div>
+
     <div class="accordion pt-2" id="accordionExample">
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingPostcard">
@@ -110,9 +101,9 @@
                             @foreach (var city in Model.PostcardPotential.CityList)
                             {
                                 <tr id="trCity_@count">
-                                    <td scope="col" class="InputPostcardCityID">@city.City_ID</td>
+                                    <td scope="col" class="InputPostcardCityID">@city.CityID</td>
                                     <td scope="col">
-                                    @foreach(var cno in city.CityNOeconymICollection)
+                                    @foreach(var cno in city.CityNOeconymList)
                                         {
                                             if (cno.CurrentName)
                                             {
@@ -125,7 +116,7 @@
                                         }                                    
                                     </td>
                                     <td scope="col">
-                                        @foreach(var postalcode in city.PostalcodeICollection)
+                                        @foreach(var postalcode in city.PostalcodeList)
                                         {
                                             @postalcode.PostalcodeNumber
                                             @separator
@@ -303,7 +294,7 @@
                                     <div class="col">
                                         <label asp-for="PostcardImprint.Era_ID" class="control-label"></label>
                                         <input asp-for="PostcardImprint.Era_ID" class="form-control InputEraID storeInput" type="hidden" />
-                                        <input asp-for="Era.EraLong" class="form-control InputEra storeInput" id="PostcardImprint_Era" />
+                                        <input asp-for="Era.EraName" class="form-control InputEra storeInput" id="PostcardImprint_Era" />
                                         <span asp-validation-for="PostcardImprint.Era_ID" class="text-danger"></span>
                                     </div>
                                     <div class="col">
@@ -439,7 +430,7 @@
                                     <div class="col">
                                         <label asp-for="PostcardImprint.Era_ID" class="control-label"></label>
                                         <input asp-for="PostcardImprint.Era_ID" class="form-control InputEraID storeInput" type="hidden" />
-                                        <input asp-for="Era.EraLong" class="form-control InputEra storeInput" id="PostcardImprint_Era" />
+                                        <input asp-for="Era.EraName" class="form-control InputEra storeInput" id="PostcardImprint_Era" />
                                         <span asp-validation-for="PostcardImprint.Era_ID" class="text-danger"></span>
                                     </div>
                                     <div class="col">
@@ -598,8 +589,8 @@
             </h2>
             <div id="collapseSenderReciever" class="accordion-collapse collapse" aria-labelledby="headingSenderReciever" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
-                    <input type="hidden" asp-for="PersonSender.Person_ID" />
-                    <input type="hidden" asp-for="PersonReceiver.Person_ID" />
+                    <input type="hidden" asp-for="PersonSender.PersonID" />
+                    <input type="hidden" asp-for="PersonReceiver.PersonID" />
                     <input class="form-check-input checkDisablity" id="checkSender" asp-for="HasSender" /> @Html.DisplayNameFor(model => model.HasSender)
                     <input class="form-check-input checkDisablity" id="checkReceiver" asp-for="HasReceiver" /> @Html.DisplayNameFor(model => model.HasReceiver)
                     <div class="row">
@@ -659,8 +650,8 @@
                                                     @if (Model.PersonReceiver.City != default)
                                                     {
                                                         <td scope="col" id="city_ID">@Model.PersonReceiver.City_ID</td>
-                                                        <td scope="col" id="city">@Model.PersonReceiver.City.CityNOeconymICollection.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault()</td>
-                                                        <td scope="col" id="postalcode">@Model.PersonReceiver.City.PostalcodeICollection.First().PostalcodeNumber</td>
+                                                        <td scope="col" id="city">@Model.PersonReceiver.City.CityNOeconymList.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault()</td>
+                                                        <td scope="col" id="postalcode">@Model.PersonReceiver.City.PostalcodeList.First().PostalcodeNumber</td>
                                                         <td scope="col" id="byname">@Model.PersonReceiver.City.Byname</td>
                                                         @if (Model.PersonReceiver.City.Geography != null)
                                                         {
@@ -767,7 +758,7 @@
                                 <input class="form-control storeInput InputManufactory" id="InputManufactory_0" placeholder="Verlag" aria-label="Verlag" />
                                 <select class="form-select dataSet storeInput TownOfManufactorySelect PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
                                 </select>
-                                <span asp-validation-for="Manufactory.Manufactory_ID" class="text-danger"></span>
+                                <span asp-validation-for="Manufactory.ManufactoryID" class="text-danger"></span>
                                 <button type="button" class="form-control btn btn-danger DeleteManufactory" id="DeleteManufactory_0">Verlag von Karte entfernen</button>
                             </div>
                         </div>
@@ -780,10 +771,10 @@
                                     manCount++;
                                     <div class="col" id="DivManufactory_@manCount">
                                         <div class="input-group">
-                                            <input type="hidden" class="form-control dataSet storeInput InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_@manCount" value="@pemc.publisher.Manufactory_ID" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
+                                            <input type="hidden" class="form-control dataSet storeInput InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_@manCount" value="@pemc.publisher.ManufactoryID" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
                                             <input class="form-control storeInput InputManufactory" id="InputManufactory_@manCount" value="@pemc.publisher.ManufactoryName" placeholder="Verlag" aria-label="Verlag" />
                                             <select class="form-select dataSet storeInput TownOfManufactorySelect PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
-                                                @if (pemc.city != null && pemc.city.City_ID > 0)
+                                                @if (pemc.city != null && pemc.city.CityID > 0)
                                                 {
                                                     <option value="0"></option>
                                                 }
@@ -796,20 +787,20 @@
                                                     string geographyName = string.Empty;
                                                     if (cl.Geography!= null && !string.IsNullOrEmpty(cl.Geography.GeographyName))
                                                         geographyName = " (" + cl.Geography.GeographyName + ")";
-                                                    var oeconym = cl.CityNOeconymICollection.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
+                                                    var oeconym = cl.CityNOeconymList.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
                                                     if (oeconym == null)
                                                         continue;
-                                                    if (pemc.city != null && cl.City_ID == pemc.city.City_ID)
+                                                    if (pemc.city != null && cl.CityID == pemc.city.CityID)
                                                     {
-                                                        <option value="@cl.City_ID" selected>@oeconym @geographyName</option>
+                                                        <option value="@cl.CityID" selected>@oeconym @geographyName</option>
                                                     }
                                                     else
                                                     {
-                                                        <option value="@cl.City_ID">@oeconym @geographyName</option>
+                                                        <option value="@cl.CityID">@oeconym @geographyName</option>
                                                     }
                                                 }
                                             </select>
-                                            <span asp-validation-for="Manufactory.Manufactory_ID" class="text-danger"></span>
+                                            <span asp-validation-for="Manufactory.ManufactoryID" class="text-danger"></span>
                                             <button type="button" class="form-control btn btn-danger DeleteManufactory" id="@manCount">Verlag von Karte entfernen</button>
                                         </div>
                                     </div>

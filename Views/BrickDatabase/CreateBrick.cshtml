@@ -1,10 +1,14 @@
-﻿@using Sammlerplattform.Controllers.GenericClasses
+﻿@using Sammlerplattform.Models.ManufactoryDatabase
+@using Sammlerplattform.Services.GenericClasses
 @model Sammlerplattform.Models.BrickDatabase.BrickOperationParameterModel
 @using Sammlerplattform.Models.BrickDatabase;
+@using System.Text.Json
 
 @{
     ViewData["Title"] = "Ziegel erstellen";
-    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+    Layout = "~/Views/Shared/_LayoutSettingsProduct.cshtml";
+
+    var manufactoryListJson = JsonSerializer.Serialize(ViewData["ManufactoryList"]);
 }
 
 <h4>@ViewData["Title"]</h4>
@@ -14,18 +18,34 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <p>Wenn möglich, dann sollten die Bilder im png-Format sein.</p>
     <p>Alle Bilder werden automatisch mit einem Wasserzeichen versehen, das Ihrem Nutzernamen entspricht.</p>
-    <div class="form-group">
+    @* <div class="form-group">
         <label class="control-label">Vorderseite*</label>
-        <input type="file" name="Frontside" class="form-control" required />
-    </div>
-    <p id="pOfCanvas" style="display: none">Leinwand wird nur gezeigt, wenn ganz nach oben gescrollt wurde. Sonst verschiebt sich die Anzeige</p>
-    <div id="divOfCanvas" style="border-style: solid; border-width: thin; border-color: black; border-radius: 5px; width: 720px">
-        <div id="AppendTextPosition"></div>
-        <canvas id="myCanvas" width="700" height="350" style="background: lightgrey; margin: 5px"></canvas>
-        <div>
-            <button class="btn btn-primary" id="clearCanvas" onclick="clearCanvas()" style="margin: 5px">Leinwand leeren</button>
+        <input type="file" name="formFiles" class="form-control" required />
+    </div> *@
+@*     @for (int i = 0; i < 1; i++)
+    {
+        string label = i switch
+        {
+            0 => "Vorderseite",
+            1 => "Rückseite",
+            2 => "Seitenansicht",
+            _ => $"Ansicht {i}"
+        };
+
+        <div class="mb-3">
+            <label asp-for="@Model.ProductPictureList[@i].Datei" class="form-label">@label*</label>
+            <input type="file" name="ProductPictureList[@i].Datei" class="form-control" required>
+            <input type="hidden" name="ProductPictureList[@i].PerspectiveInt" value="@i">
+        </div>
+    } *@
+    <div id="appendInputFormFile">
+        <div class="mb-3" id="inputGroupFormFile_0">
+            <label asp-for="ProductPictureList[0].PerspectiveInt" class="form-label">Vorderseite</label>
+            <input type="file" name="ProductPictureList[0].Datei" class="form-control" required>
+            <input type="hidden" asp-for="ProductPictureList[0].PerspectiveInt" value="0">
         </div>
     </div>
+    <button type="button" class="btn btn-primary" onclick="addInputFormFile('Create')">Mehr Bilder hinzufügen</button>
     <div class="accordion pt-2" id="accordionBrick">
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingBrick">
@@ -35,10 +55,11 @@
             </h2>
             <div id="collapseBrick" class="accordion-collapse collapse show" aria-labelledby="headingBrick" data-bs-parent="#accordionBrick">
                 <div class="accordion-body">
+                    <input type="hidden" name="BrickEntity.BrickPotentialID" id="bricknameBrickPotentialID_Input">
                     <table class="table" id="bricknameTable">
                         <thead>
                             <tr>
-                                <th scope="col">@Html.DisplayNameFor(x => x.BrickPotential.BrickPotential_ID)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.BrickPotential.BrickPotentialID)</th>
                                 <th scope="col">@Html.DisplayNameFor(x => x.Brickname.Name)</th>
                                 <th scope="col">@Html.DisplayNameFor(x => x.BrickPotential.UsageEnum)</th>
                                 <th scope="col">Weitere Aktionen</th>
@@ -46,7 +67,7 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td scope="col" id="bricknameBrickPotentialID"></td>
+                                <td scope="col" id="bricknameBrickPotentialID" name="BrickPotential.BrickPotentialID"></td>
                                 <td scope="col" id="bricknameName"></td>
                                 <td scope="col" id="bricknameUsageEnum"></td>
                                 <td scope="col">
@@ -60,9 +81,18 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div class="form-group">
+                        <label asp-for="BrickEntity.ReliefEnum" class="control-label"></label>
+                        <select asp-for="BrickEntity.ReliefEnum" class="form-select">
+                            @foreach (Enum reliefValue in Enum.GetValues(typeof(ReliefType)))
+                            {
+                                <option value="@reliefValue">@reliefValue.GetDescription()</option>
+                            }
+                        </select>
+                    </div>
                     <div class="form-group form-check">
                         <label class="form-check-label">
-                            <input class="form-check-input storeInput" asp-for="BrickEntity.Fake" /> @Html.DisplayNameFor(model => model.BrickEntity.Fake)
+                            <input class="form-check-input" asp-for="BrickEntity.Fake"> @Html.DisplayNameFor(model => model.BrickEntity.Fake)
                         </label>
                     </div>
                     <div class="form-group">
@@ -88,6 +118,9 @@
                             }
                         </select>
                     </div>
+                    <hr />
+                    <div id="colorContainer"></div>
+                    <button type="button" class="btn btn-primary" onclick="addColor()">Mehr Farben hinzufügen</button>
                 </div>
             </div>
         </div>
@@ -101,18 +134,23 @@
                 <div class="accordion-body">
                     <div class="form-group">
                         <label asp-for="BrickEntity.Length" class="control-label"></label>
-                        <input asp-for="BrickEntity.Length" class="form-control" />
+                        <input asp-for="BrickEntity.Length" class="form-control">
                         <span asp-validation-for="BrickEntity.Length" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="BrickEntity.Width" class="control-label"></label>
-                        <input asp-for="BrickEntity.Width" class="form-control" />
+                        <input asp-for="BrickEntity.Width" class="form-control">
                         <span asp-validation-for="BrickEntity.Width" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="BrickEntity.Height" class="control-label"></label>
-                        <input asp-for="BrickEntity.Height" class="form-control" />
+                        <input asp-for="BrickEntity.Height" class="form-control">
                         <span asp-validation-for="BrickEntity.Height" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="BrickEntity.Radius" class="control-label"></label>
+                        <input asp-for="BrickEntity.Radius" class="form-control">
+                        <span asp-validation-for="BrickEntity.Radius" class="text-danger"></span>
                     </div>
                     @*                 <div class="form-group">
                     <label asp-for="BrickEntity.Requisition" class="control-label"></label>
@@ -122,7 +160,7 @@
                 </div>
             </div>
         </div>
-        <div class="accordion-item">
+        @* <div class="accordion-item">
             <h2 class="accordion-header" id="headingEngraving">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEngraving" aria-expanded="false" aria-controls="collapseEngraving">
                     Gravur
@@ -130,41 +168,8 @@
             </h2>
             <div id="collapseEngraving" class="accordion-collapse collapse" aria-labelledby="headingEngraving" data-bs-parent="#accordionEngraving">
                 <div class="accordion-body">
-                    <label class="control-label">Ziegler</label>
-                    <table class="table" id="manufacturerTable">
-                        <thead>
-                            <tr>
-                                <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.Person_ID)</th>
-                                <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.Name)</th>
-                                <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.PersonSignature)</th>
-                                <th scope="col">Weitere Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td scope="col" id="Manufacturer_ID"></td>
-                                <td scope="col" id="ManufacturerName"></td>
-                                <td scope="col" id="ManufacturerSignature"></td>
-                                <td scope="col">
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsBrickmakerExistingModal">
-                                            Ziegler auswählen
-                                        </button>
-                                        <button type="button" id="clearOneRowManufacturerTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="form-group">
-                        <label asp-for="BrickEntity.ReliefEnum" class="control-label"></label>
-                        <select asp-for="BrickEntity.ReliefEnum" class="form-select">
-                            @foreach (Enum reliefValue in Enum.GetValues(typeof(ReliefType)))
-                            {
-                                <option value="@reliefValue">@reliefValue.GetDescription()</option>
-                            }
-                        </select>
-                    </div>
+                    
+                    
                     <label class="control-label">Ziegelei</label>
                     <table class="table" id="manufacturerTable">
                         <thead>
@@ -195,27 +200,9 @@
                             </tr>
                         </tbody>
                     </table>
-                   @*  <div class="row">
-                        <div class="col-8">
-                            <div class="input-group">
-                                <input type="hidden" class="form-control storeInput InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_0" aria-label="Ziegeleinummer" />
-                                <input class="form-control InputManufactory storeInput" id="InputManufactory_0" placeholder="Ziegelei" aria-label="Ziegelei" />
-                                <select class="TownOfManufactorySelect form-select storeInput PublisherCreateEdit" aria-label="Ziegeleiort" id="CityOfManufactorySelect_0">
-                                </select>
-                                <span asp-validation-for="BrickworksTuple.manufactory.Manufactory_ID" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="AppendManufactoryHere">
-                        </div>
-                        <div class="btn-group" role="group" aria-label="Basic example">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CreateManufactoryModal">
-                                Hersteller-Schnellerfassung
-                            </button>
-                        </div>
-                    </div> *@
                 </div>
             </div>
-        </div>
+        </div> *@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingManufacturingDate">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufacturingDate" aria-expanded="false" aria-controls="collapseManufacturingDate">
@@ -225,28 +212,294 @@
             <div id="collapseManufacturingDate" class="accordion-collapse collapse" aria-labelledby="headingManufacturingDate" data-bs-parent="#accordionManufacturingDate">
                 <div class="accordion-body">
                     <div class="form-group">
-                        <label asp-for="ManufacturingDate.ExactYear"></label>
-                        <input asp-for="ManufacturingDate.ExactYear" class="form-control" />
-                        <span asp-validation-for="ManufacturingDate.ExactYear" class="text-danger"></span>
+                        <label asp-for="BrickEntity.ExactYear"></label>
+                        <input asp-for="BrickEntity.ExactYear" class="form-control">
+                        <span asp-validation-for="BrickEntity.ExactYear" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ManufacturingDate.StartYear"></label>
-                        <input asp-for="ManufacturingDate.StartYear" class="form-control" />
-                        <span asp-validation-for="ManufacturingDate.StartYear" class="text-danger"></span>
+                        <label asp-for="BrickEntity.StartYear"></label>
+                        <input asp-for="BrickEntity.StartYear" class="form-control">
+                        <span asp-validation-for="BrickEntity.StartYear" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ManufacturingDate.EndYear"></label>
-                        <input asp-for="ManufacturingDate.EndYear" class="form-control" />
-                        <span asp-validation-for="ManufacturingDate.EndYear" class="text-danger"></span>
+                        <label asp-for="BrickEntity.EndYear"></label>
+                        <input asp-for="BrickEntity.EndYear" class="form-control">
+                        <span asp-validation-for="BrickEntity.EndYear" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <input class="form-check-input storeInput" asp-for="ManufacturingDate.IsApproximate" /> @Html.DisplayNameFor(model => model.ManufacturingDate.IsApproximate)
+                        <input class="form-check-input" asp-for="BrickEntity.IsApproximate"> @Html.DisplayNameFor(model => model.BrickEntity.IsApproximate)
                     </div>
-                    <div class="form-group">
+                    @* <div class="form-group">
                         <label asp-for="ManufacturingDate.Note"></label>
-                        <input asp-for="ManufacturingDate.Note" class="form-control" />
+                        <input asp-for="ManufacturingDate.Note" class="form-control">
                         <span asp-validation-for="ManufacturingDate.Note" class="text-danger"></span>
-                    </div>
+                    </div> *@
+                    <input type="hidden" name="BrickEntity.EraId" id="eraID_Input">
+                    <table class="table" id="eraTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Era.EraID)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Era.EraName)</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="eraID_Table"></td>
+                                <td scope="col" id="eraName"></td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#EraModal">
+                                            Ära auswählen
+                                        </button>
+                                        <button type="button" id="clearOneRowEraTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingManufactory">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufactory" aria-expanded="false" aria-controls="collapseManufactory">
+                    Hersteller
+                </button>
+            </h2>
+            <div id="collapseManufactory" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#accordionManufacutrer">
+                <div class="accordion-body">
+                    @* <label class="control-label">Künstler/ Handwerker</label>
+                    <table class="table" id="manufacturerTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Person.PersonID)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Person.Name)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Person.Signature)</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="Manufacturer_ID"></td>
+                                <td scope="col" id="ManufacturerName"></td>
+                                <td scope="col" id="ManufacturerSignature"></td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsBrickmakerExistingModal">
+                                            Person auswählen
+                                        </button>
+                                        <button type="button" id="clearOneRowManufacturerTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table> *@
+                    @* <label class="control-label">Ziegelei</label> *@
+                    @* <div class="row">
+                        <input id="productionFacilityInput" hidden value="Ziegelei">
+                        <div class="col-8 FirstManufactory" style="display: none">
+                            <div class="input-group">
+                                <input type="hidden" class="form-control InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_0" name="BrickEntityNManufactoryNCity" aria-label="Herstellernummer">
+                                <input class="form-control InputManufactory" id="InputManufactory_0" placeholder="Verlag" aria-label="Verlag">
+                                <select class="TownOfManufactorySelect form-select PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
+                                </select>
+                                <button type="button" class="form-control btn btn-danger DeleteManufactory" id="DeleteManufactory_0">Verlag entfernen</button>
+                            </div>
+                        </div>
+                        <div class="AppendManufactoryHere">
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-primary AddMoreManufactorys">Der Karte mehr Ziegeleien hinzufügen</button>
+                        </div>
+                    </div> *@
+                    <input id="productionFacilityInput" hidden value="Ziegelei">
+                    <div id="manufactoryContainer" class="AppendManufactoryHere"></div>
+                    <button type="button" class="btn btn-primary" onclick="addManufactory()">Der Karte mehr Hersteller hinzufügen</button>                
+                    <hr>
+                    <input type="hidden" id="processOfManufactureProcessOfManufactureID_Input" name="BrickEntity.ProcessOfManufactureID">
+                    <table class="table" id="processOfManufactureTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Html.DisplayNameFor(x => x.BrickEntity.ProcessOfManufactureID)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Mainprocess)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.ProcessOfManufactureName)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Technique)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Description)</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="processOfManufactureProcessOfManufactureID"></td>
+                                <td scope="col" id="processOfManufactureMainprocess"></td>
+                                <td scope="col" id="processOfManufactureProcessOfManufactureName"></td>
+                                <td scope="col" id="processOfManufactureTechnique"></td>
+                                <td scope="col" id="processOfManufactureDescription"></td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#processOfManufactureModal">
+                                            Herstellungsprozess auswählen
+                                        </button>
+                                        <button type="button" id="clearOneRowProcessOfManufactureTableButton" onclick="clearOneRowProcessOfManufactureTable()" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingEngraving">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePerson" aria-expanded="false" aria-controls="collapsePerson">
+                    Personen
+                </button>
+            </h2>
+            <div id="collapsePerson" class="accordion-collapse collapse" aria-labelledby="headingEngraving" data-bs-parent="#accordionEngraving">
+                <div class="accordion-body">
+                    @*<label class="control-label">Ziegler</label>
+                     <input type="hidden" id="ManufacturerID_Input" asp-for="Manufacturer.Person_ID">
+                    <input type="hidden" asp-for="Manufacturer.Person_ID"> *@
+                    @*<table class="table" id="manufacturerTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.Person_ID)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.Name)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.PersonSignature)</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="Manufacturer_ID">@Html.DisplayFor(x => x.Manufacturer.Person_ID)</td>
+                                <td scope="col" id="ManufacturerName">@Html.DisplayFor(x => x.Manufacturer.Name)</td>
+                                <td scope="col" id="ManufacturerSignature">@Html.DisplayFor(x => x.Manufacturer.PersonSignature)</td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsBrickmakerExistingModal">
+                                            Ziegler auswählen
+                                        </button>
+                                        @if(Model.Manufacturer != null)
+                                        {
+                                            <button type="button" id="clearOneRowManufacturerTable" class="btn btn-outline-danger">Entfernen</button> 
+                                        }
+                                        else
+                                        {
+                                            <button type="button" id="clearOneRowManufacturerTable" class="btn btn-outline-danger" style="display: none">Entfernen</button> 
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>*@
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Person.PersonID)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Person.Name)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Person.Signature)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Person.Pseudonym)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.BrickEntityNPersonList[0].Relationship)</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="personResultTableBody">
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsPersonExistingModal">
+                        Person mit Bezug zum Objekt hinzufügen
+                    </button>
+                    @*<div class="row">
+                        <div class="col-8 firstPerson" style="display: none">
+                            <div class="input-group">
+                                <input type="hidden" class="form-control" id="inputPersonID_0" aria-label="Personennummer">
+                                <input class="form-control InputPersonName" id="InputPersonName_0" placeholder="Name der Person" aria-label="Name der Person">
+                                <input class="form-control InputRelation" id="InputRelation_0" placeholder="Beziehung zum Gegenstand" aria-label="Beziehung zum Gegenstand">
+                                <input class="form-control InputRelation" id="InputRelation_0" placeholder="Beziehung zum Gegenstand" aria-label="Beziehung zum Gegenstand">
+                                <input class="form-control InputRelation" id="InputRelation_0" placeholder="Beziehung zum Gegenstand" aria-label="Beziehung zum Gegenstand">
+                                <select class="form-select" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
+                                </select>
+                                <button type="button" class="form-control btn btn-danger DeleteManufactory" id="DeleteManufactory_0">Verlag entfernen</button>
+                            </div>
+                        </div>
+                        <div class="AppendManufactoryHere">
+                            @if (Model != null && Model.ManufactoryTupleList != null)
+                            {
+                                int manCount = 0;
+                                foreach (var manufactoryTuple in Model.ManufactoryTupleList)
+                                {
+                                    manCount++;
+                                    <div class="col" id="DivManufactory_@manCount">
+                                        <div class="input-group">
+                                            <input type="hidden" class="form-control dataSet storeInput InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_@manCount" value="@manufactoryTuple.manufactory.Manufactory_ID" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
+                                            <input class="form-control storeInput InputManufactory" id="InputManufactory_@manCount" value="@manufactoryTuple.manufactory.ManufactoryName" placeholder="Verlag" aria-label="Verlag" />
+                                            <select class="form-select dataSet storeInput TownOfManufactorySelect PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
+                                                @if (manufactoryTuple.selectedCityID > 0)
+                                                {
+                                                    <option value="0"></option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="0" selected></option>
+                                                }
+                                                @foreach (var cl in manufactoryTuple.cityList)
+                                                {
+                                                    string geographyName = string.Empty;
+                                                    if (cl.Geography != null && !string.IsNullOrEmpty(cl.Geography.GeographyName))
+                                                        geographyName = " (" + cl.Geography.GeographyName + ")";
+                                                    var oeconym = cl.CityNOeconymICollection.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
+                                                    if (oeconym == null)
+                                                        continue;
+                                                    if (cl.City_ID == manufactoryTuple.selectedCityID)
+                                                    {
+                                                        <option value="@cl.City_ID" selected>@oeconym @geographyName</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@cl.City_ID">@oeconym @geographyName</option>
+                                                    }
+                                                }
+                                            </select>
+                                            <button type="button" class="form-control btn btn-danger DeleteManufactory" id="@manCount">Verlag von Karte entfernen</button>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-primary AddMoreManufactorys">Der Karte mehr Ziegeleien hinzufügen</button>
+                        </div>
+                    </div>*@
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCitys" aria-expanded="false" aria-controls="collapseCitys">
+                    Orte
+                </button>
+            </h2>
+            <div id="collapseCitys" class="accordion-collapse collapse" data-bs-parent="#accordionBrick">
+                <div class="accordion-body">
+                    <table class="table" id="cityTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">Orts_ID</th>
+                                <th scope="col">Ort</th>
+                                <th scope="col">PLZ</th>
+                                <th scope="col">Beiname</th>
+                                <th scope="col">Geographischer Bezug</th>
+                                <th scope="col">Bezug</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cityResultTableBody">
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsCityExistingModal">
+                        Ort hinzufügen
+                    </button>
                 </div>
             </div>
         </div>
@@ -260,46 +513,41 @@
                 <div class="accordion-body">
                     <div class="form-group">
                         <label asp-for="BrickEntity.FilingLocation"></label>
-                        <input asp-for="BrickEntity.FilingLocation" class="form-control" />
+                        <input asp-for="BrickEntity.FilingLocation" class="form-control">
                         <span asp-validation-for="BrickEntity.FilingLocation" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="BrickEntity.Price"></label>
-                        <input asp-for="BrickEntity.Price" class="form-control" />
+                        <input asp-for="BrickEntity.Price" class="form-control">
                         <span asp-validation-for="BrickEntity.Price" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="BrickEntity.Comment"></label>
-                        <input asp-for="BrickEntity.Comment" class="form-control" />
-                        <span asp-validation-for="BrickEntity.Comment" class="text-danger"></span>
-                    </div>
                     @* <table class="table" id="OwnerTable">
-                    <thead>
-                    <tr>
-                    <th scope="col">Person_ID</th>
-                    <th scope="col">Eigentümer</th>
-                    <th scope="col">Straße</th>
-                    <th scope="col">Hausnummer</th>
-                    <th scope="col">PLZ</th>
-                    <th scope="col">Ort</th>
-                    <th scope="col">Weitere Aktionen</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                    <td scope="col" id="brickname_ID"></td>
-                    <td scope="col" id="brickname"></td>
-                    <td scope="col" id="usage"></td>
-                    <td scope="col">
-                    <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsManufacturerExistingModal">
-                    Ziegler auswählen
-                    </button>
-                    <button type="button" id="clearOneRowBricknameTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
-                    </div>
-                    </td>
-                    </tr>
-                    </tbody>
+                        <thead>
+                            <tr>
+                                <th scope="col">Person_ID</th>
+                                <th scope="col">Eigentümer</th>
+                                <th scope="col">Straße</th>
+                                <th scope="col">Hausnummer</th>
+                                <th scope="col">PLZ</th>
+                                <th scope="col">Ort</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="brickname_ID"></td>
+                                <td scope="col" id="brickname"></td>
+                                <td scope="col" id="usage"></td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsManufacturerExistingModal">
+                                            Person auswählen
+                                        </button>
+                                        <button type="button" id="clearOneRowBricknameTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
                     </table> *@
                     <div class="form-group">
                         <label asp-for="BrickEntity.TransferFromOwner"></label>
@@ -310,131 +558,7 @@
             </div>
         </div>
     </div>
-    <button type="submit" class="btn btn-success mt-2" onclick="ConcludeLists()">Erstellen</button>
+    <button type="submit" class="btn btn-success mt-2">Erstellen</button>
 </form>
 
-
-<div class="modal fade" id="IsBricknameExistingModal" tabindex="-1" aria-labelledby="IsBricknameExistingModal" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="BricknameModalLabel">Wähle den Ziegelnamen</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body ui-front">
-                <div class="row">
-                    <div class="col-sm-4 col-sm-offset-4">
-                        <div class="input-group">
-                            <input type="text" class="form-control InputBricknameSearch" placeholder="Ziegelname" aria-label="Ziegelname" />
-                            <div class="form-group">
-                                <label asp-for="BrickPotential.UsageEnum" class="control-label"></label>
-                                <select class="form-select" id="SelectUsage">
-                                    @foreach (BrickUsageType usageValue in Enum.GetValues(typeof(BrickUsageType)))
-                                    {
-                                        <option value="@((int)usageValue)">@usageValue.GetDescription()</option>
-                                    }
-                                </select>
-                            </div>
-                            <button class="btn btn-primary ExistingBricknameSearchSubmit" type="button">Suchen</button>
-                        </div>
-                    </div>
-                </div>
-                <table class="table" id="bricknameSearchResultTable">
-                    <thead>
-                        <tr>
-                            <th scope="col">@Html.DisplayNameFor(x => x.BrickPotential.BrickPotential_ID)</th>
-                            <th scope="col">@Html.DisplayNameFor(x => x.Brickname.Name)</th>
-                            <th scope="col">@Html.DisplayNameFor(x => x.BrickPotential.UsageEnum)</th>
-                            <th scope="col">Aktionen</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-            <div class="modal-footer">
-                @*                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CreateCityModal">
-                Ziegelname-Schnellerfassung
-                </button> *@
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="IsBrickmakerExistingModal" tabindex="-1" aria-labelledby="IsBrickmakerExistingModal" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="BrickmakerModalLabel">Wähle den Ziegler</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body ui-front">
-                <div class="row">
-                    <div class="col-sm-4 col-sm-offset-4">
-                        <div class="input-group">
-                            <input type="text" class="form-control InputManufacturerNameSearch" placeholder="Name des Zieglers" aria-label="Zieglername" />
-                            <input type="text" class="form-control InputManufacturerSignatureSearch" placeholder="Zeichen" aria-label="Zeichen" />
-                            <input type="hidden" class="InputManufacturerProfessionSearch" value="Ziegler" />
-                            <button class="btn btn-primary ExistingManufacturerSearchSubmit" type="button">Suchen</button>
-                        </div>
-                    </div>
-                </div>
-                <table class="table" id="manufacturerSearchResultTable">
-                    <thead>
-                        <tr>
-                            <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.Person_ID)</th>
-                            <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.Name)</th>
-                            <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.PersonSignature)</th>
-                            <th scope="col">Aktionen</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-            <div class="modal-footer">
-                @*                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CreateCityModal">
-                Ziegler-Schnellerfassung
-                </button> *@
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="IsManufactoryExistingModal" tabindex="-1" aria-labelledby="IsManufactoryExistingModal" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="ManufactoryModalLabel">Wähle den Ziegler</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body ui-front">
-                <div class="row">
-                    <div class="col-sm-4 col-sm-offset-4">
-                        <div class="input-group">
-                            <input type="text" class="form-control InputManufactorySearch" placeholder="Manufakturname" aria-label="Manufakturname" />
-                            <input type="text" class="form-control InputOeconymSearch" placeholder="Standort" aria-label="Standort" />
-                            <input type="hidden" class="InputProductionFacilitySearch" value="Ziegelei" aria-label="Produktionsstätte" />
-                            <button class="btn btn-primary ExistingManufactorySearchSubmit" type="button">Suchen</button>
-                        </div>
-                    </div>
-                </div>
-                <table class="table" id="manufactorySearchResultTable">
-                    <thead>
-                        <tr>
-                            <th scope="col">@Html.DisplayNameFor(x => x.BrickworksTuple.manufactory.Manufactory_ID)</th>
-                            <th scope="col">@Html.DisplayNameFor(x => x.BrickworksTuple.manufactory.ManufactoryName)</th>
-                            <th scope="col">Standort</th>
-                            <th scope="col">Produktionsstätte</th>
-                            <th scope="col">Aktionen</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-            <div class="modal-footer">
-                @* <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CreateCityModal">
-                Ziegler-Schnellerfassung
-                </button> *@
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-            </div>
-        </div>
-    </div>
-</div>
+<partial name="_Modals.cshtml" />

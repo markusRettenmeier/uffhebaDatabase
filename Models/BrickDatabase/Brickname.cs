@@ -7,11 +7,12 @@ namespace Sammlerplattform.Models.BrickDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public int Brickname_ID { get; set; }
+        public int BricknameID { get; set; }
         [StringLength(30)]
+        [Display(Name = "Bezeichnung")]
         public required string Name { get; set; }
-
-        public int? BrickPotential_ID { get; set; }
+        public int? BrickPotentialID { get; set; }
         public BrickPotential? BrickPotential { get; set; }
+        public string? Description { get; set; }
     }
 }
