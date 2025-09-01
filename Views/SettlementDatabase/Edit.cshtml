@@ -1,0 +1,141 @@
+﻿@model SettlementOperationParameterModel
+@using Sammlerplattform.Models.PlaceDatabase
+@using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase
+
+@{
+    ViewData["Title"] = "Ort ändern";
+    Layout = "~/Views/Shared/_LayoutSettingsPlace.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+<form asp-action="EditSubmit" asp-controller="SettlementDatabase">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input asp-for="Place.PlaceID" type="hidden">
+    <input asp-for="Place.ToponymyTypeInt" type="hidden">
+    <div id="postalcodeContainer" class="mb-3">
+        @for(int i = 0; i< Model.SettlementNPostalcodeList.Count; i++)
+        {
+            <div class="input-group inputDivPostalcode mb-2">
+                <div class="input-group">
+                    <input class="form-control inputPostalcode" placeholder="PLZ" asp-for="SettlementNPostalcodeList[@i].Postalcode.PostalcodeNumber">
+                    @* <input type="hidden" class="form-control inputEraID" asp-for="SettlementNPostalcodeList[@i].EraID">
+                    <input class="form-control inputEra" placeholder="Ära" value="@Model.SettlementNPostalcodeList[@i].Era?.EraName"> *@
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input checkboxCurrentName" asp-for="SettlementNPostalcodeList[@i].IsCurrentPostalcode" id="currentPostalcode_@i">
+                    <label class="form-check-label ms-1" for="currentPostalcode_@i">Aktuelle PLZ</label>
+                </div>
+                <button type="button" class="btn btn-danger removePostalcode">Entfernen</button>
+            </div>
+        }
+    </div>
+    <button type="button" class="btn btn-primary" onclick="addPostalcode()">Mehr PLZs anfügen</button>
+    <hr />
+    <div id="toponymyContainer" class="mb-3">
+        @for(int i = 0; i < Model.PlaceNToponymyList.Count; i++)
+        {
+            <div class="input-group inputDivToponymy mb-2">
+                <div class="input-group">
+                    <input class="form-control inputToponymy" placeholder="Geografischer Name" asp-for="PlaceNToponymyList[@i].Toponymy.ToponymyName">
+                    @* <input type="hidden" class="form-control inputEraID" asp-for="PlaceNToponymyList[@i].EraID">
+                    <input class="form-control inputEra" placeholder="Ära" value="@Model.PlaceNToponymyList[@i].Era?.EraName"> *@
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input checkboxCurrentName" asp-for="PlaceNToponymyList[i].IsCurrentName" id="currentName_@i">
+                    <label class="form-check-label ms-1" for="currentName_@i">Aktueller Name</label>
+                </div>
+                <button type="button" class="btn btn-danger removeToponmy">Entfernen</button>
+            </div>
+        }
+    </div>
+    <button type="button" class="btn btn-primary" onclick="addToponymy()">Mehr Ortsnamen hinzufügen</button>
+    <div class="mb-3">
+        <input asp-for="Settlement.Byname" class="form-control" aria-label="Beiname"
+               data-bs-toggle="tooltip-byname" data-bs-placement="top"
+               data-bs-custom-class="byname-tooltip"
+               data-bs-title="Betrifft z.B. 'Universitätsstadt' oder 'Elbflorenz'" />
+        <label asp-for="Settlement.Byname" class="control-label"></label>
+        <span asp-validation-for="Settlement.Byname" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Geografischer Name</th>
+                    <th scope="col">Weitere Spezifikationen</th>
+                    <th scope="col">Bezug</th>
+                    <th scope="col">Weitere Aktionen</th>
+                </tr>
+            </thead>
+            <tbody id="appendPlaceHere">
+                @if (Model.Settlement.RelatedPlace != null)
+                {
+                    var vm = PlaceViewModelHelper.FromDomainModel(Model.Settlement.RelatedPlace);
+                    <tr data-type="related" class="placeTableRow">
+                        <td>@Html.Raw(vm.ToponymyHtml)</td>
+                        <td>@Html.Raw(vm.FurtherSpecs)</td>
+                        <td>Bezug</td>
+                        <td>
+                            <input type="hidden" asp-for="Settlement.RelatedPlaceID">
+                            <button type="button" class="btn btn-danger btn-sm removePlaceRow">Entfernen</button>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Place.ParentPlace != null)
+                {
+                    var vm = PlaceViewModelHelper.FromDomainModel(Model.Place.ParentPlace);
+                    <tr data-type="parent" class="placeTableRow">
+                        <td>@Html.Raw(vm.ToponymyHtml)</td>
+                        <td>@Html.Raw(vm.FurtherSpecs)</td>
+                        <td>Eltern</td>
+                        <td>
+                            <input type="hidden" asp-for="Place.ParentPlaceID">
+                            <button type="button" class="btn btn-danger btn-sm removePlaceRow">Entfernen</button>
+                        </td>
+                    </tr>
+                }
+                @if (Model.ChildPlaceList.Count > 0)
+                {
+                    for( int i = 0; i < Model.ChildPlaceList.Count; i++)
+                    {
+                        var vm = PlaceViewModelHelper.FromDomainModel(Model.ChildPlaceList[i]);
+                        <tr data-type="child" class="placeTableRow">
+                            <td>@Html.Raw(vm.ToponymyHtml)</td>
+                            <td>@Html.Raw(vm.FurtherSpecs)</td>
+                            <td>Kind</td>
+                            <td>
+                                <input type="hidden" name="ChildPlaceList[@i].PlaceID" value="@Model.ChildPlaceList[i].PlaceID">
+                                <button type="button" class="btn btn-danger btn-sm removePlaceRow">Entfernen</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
+            Orte hinzufügen
+        </button>
+    </div>
+    <hr />
+    <button  class="btn btn-primary">Ändern</button>
+</form>
+
+<partial name="~/Views/PlaceDatabase/_PlaceModal.cshtml" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<script>
+    // Initialize all tooltips
+    // setTimeout(function () {
+    //     var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip-byname"]'));
+    //     var tooltipList = tooltips.map(function (tooltipEl) {
+    //         return new bootstrap.Tooltip(tooltipEl);
+    //     });
+    // }, 500);
+</script>

@@ -9,13 +9,9 @@ namespace Sammlerplattform.Models.CityDatabase
         [Key]
         public int Geography_ID { get; set; }
 
-        //[ConditionalRequired("IsGeographyNameRequired", true, ErrorMessage = "Bitte geographischen Namen eingeben")]
         [StringLength(20)]
         [Display(Name = "Geografischer Name")]
-        public string? GeographyName { get; set; }
-
-        [NotMapped]
-        public bool IsGeographyNameRequired { get; set; } = true;
-        public ICollection<City> CityICollection { get; set; } = [];
+        public required string GeographyName { get; set; }
+        public List<City> CityList { get; set; } = [];
     }
 }

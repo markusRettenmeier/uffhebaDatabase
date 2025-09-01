@@ -1,0 +1,66 @@
+﻿@model SettlementOperationParameterModel
+@using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase
+
+@{
+    ViewData["Title"] = "Ort erstellen";
+    Layout = "~/Views/Shared/_LayoutSettingsPlace.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+<form asp-action="CreateSubmit" asp-controller="SettlementDatabase">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input asp-for="Place.ToponymyTypeInt" type="hidden" value="4" />
+    <div id="postalcodeContainer" class="mb-3"></div>
+    <button type="button" class="btn btn-primary" onclick="addPostalcode()">Mehr PLZs anfügen</button>
+    <hr />
+    <div id="toponymyContainer" class="mb-3"></div>
+    <button type="button" class="btn btn-primary" onclick="addToponymy()">Mehr Ortsnamen hinzufügen</button>
+    <hr />
+    <div class="mb-3">
+        <input asp-for="Settlement.Byname" class="form-control" aria-label="Beiname"
+               data-bs-toggle="tooltip-byname" data-bs-placement="top"
+               data-bs-custom-class="byname-tooltip"
+               data-bs-title="Betrifft z.B. 'Universitätsstadt' oder 'Elbflorenz'" />
+        <label asp-for="Settlement.Byname" class="control-label"></label>
+        <span asp-validation-for="Settlement.Byname" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Geografischer Name</th>
+                    <th scope="col">Weitere Spezifikationen</th>
+                    <th scope="col">Bezug</th>
+                    <th scope="col">Weitere Aktionen</th>
+                </tr>
+            </thead>
+            <tbody id="appendPlaceHere">                
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
+            Orte hinzufügen
+        </button>
+    </div>
+    <hr />
+    <button class="btn btn-primary">Erstellen</button>
+</form>
+
+<partial name="~/Views/PlaceDatabase/_PlaceModal.cshtml" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<script>
+    // Initialize all tooltips
+    setTimeout(function () {
+        var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip-byname"]'));
+        var tooltipList = tooltips.map(function (tooltipEl) {
+            return new bootstrap.Tooltip(tooltipEl);
+        });
+    }, 500);
+</script>

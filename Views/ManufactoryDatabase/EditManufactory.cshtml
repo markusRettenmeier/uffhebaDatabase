@@ -37,7 +37,7 @@
                 <tr id="trCity_@count">
                     <td scope="col" class="InputPostcardCityID">@city.CityID</td>
                     <td scope="col">
-                        @foreach (var cno in city.CityNOeconymList)
+                        @foreach (var cno in city.CityOeconymList)
                         {
                             if (cno.CurrentName)
                             {
@@ -51,9 +51,9 @@
                         }
                     </td>
                     <td scope="col">
-                        @foreach (var postalcode in city.PostalcodeList)
+                        @foreach (var postalcode in city.CityPostalcodeList)
                         {
-                            @postalcode.PostalcodeNumber
+                            @postalcode.Postalcode.PostalcodeNumber
                             @separator
                         }
                     </td>

@@ -15,7 +15,7 @@
     <WebStackScaffolding_IsReferencingScriptLibrariesSelected>False</WebStackScaffolding_IsReferencingScriptLibrariesSelected>
     <WebStackScaffolding_DbContextTypeFullName>Sammlerplattform.Data.DbIdentityContext</WebStackScaffolding_DbContextTypeFullName>
     <NameOfLastUsedPublishProfile>FTPProfile2</NameOfLastUsedPublishProfile>
-    <WebStackScaffolding_LayoutPageFile>_Layout</WebStackScaffolding_LayoutPageFile>
+    <WebStackScaffolding_LayoutPageFile>_LayoutSettingsParty</WebStackScaffolding_LayoutPageFile>
     <ActiveDebugProfile>Sammlerplattform</ActiveDebugProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models.ManufactoryDatabase
@@ -7,7 +8,7 @@ namespace Sammlerplattform.Models.ManufactoryDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public int ProductionFacility_ID { get; set; }
+        public int ProductionFacilityID { get; set; }
 
         [Required(ErrorMessage = "Bitte befüllen.")]
         [StringLength(30)]
@@ -15,6 +16,7 @@ namespace Sammlerplattform.Models.ManufactoryDatabase
         [RegularExpression(@"^[a-zA-Z]{1,30}$", ErrorMessage = "Der Name darf nur Buchstaben und max. 30 Zeichen enthalten.")]
         public string ProductionFacilityName { get; set; } = string.Empty;
 
-        public ICollection<Manufactory> ManufactoryICollection { get; set; } = [];
+        public List<Manufactory> ManufactoryList { get; set; } = [];
+        public List<Organization> OrganizationList { get; set; } = [];
     }
 }

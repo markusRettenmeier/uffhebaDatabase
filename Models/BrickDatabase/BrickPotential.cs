@@ -1,5 +1,5 @@
 ﻿using Sammlerplattform.Models.ProductDatabase;
-using Sammlerplattform.Services.GenericClasses;
+using Sammlerplattform.Services;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

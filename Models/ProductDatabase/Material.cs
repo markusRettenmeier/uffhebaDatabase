@@ -8,7 +8,7 @@ namespace Sammlerplattform.Models.ProductDatabase
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public int MaterialID { get; set; }
-        public required string Name { get; set; }
+        public required string MaterialName { get; set; }
         public List<ProductNMaterial> ProductNMaterialList { get; set; } = [];
     }
 }

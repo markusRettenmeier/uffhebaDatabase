@@ -8,9 +8,9 @@ export function createInput(columnName, columnType, parentIdInput) {
     class: `input-group inputDiv_${parentIdInput}`,
     id: `inputDiv_${parentIdInput}0`,
   });
-  let elementInput = createElement("input", {
+  let elementInput = createElement("input",  {
     id: `inputBox_${parentIdInput}0`,
-    name: `Box${columnName}`,
+    name: `${columnName}`,
   });
 
   // Assign input attributes based on columnType
@@ -62,6 +62,26 @@ export function createListBox(colName, parentId) {
       { value: "2", label: "Gebraucht" },
       { value: "3", label: "Beschädigt" },
       { value: "4", label: "Repariert" },
+    ],
+      ToponymyTypeInt: [
+          { value: "0", label: "Flur" },
+          { value: "1", label: "Raum" },
+          { value: "2", label: "Weg" },
+          { value: "3", label: "Gewässer" },
+          { value: "4", label: "Siedlung" },
+          { value: "5", label: "Gebäude" },
+          { value: "6", label: "Relief" },
+    ],
+      PartyTypeInt: [
+          { value: "0", label: "Individuum" },
+          { value: "1", label: "Organisation" }
+    ],
+      Organization_OrganizationTypeInt: [
+          { value: "0", label: "Unternhemen" },
+          { value: "1", label: "Institution" },
+          { value: "2", label: "NonProfit" },
+          { value: "3", label: "Regierung" },
+          { value: "99", label: "Sonstiges" }
     ],
   };
 

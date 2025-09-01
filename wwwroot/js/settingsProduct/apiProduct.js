@@ -8,6 +8,7 @@ function handlePageLoad() {
     if (url.includes("BrickDatabase")) {
         getManufactoryList();
         getColorList();
+        getMaterialList();
     }
 }
 
@@ -47,13 +48,65 @@ async function getColorList() {
 
         const json = await response.json();
         sessionStorage.setItem('colorList', JSON.stringify(json));
-        console.log('Gespeichert:', sessionStorage.getItem('colorList'));
+        //console.log('Gespeichert:', sessionStorage.getItem('colorList'));
     } catch (error) {
         console.error(error.message);
     }
 }
 
-$(document.body).on('keydown', 'input.InputManufactory', function (event) {
+
+async function getMaterialList() {
+    try {
+        const response = await fetch("/api/collections/listMaterials");
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const json = await response.json();
+        sessionStorage.setItem('materialList', JSON.stringify(json));
+        //console.log('Gespeichert:', sessionStorage.getItem('manufactoryList'));
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+async function getKeywordList() {
+    const collectionArea = document.getElementById("collectionArea").value;
+    const url = "/api/collections/listKeywords";
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                topic: collectionArea
+            }),
+        });
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const json = await response.json();
+        const keywordList = json.map(keyword => ({
+            keywordID: keyword.keywordID,
+            Name: keyword.Name
+        }));
+
+        const keywordSelect = document.getElementById("keywordSelect");
+        keywordList.forEach(keyword => {
+            const option = document.createElement("option");
+            option.value = keyword.keywordID;
+            option.textContent = keyword.Name;
+            keywordSelect.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+$(document.body).on('keydown', 'input.inputManufactory', function (event) {
     const manufactoryList = JSON.parse(sessionStorage.getItem('manufactoryList') || '[]');
     const autocompleteSource = manufactoryList.map(x => ({
         label: x.manufactoryName,
@@ -68,9 +121,9 @@ $(document.body).on('keydown', 'input.InputManufactory', function (event) {
             const selected = ui.item;
 
             const inputGroup = $(this).closest('.input-group');
-            inputGroup.find('.InputManufactoryID').val(selected.id);
+            inputGroup.find('.inputManufactoryID').val(selected.id);
 
-            const selectElement = inputGroup.find('.TownOfManufactorySelect');
+            const selectElement = inputGroup.find('.townOfManufactorySelect');
             selectElement.empty();
             if (selected.cities && selected.cities.length > 0) {
                 selectElement.append(`<option value="">Ort wählen</option>`);
@@ -221,55 +274,55 @@ $(".eraSearchSubmit").on('click', function () {
     })
 })
 
-const manufactoryToggle = document.querySelector(".ExistingManufactorySearchSubmit")
-if (manufactoryToggle) {
-    manufactoryToggle.addEventListener('click', () => {
-        var manufactory = $('.InputManufactorySearch').val()
-        var productionFacility = $('.InputProductionFacilitySearch').val()
-        var oeconym = $('.InputOeconymSearch').val()
-        $.ajax({
-            url: '/api/collections/listManufactorys',
-            data: {
-                manufactory: manufactory,
-                productionFacility: productionFacility,
-                oeconym: oeconym
-            },
-            success: function (result) {
-                let TableBody = document.getElementById('manufactorySearchResultTableBody')
-                if (TableBody != null)
-                    TableBody.remove()
-                let myTable = document.getElementById("manufactorySearchResultTable")
-                let mybody = myTable.createTBody()
-                mybody.setAttribute('id', 'manufactorySearchResultTableBody');
-                if (result.length > 0) {
-                    result.forEach(function (element, count) {
-                        var innerHtml = '<tr id="manufactorySearchResult_' + count + '">'
-                        innerHtml += '<td scope="row" id="manufactorySearchResultManufactoryID_' + count + '">' + element.manufactory_ID + '</td>'
-                        innerHtml += '<td scope="row" id="manufactorySearchResultName_' + count + '">' + element.manufactoryName + '</td>'
-                        innerHtml += '<td scope="row" ><select class="TownOfManufactorySelect form-select" aria-label="Ziegeleiort" id="manufactorySearchResultCity_' + count + '"></td>'
-                        innerHtml += '<td scope="row" id="manufactorySearchResultProductionFacility_' + count + '">' + element.productionFacility.productionFacilityName + '</td>'
-                        innerHtml += '<td id="manufactorySearchResultAction_' + count + '" ><button class="btn btn-primary" onclick="SetManufactoryIntoTable(' + count + ')" type="button">Hinzufügen</button></td></tr>'
-                        $('#manufactorySearchResultTable').find('tbody').append(innerHtml)
-                        let select = document.getElementById('manufactorySearchResultCity_' + count)
-                        createOptionInSelect('', select, 'Wählen Sie einen Ort aus, falls genannt')
-                        if (element.cityICollection != null) {
-                            if (element.geography != null)
-                                createOptionInSelect(element.cityICollection[0].city_ID, select, element.cityICollection[0].cityNOeconymICollection[0].oeconym.oeconymName + ' (' + element.geography.geographyName + ')')
-                            else
-                                createOptionInSelect(element.cityICollection[0].city_ID, select, element.cityICollection[0].cityNOeconymICollection[0].oeconym.oeconymName)
-                        }
-                    });
-                }
-                else {
-                    $('#manufactorySearchResultTable').find('tbody').append('<tr><td>Kein Eintrag vorhanden, bitte Ziegelei erstellen</td></tr>')
-                }
-            },
-            error: function (xhr) {
-                sendErrorMessage(xhr)
-            }
-        })
-    })
-}
+//const manufactoryToggle = document.querySelector(".ExistingManufactorySearchSubmit")
+//if (manufactoryToggle) {
+//    manufactoryToggle.addEventListener('click', () => {
+//        var manufactory = $('.inputManufactorySearch').val()
+//        var productionFacility = $('.InputProductionFacilitySearch').val()
+//        var oeconym = $('.InputOeconymSearch').val()
+//        $.ajax({
+//            url: '/api/collections/listManufactorys',
+//            data: {
+//                manufactory: manufactory,
+//                productionFacility: productionFacility,
+//                oeconym: oeconym
+//            },
+//            success: function (result) {
+//                let TableBody = document.getElementById('manufactorySearchResultTableBody')
+//                if (TableBody != null)
+//                    TableBody.remove()
+//                let myTable = document.getElementById("manufactorySearchResultTable")
+//                let mybody = myTable.createTBody()
+//                mybody.setAttribute('id', 'manufactorySearchResultTableBody');
+//                if (result.length > 0) {
+//                    result.forEach(function (element, count) {
+//                        var innerHtml = '<tr id="manufactorySearchResult_' + count + '">'
+//                        innerHtml += '<td scope="row" id="manufactorySearchResultManufactoryID_' + count + '">' + element.manufactory_ID + '</td>'
+//                        innerHtml += '<td scope="row" id="manufactorySearchResultName_' + count + '">' + element.manufactoryName + '</td>'
+//                        innerHtml += '<td scope="row" ><select class="TownOfManufactorySelect form-select" aria-label="Ziegeleiort" id="manufactorySearchResultCity_' + count + '"></td>'
+//                        innerHtml += '<td scope="row" id="manufactorySearchResultProductionFacility_' + count + '">' + element.productionFacility.productionFacilityName + '</td>'
+//                        innerHtml += '<td id="manufactorySearchResultAction_' + count + '" ><button class="btn btn-primary" onclick="SetManufactoryIntoTable(' + count + ')" type="button">Hinzufügen</button></td></tr>'
+//                        $('#manufactorySearchResultTable').find('tbody').append(innerHtml)
+//                        let select = document.getElementById('manufactorySearchResultCity_' + count)
+//                        createOptionInSelect('', select, 'Wählen Sie einen Ort aus, falls genannt')
+//                        if (element.cityList != null) {
+//                            if (element.geography != null)
+//                                createOptionInSelect(element.cityList[0].city_ID, select, element.cityList[0].cityNOeconymList[0].oeconym.oeconymName + ' (' + element.geography.geographyName + ')')
+//                            else
+//                                createOptionInSelect(element.cityList[0].city_ID, select, element.cityList[0].cityNOeconymList[0].oeconym.oeconymName)
+//                        }
+//                    });
+//                }
+//                else {
+//                    $('#manufactorySearchResultTable').find('tbody').append('<tr><td>Kein Eintrag vorhanden, bitte Ziegelei erstellen</td></tr>')
+//                }
+//            },
+//            error: function (xhr) {
+//                sendErrorMessage(xhr)
+//            }
+//        })
+//    })
+//}
 
 const processOfManufactoryToggle = document.querySelector('.processOfManufactureSearchSubmit')
 if (processOfManufactoryToggle) {

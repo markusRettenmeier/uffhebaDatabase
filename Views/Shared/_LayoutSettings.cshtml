@@ -14,53 +14,7 @@
     <link rel="stylesheet" href="~/lib/chosen/chosen.min.css" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg">
-            <div class="container">
-                <a class="navbar-brand fs-2" asp-controller="Home" asp-action="Frontpage">SammlerDB</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="UserSettings" asp-action="Profile">Profil</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Zu den Seiten
-                            </a>
-                            <ul class="dropdown-menu" style="background-color: #FFFFF0">
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="CityDatabase" asp-action="AdministerCollectionCity">Orte verwalten</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="ManufactoryDatabase" asp-action="AdministerCollectionManufactory">Hersteller verwalten</a>
-                                </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="PostcardDatabase" asp-action="AdministerCollectionPostcard">Postkarten verwalten</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="BrickDatabase" asp-action="AdministerCollectionBrick">Ziegel verwalten</a>
-                                    </li>
-                                @* else if ((await AuthorizationService.AuthorizeAsync(User, "SubscribedAnalysisToolPolicy")).Succeeded)
-                                {
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="PostcardAnalysis" asp-action="UploadPictures">Postkarte analysieren</a>
-                                    </li>
-                                } *@
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Logout">Logout</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <partial name="_SettingsCommonHeader" />    
 
     <div class="container page-wrap pt-2 pb-3">
         <main role="main">

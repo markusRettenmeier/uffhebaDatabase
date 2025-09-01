@@ -1,6 +1,5 @@
-﻿using Sammlerplattform.Models.ProcessOfManufactureDatabase;
-using Sammlerplattform.Services.GenericClasses;
-using Sammlerplattform.Services.UnitOfWork;
+﻿using Sammlerplattform.Data;
+using Sammlerplattform.Models.ProcessOfManufactureDatabase;
 
 namespace Sammlerplattform.Services.Processes
 {

@@ -297,7 +297,7 @@ namespace Sammlerplattform.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
             return RedirectToAction(nameof(ResetPassword), new { code });
-        }       
+        }
 
         public async Task<IActionResult> ConfirmMailChange(string userId, string email, string code)
         {
@@ -311,7 +311,7 @@ namespace Sammlerplattform.Controllers
             IdentityResult result = await _userManager.ChangeEmailAsync(user, email, code);
             if (!result.Succeeded)
             {
-                return RedirectToAction("ChangeEmail", "UserSettings", new { statusMessage = "Fehler bei Änderung der E-Mail"});
+                return RedirectToAction("ChangeEmail", "UserSettings", new { statusMessage = "Fehler bei Änderung der E-Mail" });
             }
 
             await _signInManager.RefreshSignInAsync(user);

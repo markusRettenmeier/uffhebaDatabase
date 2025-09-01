@@ -1,8 +1,4 @@
-﻿using Sammlerplattform.Models.CityDatabase;
-using Sammlerplattform.Models.PersonDatabase;
-using System.ComponentModel.DataAnnotations;
-
-namespace Sammlerplattform.Models.Download
+﻿namespace Sammlerplattform.Models.Download
 {
     public class YAMLPerson
     {

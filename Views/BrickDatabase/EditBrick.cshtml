@@ -1,4 +1,4 @@
-﻿@using Sammlerplattform.Services.GenericClasses
+﻿@using Sammlerplattform.Services
 @model Sammlerplattform.Models.BrickDatabase.BrickOperationParameterModel
 @using Sammlerplattform.Models.BrickDatabase;
 @using Sammlerplattform.Models.ProductPictureDatabase
@@ -8,14 +8,12 @@
     ViewData["Title"] = "Ziegel ändern";
     Layout = "~/Views/Shared/_LayoutSettingsProduct.cshtml";
 
-    // string pathFrontside = string.Empty;
-    // if (Model.ProductPictureList != null)
-    //     pathFrontside = @"/images/Normal/" + Model.ProductPictureList.First().ProductPictureID + ".png";
-    string priceString = string.Format(System.Globalization.CultureInfo.GetCultureInfo("de-DE"), Model.BrickEntity.Price.ToString() ?? string.Empty);
+    string priceString = string.Format(System.Globalization.CultureInfo.GetCultureInfo("de-DE"), Model.BrickEntity.DeliveryPrice.ToString() ?? string.Empty);
     int personCount = 0;
     int pictureCount = 0;
     int cityCount = 0;
     int colorCount = 0;
+    int materialCount = 0;
 }
 
 <h4>@ViewData["Title"]: @Model.BrickEntity.BrickEntityID</h4>
@@ -52,13 +50,6 @@
     <div id="appendInputFormFile">
         @for (pictureCount = 0; pictureCount < Model.ProductPictureList.Count; pictureCount++)
         {
-@*             string label = pictureCount switch
-            {
-                0 => "Vorderseite",
-                1 => "Rückseite",
-                2 => "Seitenansicht",
-                _ => $"Ansicht {pictureCount}"
-            }; *@
             <div class="mb-3" id="inputGroupFormFile_@pictureCount">
                 <label asp-for="ProductPictureList[pictureCount].PerspectiveInt" class="form-label">@Model.ProductPictureList[pictureCount].Perspective</label>
                 <input type="hidden" asp-for="ProductPictureList[pictureCount].ProductPictureID">
@@ -78,6 +69,11 @@
             </h2>
             <div id="collapseBrick" class="accordion-collapse collapse show" aria-labelledby="headingBrick" data-bs-parent="#accordionBrick">
                 <div class="accordion-body">
+                    <div class="form-group">
+                        <label asp-for="BrickEntity.UniqueName" class="control-label"></label>
+                        <input asp-for="BrickEntity.UniqueName" class="form-control" />
+                        <span asp-validation-for="BrickEntity.UniqueName" class="text-danger"></span>
+                    </div>
                     <table class="table" id="bricknameTable">
                         <thead>
                             <tr>
@@ -125,11 +121,18 @@
                         </label>
                     </div>
                     <div class="form-group">
-                        <label asp-for="BrickEntity.ConditionEnum" class="control-label"></label>
-                        <select asp-for="BrickEntity.ConditionEnum" class="form-select">
-                            @foreach (Enum conditionValue in Enum.GetValues(typeof(ConditionType)))
+                        <label asp-for="BrickEntity.ConditionID" class="control-label"></label>
+                        <select asp-for="BrickEntity.ConditionID" class="form-select">
+                            @foreach (var condition in Model.ConditionList)
                             {
-                                <option value="@conditionValue">@conditionValue.GetDescription()</option>
+                                if (condition.ConditionID == Model.BrickEntity.ConditionID)
+                                {
+                                    <option value="@condition.ConditionID" selected>@condition.ConditionName</option>
+                                }
+                                else
+                                {
+                                    <option value="@condition.ConditionID" selected>@condition.ConditionName</option>
+                                }
                             }
                         </select>
                     </div>
@@ -139,11 +142,23 @@
                         <span asp-validation-for="BrickEntity.Comment" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="BrickEntity.KeywordInt" class="control-label"></label>
-                        <select asp-for="BrickEntity.KeywordInt" class="chosen-select" multiple style="width: 350px;">
-                            @foreach (Enum keywordValue in Enum.GetValues(typeof(BrickKeywordType)))
+                        <label asp-for="BrickEntity.Inscription" class="control-label"></label>
+                        <input asp-for="BrickEntity.Inscription" class="form-control" />
+                        <span asp-validation-for="BrickEntity.Inscription" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="KeywordList" class="control-label"></label>
+                        <select asp-for="ProductNKeywordList" class="chosen-select" multiple style="width: 350px;">
+                            @foreach (var keyword in Model.KeywordList)
                             {
-                                <option value="@keywordValue">@keywordValue.GetDescription()</option>
+                                if (Model.ProductNKeywordList.Any(a => a.KeywordID == keyword.KeywordID))
+                                {
+                                    <option value="@keyword.KeywordID" selected>@keyword.KeywordName</option>
+                                }
+                                else
+                                {
+                                    <option value="@keyword.KeywordID">@keyword.KeywordName</option>
+                                }
                             }
                         </select>
                     </div>
@@ -185,13 +200,56 @@
                                             <input type="checkbox" class="form-check-input checkboxPrimaryColor" name="ProductNColorVariantList[@colorCount].IsPrimaryColor">
                                         }
                                         <label class="form-check-label" for="mainColorCheckbox0">Hauptfarbe</label>
-                                    </div><button type="button" class="btn btn-danger">Entfernen</button>
+                                    </div><button type="button" class="btn btn-danger removeColor">Entfernen</button>
                                 </div>
                             </div>
                             colorCount++;
                         }
                     </div>
                     <button type="button" class="btn btn-primary" onclick="addColor()">Mehr Farben hinzufügen</button>
+                    <div id="materialContainer">
+                        @foreach (var productNMaterial in Model.ProductNMaterialList)
+                        {
+                            <div class="card cardMaterial m-2" id="cardMaterial_@materialCount" style="width: 18rem;">
+                                <div class="card-body">
+                                    <select name="ProductNMaterialList[@materialCount].MaterialID" class="form-select selectMaterialID">
+                                        @if (productNMaterial.MaterialID > 0)
+                                        {
+                                            <option value="">Farbe wählen</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="" selected>Farbe wählen</option>
+                                        }
+                                        @foreach(var material in Model.MaterialList)
+                                        {
+                                            if (material.MaterialID == productNMaterial.MaterialID)
+                                            {
+                                                <option value="@material.MaterialID" selected>@material.MaterialName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@material.MaterialID">@material.MaterialName</option>
+                                            }
+                                        }
+                                    </select>
+                                    <div class="form-check">
+                                        @if (productNMaterial.IsPrimaryMaterial)
+                                        {
+                                            <input type="checkbox" class="form-check-input checkboxPrimaryMaterial" name="ProductNMaterialList[@materialCount].IsPrimaryMaterial" checked>
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" class="form-check-input checkboxPrimaryMaterial" name="ProductNMaterialList[@materialCount].IsPrimaryMaterial">
+                                        }
+                                        <label class="form-check-label" for="IsPrimaryMaterial">Hauptfarbe</label>
+                                    </div><button type="button" class="btn btn-danger removeMaterial">Entfernen</button>
+                                </div>
+                            </div>
+                            colorCount++;
+                        }
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="addMaterial()">Mehr Material hinzufügen</button>
                 </div>
             </div>
         </div>
@@ -219,15 +277,10 @@
                         <span asp-validation-for="BrickEntity.Height" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="BrickEntity.Radius" class="control-label"></label>
-                        <input asp-for="BrickEntity.Radius" class="form-control" />
-                        <span asp-validation-for="BrickEntity.Radius" class="text-danger"></span>
+                        <label asp-for="BrickEntity.Diameter" class="control-label"></label>
+                        <input asp-for="BrickEntity.Diameter" class="form-control" />
+                        <span asp-validation-for="BrickEntity.Diameter" class="text-danger"></span>
                     </div>
-                    @*                 <div class="form-group">
-                    <label asp-for="BrickEntity.Requisition" class="control-label"></label>
-                    <input asp-for="BrickEntity.Requisition" class="form-control" />
-                    <span asp-validation-for="BrickEntity.Requisition" class="text-danger"></span>
-                    </div> *@
                 </div>
             </div>
         </div>        
@@ -239,7 +292,6 @@
             </h2>
             <div id="collapseManufacturingDate" class="accordion-collapse collapse" aria-labelledby="headingManufacturingDate" data-bs-parent="#accordionManufacturingDate">
                 <div class="accordion-body">
-                    @* <input type="hidden" asp-for="ManufacturingDate.ManufacturingDate_ID" class="form-control" /> *@
                     <div class="form-group">
                         <label asp-for="BrickEntity.ExactYear"></label>
                         <input asp-for="BrickEntity.ExactYear" class="form-control" />
@@ -258,11 +310,6 @@
                     <div class="form-group">
                         <input class="form-check-input" asp-for="BrickEntity.IsApproximate" /> @Html.DisplayNameFor(model => model.BrickEntity.IsApproximate)
                     </div>
-                    @* <div class="form-group">
-                        <label asp-for="ManufacturingDate.Note"></label>
-                        <input asp-for="ManufacturingDate.Note" class="form-control" />
-                        <span asp-validation-for="ManufacturingDate.Note" class="text-danger"></span>
-                    </div> *@
                 </div>
             </div>
         </div>
@@ -275,7 +322,7 @@
             <div id="collapseEngraving" class="accordion-collapse collapse" aria-labelledby="headingEngraving" data-bs-parent="#accordionEngraving">
                 <div class="accordion-body">
                     <input id="productionFacilityInput" hidden value="Ziegelei">
-                    <div id="manufactoryContainer" class="AppendManufactoryHere">
+                    <div id="manufactoryContainer" class="appendManufactoryHere">
                         @if (Model != null && Model.ManufactoryTupleList != null)
                         {
                             int manCount = 0;
@@ -283,9 +330,9 @@
                             {
                                 if(manufactoryTuple.manufactory.ManufactoryID > 0) {
                                 <div class="input-group inputDiv_manufactory mb-2" id="inputDiv_@manCount">
-                                    <input type="hidden" class="form-control InputManufactoryID" name="BrickEntityNManufactoryNCityList[@manCount].ManufactoryID" value="@manufactoryTuple.manufactory.ManufactoryID" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
-                                    <input class="form-control InputManufactory" value="@manufactoryTuple.manufactory.ManufactoryName" placeholder="Verlag" aria-label="Verlag" />
-                                    <select class="form-select TownOfManufactorySelect" name="BrickEntityNManufactoryNCityList[@manCount].CityID" aria-label="Verlagsort">
+                                    <input type="hidden" class="form-control inputManufactoryID" name="BrickEntityNManufactoryNCityList[@manCount].ManufactoryID" value="@manufactoryTuple.manufactory.ManufactoryID" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
+                                    <input class="form-control inputManufactory" value="@manufactoryTuple.manufactory.ManufactoryName" placeholder="Verlag" aria-label="Verlag" />
+                                    <select class="form-select townOfManufactorySelect" name="BrickEntityNManufactoryNCityList[@manCount].CityID" aria-label="Verlagsort">
                                         @if (manufactoryTuple.selectedCityID > 0)
                                         {
                                             <option value="">Ort wählen</option>
@@ -299,7 +346,7 @@
                                             string geographyName = string.Empty;
                                             if (cl.Geography != null && !string.IsNullOrEmpty(cl.Geography.GeographyName))
                                                 geographyName = " (" + cl.Geography.GeographyName + ")";
-                                            var oeconym = cl.CityNOeconymList.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
+                                            var oeconym = cl.CityOeconymList.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
                                             if (oeconym == null)
                                                 continue;
                                             if (cl.CityID == manufactoryTuple.selectedCityID)
@@ -351,125 +398,6 @@
                             </tr>
                         </tbody>
                     </table>
-                    @* <label class="control-label">Ziegelei</label>
-                    <div class="row">
-                        <input id="productionFacilityInput" hidden value="Ziegelei">
-                        <div class="col-8 FirstManufactory" style="display: none">
-                            <div class="input-group">
-                                <input type="hidden" class="form-control InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_0" aria-label="Herstellernummer">
-                                <input class="form-control InputManufactory" id="InputManufactory_0" placeholder="Verlag" aria-label="Verlag">
-                                <select class="TownOfManufactorySelect form-select PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
-                                </select>
-                                <button type="button" class="form-control btn btn-danger DeleteManufactory" id="DeleteManufactory_0">Verlag entfernen</button>
-                            </div>
-                        </div>
-                        <div class="AppendManufactoryHere">
-                            @if (Model != null && Model.ManufactoryTupleList != null)
-                            {
-                                int manCount = 0;
-                                foreach (var manufactoryTuple in Model.ManufactoryTupleList)
-                                {
-                                    manCount++;
-                                    <div class="col" id="DivManufactory_@manCount">
-                                        <div class="input-group">
-                                            <input type="hidden" class="form-control dataSet storeInput InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_@manCount" value="@manufactoryTuple.manufactory.Manufactory_ID" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
-                                            <input class="form-control storeInput InputManufactory" id="InputManufactory_@manCount" value="@manufactoryTuple.manufactory.ManufactoryName" placeholder="Verlag" aria-label="Verlag" />
-                                            <select class="form-select dataSet storeInput TownOfManufactorySelect PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
-                                                @if (manufactoryTuple.selectedCityID > 0)
-                                                {
-                                                    <option value="0"></option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="0" selected></option>
-                                                }
-                                                @foreach (var cl in manufactoryTuple.cityList)
-                                                {
-                                                    string geographyName = string.Empty;
-                                                    if (cl.Geography != null && !string.IsNullOrEmpty(cl.Geography.GeographyName))
-                                                        geographyName = " (" + cl.Geography.GeographyName + ")";
-                                                    var oeconym = cl.CityNOeconymICollection.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
-                                                    if (oeconym == null)
-                                                        continue;
-                                                    if (cl.City_ID == manufactoryTuple.selectedCityID)
-                                                    {
-                                                        <option value="@cl.City_ID" selected>@oeconym @geographyName</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="@cl.City_ID">@oeconym @geographyName</option>
-                                                    }
-                                                }
-                                            </select>
-                                            <button type="button" class="form-control btn btn-danger DeleteManufactory" id="@manCount">Verlag entfernen</button>
-                                        </div>
-                                    </div>
-                                }
-                            }
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-primary AddMoreManufactorys">Der Karte mehr Ziegeleien hinzufügen</button>
-                        </div>
-                    </div>*@
-                   @* <div class="row">
-                        <input id="productionFacilityInput" hidden value="Ziegelei">
-                        <div class="col-8 FirstManufactory" style="display: none">
-                            <div class="input-group">
-                                <input type="hidden" class="form-control InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_0" aria-label="Herstellernummer">
-                                <input class="form-control InputManufactory" id="InputManufactory_0" placeholder="Verlag" aria-label="Verlag">
-                                <select class="TownOfManufactorySelect form-select PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
-                                </select>
-                                <button type="button" class="form-control btn btn-danger DeleteManufactory" id="DeleteManufactory_0">Verlag entfernen</button>
-                            </div>
-                        </div>
-                        <div class="AppendManufactoryHere">
-                            @if (Model != null && Model.ManufactoryTupleList != null)
-                            {
-                                int manCount = 0;
-                                foreach (var manufactoryTuple in Model.ManufactoryTupleList)
-                                {
-                                    manCount++;
-                                    <div class="col" id="DivManufactory_@manCount">
-                                        <div class="input-group">
-                                            <input type="hidden" class="form-control dataSet storeInput InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_@manCount" value="@manufactoryTuple.manufactory.Manufactory_ID" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
-                                            <input class="form-control storeInput InputManufactory" id="InputManufactory_@manCount" value="@manufactoryTuple.manufactory.ManufactoryName" placeholder="Verlag" aria-label="Verlag" />
-                                            <select class="form-select dataSet storeInput TownOfManufactorySelect PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
-                                                @if (manufactoryTuple.selectedCityID > 0)
-                                                {
-                                                    <option value="0"></option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="0" selected></option>
-                                                }
-                                                @foreach (var cl in manufactoryTuple.cityList)
-                                                {
-                                                    string geographyName = string.Empty;
-                                                    if (cl.Geography != null && !string.IsNullOrEmpty(cl.Geography.GeographyName))
-                                                        geographyName = " (" + cl.Geography.GeographyName + ")";
-                                                    var oeconym = cl.CityNOeconymICollection.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
-                                                    if (oeconym == null)
-                                                        continue;
-                                                    if (cl.City_ID == manufactoryTuple.selectedCityID)
-                                                    {
-                                                        <option value="@cl.City_ID" selected>@oeconym @geographyName</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="@cl.City_ID">@oeconym @geographyName</option>
-                                                    }
-                                                }
-                                            </select>
-                                            <button type="button" class="form-control btn btn-danger DeleteManufactory" id="@manCount">Verlag von Karte entfernen</button>
-                                        </div>
-                                    </div>
-                                }
-                            }
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-primary AddMoreManufactorys">Der Karte mehr Ziegeleien hinzufügen</button>
-                        </div>
-                    </div>*@
                 </div>
             </div>
         </div>
@@ -481,45 +409,7 @@
             </h2>
             <div id="collapsePerson" class="accordion-collapse collapse" aria-labelledby="headingEngraving" data-bs-parent="#accordionEngraving">
                 <div class="accordion-body">
-                    @*<label class="control-label">Ziegler</label>
-                     <input type="hidden" id="ManufacturerID_Input" asp-for="Manufacturer.Person_ID">
-                    <input type="hidden" asp-for="Manufacturer.Person_ID"> *@
-                    @*<table class="table" id="manufacturerTable">
-                        <thead>
-                            <tr>
-                                <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.Person_ID)</th>
-                                <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.Name)</th>
-                                <th scope="col">@Html.DisplayNameFor(x => x.Manufacturer.PersonSignature)</th>
-                                <th scope="col">Weitere Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td scope="col" id="Manufacturer_ID">@Html.DisplayFor(x => x.Manufacturer.Person_ID)</td>
-                                <td scope="col" id="ManufacturerName">@Html.DisplayFor(x => x.Manufacturer.Name)</td>
-                                <td scope="col" id="ManufacturerSignature">@Html.DisplayFor(x => x.Manufacturer.PersonSignature)</td>
-                                <td scope="col">
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsBrickmakerExistingModal">
-                                            Ziegler auswählen
-                                        </button>
-                                        @if(Model.Manufacturer != null)
-                                        {
-                                            <button type="button" id="clearOneRowManufacturerTable" class="btn btn-outline-danger">Entfernen</button> 
-                                        }
-                                        else
-                                        {
-                                            <button type="button" id="clearOneRowManufacturerTable" class="btn btn-outline-danger" style="display: none">Entfernen</button> 
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>*@
                     <table class="table">
-                        @*<colgroup>
-                            <col span="1" style="visibility: collapse">
-                        </colgroup>*@
                         <thead>
                             <tr>
                                 <th scope="col">@Html.DisplayNameFor(x => x.Person.PersonID)</th>
@@ -559,67 +449,6 @@
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsPersonExistingModal">
                         Person mit Bezug zum Objekt hinzufügen
                     </button>
-                    @*<div class="row">
-                        <div class="col-8 firstPerson" style="display: none">
-                            <div class="input-group">
-                                <input type="hidden" class="form-control" id="inputPersonID_0" aria-label="Personennummer">
-                                <input class="form-control InputPersonName" id="InputPersonName_0" placeholder="Name der Person" aria-label="Name der Person">
-                                <input class="form-control InputRelation" id="InputRelation_0" placeholder="Beziehung zum Gegenstand" aria-label="Beziehung zum Gegenstand">
-                                <input class="form-control InputRelation" id="InputRelation_0" placeholder="Beziehung zum Gegenstand" aria-label="Beziehung zum Gegenstand">
-                                <input class="form-control InputRelation" id="InputRelation_0" placeholder="Beziehung zum Gegenstand" aria-label="Beziehung zum Gegenstand">
-                                <select class="form-select" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
-                                </select>
-                                <button type="button" class="form-control btn btn-danger DeleteManufactory" id="DeleteManufactory_0">Verlag entfernen</button>
-                            </div>
-                        </div>
-                        <div class="AppendManufactoryHere">
-                            @if (Model != null && Model.ManufactoryTupleList != null)
-                            {
-                                int manCount = 0;
-                                foreach (var manufactoryTuple in Model.ManufactoryTupleList)
-                                {
-                                    manCount++;
-                                    <div class="col" id="DivManufactory_@manCount">
-                                        <div class="input-group">
-                                            <input type="hidden" class="form-control dataSet storeInput InputManufactoryID PublisherCreateEdit" id="InputManufactoryID_@manCount" value="@manufactoryTuple.manufactory.Manufactory_ID" placeholder="Verlagsnummer" aria-label="Verlagsnummer" />
-                                            <input class="form-control storeInput InputManufactory" id="InputManufactory_@manCount" value="@manufactoryTuple.manufactory.ManufactoryName" placeholder="Verlag" aria-label="Verlag" />
-                                            <select class="form-select dataSet storeInput TownOfManufactorySelect PublisherCreateEdit" aria-label="Verlagsort" id="CityOfManufactorySelect_0">
-                                                @if (manufactoryTuple.selectedCityID > 0)
-                                                {
-                                                    <option value="0"></option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="0" selected></option>
-                                                }
-                                                @foreach (var cl in manufactoryTuple.cityList)
-                                                {
-                                                    string geographyName = string.Empty;
-                                                    if (cl.Geography != null && !string.IsNullOrEmpty(cl.Geography.GeographyName))
-                                                        geographyName = " (" + cl.Geography.GeographyName + ")";
-                                                    var oeconym = cl.CityNOeconymICollection.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
-                                                    if (oeconym == null)
-                                                        continue;
-                                                    if (cl.City_ID == manufactoryTuple.selectedCityID)
-                                                    {
-                                                        <option value="@cl.City_ID" selected>@oeconym @geographyName</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="@cl.City_ID">@oeconym @geographyName</option>
-                                                    }
-                                                }
-                                            </select>
-                                            <button type="button" class="form-control btn btn-danger DeleteManufactory" id="@manCount">Verlag von Karte entfernen</button>
-                                        </div>
-                                    </div>
-                                }
-                            }
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-primary AddMoreManufactorys">Der Karte mehr Ziegeleien hinzufügen</button>
-                        </div>
-                    </div>*@
                 </div>
             </div>
         </div>
@@ -648,14 +477,11 @@
                             {
                                 @foreach (var bnc in Model.BrickEntityNCityList)     
                                 {
-                                    string? oeconym = bnc.City?.CityNOeconymList.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
+                                    string? oeconym = bnc.City?.CityOeconymList.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
                                     string postalcode = string.Empty;
-                                    if (bnc.City?.PostalcodeList != null)
+                                    foreach(var postalcode1 in bnc.City?.CityPostalcodeList)
                                     {
-                                        foreach(var postalcode1 in bnc.City.PostalcodeList)
-                                        {
-                                                postalcode += postalcode1.PostalcodeNumber + ", ";
-                                        }
+                                            postalcode += postalcode1.Postalcode.PostalcodeNumber + ", ";
                                     }
                                     <tr id="cityResultTableTr_@cityCount" class="cityResultTableTr">
                                         <td scope="col">
@@ -696,9 +522,9 @@
                         <span asp-validation-for="BrickEntity.FilingLocation" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="BrickEntity.Price"></label>
-                        <input asp-for="BrickEntity.Price" class="form-control">
-                        <span asp-validation-for="BrickEntity.Price" class="text-danger"></span>
+                        <label asp-for="BrickEntity.DeliveryPrice"></label>
+                        <input asp-for="BrickEntity.DeliveryPrice" class="form-control">
+                        <span asp-validation-for="BrickEntity.DeliveryPrice" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="BrickEntity.Comment"></label>

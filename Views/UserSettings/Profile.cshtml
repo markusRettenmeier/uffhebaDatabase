@@ -21,7 +21,7 @@
 <label class="form-label">Password</label>
 <div class="input-group mb-3">
     <a type="button" asp-action="ChangePassword" class="btn btn-primary">Passwort ändern</a>
-        <input type="password" value="Password" class="form-control" disabled />
+    <input type="password" value="Password" class="form-control" disabled />
 </div>
 
 <form asp-action="ProfileChange">
@@ -30,7 +30,7 @@
     <label asp-for="UsingIdentityUsers.UserName" class="form-label"></label>
     <div class="input-group mb-2">
         <button type="submit" class="btn btn-primary">Benutzername ändern</button>
-            <input asp-for="UsingIdentityUsers.UserName" class="form-control" />
+        <input asp-for="UsingIdentityUsers.UserName" class="form-control">
     </div>
     <span asp-validation-for="UsingIdentityUsers.UserName" class="text-danger"></span>
 </form>

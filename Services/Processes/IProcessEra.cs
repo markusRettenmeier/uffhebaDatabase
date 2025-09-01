@@ -1,41 +1,61 @@
-﻿using Sammlerplattform.Models.EraDatabase;
-using Sammlerplattform.Services.GenericClasses;
-using Sammlerplattform.Services.UnitOfWork;
+﻿using Sammlerplattform.Data;
+using Sammlerplattform.Models.EraDatabase;
 
 namespace Sammlerplattform.Services.Processes
 {
     public interface IProcessEra
     {
         List<Era> GetWithPredicates(EraSearchParameterModel eraSearchParameter);
-        Era Create(string eraLong, string? eraShort = null);
+        (Era era, int statuscode, string message) Create(EraOperationParameterModel eraOperationParameterModel);
+        (Era era, int statuscode, string message) Edit(EraOperationParameterModel eraOperationParameterModel);
     }
     public class EraProcessor(IUnitOfWork unitOfWork) : IProcessEra
     {
-        public Era Create(string eraLong, string? eraShort = null)
+        public (Era, int, string) Create(EraOperationParameterModel eraOperationParameterModel)
         {
-            if (string.IsNullOrEmpty(eraLong))
+            if (string.IsNullOrEmpty(eraOperationParameterModel.Era.EraName))
             {
-                throw new NullReferenceException();
+                return (eraOperationParameterModel.Era, 404, "Epochenname fehlt.");
             }
             Era? existingEra = (from e in unitOfWork.EraRepository.Get()
-                                select e).Where(x => x.EraName != null && x.EraName.Equals(eraLong)).FirstOrDefault();
+                                select e).Where(x => x.EraName != null && x.EraName.Equals(eraOperationParameterModel.Era.EraName)).FirstOrDefault();
 
             if (existingEra != null)
             {
-                return existingEra;
+                return (existingEra, 303, "Epoche existiert bereits.");
             }
             else
             {
-                Era newEra = new() { EraName = eraLong };
-                if (string.IsNullOrEmpty(eraShort))
+                Era newEra = new() { EraName = eraOperationParameterModel.Era.EraName };
+                if (string.IsNullOrEmpty(eraOperationParameterModel.Era.EraShort))
                 {
-                    newEra.EraShort = eraShort;
+                    newEra.EraShort = eraOperationParameterModel.Era.EraShort;
                 }
 
                 newEra = unitOfWork.EraRepository.Insert(newEra);
                 unitOfWork.Save();
-                return newEra;
+                return (newEra, 201, "Epoche wurde erstellt.");
             }
+        }
+
+        public (Era era, int statuscode, string message) Edit(EraOperationParameterModel eraOperationParameterModel)
+        {
+            if (string.IsNullOrEmpty(eraOperationParameterModel.Era.EraName))
+            {
+                return (eraOperationParameterModel.Era, 404, "Epochenname fehlt.");
+            }
+
+            Era? existingEra = (from e in unitOfWork.EraRepository.Get()
+                                select e).Where(x => x.EraID == eraOperationParameterModel.Era.EraID).FirstOrDefault();
+            if (existingEra == null)
+            {
+                return (eraOperationParameterModel.Era, 404, "Epoche nicht gefunden.");
+            }
+
+            existingEra.EraName = eraOperationParameterModel.Era.EraName;
+            existingEra.EraShort = eraOperationParameterModel.Era.EraShort;
+            unitOfWork.Save();
+            return (existingEra, 200, "Epoche wurde aktualisiert.");
         }
 
         public List<Era> GetWithPredicates(EraSearchParameterModel eraSearchParameter)

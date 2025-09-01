@@ -1,0 +1,96 @@
+﻿@model CityOperationParameterModel
+@using Sammlerplattform.Models.CityDatabase
+
+@{
+    ViewData["Title"] = "Ort erstellen";
+    Layout = "~/Views/Shared/_LayoutSettingsCity.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>Bei jedem Ort muss zwingend eine PLZ hinzugefügt werden. Es können mehr als eine PLZ und Ortsname angegeben werden.</p>
+
+<hr />
+<form asp-action="CreateSubmit" asp-controller="CityDatabase">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div id="postalcodeContainer" class="appendPostalcodeHere"></div>
+    <button type="button" class="btn btn-primary" onclick="addPostalcode()">Mehr PLZs anfügen</button>
+    <hr />
+    <div id="oeconymContainer" class="appendOeconymCreateCity"></div>
+    <button type="button" class="btn btn-primary" onclick="addOeconym()">+</button>
+    <hr />
+    <div class="form-floating pb-1">
+        <input asp-for="City.Byname" class="form-control" aria-label="Beiname"
+               data-bs-toggle="tooltip-byname" data-bs-placement="top"
+               data-bs-custom-class="byname-tooltip"
+               data-bs-title="Betrifft z.B. 'Universitätsstadt' oder 'Elbflorenz'" />
+        <label asp-for="City.Byname" class="control-label"></label>
+        <span asp-validation-for="City.Byname" class="text-danger"></span>
+    </div>
+    <div class="form-floating pb-1">
+        <input asp-for="Geography.GeographyName" class="form-control InputGeographyName" aria-label="Geographie Zuordnung"
+               data-bs-toggle="tooltip-geography" data-bs-placement="top"
+               data-bs-custom-class="geography-tooltip"
+               data-bs-title="Betrifft z.B. 'Elbe' oder 'Weinstraße'" />
+        <label asp-for="Geography.GeographyName" class="control-label"></label>
+        <span asp-validation-for="Geography.GeographyName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <label asp-for="City.ParentCityID" class="control-label"></label>
+            <input asp-for="City.ParentCityID" id="parentCityInput" type="hidden" />
+            <table class="table" id="cityTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Orts_ID</th>
+                        <th scope="col">Ort</th>
+                        <th scope="col">PLZ</th>
+                        <th scope="col">Beiname</th>
+                        <th scope="col">Geographischer Bezug</th>
+                        <th scope="col">Weitere Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope="col" id="city_ID"></td>
+                        <td scope="col" id="city"></td>
+                        <td scope="col" id="postalcode"></td>
+                        <td scope="col" id="byname"></td>
+                        <td scope="col" id="geography"></td>
+                        <td scope="col">
+                            <div class="btn-group" role="group">
+                                <button id="cityModalButton" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#IsCityExistingModal">
+                                    Ort auswählen
+                                </button>
+                                <button type="button" id="clearOneRowCityTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <button id="submit-button" type="submit" class="btn btn-primary createCitySubmitButton">Erstellen</button>
+</form>
+
+<partial name="~/Views/CityDatabase/_SearchForCity.cshtml" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<script>
+    // Initialize all tooltips
+    setTimeout(function () {
+        var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip-byname"]'));
+        var tooltipList = tooltips.map(function (tooltipEl) {
+            return new bootstrap.Tooltip(tooltipEl);
+        });
+        var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip-geography"]'));
+        var tooltipList = tooltips.map(function (tooltipEl) {
+            return new bootstrap.Tooltip(tooltipEl);
+        });
+    }, 500);
+</script>
+

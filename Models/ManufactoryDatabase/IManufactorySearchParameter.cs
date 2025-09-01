@@ -8,7 +8,7 @@
         List<string> Oeconym { get; set; }
         List<string> ProductionFacility_ProductionFacilityName { get; set; }
     }
-    public class ManufactorySearchParameterModel: IManufactorySearchParameter
+    public class ManufactorySearchParameterModel : IManufactorySearchParameter
     {
         public List<int> ManufactoryID { get; set; } = [];
         public List<string> ManufactoryName { get; set; } = [];

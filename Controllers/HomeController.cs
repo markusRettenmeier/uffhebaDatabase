@@ -9,7 +9,7 @@ using System.Diagnostics;
 namespace Sammlerplattform.Controllers
 {
     [AllowAnonymous]
-    public partial class HomeController(IProcessBrick processBrick) : Controller
+    public partial class HomeController(IProcessProduct processBrick) : Controller
     {
 
         public IActionResult Frontpage(BrickSearchParameterModel searchParameterModel)

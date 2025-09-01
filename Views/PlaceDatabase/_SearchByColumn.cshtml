@@ -1,0 +1,40 @@
+﻿@{
+    bool? inAdministration = ViewData["inAdministration"] as bool?;
+}
+
+<div id="mySidebar" class="zIndex_5 sidenav-search box-shadow">
+    <div class="d-grid gap-2 m-2 sidenav-search-upperPart">
+        <button type="button" class="btn-close" aria-label="Close" onclick="closeNav()"></button>
+        <input type="submit" value="Suche starten" class="btn btn-primary hochladenSubmitSuche" onclick="setSessionStorageData()">
+        <button class="btn btn-primary hochladenSpinnerSuche" disabled style="display: none;">
+            <span class="spinner-border spinner-border-sm"></span>
+            Suche wurde gestartet...
+        </button>
+    </div>
+    <div class="divToTransmit container">
+        <div class="row SbCDiv" id="propertyHolder_0">
+            <div class="col input-group">
+                <button id="removeColumn_0" type="button" class="btn btn-outline-danger removeColumn" style="display:none">-</button>
+                <select name="columnName" id="columnName_0" class="form-select columnDropDown">
+                    <option value="Choose_Column" selected>Wähle Spalte</option>
+                    <option value="PlaceNToponymyList_Toponymy_ToponymyName">Ortsname</option>
+                    <option value="ToponymyTypeInt">Geographietyp</option>
+                    @if ((string?)ViewData["Place"] == "Settlement") {
+                        <option value="Settlement_SettlementNPostalcodeList_Postalcode_PostalcodeNumber">PLZ</option>
+                    }
+                </select>
+            </div>
+            <div class="col inputArea" id="inputArea_0">
+                <div id="divAdd_0" class="divAdd"></div>
+            </div>
+            <input type="hidden" value="1" class="total_input" id="total_input0">
+        </div>
+        <div id="propertyHolder-append"></div>
+    </div>
+    <div class="text-center mt-2">
+        <div class="btn-group" role="group" aria-label="addCol reset">
+            <button class="btn btn-primary addColumn" type="button">Spalte hinzufügen</button>
+            <button class="btn btn-outline-primary searchReset" onclick="searchReset()" type="button">Zurücksetzen</button>
+        </div>
+    </div>
+</div>

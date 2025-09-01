@@ -1,6 +1,5 @@
-﻿using Sammlerplattform.Models.ManufactoryDatabase;
-using Sammlerplattform.Services.GenericClasses;
-using Sammlerplattform.Services.UnitOfWork;
+﻿using Sammlerplattform.Data;
+using Sammlerplattform.Models.ManufactoryDatabase;
 using System.Transactions;
 
 namespace Sammlerplattform.Services.Processes
@@ -70,7 +69,6 @@ namespace Sammlerplattform.Services.Processes
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
 
                 manufactorySelect.ManufactoryName = model.Manufactory.ManufactoryName;
-                unitOfWork.ManufactoryRepository.Update(manufactorySelect);
                 unitOfWork.Save();
 
                 ChangeCityOfManufactory(model.CityIDList, manufactorySelect);
@@ -135,8 +133,8 @@ namespace Sammlerplattform.Services.Processes
 
                 if (existingSector != null)
                 {
-                    unitOfWork.ProductionFacilityRepository.AddMemberToCollection(existingSector, i => i.ManufactoryICollection, manufactory);
-                    unitOfWork.ManufactoryRepository.SetForeignKey(manufactory, m => m.ProductionFacility_ID, existingSector.ProductionFacility_ID);
+                    unitOfWork.ProductionFacilityRepository.AddMemberToCollection(existingSector, i => i.ManufactoryList, manufactory);
+                    unitOfWork.ManufactoryRepository.SetForeignKey(manufactory, m => m.ProductionFacility_ID, existingSector.ProductionFacilityID);
                     unitOfWork.Save();
                 }
                 else
@@ -154,7 +152,7 @@ namespace Sammlerplattform.Services.Processes
         {
             if (manufactory.ProductionFacility != null)
             {
-                unitOfWork.ProductionFacilityRepository.RemoveMemberFromCollection(manufactory.ProductionFacility, i => i.ManufactoryICollection, manufactory);
+                unitOfWork.ProductionFacilityRepository.RemoveMemberFromCollection(manufactory.ProductionFacility, i => i.ManufactoryList, manufactory);
                 unitOfWork.ManufactoryRepository.SetForeignKey(manufactory, m => m.ProductionFacility_ID, null);
                 unitOfWork.Save();
             }
@@ -164,7 +162,7 @@ namespace Sammlerplattform.Services.Processes
         {
             IEnumerable<Manufactory> manufactorySelect = unitOfWork.ManufactoryRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<Manufactory>(model),
-                includeProperties: "CityList,CityList.CityNOeconymList.Oeconym,ProductionFacility"
+                includeProperties: "CityList,CityList.CityOeconymList.Oeconym,ProductionFacility"
                 );
 
             return [.. from c in manufactorySelect

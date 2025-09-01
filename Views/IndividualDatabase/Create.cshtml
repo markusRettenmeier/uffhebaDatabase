@@ -1,0 +1,64 @@
+﻿@model IndividualOperationParameterModel
+@using Sammlerplattform.Models.PartyDatabase.IndividualDatabase
+
+@{
+    ViewData["Title"] = "Partei erstellen";
+    Layout = "~/Views/Shared/_LayoutSettingsParty.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-4">
+<h1>@ViewData["Title"]</h1>
+<hr />
+        <form asp-action="CreateSubmit" asp-controller="IndividualDatabase">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="Party.PartyTypeInt" type="hidden" value="0"/>
+            <div class="form-group">
+                <label asp-for="Party.PartyName" class="control-label"></label>
+                <input asp-for="Party.PartyName" class="form-control" />
+                <span asp-validation-for="Party.PartyName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Party.PartyDescription" class="control-label"></label>
+                <textarea asp-for="Party.PartyDescription" class="form-control" rows="10"></textarea>
+                <span asp-validation-for="Party.PartyDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Individual.Pseudonym" class="control-label"></label>
+                <input asp-for="Individual.Pseudonym" class="form-control" />
+                <span asp-validation-for="Individual.Pseudonym" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Individual.Signature" class="control-label"></label>
+                <input asp-for="Individual.Signature" class="form-control" />
+                <span asp-validation-for="Individual.Signature" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Geografischer Name</th>
+                            <th scope="col">Weitere Spezifikationen</th>
+                            <th scope="col">Weitere Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appendPlaceHere">
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
+                    Orte hinzufügen
+                </button>
+            </div>
+            <hr />
+            <button class="btn btn-primary">Erstellen</button>
+        </form>
+    </div>
+</div>
+<partial name="~/Views/PlaceDatabase/_PlaceModal.cshtml" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

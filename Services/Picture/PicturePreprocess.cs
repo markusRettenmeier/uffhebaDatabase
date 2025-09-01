@@ -29,7 +29,7 @@ namespace Sammlerplattform.Services.Picture
 
         public static string SaveFileForAnalysis(string? fileName, IFormFile fileToAnalyze, IWebHostEnvironment hostEnvironment)
         {
-            if(fileName == null)
+            if (fileName == null)
             {
                 throw new ArgumentNullException(nameof(fileName), "File name cannot be null.");
             }

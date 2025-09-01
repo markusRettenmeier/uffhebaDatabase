@@ -1,5 +1,4 @@
 ﻿using Sammlerplattform.Models.BrickDatabase;
-using Sammlerplattform.Models.PostcardDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,7 +13,7 @@ namespace Sammlerplattform.Models.ProductPictureDatabase
 
         [NotMapped]
         public bool Frontside => PerspectiveInt == 0;
-        
+
         [Display(Name = "Perspektive")]
         [NotMapped]
         public PerspectiveType Perspective
@@ -22,8 +21,6 @@ namespace Sammlerplattform.Models.ProductPictureDatabase
             get => PerspectiveInt == null ? PerspectiveType.Vorderseite : (PerspectiveType)PerspectiveInt; set => PerspectiveInt = (int)value;
         }
         public int? PerspectiveInt { get; set; }
-        public int? PostcardEntityID { get; set; }
-        public PostcardEntity? PostcardEntity { get; set; }
         public int? BrickEntityID { get; set; }
         public BrickEntity? BrickEntity { get; set; }
         public string? TextPositionJson { get; set; }

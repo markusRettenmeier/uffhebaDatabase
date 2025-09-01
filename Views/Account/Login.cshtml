@@ -9,13 +9,13 @@
         <h3>@ViewData["Title"]</h3>
         <p>Nutze einen lokalen Account, um dich einzuloggen.</p>
         <hr />
-<form id="account" asp-controller="Account" asp-action="LoginPost" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="mb-3">
+        <form id="account" asp-controller="Account" asp-action="LoginPost" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
                 <label asp-for="Email" class="form-label"></label>
-        <input type="email" asp-for="Email" class="form-control" required />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
+                <input type="email" asp-for="Email" class="form-control" required />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
             <div class="mb-3">
                 <label asp-for="Password" class="form-label"></label>
                 <div class="input-group">
@@ -26,22 +26,22 @@
                 </div>
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
-    <div class="form-group">
-        <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Anmelden</button>
+            <div class="form-group">
+                <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Anmelden</button>
+            </div>
+        </form>
+        <div>
+            <p>
+                <a href="#forgot-password" data-bs-toggle="modal" data-bs-target="#forgot-password">Passwort vergessen?</a>
+            </p>
+            <p>
+                <a href="#registerModal" data-bs-target="#registerModal" data-bs-toggle="modal">Als neuen Nutzer registrieren</a>
+            </p>
+            <p>
+                <a href="#ResendEmailConfirmationModal" data-bs-target="#ResendEmailConfirmationModal" data-bs-toggle="modal">E-Mail-Bestätigung erneut senden</a>
+            </p>
+        </div>
     </div>
-</form>
-<div>
-    <p>
-        <a href="#forgot-password" data-bs-toggle="modal" data-bs-target="#forgot-password">Passwort vergessen?</a>
-    </p>
-    <p>
-        <a href="#registerModal" data-bs-target="#registerModal" data-bs-toggle="modal">Als neuen Nutzer registrieren</a>
-    </p>
-    <p>
-        <a href="#ResendEmailConfirmationModal" data-bs-target="#ResendEmailConfirmationModal" data-bs-toggle="modal">E-Mail-Bestätigung erneut senden</a>
-    </p>
-</div>
-</div>
 </div>
 
 <div class="modal fade" id="forgot-password" tabindex="0" role="dialog" aria-hidden="true">
@@ -88,15 +88,15 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-            <form asp-action="ResendEmailSubmit" asp-controller="Account">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-floating">
+                <form asp-action="ResendEmailSubmit" asp-controller="Account">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-floating">
                         <input asp-for="Email" placeholder="" autocomplete="E-Mail" class="form-control" required />
                         <label asp-for="Email"></label>
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-                <button type="submit" class="w-100 btn btn-lg btn-primary mt-1">Erneut senden</button>
-            </form>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary mt-1">Erneut senden</button>
+                </form>
             </div>
         </div>
     </div>

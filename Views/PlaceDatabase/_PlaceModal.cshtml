@@ -1,0 +1,46 @@
+﻿<div class="modal fade" id="placeModal" tabindex="-1" aria-labelledby="placeModal" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="placeModalLabel">Wähle den Ort aus</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ui-front modalBodyPlace">
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control inputPlaceSearch" placeholder="Ort" aria-label="Ort" />
+                            <div>
+                                <select class="form-select" id="toponymyType">
+                                    <option value="">Geografischer Typ wählen</option>
+                                    <option value="0">Flur</option>
+                                    <option value="1">Raum</option>
+                                    <option value="2">Verkehrsweg</option>
+                                    <option value="3">Gewässer</option>
+                                    <option value="4">Siedlung</option>
+                                    <option value="5">Gebäude</option>
+                                    <option value="6">Relief</option>                                    
+                                </select>
+                            </div>
+                            <button class="btn btn-primary placeSearchSubmit" type="button">Suchen</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table" id="placeSearchResultTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">Orts_ID</th>
+                            <th scope="col">Geografischer Name</th>
+                            <th scope="col">Geografischer Typ</th>
+                            <th scope="col">Weitere Spezifikationen</th>
+                            <th scope="col">Aktionen</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>

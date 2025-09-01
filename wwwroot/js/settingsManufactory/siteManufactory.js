@@ -26,10 +26,6 @@ function addCityMultiRow(buttonId) {
     $('#cityTable').find('tbody').append(innerHtml);
     $('#IsCityExistingModal').modal('hide');
 }
-//document.getElementById.on('click', '.deleteCity', function () {
-//    let id = $(this).prop('id')
-//    document.querySelector('#trCity_' + id)?.remove()
-//})
 function RemoveRowFromTable(row) {
     let tr = document.getElementById(row);
     if (tr != null) {

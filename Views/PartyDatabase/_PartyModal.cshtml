@@ -1,0 +1,41 @@
+﻿<div class="modal fade" id="partyModal" tabindex="-1" aria-labelledby="partyModal" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="partyModalLabel">Wähle die Partei aus</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ui-front modalBodyParty">
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control inputPartySearch" placeholder="Ort" aria-label="Ort" />
+                            <div>
+                                <select class="form-select" id="partyType">
+                                    <option value="">PArty Typ wählen</option>
+                                    <option value="0">Individuum</option>
+                                    <option value="1">Organisation</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary partySearchSubmit" type="button">Suchen</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table" id="partySearchResultTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">PartyID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Partei Typ</th>
+                            <th scope="col">Weitere Spezifikationen</th>
+                            <th scope="col">Aktionen</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>

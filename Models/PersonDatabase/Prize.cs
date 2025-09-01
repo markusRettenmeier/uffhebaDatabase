@@ -16,6 +16,6 @@ namespace Sammlerplattform.Models.PersonDatabase
         [StringLength(50)]
         [Display(Name = "Kategorie")]
         public string? Category { get; set; }
-        public ICollection<Person> PersonICollection { get; set; } = [];
+        public List<Person> PersonList { get; set; } = [];
     }
 }

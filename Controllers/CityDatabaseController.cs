@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Sammlerplattform.Models;
 using Sammlerplattform.Models.CityDatabase;
 using Sammlerplattform.Services.Processes.CityProcesses;
 
@@ -9,69 +8,43 @@ namespace Sammlerplattform.Controllers
     [Authorize]
     public class CityDatabaseController(IProcessCity processCity) : Controller
     {
-        public ActionResult AdministerCollectionCity(string statusMessage, CitySearchParameterModel citySearchParameters)
+        public ActionResult Index(string statusMessage, CitySearchParameterModel citySearchParameters)
         {
             ViewData["StatusMessage"] = statusMessage;
 
-            return View(processCity.GetCityOPMWithPredicates(citySearchParameters));
+            return View(processCity.GetWithPredicates(citySearchParameters));
         }
 
-        public ActionResult CreateCity(string statusMessage)
+        public ActionResult Create(string statusMessage)
         {
             ViewData["StatusMessage"] = statusMessage;
 
-            CityOperationParameterModel model = new()
-            {
-                Geography = new Geography { IsGeographyNameRequired = false }
-            };
-            return View(model);
+            return View();
         }
 
-        public IActionResult CreateCitySubmit(CityOperationParameterModel model)
+        public IActionResult CreateSubmit(CityOperationParameterModel model)
         {
-            (City _, int _, string message) = processCity.CreateCity(model);
+            (City _, int _, string statusMessage) = processCity.Create(model);
 
-            return RedirectToAction(nameof(CreateCity), new { statusMessage = message });
+            return RedirectToAction(nameof(Create), new { statusMessage });
         }
 
-        public ActionResult EditCity(string statusMessage, int id)
+        public ActionResult Edit(string statusMessage, int id)
         {
             ViewData["StatusMessage"] = statusMessage;
 
             CitySearchParameterModel citySearch = new();
             citySearch.ParentCityID.Add(id);
-
-            CityOperationParameterModel citySelect = processCity.GetCityOPMWithPredicates(citySearch).First();
-            foreach (Postalcode postalcode in citySelect.City.PostalcodeList)
-            {
-                citySelect.PostalcodeNumberList.Add(postalcode.PostalcodeNumber);
-            }
-            foreach (CityNOeconym cno in citySelect.City.CityNOeconymList)
-            {
-                citySelect.OeconymList.Add(cno.Oeconym.OeconymName + "§§" + cno.CurrentName);
-            }
+            CityOperationParameterModel citySelect = processCity.GetWithPredicates(citySearch).First();
 
             return View(citySelect);
         }
 
-        public IActionResult EditCitySubmit(CityOperationParameterModel model)
+        public IActionResult EditSubmit(CityOperationParameterModel model)
         {
-            (City city, int _, string statusMessage) = processCity.EditCity(model);
+            (City city, int _, string statusMessage) = processCity.Edit(model);
 
-            return RedirectToAction(nameof(EditCity), new { statusMessage, id = city.CityID });
-        }
-    }
-
-    [Authorize]
-    [Route("Api/CityDatabaseRestAPI")]
-    public class CityDatabaseRestAPI(IProcessCity processCity) : Controller
-    {
-        [HttpPost("CreateCitySubmit")]
-        public IActionResult CreateCitySubmit([FromBody] CityOperationParameterModel model)
-        {
-            (City _, int statuscode, string Message) = processCity.CreateCity(model);
-
-            return StatusCode(statuscode, Message);
+            return RedirectToAction(nameof(Edit), new { statusMessage, id = city.CityID });
         }
     }
 }

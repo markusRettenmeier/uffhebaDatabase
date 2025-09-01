@@ -1,0 +1,50 @@
+﻿@model Sammlerplattform.Models.EraDatabase.Era
+
+@{
+    ViewData["Title"] = "Ändere Epoche";
+    Layout = "_LayoutSettings";
+}
+
+<h1>@ViewData["Title"]</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditEra">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="EraID" />
+            <div class="form-group">
+                <label asp-for="EraName" class="control-label"></label>
+                <input asp-for="EraName" class="form-control" />
+                <span asp-validation-for="EraName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EraShort" class="control-label"></label>
+                <input asp-for="EraShort" class="form-control" />
+                <span asp-validation-for="EraShort" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EraDescription" class="control-label"></label>
+                <textarea asp-for="EraDescription" class="form-control"></textarea>
+                <span asp-validation-for="EraDescription" class="text-danger"></span>
+                </div>
+            <div class="form-group">
+                <label asp-for="StartYear" class="control-label"></label>
+                <textarea asp-for="StartYear" class="form-control"></textarea>
+                <span asp-validation-for="StartYear" class="text-danger"></span>
+                </div>
+            <div class="form-group">
+                <label asp-for="EndYear" class="control-label"></label>
+                <textarea asp-for="EndYear" class="form-control"></textarea>
+                <span asp-validation-for="EndYear" class="text-danger"></span>
+                </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="AdministerCollectionEra">Zurück zur Liste</a>
+</div>
+

@@ -1,20 +1,19 @@
 ﻿using ImageMagick;
+using Sammlerplattform.Data;
 using Sammlerplattform.Models.BrickDatabase;
 using Sammlerplattform.Models.ProductPictureDatabase;
-using Sammlerplattform.Services.GenericClasses;
 using Sammlerplattform.Services.Picture;
-using Sammlerplattform.Services.UnitOfWork;
 
 namespace Sammlerplattform.Services.Processes
 {
     public interface IProcessProductPicture
     {
-        public (ProductPicture productPicture, int statuscode, string message) Create(ProductPicture productPicture, BrickEntity brickEntity);
-        public (ProductPicture productPicture, int statuscode, string message) Edit(ProductPicture productPicture, BrickEntity brickEntity);
-        public (ProductPicture productPicture, int statuscode, string message) Delete(ProductPicture productPicture);
+        (ProductPicture productPicture, int statuscode, string message) Create(ProductPicture productPicture, BrickEntity brickEntity);
+        (ProductPicture productPicture, int statuscode, string message) Edit(ProductPicture productPicture, BrickEntity brickEntity);
+        (ProductPicture productPicture, int statuscode, string message) Delete(ProductPicture productPicture);
     }
 
-    public class ProductPictureProcessor(IWebHostEnvironment hostEnvironment, IUnitOfWork unitOfWork, ILogger<ProductPictureProcessor> logger): IProcessProductPicture
+    public class ProductPictureProcessor(IWebHostEnvironment hostEnvironment, IUnitOfWork unitOfWork, ILogger<ProductPictureProcessor> logger) : IProcessProductPicture
     {
         public (ProductPicture productPicture, int statuscode, string message) Create(ProductPicture productPicture, BrickEntity brickEntity)
         {
@@ -28,7 +27,7 @@ namespace Sammlerplattform.Services.Processes
                 try
                 {
                     productPicture.BrickEntityID = brickEntity.BrickEntityID;
-                    var newProductPicture = unitOfWork.ProductPictureRepository.Insert(productPicture);
+                    ProductPicture newProductPicture = unitOfWork.ProductPictureRepository.Insert(productPicture);
                     unitOfWork.Save();
 
                     string imgName = newProductPicture.ProductPictureID.ToString() + "." + newProductPicture.FileExtension;
@@ -36,7 +35,6 @@ namespace Sammlerplattform.Services.Processes
                     using MagickImage image = new(fileName);
                     image.Quality = 30;
                     image.Format = MagickFormat.Png;
-                    //File.Delete(fileName);
                     ImageSetWatermark(brickEntity.UsingIdentityUser.UserName, image);
                     ImageResizeAndMoveToFolder(productPicture.Frontside, Pathes(imgName), image);
 
@@ -47,7 +45,7 @@ namespace Sammlerplattform.Services.Processes
                     //logger.LogError("ProcessAnalysisResultParameters publisher abgebrochen mit Exception {ex.Message}, fileName {fileName}.",
                     //            ex.Message, fileName);
                     return (productPicture, 500, "Es ist ein Fehler aufgetreten: " + ex.Message);
-                }            
+                }
             }
 
             return (productPicture, 302, "Bild leer.");
@@ -166,7 +164,6 @@ namespace Sammlerplattform.Services.Processes
                 }
                 image.Write(pathes.pathThumbnail);
             }
-            //File.Move(fileName, Path.Combine(pathOriginal, imgName));
         }
 
         private static void ImageSetWatermark(string userName, MagickImage image)
@@ -177,8 +174,8 @@ namespace Sammlerplattform.Services.Processes
                 TextGravity = Gravity.Center,
                 BackgroundColor = MagickColors.Transparent,
                 FillColor = MagickColors.LightGray,
-                Height = 200, // height of text box
-                Width = 400 // width of text box                        
+                Height = 200,
+                Width = 400                    
             };
             MagickImage watermark = new($"caption:{userName}", readSettings);
             watermark.Rotate(315.00);
@@ -186,7 +183,6 @@ namespace Sammlerplattform.Services.Processes
             // Normal Version                        
             if (image.Width > image.Height)
             {
-                //Add the watermark layer on top of the background image
                 image.Composite(watermark, Gravity.Center, 600, 350, CompositeOperator.Over);
                 image.Composite(watermark, Gravity.Center, -600, -350, CompositeOperator.Over);
             }
@@ -207,7 +203,10 @@ namespace Sammlerplattform.Services.Processes
             searchParameterModel.ProductPictureID.Add(productPicture.ProductPictureID);
             searchParameterModel.FileExtension.Add(productPicture.FileExtension);
             if (productPicture.BrickEntityID != null)
+            {
                 searchParameterModel.BrickEntityID.Add((int)productPicture.BrickEntityID);
+            }
+
             searchParameterModel.Frontside = productPicture.Frontside;
             return searchParameterModel;
         }

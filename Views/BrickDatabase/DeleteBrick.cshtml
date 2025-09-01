@@ -41,12 +41,20 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.BrickEntity.ReliefEnum)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BrickEntity.KeywordInt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BrickEntity.KeywordEnumDescription)
-        </dd>
+        @for( int i = 0; i < Model.ProductNKeywordList.Count; i++)
+        {
+            if(i == 0) {
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.KeywordList)
+                </dt>
+            } else
+            {
+                <dt class="col-sm-2"></dt>
+            }
+            <dd class="col-sm-10">
+                @Model.ProductNKeywordList[i].Keyword.KeywordName
+            </dd>
+        }
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.BrickEntity.FilingLocation)
         </dt>
@@ -60,10 +68,10 @@
             @Html.DisplayFor(model => model.BrickEntity.Charge)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BrickEntity.Price)
+            @Html.DisplayNameFor(model => model.BrickEntity.DeliveryPrice)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BrickEntity.Price)
+            @Html.DisplayFor(model => model.BrickEntity.DeliveryPrice)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.BrickEntity.Fake)
@@ -71,12 +79,22 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.BrickEntity.Fake)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BrickEntity.MaterialInt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BrickEntity.MaterialInt)
-        </dd>
+        @for (int i = 0; i < Model.ProductNMaterialList.Count; i++)
+        {
+            if (i == 0)
+            {
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.MaterialList)
+                </dt>
+            }
+            else
+            {
+                <dt class="col-sm-2"></dt>
+            }
+            <dd class="col-sm-10">
+                @Model.ProductNMaterialList[i].Material.MaterialName
+            </dd>
+        }
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.BrickEntity.Width)
         </dt>
@@ -129,7 +147,7 @@
             @Html.DisplayNameFor(model => model.BrickEntity.Era)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BrickEntity.Era.EraName)
+            @Html.DisplayFor(model => model.BrickEntity.Era!.EraName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.BrickEntity.Comment)
@@ -150,10 +168,10 @@
             @Html.DisplayFor(model => model.BrickEntity.ProductionSize)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BrickEntity.ConditionInt)
+            @Html.DisplayNameFor(model => model.BrickEntity.ConditionID)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BrickEntity.ConditionEnum)
+            @Html.DisplayFor(model => model.BrickEntity.Condition!.ConditionName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.ColorList)
@@ -207,13 +225,13 @@
         }
         @for(int i = 0; i < Model.BrickEntityNCityList.Count; i++)
         {
-            string? oeconym = Model.BrickEntityNCityList[i].City?.CityNOeconymList.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
+            string? oeconym = Model.BrickEntityNCityList[i].City?.CityOeconymList.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
             string postalcode = string.Empty;
-            if (Model.BrickEntityNCityList[i].City?.PostalcodeList != null)
+            if (Model.BrickEntityNCityList[i].City?.CityPostalcodeList != null)
             {
-                foreach (var postalcode1 in Model.BrickEntityNCityList[i].City.PostalcodeList)
+                foreach (var postalcode1 in Model.BrickEntityNCityList[i].City.CityPostalcodeList)
                 {
-                    postalcode += postalcode1.PostalcodeNumber + ", ";
+                    postalcode += postalcode1.Postalcode.PostalcodeNumber + ", ";
                 }
             }
             if(i == 0)
@@ -227,7 +245,7 @@
                 </dt>
             }
             <dd class="col-sm-10">
-                @oeconym , @postalcode
+                @postalcode @oeconym
             </dd>
         }
     </dl>

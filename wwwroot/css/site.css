@@ -269,3 +269,12 @@ svg {
 #colorContainer {
     display: flex;
 }
+
+.removeToponmy, .removePostalcode{
+    grid-column: 2;
+    grid-row: 1 / span 2;
+}
+.inputDivToponymy, .inputDivPostalcode {
+    display: grid;
+    grid-template-columns: auto auto;
+}

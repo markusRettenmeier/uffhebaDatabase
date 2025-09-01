@@ -38,9 +38,7 @@ namespace Sammlerplattform.Controllers
 
             ManufactorySearchParameterModel manufactorySearch = new();
             manufactorySearch.ManufactoryID.Add(id);
-
             ManufactoryOperationParameterModel parameterModel = processManufactory.GetManufactoryWithPredicates(manufactorySearch).First();
-            parameterModel.ProductionFacility = parameterModel.ProductionFacility;
 
             return View(parameterModel);
         }
@@ -50,20 +48,6 @@ namespace Sammlerplattform.Controllers
             (Manufactory manufactory, int _, string statusMessage) = processManufactory.EditManufactory(manufactoryParameterModel);
 
             return RedirectToAction(nameof(EditManufactory), new { statusMessage, id = manufactory.ManufactoryID });
-        }
-    }
-
-    [Authorize]
-    [Route("Api/ManufactoryDatabaseRestAPI")]
-    public class ManufactoryDatabaseRestAPI(IProcessManufactory processManufactory) : Controller
-    {
-
-        [HttpPost("CreateManufactorySubmit")]
-        public IActionResult CreateManufactorySubmit([FromBody] ManufactoryOperationParameterModel model)
-        {
-            (Manufactory _, int statuscode, string statusMessage) = processManufactory.CreateManufactory(model);
-
-            return StatusCode(statuscode, statusMessage);
         }
     }
 }

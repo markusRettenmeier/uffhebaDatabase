@@ -1,13 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Data;
-using Sammlerplattform.Models.ProductPictureDatabase;
 using Sammlerplattform.Models.UserSettings;
-using Sammlerplattform.Services;
 using Sammlerplattform.Services.EMail;
 using Sammlerplattform.Services.Processes;
 using Sammlerplattform.Services.Processes.CityProcesses;
-using Sammlerplattform.Services.UnitOfWork;
+using Sammlerplattform.Services.Processes.PartyProcesses;
+using Sammlerplattform.Services.Processes.PlaceProcesses;
 using System.Text.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -54,23 +53,29 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.AddSession();
 builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
 
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("SubscribedDiskspacePolicy", policy => policy.RequireClaim("SubscribedDiskspace"))
-    .AddPolicy("SubscribedAnalysisToolPolicy", policy => policy.RequireClaim("SubscribedAnalysisTool"));
-
 builder.Services.AddScoped<IProcessGeography, GeographyProcessor>();
 builder.Services.AddScoped<IProcessOeconym, OeconymProcessor>();
 builder.Services.AddScoped<IProcessPostalcode, PostalcodeProcessor>();
 builder.Services.AddScoped<IProcessEra, EraProcessor>();
 builder.Services.AddScoped<IProcessCity, CityProcessor>();
-builder.Services.AddScoped<IProcessCityNOeconym, CityNOeconymProcessor>();
 builder.Services.AddScoped<IProcessManufactory, ManufactoryProcessor>();
-builder.Services.AddScoped<IProcessBrick, BrickProcessor>();
+builder.Services.AddScoped<IProcessProduct, ProductProcessor>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProcessProductPicture, ProductPictureProcessor>();
 builder.Services.AddScoped<IProcessPerson, PersonProcessor>();
 builder.Services.AddScoped<IProcessProcessOfManufacture, ProcessOfManufactureProcessor>();
-builder.Services.AddScoped<UserAccessor>();
+builder.Services.AddScoped<IProcessPlace, PlaceProcessor>();
+builder.Services.AddScoped<IProcessToponymy, ToponymyProcessor>();
+builder.Services.AddScoped<IProcessSettlement, SettlementProcessor>();
+builder.Services.AddScoped<IProcessBodyOfWater, BodyOfWaterProcessor>();
+builder.Services.AddScoped<IProcessBuilding, BuildingProcessor>();
+builder.Services.AddScoped<IProcessField, FieldProcessor>();
+builder.Services.AddScoped<IProcessRegion, RegionProcessor>();
+builder.Services.AddScoped<IProcessRelief, ReliefProcessor>();
+builder.Services.AddScoped<IProcessTransportRoute, TransportRouteProcessor>();
+builder.Services.AddScoped<IProcessParty, PartyProcessor>();
+builder.Services.AddScoped<IProcessIndividual, IndividualProcessor>();
+builder.Services.AddScoped<IProcessOrganization, OrganizationProcessor>();
 
 //builder.Services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
 

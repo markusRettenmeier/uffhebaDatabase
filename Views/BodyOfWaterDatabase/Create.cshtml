@@ -1,0 +1,46 @@
+﻿@model BodyOfWaterOperationParameterModel
+@using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase
+
+@{
+    ViewData["Title"] = "Gewässer erstellen";
+    Layout = "~/Views/Shared/_LayoutSettingsPlace.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+<form asp-action="CreateSubmit" asp-controller="BodyOfWaterDatabase">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <input asp-for="Place.ToponymyTypeInt" type="hidden" value="3" />
+
+    <div id="toponymyContainer" class="mb-3"></div>
+    <button type="button" class="btn btn-primary" onclick="addToponymy()">Mehr Ortsnamen hinzufügen</button>
+    <div class="mb-3">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Geografischer Name</th>
+                    <th scope="col">Weitere Spezifikationen</th>
+                    <th scope="col">Bezug</th>
+                    <th scope="col">Weitere Aktionen</th>
+                </tr>
+            </thead>
+            <tbody id="appendPlaceHere">
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
+            Orte hinzufügen
+        </button>
+    </div>    
+    <hr />
+    <button class="btn btn-primary">Erstellen</button>
+</form>
+
+<partial name="~/Views/PlaceDatabase/_PlaceModal.cshtml" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

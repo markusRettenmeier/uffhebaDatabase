@@ -1,6 +1,4 @@
-﻿"use strict";
-
-import { columns, columnsSimple } from "./columns.min.js";
+﻿import { columns, columnsSimple } from "./columns.min.js";
 import {
   createInput,
   createAddButton,
@@ -11,6 +9,8 @@ import {
     addColumn,
     addField
 } from "./addElements.min.js";
+
+"use strict"
 
 export function sessionStorageGetInput(index, columnNo) {
   let localKey = "";
@@ -82,7 +82,7 @@ export function sessionStorageGetInput(index, columnNo) {
   }
 }
 export function setSessionStorageData() {
-  console.log("📦 setSessionStorageData gestartet.");
+  //console.log("📦 setSessionStorageData gestartet.");
 
   // Spinner zeigen, Submit ausblenden
   document
@@ -93,12 +93,12 @@ export function setSessionStorageData() {
     .forEach((el) => (el.style.display = "inline"));
 
   sessionStorage.clear();
-  console.log("🧹 sessionStorage geleert.");
+  //console.log("🧹 sessionStorage geleert.");
 
   const columnsLength = columns.length;
   for (let i = 0; i < columnsLength; i++) {
     const [column, type] = columns[i];
-    console.log(`🔍 Bearbeite Spalte: ${column} (Typ: ${type})`);
+    //console.log(`🔍 Bearbeite Spalte: ${column} (Typ: ${type})`);
 
     switch (type) {
       case "checkbox":
@@ -112,7 +112,7 @@ export function setSessionStorageData() {
     }
   }
 
-  console.log("✅ setSessionStorageData abgeschlossen.");
+  //console.log("✅ setSessionStorageData abgeschlossen.");
 }
 window.setSessionStorageData = setSessionStorageData;
 
@@ -132,7 +132,7 @@ function sessionStorageFillInput(columnName) {
 
   if (itemsColumn !== "") {
     sessionStorage.setItem(columnName, itemsColumn);
-    console.log(`📝 Eingabe gespeichert (${columnName}):`, itemsColumn);
+    //console.log(`📝 Eingabe gespeichert (${columnName}):`, itemsColumn);
   }
 }
 
@@ -152,7 +152,7 @@ function sessionStorageFillListBox(columnName) {
 
   if (itemsColumn !== "") {
     sessionStorage.setItem(columnName, itemsColumn);
-    console.log(`📋 Mehrfachauswahl gespeichert (${columnName}):`, itemsColumn);
+    //console.log(`📋 Mehrfachauswahl gespeichert (${columnName}):`, itemsColumn);
   }
 }
 
@@ -162,7 +162,7 @@ function sessionStorageFillCheckBox(columnName) {
   );
   if (checked && typeof checked.value === "string") {
     sessionStorage.setItem(columnName, checked.value);
-    console.log(`✅ Checkbox gespeichert (${columnName}):`, checked.value);
+    //console.log(`✅ Checkbox gespeichert (${columnName}):`, checked.value);
   }
 }
 

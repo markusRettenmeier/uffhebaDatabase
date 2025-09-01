@@ -1,16 +1,16 @@
-﻿using Sammlerplattform.Models.CityDatabase;
-using Sammlerplattform.Services.UnitOfWork;
+﻿using Sammlerplattform.Data;
+using Sammlerplattform.Models.CityDatabase;
 
 namespace Sammlerplattform.Services.Processes
 {
     public interface IProcessGeography
     {
-        Geography CreateGeography(string geographyName);
+        Geography Create(string geographyName);
     }
 
     public class GeographyProcessor(IUnitOfWork unitOfWork) : IProcessGeography
     {
-        public Geography CreateGeography(string geographyName)
+        public Geography Create(string geographyName)
         {
             if (string.IsNullOrEmpty(geographyName))
             {

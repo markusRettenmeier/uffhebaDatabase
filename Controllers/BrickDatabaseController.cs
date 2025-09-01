@@ -9,7 +9,7 @@ using Sammlerplattform.Services.Processes;
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
-    public class BrickDatabaseController(IProcessBrick processBrick, UserManager<UsingIdentityUser> userManager, IWebHostEnvironment hostEnvironment) : Controller
+    public class BrickDatabaseController(IProcessProduct processBrick, UserManager<UsingIdentityUser> userManager, IWebHostEnvironment hostEnvironment) : Controller
     {
         public ActionResult AdministerCollectionBrick(string statusMessage, BrickSearchParameterModel model)
         {
@@ -24,7 +24,9 @@ namespace Sammlerplattform.Controllers
         {
             ViewData["StatusMessage"] = statusMessage;
 
-            return View();
+            BrickOperationParameterModel operationParameterModel = processBrick.GetWithPredicates(new BrickSearchParameterModel()).FirstOrDefault();
+
+            return View(operationParameterModel);
         }
         public async Task<IActionResult> CreateBrickSubmit(BrickOperationParameterModel brickOperationParameter)
         {
@@ -73,7 +75,7 @@ namespace Sammlerplattform.Controllers
         {
             Task<UsingIdentityUser?> userTask = userManager.GetUserAsync(User);
             UsingIdentityUser? user = await userTask;
-            if(user == null)
+            if (user == null)
             {
                 return RedirectToAction(nameof(AdministerCollectionBrick), new { statusMessage = "User wurde nicht gefunden." });
             }

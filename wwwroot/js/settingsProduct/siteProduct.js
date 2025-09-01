@@ -157,7 +157,6 @@ function SetPersonIntoTable(buttonId) {
     const pseudonymValue = document.getElementById('personSearchResultPersonPseudonym_' + buttonId)?.textContent || '';
 
     const tr = document.createElement('tr');
-    //tr.id = 'personResultTableTr_' + index;
     tr.className = 'personResultTableTr';
 
     const tdId = document.createElement('td');
@@ -204,9 +203,6 @@ function SetPersonIntoTable(buttonId) {
     removeButton.type = 'button';
     removeButton.className = 'btn btn-outline-danger removePerson';
     removeButton.textContent = 'Entfernen';
-    //removeButton.onclick = function () {
-    //    removePerson(`${index}`);
-    //};
     tdButton.appendChild(removeButton);
     tr.appendChild(tdButton);
 
@@ -216,8 +212,7 @@ function SetPersonIntoTable(buttonId) {
 }
 (function initRemovePersonButtonHandler() {
     const tableBody = document.getElementById('personResultTableBody');
-
-    if (!tableBody) return; // Frühzeitiger Ausstieg, wenn Tabelle nicht vorhanden
+    if (!tableBody) return;
 
     tableBody.addEventListener('click', function (e) {
         if (e.target && e.target.classList.contains('removePerson')) {
@@ -265,47 +260,25 @@ $('#clearOneRowEraTable').on('click', function () {
     $('#clearOneRowEraTable').hide()
 })
 
-$('body').on('click', '.AddMoreManufactorys', AddMoreManufactorys);
-function AddMoreManufactorys() {
-    let source = $('.FirstManufactory'), clone = source.clone(true);
-    let numberOfInputs = document.getElementsByClassName('InputManufactory').length;
-    let nameCount = numberOfInputs - 1;
-
-    clone.attr('class', 'col').attr('id', 'DivManufactory_' + numberOfInputs).show()
-    clone.find('.InputManufactory').attr('id', 'InputManufactory_' + numberOfInputs).val('')
-    clone.find('.InputManufactoryID')
-        .attr('name', 'BrickEntityNManufactoryNCityList[' + nameCount + '].ManufactoryID');
-    clone.find('.TownOfManufactorySelect')
-        .attr('name', 'BrickEntityNManufactoryNCityList[' + nameCount + '].CityID');
-    clone.find('.DeleteManufactory').attr('id', numberOfInputs)
-
-    clone.appendTo('.AppendManufactoryHere');
-}
-$('.DeleteManufactory').on('click', function () {
-    let id = $(this).prop('id')
-    $('div#DivManufactory_' + id).remove()
-})
-
 function addManufactory() {
     const container = document.getElementById("manufactoryContainer");
     const index = container.children.length;
 
     const wrapper = document.createElement("div");
     wrapper.className = "input-group inputDivManufactory mb-2";
-    //wrapper.id = `inputDiv_manufactory${index}`;
 
     const hiddenInput = document.createElement("input");
     hiddenInput.type = "hidden";
-    hiddenInput.className = "form-control InputManufactoryID";
+    hiddenInput.className = "form-control inputManufactoryID";
     hiddenInput.name = `BrickEntityNManufactoryNCityList[${index}].ManufactoryID`;
 
     const textInput = document.createElement("input");
     textInput.type = "text";
-    textInput.className = "form-control InputManufactory";
+    textInput.className = "form-control inputManufactory";
     textInput.placeholder = "Verlag";
 
     const select = document.createElement("select");
-    select.className = "form-select TownOfManufactorySelect";
+    select.className = "form-select townOfManufactorySelect";
     select.name = `BrickEntityNManufactoryNCityList[${index}].CityID`;
 
     const defaultOption = document.createElement("option");
@@ -317,11 +290,6 @@ function addManufactory() {
     removeButton.type = "button";
     removeButton.className = "btn btn-danger removeManufactory";
     removeButton.textContent = "Entfernen";
-    //removeButton.onclick = function () {
-    //    removeManufactory(`${index}`);
-    //};
-
-    // Alles zusammensetzen
     wrapper.appendChild(hiddenInput);
     wrapper.appendChild(textInput);
     wrapper.appendChild(select);
@@ -329,14 +297,6 @@ function addManufactory() {
 
     container.appendChild(wrapper);
 }
-//function removeManufactory(id) {
-//    const container = document.getElementById("manufactoryContainer");
-//    const entry = document.getElementById("inputDiv_" + id);
-//    if (entry) {
-//        container.removeChild(entry);
-//        reindexManufactoryFields(container);
-//    }
-//}
 (function initRemoveManufactoryButtonHandler() {
     const container = document.getElementById('manufactoryContainer');
 
@@ -358,12 +318,12 @@ function reindexManufactoryFields(container) {
     entries.forEach((entry, index) => {
         entry.id = `inputDiv_manufactory${index}`;
 
-        const manufactoryIdInput = entry.querySelector(".InputManufactoryID");
+        const manufactoryIdInput = entry.querySelector(".inputManufactoryID");
         if (manufactoryIdInput) {
             manufactoryIdInput.name = `BrickEntityNManufactoryNCityList[${index}].ManufactoryID`;
         }
 
-        const citySelect = entry.querySelector(".TownOfManufactorySelect");
+        const citySelect = entry.querySelector(".townOfManufactorySelect");
         if (citySelect) {
             citySelect.name = `BrickEntityNManufactoryNCityList[${index}].CityID`;
         }
@@ -376,7 +336,6 @@ function addColor() {
 
     const card = document.createElement("div");
     card.className = "card cardColor m-2";
-    //card.id = `cardColor_${index}`;
     card.style.width = "18rem";
 
     const cardBody = document.createElement("div");
@@ -416,7 +375,6 @@ function addColor() {
     mainColorCheckbox.value = "true";
     mainColorCheckbox.id = `mainColorCheckbox${index}`; // <<< wichtig!
     mainColorCheckbox.setAttribute("data-val", "true");
-    mainColorCheckbox.setAttribute("data-val-required", "Bitte wählen Sie aus, ob es die Hauptfarbe ist.");
 
     const mainColorLabel = document.createElement("label");
     mainColorLabel.className = "form-check-label";
@@ -443,15 +401,6 @@ function addColor() {
     card.appendChild(cardBody);
     container.appendChild(card);
 }
-//function removeColor(id) {
-//    const container = document.getElementById("colorContainer");
-//    const entry = document.getElementById("cardColor_" + id);
-//    if (entry) {
-//        container.removeChild(entry);
-//        reindexColorFields(container);
-//    }
-//}
-
 (function initRemoveColorButtonHandler() {
     const container = document.getElementById('colorContainer');
 
@@ -467,7 +416,7 @@ function addColor() {
         }
     });
 })();
-function reindexColorFields(container) {
+function reindexMaterialFields(container) {
     const entries = Array.from(container.querySelectorAll(".cardColor"));
 
     entries.forEach((entry, index) => {
@@ -486,13 +435,107 @@ function reindexColorFields(container) {
     });
 }
 
+function addMaterial() {
+    const container = document.getElementById("materialContainer");
+    const index = container.children.length;
+
+    const card = document.createElement("div");
+    card.className = "card cardMaterial m-2";
+    card.style.width = "18rem";
+
+    const cardBody = document.createElement("div");
+    cardBody.className = "card-body";
+
+    const select = document.createElement("select");
+    select.name = `ProductNMaterialList[${index}].MaterialID`;
+    select.id = "selectMaterial" + index;
+    select.className = "form-select selectMaterialID";
+
+    const materialList = JSON.parse(sessionStorage.getItem('materialList') || '[]');
+    const autocompleteSource = materialList.map(x => ({
+        name: x.materialName,
+        value: x.materialID
+    }));
+    const defaultOption = document.createElement("option");
+    defaultOption.selected = true;
+    defaultOption.value = "";
+    defaultOption.textContent = "Farbe wählen";
+    select.appendChild(defaultOption);
+
+    autocompleteSource.forEach((element) => {
+        const option = document.createElement("option");
+        option.selected = false;
+        option.value = element.value;
+        option.textContent = element.name;
+        select.appendChild(option);
+    });
+
+    const mainMaterialDiv = document.createElement("div");
+    mainMaterialDiv.className = "form-check";
+
+    const mainMaterialCheckbox = document.createElement("input");
+    mainMaterialCheckbox.type = "checkbox";
+    mainMaterialCheckbox.className = "form-check-input checkboxPrimaryMaterial";
+    mainMaterialCheckbox.name = `ProductNMaterialList[${index}].IsPrimaryMaterial`;
+    mainMaterialCheckbox.value = "true";
+    mainMaterialCheckbox.id = `mainMaterialCheckbox${index}`; // <<< wichtig!
+    mainMaterialCheckbox.setAttribute("data-val", "true");
+    mainMaterialCheckbox.setAttribute("data-val-required", "Bitte wählen Sie aus, ob es das Hauptmaterial ist.");
+
+    const mainMaterialLabel = document.createElement("label");
+    mainMaterialLabel.className = "form-check-label";
+    mainMaterialLabel.setAttribute("for", `mainMaterialCheckbox${index}`);
+    mainMaterialLabel.textContent = "Hauptmaterial";
+    mainMaterialDiv.appendChild(mainMaterialCheckbox);
+    mainMaterialDiv.appendChild(mainMaterialLabel);
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "btn btn-danger removeMaterial";
+    removeButton.textContent = "Entfernen";
+
+    cardBody.appendChild(select);
+    cardBody.appendChild(mainMaterialDiv);
+    cardBody.appendChild(removeButton);
+    card.appendChild(cardBody);
+    container.appendChild(card);
+}
+(function initRemoveMaterialButtonHandler() {
+    const container = document.getElementById('materialContainer');
+    if (!container) return;
+
+    container.addEventListener('click', function (e) {
+        if (e.target && e.target.classList.contains('removeMaterial')) {
+            const card = e.target.closest('.cardColor');
+            if (card) {
+                card.remove();
+                reindexMaterialFields(container);
+            }
+        }
+    });
+})();
+function reindexMaterialFields(container) {
+    const entries = Array.from(container.querySelectorAll(".cardMaterial"));
+
+    entries.forEach((entry, index) => {
+        const manufactoryIdInput = entry.querySelector(".selectMaterialID");
+        if (manufactoryIdInput) {
+            manufactoryIdInput.name = `ProductNMaterialList[${index}].MaterialID`;
+        }
+        const primaryColorCheckbox = entry.querySelector(".checkboxPrimaryMaterial");
+        if (primaryColorCheckbox) {
+            primaryColorCheckbox.name = `ProductNMaterialList[${index}].IsPrimaryMaterial`;
+        }
+    });
+}
+
 function addInputFormFile(sourcePage) {
     const perspective = ["Vorderseite", "Rückseite", "Linke Seite", "Rechte Seite"]
     const container = document.getElementById("appendInputFormFile");
     const pictureCount = container.children.length;
 
     const div = document.createElement("div");
-    div.className = "mb-3";
+    div.className = "mb-3 inputGroupFormFile";
     div.id = `inputGroupFormFile_${pictureCount}`
 
     const label = document.createElement("label");
@@ -519,11 +562,8 @@ function addInputFormFile(sourcePage) {
 
     const removeButton = document.createElement("button");
     removeButton.type = "button";
-    removeButton.className = "btn btn-danger";
+    removeButton.className = "btn btn-danger removeFormFileInput";
     removeButton.textContent = "Entfernen";
-    removeButton.onclick = function () {
-        removeFormFileInput(`${pictureCount}`);
-    };
     divInputGroup.appendChild(removeButton);
     div.appendChild(divInputGroup);
 
@@ -545,11 +585,24 @@ function addInputFormFile(sourcePage) {
 
     container.appendChild(div);
 }
-function removeFormFileInput(pictureCount) {
-    const appendInputFormFile = document.getElementById('appendInputFormFile');
-    const inputGroupFormFile = document.getElementById(`inputGroupFormFile_${pictureCount}`)
-    appendInputFormFile.removeChild(inputGroupFormFile);
-}
+//function removeFormFileInput(pictureCount) {
+//    const appendInputFormFile = document.getElementById('appendInputFormFile');
+//    const inputGroupFormFile = document.getElementById(`inputGroupFormFile_${pictureCount}`)
+//    appendInputFormFile.removeChild(inputGroupFormFile);
+//}
+(function initRemoveFormFileButtonHandler() {
+    const container = document.getElementById('appendInputFormFile');
+    if (!container) return;
+
+    container.addEventListener('click', function (e) {
+        if (e.target && e.target.classList.contains('removeFormFileInput')) {
+            const inputgroup = e.target.closest('.inputGroupFormFile');
+            if (inputgroup) {
+                inputgroup.remove();
+            }
+        }
+    });
+})();
 
 function removePicture(pictureCount) {
     const pictureCard = document.getElementById(`pictureCard_${pictureCount}`);
@@ -557,4 +610,11 @@ function removePicture(pictureCount) {
     cardDiv.removeChild(pictureCard);
 
     removeFormFileInput(pictureCount)
+}
+
+if (window.location.href.indexOf('Database') > -1) {
+    $(function () {
+        $(".chosen-select").chosen()
+        $(".chosen").chosen()
+    });
 }

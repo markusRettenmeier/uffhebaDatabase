@@ -1,5 +1,5 @@
-﻿using Sammlerplattform.Models.ManufactoryDatabase;
-using Sammlerplattform.Models.CityDatabase;
+﻿using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Models.ManufactoryDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

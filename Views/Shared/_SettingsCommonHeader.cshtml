@@ -11,22 +11,51 @@
                         <a class="nav-link" asp-controller="UserSettings" asp-action="Profile">Profil</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Zu den Seiten
+                        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Sammlungsgebiete
                         </a>
                         <ul class="dropdown-menu" style="background-color: #FFFFF0">
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="CityDatabase" asp-action="AdministerCollectionCity">Orte verwalten</a>
+                                <a class="nav-link" asp-controller="BrickDatabase" asp-action="AdministerCollectionBrick">Ziegel verwalten</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Dimensionen
+                        </a>
+                        <ul class="dropdown-menu" style="background-color: #FFFFF0">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="SettlementDatabase" asp-action="Index"> Siedlungen verwalten</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="ManufactoryDatabase" asp-action="AdministerCollectionManufactory">Hersteller verwalten</a>
+                                <a class="nav-link" asp-controller="BodyOfWaterDatabase" asp-action="Index">Gewässer verwalten</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="BuildingDatabase" asp-action="Index">Gebäude verwalten</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="FieldDatabase" asp-action="Index">Flur verwalten</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="RegionDatabase" asp-action="Index">Region verwalten</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="ReliefDatabase" asp-action="Index">Relief verwalten</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="TransportRouteDatabase" asp-action="Index">Transportroute verwalten</a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="PostcardDatabase" asp-action="AdministerCollectionPostcard">Postkarten verwalten</a>
-                            </li>
+                                <a class="nav-link" asp-controller="OrganizationDatabase" asp-action="Index">Organisation verwalten</a>
+                            </li> 
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="BrickDatabase" asp-action="AdministerCollectionBrick">Ziegel verwalten</a>
+                                <a class="nav-link" asp-controller="IndividualDatabase" asp-action="Index">Persönlichkeiten verwalten</a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="EraDatabase" asp-action="AdministerCollectionEra">Epochen verwalten</a>
                             </li>
                         </ul>
                     </li>

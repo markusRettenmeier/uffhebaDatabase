@@ -1,5 +1,5 @@
-﻿using Sammlerplattform.Models.CityDatabase;
-using Sammlerplattform.Services.UnitOfWork;
+﻿using Sammlerplattform.Data;
+using Sammlerplattform.Models.CityDatabase;
 
 namespace Sammlerplattform.Services.Processes.CityProcesses
 {
@@ -15,8 +15,8 @@ namespace Sammlerplattform.Services.Processes.CityProcesses
             {
                 throw new NullReferenceException();
             }
-            Oeconym? existingOeconym = GetOeconym(oeconym);
 
+            Oeconym? existingOeconym = GetOeconym(oeconym);
             if (existingOeconym != null)
             {
                 return existingOeconym;

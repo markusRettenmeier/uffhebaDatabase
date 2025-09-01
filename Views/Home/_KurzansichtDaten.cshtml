@@ -66,16 +66,16 @@
                             <ul>
                                 @foreach(var city in item.BrickEntityNCityList)
                                 {
-                                    string? oeconym = city.City?.CityNOeconymList.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
+                                    string? oeconym = city.City?.CityOeconymList.Where(x => x.CurrentName).Select(x => x.Oeconym.OeconymName).FirstOrDefault();
                                     string postalcode = string.Empty;
-                                    if (city.City?.PostalcodeList != null)
+                                    if (city.City?.CityPostalcodeList != null)
                                     {
-                                        foreach (var postalcode1 in city.City.PostalcodeList)
+                                        foreach (var postalcode1 in city.City.CityPostalcodeList)
                                         {
-                                            postalcode += postalcode1.PostalcodeNumber + ", ";
+                                            postalcode += postalcode1.Postalcode.PostalcodeNumber + ", ";
                                         }
                                     }
-                                    <li>@oeconym @postalcode</li>
+                                    <li>@postalcode @oeconym</li>
                                 }
                             </ul>
                         </li>

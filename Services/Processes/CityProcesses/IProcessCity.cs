@@ -1,39 +1,31 @@
-﻿using Sammlerplattform.Models.CityDatabase;
-using Sammlerplattform.Services.GenericClasses;
-using Sammlerplattform.Services.UnitOfWork;
+﻿using Sammlerplattform.Data;
+using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Services.Processes.PlaceProcesses;
 using System.Transactions;
 
 namespace Sammlerplattform.Services.Processes.CityProcesses
 {
     public interface IProcessCity
     {
-        (Models.CityDatabase.City city, int statuscode, string message) CreateCity(CityOperationParameterModel model);
-        (Models.CityDatabase.City city, int statuscode, string message) EditCity(CityOperationParameterModel model);
-        List<CityOperationParameterModel> GetCityOPMWithPredicates(CitySearchParameterModel model);
-        CitySearchParameterModel CityParametersOperationToSearch(CityOperationParameterModel model);
+        (City City, int Statuscode, string Message) Create(CityOperationParameterModel model);
+        (City City, int Statuscode, string Message) Edit(CityOperationParameterModel model);
+        List<CityOperationParameterModel> GetWithPredicates(CitySearchParameterModel model);
+        CitySearchParameterModel ParametersOperationToSearch(CityOperationParameterModel model);
     }
 
     public class CityProcessor(IProcessGeography processGeography,
                                 IProcessPostalcode processPostalcode,
                                 IProcessOeconym processOeconym,
-                                IProcessCityNOeconym processCityNOeconym,
                                 IUnitOfWork unitOfWork, ILogger<CityProcessor> logger) : IProcessCity
     {
-        public (City city, int statuscode, string message) CreateCity(CityOperationParameterModel model)
+        public (City City, int Statuscode, string Message) Create(CityOperationParameterModel model)
         {
-            model.Geography.IsGeographyNameRequired = false;
-
-
-            if (model.OeconymList.Count == 0)
+            if (model.CityOeconymList.Count == 0)
             {
                 return (new(), 412, "Ortsnamen angeben.");
             }
-            else if (model.PostalcodeNumberList.Count == 0)
-            {
-                return (new(), 412, "Mindestens 1 PLZ angeben.");
-            }
 
-            List<CityOperationParameterModel> cityExists = GetCityOPMWithPredicates(CityParametersOperationToSearch(model));
+            List<CityOperationParameterModel> cityExists = GetWithPredicates(ParametersOperationToSearch(model));
             if (cityExists != null)
             {
                 return (cityExists.First().City, 302, "Eintrag existiert bereits.");
@@ -43,12 +35,18 @@ namespace Sammlerplattform.Services.Processes.CityProcesses
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-                Models.CityDatabase.City newCity = unitOfWork.CityRepository.Insert(model.City);
+                City newCity = unitOfWork.CityRepository.Insert(model.City);
                 unitOfWork.Save();
 
-                ConnectPostalcodeToCity(model.PostalcodeNumberList, newCity);
-                ConnectOeconymToCity(model.OeconymList, newCity);
-                ConnectGeographyToCity(model.Geography, newCity);
+                foreach(CityPostalcode? postalcode in model.CityPostalcodeList)
+                {
+                    ConnectPostalcode(newCity, postalcode.Postalcode.PostalcodeNumber, postalcode.EraID);
+                }
+                foreach(CityOeconym? cityOeconym in model.CityOeconymList)
+                {
+                    ConnectOeconym(newCity, cityOeconym);
+                }
+                ConnectGeography(newCity, model.Geography);
 
                 scope.Complete();
                 return (newCity, 201, "Ort wurde erstellt.");
@@ -56,24 +54,18 @@ namespace Sammlerplattform.Services.Processes.CityProcesses
             catch (Exception ex)
             {
                 logger.LogError("Fehler beim Hinzufügen des Ortes: {ex}", ex);
-                return (new(), 500, "Es ist ein Fehler beim Hinzufügen des Ortes aufgetreten. Der Support wurde benachrichtigt.");
+                return (new(), 500, "Es ist ein Fehler aufgetreten: " + ex.Message + " " + ex.InnerException);
             }
         }
 
-        public (Models.CityDatabase.City city, int statuscode, string message) EditCity(CityOperationParameterModel model)
+        public (City City, int Statuscode, string Message) Edit(CityOperationParameterModel model)
         {
-            model.Geography.IsGeographyNameRequired = false;
-
-            if (model.OeconymList.Count == 0)
+            if (model.CityOeconymList.Count == 0)
             {
                 return (model.City, 412, "Ortsnamen angeben.");
             }
-            else if (model.PostalcodeNumberList.Count == 0)
-            {
-                return (model.City, 412, "Mindestens 1 PLZ angeben.");
-            }
 
-            Models.CityDatabase.City? citySelect = unitOfWork.CityRepository.GetByID(model.City.CityID);
+            City? citySelect = unitOfWork.CityRepository.GetByID(model.City.CityID);
             if (citySelect == null)
             {
                 return (model.City, 302, "Eintrag existiert nicht.");
@@ -84,12 +76,11 @@ namespace Sammlerplattform.Services.Processes.CityProcesses
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
 
                 citySelect.Byname = model.City.Byname;
-                unitOfWork.CityRepository.Update(citySelect);
                 unitOfWork.Save();
 
-                ChangePostalcodeOfCity(model.PostalcodeNumberList, citySelect);
-                ChangeOeconymOfCity(model.OeconymList, citySelect);
-                ChangeGeographyOfCity(model.Geography, citySelect);
+                SyncPostalcode(citySelect, model.CityPostalcodeList);
+                SyncOeconym(citySelect, model.CityOeconymList);
+                SyncGeography(model.Geography, citySelect);
 
                 scope.Complete();
                 return (citySelect, 201, "Ort wurde geändert.");
@@ -101,32 +92,36 @@ namespace Sammlerplattform.Services.Processes.CityProcesses
             }
         }
 
-        public List<CityOperationParameterModel> GetCityOPMWithPredicates(CitySearchParameterModel model)
+        public List<CityOperationParameterModel> GetWithPredicates(CitySearchParameterModel model)
         {
             IEnumerable<City> cityResults = unitOfWork.CityRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<City>(model),
-                includeProperties: "CityNOeconymList.Oeconym,PostalcodeList,Geography,ParentCity.CityNOeconymList"
+                includeProperties: "CityOeconymList.Oeconym," +
+                "CityPostalcodeList.Postalcode," +
+                "Geography," +
+                "ParentCity.CityOeconymList.Oeconym"
             );
 
             return [.. from c in cityResults
                        select new CityOperationParameterModel {
                            City = c,
+                           CityPostalcodeList = c.CityPostalcodeList,
+                           CityOeconymList = c.CityOeconymList,
                        }];
         }
 
-        public CitySearchParameterModel CityParametersOperationToSearch(CityOperationParameterModel model)
+        public CitySearchParameterModel ParametersOperationToSearch(CityOperationParameterModel model)
         {
             CitySearchParameterModel citySearchParameterModel = new();
             citySearchParameterModel.CityID.Add(model.City.CityID);
-            citySearchParameterModel.CityNOeconymList_Oeconym_OeconymName = model.OeconymList;
-            citySearchParameterModel.PostalcodeList_PostalcodeNumber = model.PostalcodeNumberList;
-            if (model.City.Byname != null)
+            citySearchParameterModel.CityOeconymList_Oeconym_OeconymName = [.. model.CityOeconymList.Select(x => x.Oeconym.OeconymName)];
+            citySearchParameterModel.CityPostalcodeList_Postalcode_PostalcodeNumber = [.. model.CityPostalcodeList.Select(x => x.Postalcode.PostalcodeNumber)];
+            citySearchParameterModel.Geography_GeographyName = model.Geography?.GeographyName != null ? [model.Geography.GeographyName] : [];
+            citySearchParameterModel.ParentCityID = model.City.ParentCityID != null ? [model.City.ParentCityID.Value] : [];
+
+            if (!string.IsNullOrEmpty(model.City.Byname))
             {
                 citySearchParameterModel.Byname.Add(model.City.Byname);
-            }
-            if (model.Geography.GeographyName != null)
-            {
-                citySearchParameterModel.Geography_GeographyName.Add(model.Geography.GeographyName);
             }
             if (model.City.ParentCityID != null)
             {
@@ -136,110 +131,178 @@ namespace Sammlerplattform.Services.Processes.CityProcesses
             return citySearchParameterModel;
         }
 
-        private void ConnectPostalcodeToCity(List<string> postalcodeNumberList, Models.CityDatabase.City newCity)
+        private void ConnectPostalcode(City city, string Postalcode, int? eraID)
         {
-            foreach (string postalcodeNo in postalcodeNumberList.Where(p => !string.IsNullOrEmpty(p)))
+            if (string.IsNullOrEmpty(Postalcode))
             {
-                //if (!string.IsNullOrEmpty(postalcodeNo))
-                //{
-                Postalcode postalcode = processPostalcode.CreatePostalcode(postalcodeNo);
-                unitOfWork.PostalcodeRepository.AddMemberToCollection(postalcode, c => c.CityICollection, newCity);
-                unitOfWork.CityRepository.AddMemberToCollection(newCity, c => c.PostalcodeList, postalcode);
-                unitOfWork.Save();
-                //}
+                return;
             }
-        }
-        private void ChangePostalcodeOfCity(List<string> postalcodeList, Models.CityDatabase.City city)
-        {
-            RemovePostalcodeFromCity(city);
-            ConnectPostalcodeToCity(postalcodeList, city);
-        }
-        private void RemovePostalcodeFromCity(Models.CityDatabase.City city)
-        {
-            List<Postalcode> postalcodesToRemove = [.. city.PostalcodeList];
 
-            foreach (Postalcode? postalcode in postalcodesToRemove)
-            {
-                unitOfWork.CityRepository.RemoveMemberFromCollection(city, c => c.PostalcodeList, postalcode);
-                unitOfWork.PostalcodeRepository.RemoveMemberFromCollection(postalcode, p => p.CityICollection, city);
-                unitOfWork.Save();
-            }
-        }
+            Postalcode? postalcode = processPostalcode.CreateOrGetPostalcode(Postalcode);
 
-        private void ConnectOeconymToCity(List<string> oeconymList, Models.CityDatabase.City newCity)
-        {
-            foreach (string? oeconym in oeconymList.Where(p => !string.IsNullOrEmpty(p)))
+            CityPostalcode cityPostalcode = new()
             {
-                //if (!string.IsNullOrEmpty(oeconym))
-                //{
-                string[] splittedOeconym = oeconym.Split("§§");
-                if (string.IsNullOrEmpty(splittedOeconym[0]))
+                CityID = city.CityID,
+                PostalcodeID = postalcode.PostalcodeID,
+                EraID = eraID
+            };
+            _ = unitOfWork.CityPostalcodeRepository.Insert(cityPostalcode);
+            unitOfWork.Save();
+        }
+        private void SyncPostalcode(City city, List<CityPostalcode> newConnections)
+        {
+            List<CityPostalcode> currentConnections = city.CityPostalcodeList;
+
+            foreach (CityPostalcode? currentConnection in currentConnections)
+            {
+                CityPostalcode? updatedConnection = newConnections.FirstOrDefault(c => c.PostalcodeID == currentConnection.PostalcodeID);
+                if(updatedConnection == null)
                 {
-                    continue;
+                    DisconnectPostalcode(city, currentConnection.Postalcode.PostalcodeID);
                 }
+                else if(updatedConnection.EraID != currentConnection.EraID)
+                {
+                    UpdateCityPostalcode(city, currentConnection.Postalcode, updatedConnection.EraID);
+                }
+            }
 
-                Oeconym newOeconym = new() { OeconymName = splittedOeconym[0] };
+            foreach (CityPostalcode newItem in newConnections)
+            {
+                bool exists = currentConnections.Any(c => c.PostalcodeID == newItem.PostalcodeID);
+                if(!exists)
+                {
+                    ConnectPostalcode(city, newItem.Postalcode.PostalcodeNumber, newItem.EraID);
+                }
+            }
+        }
+        private void UpdateCityPostalcode(City city, Postalcode postalcode, int? eraID)
+        {
+            CityPostalcode? cityPostalcode = unitOfWork.CityPostalcodeRepository.Get(
+                filter: c => c.CityID == city.CityID && c.PostalcodeID == postalcode.PostalcodeID).FirstOrDefault();
+
+            if (cityPostalcode != null)
+            {                 
+                cityPostalcode.EraID = eraID;
+                unitOfWork.Save();
+            }
+        }
+        private void DisconnectPostalcode(City city, int postalcodeID)
+        {
+            if(postalcodeID == 0 || postalcodeID == 0)
+            {
+                return;
+            }
+            
+            CityPostalcode? cityPostalcode = unitOfWork.CityPostalcodeRepository.Get(
+                filter: c => c.CityID == city.CityID && c.PostalcodeID == postalcodeID).FirstOrDefault();
+            if (cityPostalcode != null)
+            {
+                unitOfWork.CityPostalcodeRepository.Delete(cityPostalcode);
+                unitOfWork.Save();
+            }
+        }
+
+        private void ConnectOeconym(City city, CityOeconym cityOeconym)
+        {
+            if(string.IsNullOrEmpty(cityOeconym.Oeconym.OeconymName))
+            {
+                return;
+            }
+
+                Oeconym newOeconym = new() { OeconymName = cityOeconym.Oeconym.OeconymName };
                 newOeconym = processOeconym.CreateOeconym(newOeconym);
 
-                bool currentName = bool.Parse(splittedOeconym[1]);
-                if (oeconymList.Count == 1 && currentName == false)
-                {
-                    currentName = true;
-                }
-
-                CityNOeconym newCityNOeconym = new() { CurrentName = currentName };
-                _ = processCityNOeconym.CreateCityNOeconym(newCity, newOeconym, newCityNOeconym);
-
-                //unitOfWork.OeconymRepository.SetForeignKey(newOeconym, n => n.Oeconym_ID, newCityNOeconym.Oeconym_ID);
-                unitOfWork.OeconymRepository.AddMemberToCollection(newOeconym, o => o.CityNOeconymList, newCityNOeconym);
-                //unitOfWork.CityRepository.SetForeignKey(newCity, c => c.City_ID, newCityNOeconym.City_ID);
-                unitOfWork.CityRepository.AddMemberToCollection(newCity, c => c.CityNOeconymList, newCityNOeconym);
+                CityOeconym newCityNOeconym = new() { 
+                    CityID = city.CityID,
+                    OeconymID = newOeconym.OeconymID,
+                    CurrentName = cityOeconym.CurrentName,
+                    EraID = cityOeconym.EraID
+                };
+                _ = unitOfWork.CityNOeconymRepository.Insert(newCityNOeconym);
                 unitOfWork.Save();
-                //}
-            }
         }
-
-        private void ChangeOeconymOfCity(List<string> oeconymList, Models.CityDatabase.City city)
+        private void SyncOeconym(City city, List<CityOeconym> newConnections)
         {
-            RemoveOeconymFromCity(city);
-            ConnectOeconymToCity(oeconymList, city);
-        }
-        private void RemoveOeconymFromCity(Models.CityDatabase.City city)
-        {
-            List<CityNOeconym> cnoToRemove = [.. city.CityNOeconymList];
+            List<CityOeconym> currentConnections = city.CityOeconymList;
 
-            foreach (CityNOeconym? cno in cnoToRemove)
+            foreach (CityOeconym? current in currentConnections)
             {
-                unitOfWork.OeconymRepository.RemoveMemberFromCollection(cno.Oeconym, o => o.CityNOeconymList, cno);
-                unitOfWork.CityRepository.RemoveMemberFromCollection(cno.City, c => c.CityNOeconymList, cno);
-                unitOfWork.CityNOeconymRepository.Delete(cno);
+                CityOeconym? updatedConnection = newConnections.FirstOrDefault(x => x.OeconymID == current.OeconymID);
+                if (updatedConnection == null)
+                {
+                    DisconnectOeconym(city, current.OeconymID);
+                }
+                else if (updatedConnection != null && (updatedConnection.EraID != current.EraID || updatedConnection.CurrentName != current.CurrentName))
+                {
+                    UpdateCityOeconym(city, current, updatedConnection.EraID, updatedConnection.CurrentName);
+                }
+                // else: Beziehung ist gleich, keine Änderung notwendig
+            }
+
+            foreach (CityOeconym newItem in newConnections)
+            {
+                bool exists = currentConnections.Any(x => x.OeconymID == newItem.OeconymID);
+                if (!exists)
+                {
+                    ConnectOeconym(city, newItem);
+                }
+            }
+        }
+        private void UpdateCityOeconym(City city, CityOeconym currentConnection, int? newEraID, bool currentName)
+        {
+            CityOeconym? cityOeconym = unitOfWork.CityNOeconymRepository.Get(
+                filter: c => c.CityID == city.CityID && c.OeconymID == currentConnection.OeconymID).FirstOrDefault();
+            if (cityOeconym != null)
+            {
+                cityOeconym.EraID = newEraID;
+                cityOeconym.CurrentName = currentName;
                 unitOfWork.Save();
             }
         }
+        private void DisconnectOeconym(City city, int oeconymID)
+        {
+            if(city.CityID == 0 || oeconymID == 0)
+            {
+                return;
+            }
 
-        private void ConnectGeographyToCity(Geography? geography, Models.CityDatabase.City city)
+            CityOeconym? cityOeconym = unitOfWork.CityNOeconymRepository.Get(
+                filter: c => c.CityID == city.CityID && c.OeconymID == oeconymID).FirstOrDefault();
+            if (cityOeconym == null)
+            {
+                return;
+            }
+            unitOfWork.CityNOeconymRepository.Delete(cityOeconym);
+            unitOfWork.Save();
+        }
+
+        private void ConnectGeography(City city, Geography? geography)
         {
             if (!string.IsNullOrEmpty(geography?.GeographyName))
             {
-                Geography newGeography = processGeography.CreateGeography(geography.GeographyName);
+                Geography newGeography = processGeography.Create(geography.GeographyName);
                 unitOfWork.CityRepository.SetForeignKey(city, c => c.GeographyID, newGeography.Geography_ID);
-                unitOfWork.GeographyRepository.AddMemberToCollection(newGeography, l => l.CityICollection, city);
                 unitOfWork.Save();
             }
         }
-
-        private void ChangeGeographyOfCity(Geography? geography, Models.CityDatabase.City city)
+        private void SyncGeography(Geography? geography, City city)
         {
-            RemoveGeographyFromCity(city);
-            ConnectGeographyToCity(geography, city);
-        }
+                if (geography == null)
+                {
+                    DisconnectGeography(city);
+            }
 
-        private void RemoveGeographyFromCity(Models.CityDatabase.City city)
+                bool exists = geography != null && city.GeographyID == geography.Geography_ID;
+                if (!exists)
+                {
+                    ConnectGeography(city, geography);
+                }
+        }
+        private void DisconnectGeography(City city)
         {
             if (city.GeographyID != null && city.Geography != null)
             {
                 unitOfWork.CityRepository.SetForeignKey(city, c => c.GeographyID, null);
-                unitOfWork.GeographyRepository.RemoveMemberFromCollection(city.Geography, g => g.CityICollection, city);
                 unitOfWork.Save();
             }
         }

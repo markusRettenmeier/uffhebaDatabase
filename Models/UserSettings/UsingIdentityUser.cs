@@ -13,6 +13,6 @@ public class UsingIdentityUser : IdentityUser
     [Required]
     public override string? Email { get => base.Email; set => base.Email = value; }
 
-    public ICollection<BrickEntity> BrickEntityICollection { get; set; } = [];
+    public List<BrickEntity> BrickEntityList { get; set; } = [];
 }
 

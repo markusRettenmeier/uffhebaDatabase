@@ -6,10 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Sammlerplattform.Data;
-using Sammlerplattform.Models.PostcardDatabase;
-using Sammlerplattform.Models.ProductPictureDatabase;
 using Sammlerplattform.Models.UserSettings;
-using Sammlerplattform.Services.EMail;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -205,65 +202,6 @@ namespace Sammlerplattform.Controllers
             try
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
-                //CustomerService service = new();
-                //if (user.StripeCustomer_ID != null)
-                //{
-                //    try
-                //    {
-                //        _ = service.Delete(user.StripeCustomer_ID);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        _logger.LogError("Abgebrochen mit Exception {ex}", ex);
-                //    }
-                //}
-
-                List<PostcardModel> CollectionUser = [.. from u in _userManager.Users
-                                                  join e in _dbIdentityContext.PostcardEntity on u.Id equals e.UsingIdentityUsersID
-                                                  join p in _dbIdentityContext.PostcardPotential on e.PostcardPotential_ID equals p.PostcardPotential_ID
-                                                  join i in _dbIdentityContext.PostcardImprint on p.PostcardImprint_ID equals i.Image_ID into leftOuterImprint
-                                                    from subImprint in leftOuterImprint.DefaultIfEmpty()
-                                                  where u.Id == user.Id
-                                                  select new PostcardModel
-                                                  {
-                                                      PostcardEntity = e,
-                                                      PostcardPotential = p,
-                                                      PostcardImprint = subImprint,
-                                                      UsingIdentityUser = u,
-                                                      ProductPictureList = (from Scan in _dbIdentityContext.ProductPicture
-                                                                          join pe in _dbIdentityContext.PostcardEntity
-                                                                          on Scan.PostcardEntityID equals pe.PostcardEntity_ID
-                                                                          where pe.PostcardEntity_ID == e.PostcardEntity_ID
-                                                                          select Scan).ToList()
-                                                  }];
-                if (CollectionUser.Count > 0)
-                {
-                    foreach (PostcardModel? item in CollectionUser)
-                    {
-                        foreach (ProductPicture scan in item.ProductPictureList)
-                        {
-                            if (scan.Frontside)
-                            {
-                                System.IO.File.Delete("wwwroot/images/Klein/" + scan.ProductPictureID + "." + scan.FileExtension);
-                                System.IO.File.Delete("wwwroot/images/Thumbnail/" + scan.ProductPictureID + "." + scan.FileExtension);
-                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPictureID + "." + scan.FileExtension);
-                            }
-                            else
-                            {
-                                System.IO.File.Delete("wwwroot/images/Normal/" + scan.ProductPictureID + "." + scan.FileExtension);
-                            }
-                            _ = _dbIdentityContext.Remove(scan);
-                            _ = await _dbIdentityContext.SaveChangesAsync();
-                        }
-                        _ = _dbIdentityContext.Remove(item.PostcardPotential);
-                        _ = await _dbIdentityContext.SaveChangesAsync();
-                        if (item.PostcardImprint != null)
-                        {
-                            _ = _dbIdentityContext.Remove(item.PostcardImprint);
-                            _ = await _dbIdentityContext.SaveChangesAsync();
-                        }
-                    }
-                }
 
                 UserPicture? userPictureJoin = (from u in _dbIdentityContext.Users
                                                 join p in _dbIdentityContext.UserPicture

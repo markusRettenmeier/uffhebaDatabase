@@ -1,0 +1,58 @@
+﻿@model IEnumerable<Sammlerplattform.Models.EraDatabase.Era>
+
+@{
+    ViewData["Title"] = "Verwalte Epochen";
+    Layout = "_LayoutSettings";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="CreateEra">Erstelle neu</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.EraName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EraShort)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartYear)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndYear)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EraDescription)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.EraName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EraShort)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartYear)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndYear)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EraDescription)
+            </td>
+            <td>
+                <a asp-action="EditEra" asp-route-id="@item.EraID">Ändern</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
