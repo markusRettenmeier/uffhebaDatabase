@@ -266,7 +266,7 @@ svg {
     text-decoration: none;
 }
 
-#colorContainer {
+#colorContainer, #materialContainer {
     display: flex;
 }
 

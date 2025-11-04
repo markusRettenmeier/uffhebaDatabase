@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.ReliefDatabase;
 using Sammlerplattform.Services.Processes.PlaceProcesses;
 
 namespace Sammlerplattform.Controllers
 {
-    public class ReliefDatabaseController (IProcessPlace processPlace, IProcessRelief processRelief) : Controller
+    [Authorize]
+    public class ReliefDatabaseController(IProcessPlace processPlace, IProcessRelief processRelief) : Controller
     {
         public ActionResult Index(string statusMessage, PlaceSearchParameter placeSearchParameter)
         {
@@ -37,7 +39,7 @@ namespace Sammlerplattform.Controllers
             Place? existingPlace = processPlace.GetListWithPredicate(searchParameter).FirstOrDefault();
             if (existingPlace == null)
             {
-                return NotFound("Gewässer nicht gefunden.");
+                return RedirectToAction(nameof(Index), new { statusMessage = "Relief nicht gefunden" });
             }
 
             ReliefOperationParameterModel reliefOperationParameterModel = new()

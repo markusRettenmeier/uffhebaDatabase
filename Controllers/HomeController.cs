@@ -2,21 +2,19 @@
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Sammlerplattform.Models;
-using Sammlerplattform.Models.BrickDatabase;
-using Sammlerplattform.Services.Processes;
+using Sammlerplattform.Models.CollectionItemDatabase;
+using Sammlerplattform.Services.Processes.CollectionItemProcesses;
 using System.Diagnostics;
 
 namespace Sammlerplattform.Controllers
 {
     [AllowAnonymous]
-    public partial class HomeController(IProcessProduct processBrick) : Controller
+    public partial class HomeController(IProcessCollectionItemEntity processCollectionItemEntity) : Controller
     {
-
-        public IActionResult Frontpage(BrickSearchParameterModel searchParameterModel)
+        public IActionResult Frontpage(CollectionItemSearchParameterModel itemSearchParameterModel)
         {
-            List<BrickOperationParameterModel> brickOperationParameterModel = processBrick.GetWithPredicates(searchParameterModel);
-
-            return View(brickOperationParameterModel);
+            List<CollectionItemOperationParameterModel> entities = [.. processCollectionItemEntity.GetWithPredicates(itemSearchParameterModel).Take(20)];
+            return View(entities);
         }
 
         public ActionResult PrivacyImprint()

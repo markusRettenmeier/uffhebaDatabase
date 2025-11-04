@@ -20,17 +20,17 @@ namespace Sammlerplattform.Services.Processes.PartyProcesses
         {
             if (string.IsNullOrWhiteSpace(partyOperationParameterModel.Party.PartyName))
             {
-                return (new Party() { PartyName = string.Empty}, 412, "Parteiname angeben.");
+                return (new Party() { PartyName = string.Empty }, 412, "Parteiname angeben.");
             }
 
             try
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
-                                
+
                 Party newParty = unitOfWork.PartyRepository.Insert(partyOperationParameterModel.Party);
                 unitOfWork.Save();
 
-                foreach (var place in partyOperationParameterModel.PlaceList)
+                foreach (Place place in partyOperationParameterModel.PlaceList)
                 {
                     ConnectPlaceToParty(newParty, place.PlaceID);
                 }
@@ -73,7 +73,7 @@ namespace Sammlerplattform.Services.Processes.PartyProcesses
                     return (new Party() { PartyName = string.Empty }, 404, "Partei nicht gefunden.");
                 }
 
-                if(partyToEdit.PartyName != partyOperationParameterModel.Party.PartyName
+                if (partyToEdit.PartyName != partyOperationParameterModel.Party.PartyName
                     || partyToEdit.PartyDescription != partyOperationParameterModel.Party.PartyDescription)
                 {
                     partyToEdit.PartyName = partyOperationParameterModel.Party.PartyName;
@@ -125,15 +125,13 @@ namespace Sammlerplattform.Services.Processes.PartyProcesses
         }
         private void SyncPlace(Party party, List<Place> newPlaceList)
         {
-            // Remove places that are no longer associated
-            var placesToRemove = party.PlaceList.Where(p => !newPlaceList.Any(np => np.PlaceID == p.PlaceID)).ToList();
-            foreach (var place in placesToRemove)
+            List<Place> placesToRemove = [.. party.PlaceList.Where(p => !newPlaceList.Any(np => np.PlaceID == p.PlaceID))];
+            foreach (Place? place in placesToRemove)
             {
                 DisconnectPlaceFromParty(party, place.PlaceID);
             }
-            // Add new places
-            var placesToAdd = newPlaceList.Where(np => !party.PlaceList.Any(p => p.PlaceID == np.PlaceID)).ToList();
-            foreach (var place in placesToAdd)
+            List<Place> placesToAdd = [.. newPlaceList.Where(np => !party.PlaceList.Any(p => p.PlaceID == np.PlaceID))];
+            foreach (Place? place in placesToAdd)
             {
                 ConnectPlaceToParty(party, place.PlaceID);
             }

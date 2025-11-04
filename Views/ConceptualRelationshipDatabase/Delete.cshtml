@@ -1,0 +1,53 @@
+﻿@model Sammlerplattform.Models.ConceptualRelationshipDatabase.ConceptualRelationshipOperationParameterModel
+
+@{
+    ViewData["Title"] = "Begriffsbeziehung löschen";
+    Layout = "~/Views/Shared/_LayoutSettingsConceptualRelationship.cshtml";
+}
+
+<h4>@ViewData["Title"]</h4>
+
+<p>Sind Sie sicher, dass Sie das löschen wollen?</p>
+<hr />
+<dl class="row">
+    <dt class = "col-sm-4">
+        @Html.DisplayNameFor(model => model.Concept.ConceptName)
+    </dt>
+    <dd class = "col-sm-10">
+        @Html.DisplayFor(model => model.Concept.ConceptName)
+    </dd>
+    <dt class = "col-sm-4">
+        @Html.DisplayNameFor(model => model.Concept.Description)
+    </dt>
+    <dd class = "col-sm-10">
+        @Html.DisplayFor(model => model.Concept.Description)
+    </dd>
+    <dt class = "col-sm-4">
+        @Html.DisplayNameFor(model => model.Concept.CollectionArea)
+    </dt>
+    <dd class = "col-sm-10">
+        @Html.DisplayFor(model => model.Concept.CollectionArea.CollectionAreaID)
+    </dd>
+    @if(Model.ConceptRelationList != null && Model.ConceptRelationList.Count > 0)
+    {
+        <dt class = "col-sm-4">
+            Verknüpfte Begriffsbeziehungen
+        </dt>
+        <dd class = "col-sm-10">
+            <ul>
+            @foreach(var item in Model.ConceptRelationList)
+            {
+                <li>
+                    @item.ToConcept.ConceptName (ID: @item.ToConceptID) - Beziehungstyp: @item.RelationType
+                </li>
+            }
+            </ul>
+        </dd>
+    }
+</dl>
+    
+<form asp-action="DeleteSubmit">
+    <input type="hidden" asp-for="Concept.ConceptID" />
+    <button class="btn btn-danger">Löschen</button> |
+    <a asp-action="Index">Zurück zur Liste</a>
+</form>

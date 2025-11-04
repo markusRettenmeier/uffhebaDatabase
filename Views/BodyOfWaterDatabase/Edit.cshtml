@@ -9,7 +9,6 @@
 
 <h1>@ViewData["Title"]</h1>
 <hr />
-
 <form asp-action="EditSubmit" asp-controller="BodyOfWaterDatabase">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -47,7 +46,7 @@
                 {
                     var vm = PlaceViewModelHelper.FromDomainModel(Model.Place.ParentPlace);
                     <tr data-type="parent" class="placeTableRow">
-                        <td>@Html.Raw(vm.ToponymyHtml)</td>
+                        <td>@Html.Raw(vm.Toponymy)</td>
                         <td>@Html.Raw(vm.FurtherSpecs)</td>
                         <td>Eltern</td>
                         <td>
@@ -62,7 +61,7 @@
                     {
                         var vm = PlaceViewModelHelper.FromDomainModel(Model.ChildPlaceList[i]);
                         <tr data-type="child" class="placeTableRow">
-                            <td>@Html.Raw(vm.ToponymyHtml)</td>
+                            <td>@Html.Raw(vm.Toponymy)</td>
                             <td>@Html.Raw(vm.FurtherSpecs)</td>
                             <td>Kind</td>
                             <td>
@@ -83,7 +82,7 @@
     <button class="btn btn-primary">Ändern</button>
 </form>
 
-<partial name="~/Views/PlaceDatabase/_PlaceModal.cshtml" />
+<partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
 
 @section Scripts {
     @{

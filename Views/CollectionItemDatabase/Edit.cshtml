@@ -1,0 +1,608 @@
+﻿@using Sammlerplattform.Models.CollectionAreaDatabase
+@using Sammlerplattform.Models.CollectionItemDatabase
+@using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase
+@using Sammlerplattform.Models.PartyDatabase
+@using Sammlerplattform.Models.PlaceDatabase
+@using Sammlerplattform.Services
+@model Sammlerplattform.Models.CollectionItemDatabase.CollectionItemOperationParameterModel
+
+@{
+    ViewData["Title"] = "Sammlungsstück ändern";
+    Layout = "~/Views/Shared/_LayoutSettingsCollectionItem.cshtml";
+
+    string potentialImgPath = "/images/Thumbnail/" + Model.CollectionItemPotential.CollectionItemPotentialID + ".png";
+    string displayName = string.Empty;
+    if (!string.IsNullOrEmpty(Model.CollectionItemEntity.UniqueName))
+        displayName = Model.CollectionItemEntity.UniqueName;
+    else if (!string.IsNullOrEmpty(Model.CollectionItemEntity.PersonalIdentificationNumber))
+        displayName = Model.CollectionItemEntity.PersonalIdentificationNumber;
+    else
+        displayName = Model.CollectionItemEntity.CollectionItemEntityID.ToString();
+}
+
+<h4>@ViewData["Title"]: @displayName</h4>
+<hr />
+<form asp-action="EditSubmit" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="CollectionItemEntity.CollectionAreaID" />
+    <input type="hidden" asp-for="CollectionItemEntity.CollectionItemEntityID" />
+    <p>Alle Bilder werden automatisch mit einem Wasserzeichen versehen.</p>
+    <div id="cardDiv" class="row">
+        @if (Model.CollectionItemPictureList.Count > 0)
+        {
+            @for (int i = 0; i < Model.CollectionItemPictureList.Count; i++)
+            {
+                string pathPicture = @"/images/Normal/" + Model.CollectionItemPictureList[i].CollectionItemPictureID + ".png";
+                <div class="col" id="pictureCard_@i">
+                    <div class="card" style="width: 30rem;">
+                        <img src="@pathPicture" class="card-img-top">
+                        <div class="card-body">
+                            <p class="card-text">@Model.CollectionItemPictureList[i].Perspective</p>
+                            @if (i > 0)
+                            {
+                                <button type="button" class="btn btn-danger" onclick="removePicture(@i)">Bild entfernen</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <div id="appendInputFormFile">
+        @if (Model.CollectionItemPictureList.Count > 0)
+        {
+            @for (int i = 0; i < Model.CollectionItemPictureList.Count; i++)
+            {
+                <div  class="mb-3" id="inputGroupFormFile_@i">
+                    <label asp-for="CollectionItemPictureList[i].PerspectiveInt" class="form-label">@Model.CollectionItemPictureList[i].Perspective</label>
+                    <input type="hidden" asp-for="CollectionItemPictureList[i].CollectionItemPictureID">
+                    <input type="file" name="CollectionItemPictureList[@i].Datei" class="form-control">
+                    <input type="hidden" asp-for="CollectionItemPictureList[i].PerspectiveInt">
+                    <input type="hidden" name="CollectionItemPictureList[@i].CollectionItemEntityID" value="@Model.CollectionItemEntity.CollectionItemEntityID">
+                </div>
+            }
+        }
+    </div>
+    <button type="button" class="btn btn-primary" onclick="addInputFormFile('Create')">Mehr Bilder hinzufügen</button>
+
+    <div class="accordion pt-2" id="accordionCollectionItem">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingCollectionItem">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCollectionItem" aria-expanded="false" aria-controls="collapseCollectionItem">
+                    Sammlerstück
+                </button>
+            </h2>
+            <div id="collapseCollectionItem" class="accordion-collapse collapse show" aria-labelledby="headingCollectionItem" data-bs-parent="#accordionCollectionItem">
+                <div class="accordion-body">
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.UniqueName" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.UniqueName" class="form-control" />
+                        <span asp-validation-for="CollectionItemEntity.UniqueName" class="text-danger"></span>
+                    </div>                    
+                    <input type="hidden" asp-for="CollectionItemEntity.ConceptID">
+                    <table class="table" id="ConceptTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Concept.ConceptName)</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="ConceptName">@Html.DisplayFor(x => x.Concept.ConceptName)</td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ConceptModal">
+                                            Begriff auswählen
+                                        </button>
+                                        @if (Model.CollectionItemEntity.ConceptID != null)
+                                        {
+                                            <button type="button" id="clearOneRowConcept" class="btn btn-outline-danger">Entfernen</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" id="clearOneRowConcept" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsPartOfASeries"> @Html.DisplayNameFor(model => model.IsPartOfASeries)
+                        </label>
+                    </div>
+                    <input type="hidden" asp-for="CollectionItemEntity.CollectionItemPotentialID">
+                    @if (Model.CollectionItemPotential != null)
+                    {
+                        <table class="table" id="PotentialTable">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Bild</th>
+                                    <th scope="col">@Html.DisplayNameFor(x => x.CollectionItemPotential.CollectionItemPotentialID)</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td scope="col" id="PotentialPicture"><img src="@potentialImgPath" width="100" /></td>
+                                    <td scope="col" id="CollectionItemPotentialID">@Html.DisplayFor(x => x.CollectionItemPotential.CollectionItemPotentialID)</td>
+                                    <td scope="col">
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CollectionItemPotentialModal">
+                                                Potential auswählen
+                                            </button>
+                                            @if (Model.CollectionItemEntity.CollectionItemPotentialID != null)
+                                            {
+                                                <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger">Entfernen</button>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="CollectionItemEntity.Fake"> @Html.DisplayNameFor(model => model.CollectionItemEntity.Fake)
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.StateID" class="control-label"></label>
+                        <select asp-for="CollectionItemEntity.StateID" class="form-select">
+                            @if (Model.StateList == null || Model.StateList.Count == 0)
+                            {
+                                <option value="">-- Keine Zustände vorhanden --</option>
+                            }
+                            else
+                            {
+                                <option value="">-- Bitte Zustand wählen --</option>
+                                @foreach (var state in Model.StateList)
+                                {
+                                    if (state.StateID == Model.CollectionItemEntity.StateID)
+                                    {
+                                        <option value="@state.StateID" selected>@state.StateName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@state.StateID">@state.StateName</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Inscription" class="control-label"></label>
+                        <textarea asp-for="CollectionItemEntity.Inscription" class="form-control" rows="10" cols="5"></textarea>
+                        <span asp-validation-for="CollectionItemEntity.Inscription" class="text-danger"></span>
+                    </div>
+                    @* <div class="form-group">
+                        <label asp-for="KeywordList" class="control-label"></label>
+                        <select asp-for="CollectionItemNKeywordList" class="chosen-select" id="keywordSelect" multiple style="width: 350px;"></select>
+                    </div> *@
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Comment" class="control-label"></label>
+                        <textarea asp-for="CollectionItemEntity.Comment" class="form-control" rows="10" cols="5"></textarea>
+                        <span asp-validation-for="CollectionItemEntity.Comment" class="text-danger"></span>
+                    </div>
+                    <hr />
+                    <label asp-for="ColorList" class="control-label"></label>
+                    <div id="colorContainer">
+                        @if (Model.CollectionItemNColorList.Count > 0)
+                        {
+                            @for (int i = 0; i < Model.CollectionItemNColorList.Count; i++)
+                            {
+                                <div class="card cardColor m-2" id="cardColor_@i" style="width: 18rem;">
+                                    <div class="card-body">
+                                        <select name="CollectionItemNColorList[@i].ColorID" class="form-select selectColorID">
+                                            <option value="">Farbe wählen</option>
+                                            @foreach (var color in Model.ColorList)
+                                            {
+                                                if (color.ColorID == Model.CollectionItemNColorList[i].ColorID)
+                                                {
+                                                    <option value="@color.ColorID" selected>@color.Name</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@color.ColorID">@color.Name</option>
+                                                }
+                                            }
+                                        </select>
+                                        <div class="form-check">
+                                            @if (Model.CollectionItemNColorList[i].IsPrimaryColor)
+                                            {
+                                                <input type="checkbox" data-val="true" value="true" class="form-check-input checkboxPrimaryColor" name="CollectionItemNColorList[@i].IsPrimaryColor" checked>
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" data-val="true" value="true" class="form-check-input checkboxPrimaryColor" name="CollectionItemNColorList[@i].IsPrimaryColor">
+                                            }
+                                            <label class="form-check-label" for="mainColorCheckbox0">Hauptfarbe</label>
+                                        </div><button type="button" class="btn btn-danger removeColor">Entfernen</button>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="addColor()">Mehr Farben hinzufügen</button>
+                    <hr />
+                    <label asp-for="MaterialList" class="control-label"></label>
+                    <div id="materialContainer">
+                        @if (Model.CollectionItemNMaterialList.Count > 0)
+                        {
+                            @for (int i = 0; i < Model.CollectionItemNMaterialList.Count; i++)
+                            {
+                                <div class="card cardMaterial m-2" id="cardMaterial_@i" style="width: 18rem;">
+                                    <div class="card-body">
+                                        <select name="CollectionItemNMaterialList[@i].MaterialID" class="form-select selectMaterialID">
+                                            <option value="">Farbe wählen</option>
+                                            @foreach (var material in Model.MaterialList)
+                                            {
+                                                if (material.MaterialID == Model.CollectionItemNMaterialList[i].MaterialID)
+                                                {
+                                                    <option value="@material.MaterialID" selected>@material.MaterialName</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@material.MaterialID">@material.MaterialName</option>
+                                                }
+                                            }
+                                        </select>
+                                        <div class="form-check">
+                                            @if (Model.CollectionItemNMaterialList[i].IsPrimaryMaterial)
+                                            {
+                                                <input type="checkbox" data-val="true" value="true" class="form-check-input checkboxPrimaryMaterial" name="CollectionItemNMaterialList[@i].IsPrimaryMaterial" checked>
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" data-val="true" value="true" class="form-check-input checkboxPrimaryMaterial" name="CollectionItemNMaterialList[@i].IsPrimaryMaterial">
+                                            }
+                                            <label class="form-check-label" for="IsPrimaryMaterial">Hauptmaterial</label>
+                                        </div><button type="button" class="btn btn-danger removeMaterial">Entfernen</button>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="addMaterial()">Mehr Materialien hinzufügen</button>
+                    <hr />
+                    @if (Model.CollectionAttributeList != null)
+                    {
+                        @for (int i = 0; i < Model.CollectionAttributeList.Count; i++)
+                        {
+                            var attributeModel = Model.CollectionAttributeList[i];
+                            var itemValue = Model.CollectionItemValueList?.FirstOrDefault(v =>
+                            v.CollectionAttributeID == attributeModel.CollectionAttributeID);
+
+                            <div class="form-group">
+                                <label class="control-label">@attributeModel.CollectionAttributeName</label>
+                                <input type="hidden" name="CollectionItemValueList[@i].CollectionAttributeID"
+                                       value="@attributeModel.CollectionAttributeID" />
+                                <input type="hidden" name="CollectionItemValueList[@i].CollectionItemValueID"
+                                       value="@itemValue?.CollectionItemValueID" />
+
+                                @if (attributeModel.CollectionAttributeType.ToString() == "Text")
+                                {
+                                    <input type="text"
+                                           name="CollectionItemValueList[@i].ValueString"
+                                           value="@itemValue?.ValueString"
+                                           class="form-control" />
+                                }
+                                else if (attributeModel.CollectionAttributeType.ToString() == "Number")
+                                {
+                                    <input type="number"
+                                           step="0.01"
+                                           name="CollectionItemValueList[@i].ValueInt"
+                                           value="@itemValue?.ValueInt"
+                                           class="form-control" />
+                                }
+                                else if (attributeModel.CollectionAttributeType.ToString() == "Date")
+                                {
+                                    <input type="date"
+                                           name="CollectionItemValueList[@i].ValueDate"
+                                           value="@itemValue?.ValueDate?.ToString("yyyy-MM-dd")"
+                                           class="form-control" />
+                                }
+                                else if (attributeModel.CollectionAttributeType.ToString() == "Decimal")
+                                {
+                                    <input type="number"
+                                           step="0.01"
+                                           name="CollectionItemValueList[@i].ValueDecimal"
+                                           value="@itemValue?.ValueDecimal"
+                                           class="form-control" />
+                                }
+                                else if (attributeModel.CollectionAttributeType.ToString() == "Bool")
+                                {
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           data-val="true"
+                                           name="CollectionItemValueList[@i].ValueBool"
+                                           value="true"
+                                           checked="@(itemValue?.ValueBool == true)" />
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingSize">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSize" aria-expanded="false" aria-controls="collapseSize">
+                    Maße und Gewicht
+                </button>
+            </h2>
+            <div id="collapseSize" class="accordion-collapse collapse" aria-labelledby="headingSize" data-bs-parent="#accordionSize">
+                <div class="accordion-body">
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Length" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.Length" class="form-control" placeholder="in cm">
+                        <span asp-validation-for="CollectionItemEntity.Length" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Width" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.Width" class="form-control" placeholder="in cm">
+                        <span asp-validation-for="CollectionItemEntity.Width" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Height" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.Height" class="form-control" placeholder="in cm">
+                        <span asp-validation-for="CollectionItemEntity.Height" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Diameter" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.Diameter" class="form-control" placeholder="in cm">
+                        <span asp-validation-for="CollectionItemEntity.Diameter" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Weight" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.Weight" class="form-control" placeholder="in Gramm">
+                        <span asp-validation-for="CollectionItemEntity.Weight" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingManufacturingDate">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufacturingDate" aria-expanded="false" aria-controls="collapseManufacturingDate">
+                    Herstellungszeit
+                </button>
+            </h2>
+            <div id="collapseManufacturingDate" class="accordion-collapse collapse" aria-labelledby="headingManufacturingDate" data-bs-parent="#accordionManufacturingDate">
+                <div class="accordion-body">
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.ExactYear"></label>
+                        <input asp-for="CollectionItemEntity.ExactYear" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.ExactYear" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.StartYear"></label>
+                        <input asp-for="CollectionItemEntity.StartYear" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.StartYear" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.EndYear"></label>
+                        <input asp-for="CollectionItemEntity.EndYear" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.EndYear" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-check-input" asp-for="CollectionItemEntity.IsApproximate"> @Html.DisplayNameFor(model => model.CollectionItemEntity.IsApproximate)
+                    </div>
+                    <input type="hidden" asp-for="CollectionItemEntity.EraID">
+                    <table class="table" id="eraTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Era.EraName)</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="eraName">@Html.DisplayFor(x => x.Era.EraName)</td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#EraModal">
+                                            Ära auswählen
+                                        </button>
+                                        @if(Model.CollectionItemEntity.EraID != null)
+                                        {
+                                            <button type="button" id="clearOneRowEraTable" class="btn btn-outline-danger">Entfernen</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" id="clearOneRowEraTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingManufactureProcess">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufactureProcess" aria-expanded="false" aria-controls="collapseManufacturingDate">
+                    Herstellungsprozess
+                </button>
+            </h2>
+            <div id="collapseManufactureProcess" class="accordion-collapse collapse" aria-labelledby="headingManufactureProcess" data-bs-parent="#accordionManufactureProcess">
+                <div class="accordion-body">
+                    <input type="hidden" asp-for="CollectionItemEntity.ProcessOfManufactureID">
+                    <table class="table" id="processOfManufactureTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Mainprocess)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.ProcessOfManufactureName)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Technique)</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="processOfManufactureMainprocess">@Html.DisplayFor(x => x.ProcessOfManufacture.Mainprocess)</td>
+                                <td scope="col" id="processOfManufactureProcessOfManufactureName">@Html.DisplayFor(x => x.ProcessOfManufacture.ProcessOfManufactureName)</td>
+                                <td scope="col" id="processOfManufactureTechnique">@Html.DisplayFor(x => x.ProcessOfManufacture.Technique)</td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#processOfManufactureModal">
+                                            Herstellungsprozess auswählen
+                                        </button>
+                                        @if(Model.CollectionItemEntity.ProcessOfManufactureID != null)
+                                        {
+                                            <button type="button" id="clearOneRowProcessOfManufactureTableButton" class="btn btn-outline-danger">Entfernen</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" id="clearOneRowProcessOfManufactureTableButton" onclick="clearOneRowProcessOfManufactureTable()" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingParty">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseParty" aria-expanded="false" aria-controls="collapseParty">
+                    Parteien (Individuen, Organisationen)
+                </button>
+            </h2>
+            <div id="collapseParty" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#accordionParty">
+                <div class="accordion-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Weitere Spezifikationen</th>
+                                <th scope="col">Beziehung</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appendPartyHere">
+                            @if (Model.CollectionItemNPartyList.Count > 0)
+                            {
+                                for (int i = 0; i < Model.CollectionItemNPartyList.Count; i++)
+                                {
+                                    var vm = PartyViewModelHelper.FromDomainModel(Model.CollectionItemNPartyList[i].Party);
+                                    <tr class="partyResultTableTr">
+                                        <td>@Html.Raw(vm.Name)</td>
+                                        <td>@Html.Raw(vm.FurtherSpecs)</td>
+                                        <td scope="col">
+                                            <input asp-for="CollectionItemNPartyList[@i].Relationship" required class="form-control partyResultTableRelationship">
+                                        </td>
+                                        <td>
+                                            <input type="hidden" class="form-control partyResultTableId" asp-for="CollectionItemNPartyList[@i].PartyID">
+                                            <button type="button" class="btn btn-danger btn-sm removePartyRow">Entfernen</button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#partyModal">
+                        Partei hinzufügen
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingPlace">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlace" aria-expanded="false" aria-controls="collapsePlace">
+                    Orte (Siedlungen, Gewässer, Regionen,...)
+                </button>
+            </h2>
+            <div id="collapsePlace" class="accordion-collapse collapse" aria-labelledby="headingPlace" data-bs-parent="#accordionPlace">
+                <div class="accordion-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Geografischer Name</th>
+                                <th scope="col">Weitere Spezifikationen</th>
+                                <th scope="col">Beziehung</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appendPlaceHere">
+                            @if (Model.CollectionItemNPlaceList.Count > 0)
+                            {
+                                for (int i = 0; i < Model.CollectionItemNPlaceList.Count; i++)
+                                {
+                                    var vm = PlaceViewModelHelper.FromDomainModel(Model.CollectionItemNPlaceList[i].Place);
+                                    <tr data-type="child" class="placeTableRow">
+                                        <td>@Html.Raw(vm.Toponymy)</td>
+                                        <td>@Html.Raw(vm.FurtherSpecs)</td>
+                                        <td><input name="CollectionItemNPlaceList[@i].Relationship" required="" class="form-control placeResultTableRelationship" value="@Model.CollectionItemNPlaceList[i].Relationship" /></td>
+                                        <td>
+                                            <input type="hidden" name="CollectionItemNPlaceList[@i].PlaceID" value="@Model.CollectionItemNPlaceList[i].PlaceID">
+                                            <button type="button" class="btn btn-danger btn-sm removePlaceRow">Entfernen</button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
+                        Orte hinzufügen
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAdministration">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdministration" aria-expanded="false" aria-controls="collapseAdministration">
+                    Verwaltung
+                </button>
+            </h2>
+            <div id="collapseAdministration" class="accordion-collapse collapse" aria-labelledby="headingAdministration" data-bs-parent="#accordionAdministration">
+                <div class="accordion-body">
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.PersonalIdentificationNumber"></label>
+                        <input asp-for="CollectionItemEntity.PersonalIdentificationNumber" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.PersonalIdentificationNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.FilingLocation"></label>
+                        <input asp-for="CollectionItemEntity.FilingLocation" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.FilingLocation" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.DeliveryPrice"></label>
+                        <input asp-for="CollectionItemEntity.DeliveryPrice" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.DeliveryPrice" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.DeliveryDate"></label>
+                        <input asp-for="CollectionItemEntity.DeliveryDate" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.DeliveryDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.DeliveryAdress"></label>
+                        <input asp-for="CollectionItemEntity.DeliveryAdress" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.DeliveryAdress" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.TransferFromOwner"></label>
+                        <input asp-for="CollectionItemEntity.TransferFromOwner" class="form-control" />
+                        <span asp-validation-for="CollectionItemEntity.TransferFromOwner" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success mt-2">Ändern</button>
+</form>
+
+<partial name="~/Views/EraDatabase/_ModalEra.cshtml" />
+<partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
+<partial name="~/Views/PartyDatabase/_ModalParty.cshtml" />
+<partial name="~/Views/ProcessOfManufactureDatabase/_ModalProcessOfManufacture.cshtml" />
+<partial name="~/Views/CollectionItemDatabase/_ModalCollectionItemPotential.cshtml" />
+<partial name="~/Views/ConceptualRelationshipDatabase/_ModalConcept.cshtml" />

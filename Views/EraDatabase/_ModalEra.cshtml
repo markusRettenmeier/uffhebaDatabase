@@ -1,0 +1,33 @@
+﻿
+<div class="modal fade" id="EraModal" tabindex="-1" aria-labelledby="EraModal" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="EraModalLabel">Wähle deie Ärar</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ui-front">
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="inputEraNameSearch" placeholder="Ära" aria-label="Ära" />
+                            <button class="btn btn-primary eraSearchSubmit" type="button">Suchen</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table" id="eraSearchResultTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">EraID</th>
+                            <th scope="col">Ära</th>
+                            <th scope="col">Aktionen</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>

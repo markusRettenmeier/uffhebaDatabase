@@ -1,6 +1,5 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.PlaceDatabase;
-using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BuildingDatabase;
 using System.Transactions;
 
@@ -43,7 +42,7 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                var newPlace = processPlace.CreatePlace(placeOperationParameter);
+                (Place Place, int Statuscode, string Message) newPlace = processPlace.Create(placeOperationParameter);
 
                 operationParameterModel.Building.PlaceID = newPlace.Place.PlaceID;
                 Building newBuilding = unitOfWork.BuildingRepository.Insert(operationParameterModel.Building);
@@ -89,7 +88,7 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                processPlace.EditPlace(placeOperationParameterModel);
+                _ = processPlace.Edit(placeOperationParameterModel);
 
                 transactionScope.Complete();
                 return (existingBuilding.PlaceID, 200, "Gewässer erfolgreich aktualisiert.");

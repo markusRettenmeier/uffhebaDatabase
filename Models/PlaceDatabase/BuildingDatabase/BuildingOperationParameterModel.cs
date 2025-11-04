@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace Sammlerplattform.Models.PlaceDatabase.BuildingDatabase
+﻿namespace Sammlerplattform.Models.PlaceDatabase.BuildingDatabase
 {
     public class BuildingOperationParameterModel : PlaceOperationParameterModel
     {

@@ -1,5 +1,4 @@
-﻿using Sammlerplattform.Models.ManufactoryDatabase;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models.PartyDatabase.OrganizationDatabase

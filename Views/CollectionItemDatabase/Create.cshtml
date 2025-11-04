@@ -1,0 +1,397 @@
+﻿@using Sammlerplattform.Models.CollectionAreaDatabase
+@using Sammlerplattform.Models.CollectionItemDatabase
+@using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase
+@using Sammlerplattform.Services
+@model Sammlerplattform.Models.CollectionItemDatabase.CollectionItemOperationParameterModel
+
+@{
+    ViewData["Title"] = "Sammlungsstück erstellen";
+    Layout = "~/Views/Shared/_LayoutSettingsCollectionItem.cshtml";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+<form asp-action="CreateSubmit" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="CollectionItemEntity.CollectionAreaID" />
+    <p>Alle Bilder werden automatisch mit einem Wasserzeichen versehen.</p>
+    <div id="appendInputFormFile">
+        <div class="mb-3" id="inputGroupFormFile_0">
+            <label asp-for="CollectionItemPictureList[0].PerspectiveInt" class="form-label">Vorderseite</label>
+            <input type="file" name="CollectionItemPictureList[0].Datei" class="form-control" required>
+            <input type="hidden" asp-for="CollectionItemPictureList[0].PerspectiveInt" value="0">
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="addInputFormFile('Create')">Mehr Bilder hinzufügen</button>
+    <div class="accordion pt-2" id="accordionCollectionItem">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingCollectionItem">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCollectionItem" aria-expanded="false" aria-controls="collapseCollectionItem">
+                    Sammlerstück
+                </button>
+            </h2>
+            <div id="collapseCollectionItem" class="accordion-collapse collapse show" aria-labelledby="headingCollectionItem" data-bs-parent="#accordionCollectionItem">
+                <div class="accordion-body">
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.UniqueName" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.UniqueName" class="form-control" />
+                        <span asp-validation-for="CollectionItemEntity.UniqueName" class="text-danger"></span>
+                    </div>
+                    <input type="hidden" asp-for="CollectionItemEntity.ConceptID">
+                    <table class="table" id="ConceptTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Concept.ConceptName)</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="ConceptName"></td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ConceptModal">
+                                            Begriff auswählen
+                                        </button>
+                                        <button type="button" id="clearOneRowConcept" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsPartOfASeries"> @Html.DisplayNameFor(model => model.IsPartOfASeries)
+                        </label>
+                    </div>
+                    <input type="hidden" name="CollectionItemEntity.CollectionItemPotentialID">
+                    <table class="table" id="PotentialTable" style="display:none">
+                        <thead>
+                            <tr>
+                                <th scope="col">Bild</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.CollectionItemPotential.CollectionItemPotentialID)</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="PotentialPicture"></td>
+                                <td scope="col" id="CollectionItemPotentialID"></td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CollectionItemPotentialModal">
+                                            Potential auswählen
+                                        </button>
+                                        <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="CollectionItemEntity.Fake"> @Html.DisplayNameFor(model => model.CollectionItemEntity.Fake)
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.StateID" class="control-label"></label>
+                        <select asp-for="CollectionItemEntity.StateID" class="form-select">
+                            @if(Model.StateList == null)
+                            {
+                                <option value="">-- Keine Zustände vorhanden --</option>
+                            }
+                            else
+                            {
+                                <option value="" selected>-- Bitte Zustand wählen --</option>
+                                @foreach (var state in Model.StateList)
+                                {
+                                    <option value="@state.StateID">@state.StateName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Inscription" class="control-label"></label>
+                        <textarea asp-for="CollectionItemEntity.Inscription" class="form-control" rows="10" cols="5"></textarea>
+                        <span asp-validation-for="CollectionItemEntity.Inscription" class="text-danger"></span>
+                    </div>
+                    @* <div class="form-group">
+                        <label asp-for="KeywordList" class="control-label"></label>
+                        <select asp-for="CollectionItemNKeywordList" class="chosen-select" id="keywordSelect" multiple style="width: 350px;"></select>
+                    </div> *@
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Comment" class="control-label"></label>
+                        <textarea asp-for="CollectionItemEntity.Comment" class="form-control" rows="10" cols="5"></textarea>
+                        <span asp-validation-for="CollectionItemEntity.Comment" class="text-danger"></span>
+                    </div>
+                    <hr />
+                    <label asp-for="ColorList" class="control-label"></label>
+                    <div id="colorContainer"></div>
+                    <button type="button" class="btn btn-primary" onclick="addColor()">Mehr Farben hinzufügen</button>
+                    <hr />
+                    <label asp-for="MaterialList" class="control-label"></label>
+                    <div id="materialContainer"></div>
+                    <button type="button" class="btn btn-primary" onclick="addMaterial()">Mehr Materialien hinzufügen</button>
+                    <hr />
+                    @if (Model.CollectionAttributeList != null)
+                    {
+                        @for (int i = 0; i < Model.CollectionAttributeList.Count; i++)
+                        {
+                            <div class="form-group">
+                                <label class="control-label">@Model.CollectionAttributeList[i].CollectionAttributeName</label>
+                                <input type="hidden" name="CollectionItemValueList[@i].CollectionAttributeID" value="@Model.CollectionAttributeList[i].CollectionAttributeID">
+                                @if (Model.CollectionAttributeList[@i].CollectionAttributeType.ToString() == "Text")
+                                {
+                                    <input type="text" name="CollectionItemValueList[@i].ValueString" class="form-control" />
+                                }
+                                else if (Model.CollectionAttributeList[@i].CollectionAttributeType.ToString() == "Number")
+                                {
+                                    <input type="number" step="0.01" name="CollectionItemValueList[@i].ValueInt" class="form-control" />
+                                }
+                                else if (Model.CollectionAttributeList[@i].CollectionAttributeType.ToString() == "Date")
+                                {
+                                    <input type="date" name="CollectionItemValueList[@i].ValueDate" class="form-control" />
+                                }
+                                else if (Model.CollectionAttributeList[@i].CollectionAttributeType.ToString() == "Decimal")
+                                {
+                                    <input type="date" name="CollectionItemValueList[@i].ValueDecimal" class="form-control" />
+                                }
+                                else if (Model.CollectionAttributeList[@i].CollectionAttributeType.ToString() == "Bool")
+                                {
+                                    <input class="form-check-input" type="checkbox" data-val="true" id="CollectionItemValueList_[@i]_ValueBool" name="CollectionItemValueList[@i].ValueBool" value="true">
+                                }
+                            </div>
+                        }
+                    }
+
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingSize">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSize" aria-expanded="false" aria-controls="collapseSize">
+                    Maße in cm
+                </button>
+            </h2>
+            <div id="collapseSize" class="accordion-collapse collapse" aria-labelledby="headingSize" data-bs-parent="#accordionSize">
+                <div class="accordion-body">
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Length" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.Length" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.Length" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Width" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.Width" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.Width" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Height" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.Height" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.Height" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Diameter" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.Diameter" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.Diameter" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.Weight" class="control-label"></label>
+                        <input asp-for="CollectionItemEntity.Weight" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.Weight" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingManufacturingDate">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufacturingDate" aria-expanded="false" aria-controls="collapseManufacturingDate">
+                    Herstellungszeit
+                </button>
+            </h2>
+            <div id="collapseManufacturingDate" class="accordion-collapse collapse" aria-labelledby="headingManufacturingDate" data-bs-parent="#accordionManufacturingDate">
+                <div class="accordion-body">
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.ExactYear"></label>
+                        <input asp-for="CollectionItemEntity.ExactYear" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.ExactYear" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.StartYear"></label>
+                        <input asp-for="CollectionItemEntity.StartYear" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.StartYear" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.EndYear"></label>
+                        <input asp-for="CollectionItemEntity.EndYear" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.EndYear" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-check-input" asp-for="CollectionItemEntity.IsApproximate"> @Html.DisplayNameFor(model => model.CollectionItemEntity.IsApproximate)
+                    </div>
+                    <input type="hidden" asp-for="CollectionItemEntity.EraID">
+                    <table class="table" id="eraTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Era.EraName)</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="eraName"></td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#EraModal">
+                                            Ära auswählen
+                                        </button>
+                                        <button type="button" id="clearOneRowEraTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingManufactureProcess">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufactureProcess" aria-expanded="false" aria-controls="collapseManufacturingDate">
+                    Herstellungsprozess
+                </button>
+            </h2>
+            <div id="collapseManufactureProcess" class="accordion-collapse collapse" aria-labelledby="headingManufactureProcess" data-bs-parent="#accordionManufactureProcess">
+                <div class="accordion-body">
+                    <input type="hidden" asp-for="CollectionItemEntity.ProcessOfManufactureID">
+                    <table class="table" id="processOfManufactureTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Mainprocess)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.ProcessOfManufactureName)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Technique)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Description)</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td scope="col" id="processOfManufactureMainprocess"></td>
+                                <td scope="col" id="processOfManufactureProcessOfManufactureName"></td>
+                                <td scope="col" id="processOfManufactureTechnique"></td>
+                                <td scope="col">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#processOfManufactureModal">
+                                            Herstellungsprozess auswählen
+                                        </button>
+                                        <button type="button" id="clearOneRowProcessOfManufactureTableButton" onclick="clearOneRowProcessOfManufactureTable()" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingParty">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseParty" aria-expanded="false" aria-controls="collapseParty">
+                    Parteien (Individuen, Organisationen)
+                </button>
+            </h2>
+            <div id="collapseParty" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#accordionParty">
+                <div class="accordion-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Weitere Spezifikationen</th>
+                                <th scope="col">Beziehung</th>
+                                <th scope="col">Weitere Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appendPartyHere">
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#partyModal">
+                        Partei hinzufügen
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingPlace">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlace" aria-expanded="false" aria-controls="collapsePlace">
+                    Orte (Siedlungen, Gewässer, Regionen,...)
+                </button>
+            </h2>
+            <div id="collapsePlace" class="accordion-collapse collapse" aria-labelledby="headingPlace" data-bs-parent="#accordionPlace">
+                <div class="accordion-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Geografischer Name</th>
+                                    <th scope="col">Weitere Spezifikationen</th>
+                                    <th scope="col">Beziehung</th>
+                                    <th scope="col">Weitere Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appendPlaceHere">
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
+                            Orte hinzufügen
+                        </button>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAdministration">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdministration" aria-expanded="false" aria-controls="collapseAdministration">
+                    Verwaltung
+                </button>
+            </h2>
+            <div id="collapseAdministration" class="accordion-collapse collapse" aria-labelledby="headingAdministration" data-bs-parent="#accordionAdministration">
+                <div class="accordion-body">
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.PersonalIdentificationNumber"></label>
+                        <input asp-for="CollectionItemEntity.PersonalIdentificationNumber" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.PersonalIdentificationNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.FilingLocation"></label>
+                        <input asp-for="CollectionItemEntity.FilingLocation" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.FilingLocation" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.DeliveryPrice"></label>
+                        <input asp-for="CollectionItemEntity.DeliveryPrice" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.DeliveryPrice" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.DeliveryDate"></label>
+                        <input asp-for="CollectionItemEntity.DeliveryDate" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.DeliveryDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.DeliveryAdress"></label>
+                        <input asp-for="CollectionItemEntity.DeliveryAdress" class="form-control">
+                        <span asp-validation-for="CollectionItemEntity.DeliveryAdress" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CollectionItemEntity.TransferFromOwner"></label>
+                        <input asp-for="CollectionItemEntity.TransferFromOwner" class="form-control" />
+                        <span asp-validation-for="CollectionItemEntity.TransferFromOwner" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success mt-2">Erstellen</button>
+</form>
+
+<partial name="~/Views/EraDatabase/_ModalEra.cshtml" />
+<partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
+<partial name="~/Views/PartyDatabase/_ModalParty.cshtml" />
+<partial name="~/Views/ProcessOfManufactureDatabase/_ModalProcessOfManufacture.cshtml" />
+<partial name="~/Views/CollectionItemDatabase/_ModalCollectionItemPotential.cshtml" />
+<partial name="~/Views/ConceptualRelationshipDatabase/_ModalConcept.cshtml" />

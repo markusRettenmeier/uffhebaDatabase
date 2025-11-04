@@ -1,23 +1,25 @@
 ﻿function addPlace(idx) {
     const tbody = document.getElementById("appendPlaceHere");
+    const index = tbody.children.length;
+
     const row = document.createElement("tr");
     row.className = `placeTableRow`;
 
     const tdName = document.createElement("td");
-    let value = document.getElementById(`placeSearchResultToponym_${idx}`).innerHTML;
+    let value = document.getElementById(`placeSearchResultToponym_${idx}`).textContent;
     tdName.innerHTML = value;
 
     const tdSpecs = document.createElement("td");
-    value = document.getElementById(`placeSearchResultFurtherSpecs_${idx}`).innerHTML;
+    value = document.getElementById(`placeSearchResultFurtherSpecs_${idx}`).textContent;
     tdSpecs.innerHTML = value;
 
     const tdActions = document.createElement("td");
 
     let hiddenInput = document.createElement("input");
     hiddenInput.type = "hidden";
-    const index = tbody.children.length;
     hiddenInput.name = `PlaceList[${index}].PlaceID`;
-    hiddenInput.value = document.getElementById(`placeSearchResultPlaceID_${idx}`).innerHTML;
+    hiddenInput.classList.add('form-control', 'placeResultTableId');
+    hiddenInput.value = document.getElementById(`placeSearchResultPlaceID_${idx}`).textContent;
 
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
@@ -50,8 +52,10 @@
 function reindexChildPlaces() {
     const childRows = document.querySelectorAll("#appendPlaceHere");
     childRows.forEach((row, i) => {
-        const hidden = row.querySelector("placeTableRow");
-        hidden.name = `PlaceList[${i}].PlaceID`;
+        const hidden = row.querySelector(".placeResultTableId");
+        if (hidden) {
+            hidden.name = `PlaceList[${i}].PlaceID`;
+        }
     });
 }
 
@@ -85,6 +89,5 @@ function setProductionFacilitesIntoOptions(stored) {
         }
         option.textContent = item.name;
         select.appendChild(option);
-    });
-    
+    });    
 }

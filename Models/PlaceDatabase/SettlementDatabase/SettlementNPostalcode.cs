@@ -1,6 +1,4 @@
-﻿using Sammlerplattform.Models.CityDatabase;
-using Sammlerplattform.Models.EraDatabase;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models.PlaceDatabase.SettlementDatabase

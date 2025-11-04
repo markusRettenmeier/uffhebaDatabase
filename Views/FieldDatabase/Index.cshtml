@@ -27,7 +27,6 @@
                 @Html.DisplayNameFor(model => model.ChildPlaceList)
             </th>
             <th>
-                Aktionen
             </th>
         </tr>
     </thead>
@@ -36,7 +35,7 @@
         {
             var vm = PlaceViewModelHelper.FromDomainModel(item);
             <tr>
-                <td>@Html.Raw(@vm.ToponymyHtml)</td>
+                <td>@Html.Raw(@vm.Toponymy)</td>
                 <td>@vm.ParentPlaceName</td>
                 <td>@vm.ChildPlaces</td>
                 <td>

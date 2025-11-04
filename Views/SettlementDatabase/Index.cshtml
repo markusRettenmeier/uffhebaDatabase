@@ -36,7 +36,6 @@
                 @Html.DisplayNameFor(model => model.ChildPlaceList)
             </th>
             <th>
-                Aktionen
             </th>
         </tr>
     </thead>
@@ -46,7 +45,7 @@
             var vm = PlaceViewModelHelper.FromDomainModel(item);
             <tr>
                 <td>@Html.Raw(@vm.Postalcodes)</td>
-                <td>@Html.Raw(@vm.ToponymyHtml)</td>
+                <td>@Html.Raw(@vm.Toponymy)</td>
                 <td>@vm.Byname</td>
                 <td>@vm.RelatedPlaceName</td>
                 <td>@vm.ParentPlaceName</td>
@@ -59,6 +58,6 @@
     </tbody>
 </table>
 
-    <form asp-controller="SettlementDatabase" asp-action="Index">
-        <partial name="~/Views/PlaceDatabase/_SearchByColumn.cshtml" />
-    </form>
+<form asp-controller="SettlementDatabase" asp-action="Index">
+    <partial name="~/Views/PlaceDatabase/_SearchByColumn.cshtml" />
+</form>

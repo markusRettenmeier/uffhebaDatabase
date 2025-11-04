@@ -1,0 +1,44 @@
+﻿@using Sammlerplattform.Models.CollectionAreaDatabase
+@model Sammlerplattform.Models.CollectionAreaDatabase.CollectionAttribute
+
+@{
+    ViewData["Title"] = "Sammlungsgebietsmerkmal ertellen";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <h1>@ViewData["Title"]</h1>
+
+        <hr />
+        <form asp-action="CreateSubmit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="CollectionAreaID" class="form-control" type="hidden">
+            <div class="form-group mb-3">
+                <label asp-for="CollectionAttributeName" class="control-label"></label>
+                <input asp-for="CollectionAttributeName" class="form-control" />
+                <span asp-validation-for="CollectionAttributeName" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="CollectionAttributeType" class="control-label"></label>
+                <select asp-for="CollectionAttributeType"
+                        asp-items="Html.GetEnumSelectList<CollectionAttributeType>()"
+                        class="form-select">
+                    <option value="">-- Bitte Typ wählen --</option>
+                </select>
+                <span asp-validation-for="CollectionAttributeType" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check mb-3">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Required" /> @Html.DisplayNameFor(model => model.Required)
+                </label>
+            </div>
+            <hr />
+            <div class="form-group">
+                <button class="btn btn-primary">Erstellen</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+            

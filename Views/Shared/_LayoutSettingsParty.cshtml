@@ -16,8 +16,12 @@
 
     <div class="container page-wrap pt-2 pb-3">
         <main>
-            <partial name="_StatusMessage" for="@ViewData["StatusMessage"]" />
-            @RenderBody()
+            <div class="row">
+                <div class="col-md-8">
+                    <partial name="_StatusMessage" for="@ViewData["StatusMessage"]" />
+                    @RenderBody()
+                </div>
+            </div>
         </main>
     </div>
 

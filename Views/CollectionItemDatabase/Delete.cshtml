@@ -1,0 +1,259 @@
+﻿@using Sammlerplattform.Models.CollectionItemDatabase
+@using Sammlerplattform.Models.PartyDatabase
+@using Sammlerplattform.Models.PlaceDatabase
+@model Sammlerplattform.Models.CollectionItemDatabase.CollectionItemOperationParameterModel
+
+@{
+    ViewData["Title"] = "Sammlungsstück löschen";
+    Layout = "~/Views/Shared/_LayoutSettingsCollectionItem.cshtml";
+
+    string displayName = string.Empty;
+    if (!string.IsNullOrEmpty(Model.CollectionItemEntity.UniqueName))
+        displayName = Model.CollectionItemEntity.UniqueName;
+    else if (!string.IsNullOrEmpty(Model.CollectionItemEntity.PersonalIdentificationNumber))
+        displayName = Model.CollectionItemEntity.PersonalIdentificationNumber;
+    else
+        displayName = Model.CollectionItemEntity.CollectionItemEntityID.ToString();
+}
+
+<h4>@ViewData["Title"]: @displayName</h4>
+<hr />
+
+<h4>Soll das Sammlungsstück wirklich gelöscht werden?</h4>
+<hr />
+        <div class="row">
+            @if (Model.CollectionItemPictureList.Count > 0)
+            {
+                @for (int i = 0; i < Model.CollectionItemPictureList.Count; i++)
+                {
+                    string pathPicture = @"/images/Normal/" + Model.CollectionItemPictureList[i].CollectionItemPictureID + ".png";
+                    <div class="col">
+                        <div class="card" style="width: 30rem;">
+                            <img src="@pathPicture" class="card-img-top">
+                            <div class="card-body">
+                                <p class="card-text">@Model.CollectionItemPictureList[i].Perspective</p>
+                                @if (i > 0)
+                                {
+                                    <button type="button" class="btn btn-danger" onclick="removePicture(@i)">Bild entfernen</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+<dl class="row">
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.UniqueName)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.UniqueName)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.PersonalIdentificationNumber)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.PersonalIdentificationNumber)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemPotential)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemPotential.CollectionItemPotentialID)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.FilingLocation)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.FilingLocation)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.DeliveryPrice)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.DeliveryPrice)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.DeliveryDate)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.DeliveryDate)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.DeliveryAdress)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.DeliveryAdress)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Fake)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Fake)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Width)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Width)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Height)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Height)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Length)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Length)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Diameter)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Diameter)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Weight)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Weight)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Comment)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Comment)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.TransferFromOwner)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.TransferFromOwner)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.ProductionSize)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.ProductionSize)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.State!.StateName)
+    </dt>
+    <dd class="col-sm-10">
+        @if(Model.CollectionItemEntity.State != null){
+            @Html.DisplayFor(model => model.CollectionItemEntity.State.StateName)
+        }        
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.ExactYear)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.ExactYear)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.StartYear)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.StartYear)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.EndYear)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.EndYear)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.IsApproximate)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.IsApproximate)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Era)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.Era.EraName)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.ProcessOfManufacture)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.ProcessOfManufacture.ProcessOfManufactureName)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Inscription)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Inscription)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.CollectionArea)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.CollectionArea.CollectionAreaName)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Concept)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.Concept.ConceptName)
+    </dd>
+    @foreach(var itemValue in Model.CollectionItemValueList)
+    {
+        <dt class="col-sm-4">
+            @itemValue.CollectionAttribute.CollectionAttributeName
+        </dt>
+        <dd class="col-sm-10">
+            @itemValue.ValueDisplay
+        </dd>
+    }
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemNColorList)
+    </dt>
+    <dd class="col-sm-10">
+        @foreach(var color in Model.CollectionItemNColorList)
+        {
+            @color.Color.Name <br />
+        }
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemNMaterialList)
+    </dt>
+    <dd class="col-sm-10">
+        @foreach(var material in Model.CollectionItemNMaterialList)
+        {
+            @material.Material.MaterialName <br />
+        }
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemNPartyList)
+    </dt>
+    <dd class="col-sm-10">
+        @foreach(var collItemNParty in Model.CollectionItemNPartyList)
+        {
+            var vm = PartyViewModelHelper.FromDomainModel(collItemNParty.Party);
+            var text = vm.Name + ", " + @vm.FurtherSpecs;
+            @Html.Raw(text) <br />
+        }
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemNPlaceList)
+    </dt>
+    <dd class="col-sm-10">
+        @foreach(var collItemNPlace in Model.CollectionItemNPlaceList)
+        {
+            var vm = PlaceViewModelHelper.FromDomainModel(collItemNPlace.Place);
+            var text = vm.Toponymy + ", " + @vm.FurtherSpecs;
+            @Html.Raw(text) <br />
+        }
+    </dd>
+</dl>
+
+    <form asp-action="DeleteSubmit">
+        <input type="hidden" asp-for="CollectionItemEntity.CollectionItemEntityID" />
+        <input type="hidden" asp-for="CollectionItemEntity.CollectionAreaID" />
+        <button class="btn btn-danger">Entfernen</button>
+    </form>

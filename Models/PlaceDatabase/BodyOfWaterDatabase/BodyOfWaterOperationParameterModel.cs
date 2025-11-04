@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase
+﻿namespace Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase
 {
     public class BodyOfWaterOperationParameterModel : PlaceOperationParameterModel
     {

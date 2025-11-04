@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Sammlerplattform.Models.BrickDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sammlerplattform.Models.UserSettings;
@@ -13,6 +13,6 @@ public class UsingIdentityUser : IdentityUser
     [Required]
     public override string? Email { get => base.Email; set => base.Email = value; }
 
-    public List<BrickEntity> BrickEntityList { get; set; } = [];
+    public List<CollectionItemEntity> CollectionItemEntityList { get; set; } = [];
 }
 

@@ -1,6 +1,6 @@
-﻿using Sammlerplattform.Models.BrickDatabase;
+﻿using Sammlerplattform.Models.CollectionItemDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
 using Sammlerplattform.Models.Download;
-using Sammlerplattform.Models.ProductPictureDatabase;
 using Sammlerplattform.Models.UserSettings;
 using System.IO.Compression;
 using YamlDotNet.Serialization;
@@ -9,16 +9,16 @@ namespace Sammlerplattform.Services
 {
     public class YamlProcessor
     {
-        public static async Task<MemoryStream> CreateZipFile(List<BrickOperationParameterModel> modelList, UsingIdentityUser user, IWebHostEnvironment hostEnvironment)
+        public static async Task<MemoryStream> CreateZipFile(List<CollectionItemOperationParameterModel> modelList, UsingIdentityUser user, IWebHostEnvironment hostEnvironment)
         {
             string sourceDir = Path.Combine(hostEnvironment.WebRootPath, Path.Combine("images", "Original"));
             string downloadFolder = Path.Combine(hostEnvironment.WebRootPath, "Download_" + user.UserName);
             _ = Directory.CreateDirectory(downloadFolder);
             string zipFile = Path.Combine(hostEnvironment.WebRootPath, "Download_" + user.UserName + ".zip");
 
-            foreach (BrickOperationParameterModel operationParameterModel in modelList)
+            foreach (CollectionItemOperationParameterModel operationParameterModel in modelList)
             {
-                string yamlFolder = Path.Combine(downloadFolder, operationParameterModel.BrickEntity.BrickEntityID.ToString());
+                string yamlFolder = Path.Combine(downloadFolder, operationParameterModel.CollectionItemEntity.CollectionItemEntityID.ToString());
                 _ = Directory.CreateDirectory(yamlFolder);
 
                 string yamlFile = Path.Combine(yamlFolder, "PostcardDatas.yaml");
@@ -26,10 +26,10 @@ namespace Sammlerplattform.Services
                 byte[] yamlBytes = CreateYAMLFile(operationParameterModel);
                 sw.Write(yamlBytes);
 
-                foreach (ProductPicture scan in operationParameterModel.ProductPictureList)
+                foreach (CollectionItemPicture scan in operationParameterModel.CollectionItemPictureList)
                 {
-                    string sourceFilePath = Path.Combine(sourceDir, scan.ProductPictureID.ToString() + ".png");
-                    string targetFilePath = Path.Combine(yamlFolder, scan.ProductPictureID.ToString() + ".png");
+                    string sourceFilePath = Path.Combine(sourceDir, scan.CollectionItemPictureID.ToString() + ".png");
+                    string targetFilePath = Path.Combine(yamlFolder, scan.CollectionItemPictureID.ToString() + ".png");
                     File.Copy(sourceFilePath, targetFilePath, true);
                 }
             }
@@ -46,59 +46,37 @@ namespace Sammlerplattform.Services
             return memory;
         }
 
-        public static byte[] CreateYAMLFile(BrickOperationParameterModel operationParameterModel)
+        public static byte[] CreateYAMLFile(CollectionItemOperationParameterModel operationParameterModel)
         {
-            YAMLBrickDownloadModel brickDownloadModel = new()
+            YAMLCollectionItemDownloadModel collectionItemDownloadModel = new()
             {
-                Scans = operationParameterModel.ProductPictureList,
-                Brick = new YAMLBrick
+                Scans = operationParameterModel.CollectionItemPictureList,
+                Product = new YAMLCollectionItem
                 {
-                    Brickname = string.Join(", ", operationParameterModel.BrickPotential.BricknameSynonymList.Select(x => x.Name)),
-                    Usage = operationParameterModel.BrickPotential.UsageEnumDescription,
-                    Relief = operationParameterModel.BrickEntity.ReliefEnum.ToString(),
-                    Immaterial = operationParameterModel.BrickPotential.Immaterial,
-                    SerialNumber = operationParameterModel.BrickPotential.SerialNumber,
-                    FilingLocation = operationParameterModel.BrickEntity.FilingLocation,
-                    Charge = operationParameterModel.BrickEntity.Charge,
-                    Price = operationParameterModel.BrickEntity.DeliveryPrice,
-                    Fake = operationParameterModel.BrickEntity.Fake,
-                    Width = operationParameterModel.BrickEntity.Width,
-                    Height = operationParameterModel.BrickEntity.Height,
-                    Length = operationParameterModel.BrickEntity.Length,
-                    ExactYear = operationParameterModel.BrickEntity.ExactYear,
-                    StartYear = operationParameterModel.BrickEntity.StartYear,
-                    EndYear = operationParameterModel.BrickEntity.EndYear,
-                    IsApproximate = operationParameterModel.BrickEntity.IsApproximate,
-                    Comment = operationParameterModel.BrickEntity.Comment,
-                    TransferFromOwner = operationParameterModel.BrickEntity.TransferFromOwner.ToString(),
-                    ProductionSize = operationParameterModel.BrickEntity.ProductionSize,
-                    Condition = operationParameterModel.BrickEntity.Condition?.ConditionName
-                },
-                Manufactorys = [.. from mc in operationParameterModel.BrickEntityNManufactoryNCityList
-                                    select new YAMLManufactory
-                                    {
-                                        Name = mc.Manufactory?.ManufactoryName ?? string.Empty,
-                                        City = mc.City?.CityOeconymList.FirstOrDefault(x => x.CurrentName)?.Oeconym.OeconymName ?? string.Empty,
-                                        CityByname = mc.City?.Geography?.GeographyName ?? string.Empty,
-                                        ProductionFacility = mc.Manufactory?.ProductionFacility?.ProductionFacilityName!
-                                    }],
-                People = [.. from person in operationParameterModel.BrickEntityNPersonList
-                           select new YAMLPerson
-                           {
-                               Name = person.Person?.Name,
-                               Pseudonym = person.Person?.Pseudonym,
-                               Signature = person.Person?.Signature,
-                               Description = person.Person?.PersonDescription,
-                               Relation_To_Brick = person.Relationship
-                           }]
+                    //SerialNumber = operationParameterModel.CollectionItemEntity.SerialNumber,
+                    FilingLocation = operationParameterModel.CollectionItemEntity.FilingLocation,
+                    Price = operationParameterModel.CollectionItemEntity.DeliveryPrice,
+                    Fake = operationParameterModel.CollectionItemEntity.Fake,
+                    Width = operationParameterModel.CollectionItemEntity.Width,
+                    Height = operationParameterModel.CollectionItemEntity.Height,
+                    Length = operationParameterModel.CollectionItemEntity.Length,
+                    ExactYear = operationParameterModel.CollectionItemEntity.ExactYear,
+                    StartYear = operationParameterModel.CollectionItemEntity.StartYear,
+                    EndYear = operationParameterModel.CollectionItemEntity.EndYear,
+                    IsApproximate = operationParameterModel.CollectionItemEntity.IsApproximate,
+                    Comment = operationParameterModel.CollectionItemEntity.Comment,
+                    TransferFromOwner = operationParameterModel.CollectionItemEntity.TransferFromOwner.ToString(),
+                    ProductionSize = operationParameterModel.CollectionItemEntity.ProductionSize,
+                    Condition = operationParameterModel.CollectionItemEntity.State?.StateName
+                }
             };
 
-            byte[] yamlBytes = SerializeBrickToYaml(brickDownloadModel);
+            byte[] yamlBytes = SerializeProductToYaml(collectionItemDownloadModel);
             using MemoryStream memoryStream = new();
             return yamlBytes;
         }
 
-        public static byte[] SerializeBrickToYaml(YAMLBrickDownloadModel model)
+        public static byte[] SerializeProductToYaml(YAMLCollectionItemDownloadModel model)
         {
             ISerializer serializer = new SerializerBuilder()
                 .Build();
@@ -115,25 +93,5 @@ namespace Sammlerplattform.Services
 
             return bytes;
         }
-
-        public static byte[] SerializePostcardToYaml(PostcardDownloadModel model)
-        {
-            ISerializer serializer = new SerializerBuilder()
-                .Build();
-            string yaml = "# ----------Start----------\r\n" + serializer.Serialize(model);
-            yaml += "# -----------End-----------";
-
-            MemoryStream buffer = new();
-            using (StreamWriter writer = new(buffer))
-            {
-                serializer.Serialize(writer, yaml);
-            }
-
-            byte[] bytes = buffer.ToArray();
-
-            return bytes;
-        }
-
-        
     }
 }

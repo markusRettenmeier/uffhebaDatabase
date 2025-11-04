@@ -7,17 +7,17 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
     public interface IProcessPlace
     {
         List<Place> GetListWithPredicate(PlaceSearchParameter placeSearchParameter);
-        (Place Place, int Statuscode, string Message) CreatePlace(PlaceOperationParameterModel operationParameter);
-        (Place Place, int Statuscode, string Message) EditPlace(PlaceOperationParameterModel operationParameter);
-        (Place Place, int Statuscode, string Message) DeletePlace(int placeID);
+        (Place Place, int Statuscode, string Message) Create(PlaceOperationParameterModel operationParameter);
+        (Place Place, int Statuscode, string Message) Edit(PlaceOperationParameterModel operationParameter);
+        (Place Place, int Statuscode, string Message) Delete(int placeID);
     }
 
-    public class PlaceProcessor(IUnitOfWork unitOfWork, 
+    public class PlaceProcessor(IUnitOfWork unitOfWork,
         IProcessToponymy processToponymy) : IProcessPlace
     {
-        public (Place Place, int Statuscode, string Message) CreatePlace(PlaceOperationParameterModel operationParameter)
+        public (Place Place, int Statuscode, string Message) Create(PlaceOperationParameterModel operationParameter)
         {
-            if(operationParameter.PlaceNToponymyList == null ||
+            if (operationParameter.PlaceNToponymyList == null ||
                     !operationParameter.PlaceNToponymyList.Any(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
                 return (new(), 412, "Geografischer Name angeben.");
@@ -26,19 +26,19 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
             try
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
-                                
-                if(operationParameter.Place.ParentPlaceID > 0 && operationParameter.Place.ParentPlaceID == operationParameter.Place.PlaceID)
+
+                if (operationParameter.Place.ParentPlaceID > 0 && operationParameter.Place.ParentPlaceID == operationParameter.Place.PlaceID)
                 {
                     return (new(), 412, "Ein Ort kann nicht Elternteil von sich selbst sein.");
                 }
                 Place newPlace = unitOfWork.PlaceRepository.Insert(operationParameter.Place);
                 unitOfWork.Save();
 
-                foreach (var placeNToponymy in operationParameter.PlaceNToponymyList)
+                foreach (PlaceNToponymy placeNToponymy in operationParameter.PlaceNToponymyList)
                 {
                     ConnectToponymy(newPlace, placeNToponymy);
                 }
-                foreach (var childPlace in operationParameter.ChildPlaceList)
+                foreach (Place childPlace in operationParameter.ChildPlaceList)
                 {
                     newPlace.ChildPlaceList.Add(childPlace);
                     unitOfWork.Save();
@@ -54,9 +54,9 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
             }
         }
 
-        public (Place Place, int Statuscode, string Message) DeletePlace(int placeID)
+        public (Place Place, int Statuscode, string Message) Delete(int placeID)
         {
-            if(placeID <= 0)
+            if (placeID <= 0)
             {
                 return (new(), 400, "Ungültige Orts-ID.");
             }
@@ -84,7 +84,7 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
             }
         }
 
-        public (Place Place, int Statuscode, string Message) EditPlace(PlaceOperationParameterModel operationParameter)
+        public (Place Place, int Statuscode, string Message) Edit(PlaceOperationParameterModel operationParameter)
         {
             if (operationParameter.PlaceNToponymyList == null || !operationParameter.PlaceNToponymyList.Any(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
@@ -137,7 +137,7 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
 
         private void ConnectToponymy(Place place, PlaceNToponymy placeNToponymy)
         {
-            if(string.IsNullOrWhiteSpace(placeNToponymy.Toponymy.ToponymyName))
+            if (string.IsNullOrWhiteSpace(placeNToponymy.Toponymy.ToponymyName))
             {
                 return;
             }
@@ -158,9 +158,9 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
         {
             List<PlaceNToponymy> currentConnections = place.PlaceNToponymyList;
 
-            for(int i = 0; i< currentConnections.Count; i++)
+            for (int i = 0; i < currentConnections.Count; i++)
             {
-                var updatedConnection = newConnections.FirstOrDefault(x => x.Toponymy != null && x.Toponymy.ToponymyName == currentConnections[i].Toponymy.ToponymyName);
+                PlaceNToponymy? updatedConnection = newConnections.FirstOrDefault(x => x.Toponymy != null && x.Toponymy.ToponymyName == currentConnections[i].Toponymy.ToponymyName);
                 if (updatedConnection == null)
                 {
                     DisconnectToponymy(place, currentConnections[i].ToponymyID);
@@ -199,7 +199,7 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
                 return;
             }
 
-            var placeNToponymy = unitOfWork.PlaceNToponomyRepository.Get(
+            PlaceNToponymy? placeNToponymy = unitOfWork.PlaceNToponomyRepository.Get(
                 filter: c => c.PlaceID == place.PlaceID && c.ToponymyID == toponymyID).FirstOrDefault();
             if (placeNToponymy == null)
             {
@@ -213,9 +213,9 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
         {
             List<Place> currentConnections = place.ChildPlaceList;
 
-            for(int i = 0; i< currentConnections.Count; i++)
+            for (int i = 0; i < currentConnections.Count; i++)
             {
-                var updatedConnection = newConnections.FirstOrDefault(x => x.PlaceID == currentConnections[i].PlaceID);
+                Place? updatedConnection = newConnections.FirstOrDefault(x => x.PlaceID == currentConnections[i].PlaceID);
                 if (updatedConnection == null)
                 {
                     unitOfWork.PlaceRepository.RemoveMemberFromCollection(place, p => p.ChildPlaceList, currentConnections[i]);
@@ -228,7 +228,7 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
                 bool exists = currentConnections.Any(x => x.PlaceID == newItem.PlaceID);
                 if (!exists)
                 {
-                    if(newItem.PlaceID == place.PlaceID)
+                    if (newItem.PlaceID == place.PlaceID)
                     {
                         continue; // Ein Ort kann nicht Elternteil von sich selbst sein.
                     }

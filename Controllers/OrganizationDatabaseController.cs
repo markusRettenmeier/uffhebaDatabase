@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
 using Sammlerplattform.Services.Processes.PartyProcesses;
 
 namespace Sammlerplattform.Controllers
 {
+    [Authorize]
     public class OrganizationDatabaseController(IProcessOrganization processOrganization, IProcessParty processParty) : Controller
     {
         public ActionResult Index(string statusMessage, PartySearchParameterModel partySearchParameter)
@@ -38,7 +40,7 @@ namespace Sammlerplattform.Controllers
             Party? existingParty = processParty.GetListWithPredicate(searchParameterModel).FirstOrDefault();
             if (existingParty == null || existingParty.Organization == null)
             {
-                return NotFound("Individuum nicht gefunden.");
+                return RedirectToAction(nameof(Index), new { statusMessage = "Organisation nicht gefunden" });
             }
 
             OrganizationOperationParameterModel organizationOperationParameterModel = new()

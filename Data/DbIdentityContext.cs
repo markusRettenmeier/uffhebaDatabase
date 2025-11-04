@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Sammlerplattform.Models.BrickDatabase;
-using Sammlerplattform.Models.CityDatabase;
-using Sammlerplattform.Models.EraDatabase;
-using Sammlerplattform.Models.ManufactoryDatabase;
+using Sammlerplattform.Models.CollectionAreaDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase;
+using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
 using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
-using Sammlerplattform.Models.PersonDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BuildingDatabase;
@@ -17,8 +17,6 @@ using Sammlerplattform.Models.PlaceDatabase.ReliefDatabase;
 using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
 using Sammlerplattform.Models.PlaceDatabase.TransportRouteDatabase;
 using Sammlerplattform.Models.ProcessOfManufactureDatabase;
-using Sammlerplattform.Models.ProductDatabase;
-using Sammlerplattform.Models.ProductPictureDatabase;
 using Sammlerplattform.Models.UserSettings;
 
 namespace Sammlerplattform.Data;
@@ -26,277 +24,83 @@ namespace Sammlerplattform.Data;
 public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : IdentityDbContext<UsingIdentityUser>(options)
 {
     public DbSet<UserPicture> UserPicture { get; set; } = null!;
-    public DbSet<Manufactory> Manufactory { get; set; } = null!;
-    public DbSet<Person> Person { get; set; } = null!;
-    public DbSet<Era> Era { get; set; } = null!;
-    public DbSet<ProductionFacility> ProductionFacility { get; set; } = null!;
-    public DbSet<Brickname> Brickname { get; set; } = null!;
+    public DbSet<ConceptRelationshipQueryResult> ConceptRelationshipQueryResult { get; set; }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlServer("DbIdentityContextConnection");
+            optionsBuilder.EnableSensitiveDataLogging();
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        // Customize the ASP.NET Identity model and override the defaults if needed.
-        // For example, you can rename the ASP.NET Identity table names and more.
-        // Add your customizations after calling base.OnModelCreating(builder);
-        _ = builder.Entity<Manufactory>()
-            .HasMany(e => e.CityList)
-            .WithMany(e => e.ManufactoryList)
-            .UsingEntity(
-                "ManufactoryNCity",
-                l => l.HasOne(typeof(Manufactory)).WithMany().HasForeignKey("ManufactoryID"),
-                r => r.HasOne(typeof(City)).WithMany().HasForeignKey("CityID"),
-                j => j.HasKey("ManufactoryID", "CityID"));
-        _ = builder.Entity<City>()
-            .HasMany(e => e.ManufactoryList)
-            .WithMany(e => e.CityList)
-            .UsingEntity(
-                "ManufactoryNCity",
-                l => l.HasOne(typeof(Manufactory)).WithMany().HasForeignKey("ManufactoryID"),
-                r => r.HasOne(typeof(City)).WithMany().HasForeignKey("CityID"),
-                j => j.HasKey("ManufactoryID", "CityID"));
-        _ = builder.Entity<Geography>()
-            .HasMany(e => e.CityList)
-            .WithOne(e => e.Geography)
-            .HasForeignKey(e => e.GeographyID)
-            .IsRequired(false);
-        _ = builder.Entity<City>()
-            .HasOne(e => e.Geography)
-            .WithMany(e => e.CityList)
-            .IsRequired(false);
 
-        _ = builder.Entity<City>()
-            .HasMany(e => e.CityOeconymList)
-            .WithOne(e => e.City)
-            .HasForeignKey(e => e.CityID);
-        _ = builder.Entity<Oeconym>()
-            .HasMany(e => e.CityOeconymList)
-            .WithOne(e => e.Oeconym)
-            .HasForeignKey(e => e.OeconymID);
-        _ = builder.Entity<CityOeconym>()
-            .HasOne(e => e.City)
-            .WithMany(e => e.CityOeconymList)
-            .IsRequired(true);
-        _ = builder.Entity<CityOeconym>()
-            .HasOne(e => e.Oeconym)
-            .WithMany(e => e.CityOeconymList)
-            .IsRequired(true);
-        _ = builder.Entity<Era>()
-            .HasMany(e => e.CityOeconymList)
-            .WithOne(e => e.Era)
-            .HasForeignKey(e => e.EraID);
+        _ = builder.Entity<CollectionItemEntity>()
+            .HasMany(x => x.CollectionItemPictureList)
+            .WithOne(pp => pp.CollectionItemEntity)
+            .HasForeignKey(pp => pp.CollectionItemEntityID);
+        _ = builder.Entity<CollectionItemPicture>()
+            .HasOne(x => x.CollectionItemEntity)
+            .WithMany(x => x.CollectionItemPictureList);
 
-        _ = builder.Entity<City>()
-            .HasMany(e => e.CityPostalcodeList)
-            .WithOne(e => e.City)
-            .HasForeignKey(e => e.CityID);
-        _ = builder.Entity<Postalcode>()
-            .HasMany(e => e.CityPostalcodeList)
-            .WithOne(e => e.Postalcode)
-            .HasForeignKey(e => e.PostalcodeID);
-        _ = builder.Entity<CityPostalcode>()
-            .HasOne(e => e.City)
-            .WithMany(e => e.CityPostalcodeList)
-            .IsRequired(true);
-        _ = builder.Entity<CityPostalcode>()
-            .HasOne(e => e.Postalcode)
-            .WithMany(e => e.CityPostalcodeList)
-            .IsRequired(true);
-        _ = builder.Entity<Era>()
-            .HasMany(e => e.CityPostalcodeList)
-            .WithOne(e => e.Era)
-            .HasForeignKey(e => e.EraID);
-
-        _ = builder.Entity<City>()
-            .HasOne(c => c.ParentCity)
-            .WithMany(c => c.ChildCityList)
-            .HasForeignKey(c => c.ParentCityID)
-            .OnDelete(DeleteBehavior.Restrict);
-        _ = builder.Entity<ProductionFacility>()
-            .HasMany(x => x.ManufactoryList)
-            .WithOne(x => x.ProductionFacility)
-            .HasForeignKey(x => x.ProductionFacility_ID);
-        _ = builder.Entity<Manufactory>()
-            .HasOne(x => x.ProductionFacility)
-            .WithMany(x => x.ManufactoryList);
-        _ = builder.Entity<BrickEntity>()
-            .HasOne(x => x.UsingIdentityUser)
-            .WithMany(x => x.BrickEntityList);
-        _ = builder.Entity<UsingIdentityUser>()
-            .HasMany(x => x.BrickEntityList)
-            .WithOne(x => x.UsingIdentityUser)
-            .HasForeignKey(x => x.UsingIdentityUsersID);
-        _ = builder.Entity<BrickEntity>()
-            .HasOne(x => x.Era)
-            .WithMany(x => x.BrickEntityList);
-        _ = builder.Entity<Era>()
-            .HasMany(x => x.BrickEntityList)
-            .WithOne(x => x.Era)
-            .HasForeignKey(x => x.EraId);
-        _ = builder.Entity<BrickEntity>()
-            .HasOne(x => x.ProcessOfManufacture)
-            .WithMany(x => x.BrickEntityList);
-        _ = builder.Entity<ProcessOfManufacture>()
-            .HasMany(x => x.BrickEntityList)
-            .WithOne(x => x.ProcessOfManufacture)
-            .HasForeignKey(x => x.ProcessOfManufactureID);
-        _ = builder.Entity<Person>()
-            .HasMany(e => e.PrizeList)
-            .WithMany(e => e.PersonList)
-            .UsingEntity(
-                "PersonNPrize",
-                l => l.HasOne(typeof(Person)).WithMany().HasForeignKey("Person_ID"),
-                r => r.HasOne(typeof(Prize)).WithMany().HasForeignKey("Prize_ID"),
-                j => j.HasKey("Person_ID", "Prize_ID"));
-        _ = builder.Entity<Prize>()
-            .HasMany(e => e.PersonList)
-            .WithMany(e => e.PrizeList)
-            .UsingEntity(
-                "PersonNPrize",
-                l => l.HasOne(typeof(Person)).WithMany().HasForeignKey("Person_ID"),
-                r => r.HasOne(typeof(Prize)).WithMany().HasForeignKey("Prize_ID"),
-                j => j.HasKey("Person_ID", "Prize_ID"));
-        _ = builder.Entity<BrickPotential>()
-            .HasMany(x => x.BricknameSynonymList)
-            .WithOne(x => x.BrickPotential)
-            .HasForeignKey(x => x.BrickPotentialID);
-        _ = builder.Entity<Brickname>()
-            .HasOne(x => x.BrickPotential)
-            .WithMany(x => x.BricknameSynonymList);
-        _ = builder.Entity<BrickEntity>()
-            .HasOne(x => x.BrickPotential)
-            .WithMany(x => x.BrickEntityList);
-        _ = builder.Entity<BrickPotential>()
-            .HasMany(x => x.BrickEntityList)
-            .WithOne(x => x.BrickPotential)
-            .HasForeignKey(x => x.BrickPotentialID);
-
-        _ = builder.Entity<BrickEntity>()
-            .HasMany(x => x.ProductPictureList)
-            .WithOne(pp => pp.BrickEntity)
-            .HasForeignKey(pp => pp.BrickEntityID);
-        _ = builder.Entity<ProductPicture>()
-            .HasOne(x => x.BrickEntity)
-            .WithMany(x => x.ProductPictureList);
-
-        _ = builder.Entity<BrickEntity>()
-            .HasMany(x => x.BrickEntityNManufactoryNCityList)
-            .WithOne(x => x.BrickEntity)
-            .HasForeignKey(x => x.BrickEntityID);
-        _ = builder.Entity<Manufactory>()
-            .HasMany(c => c.BrickEntityNManufactoryNCityList)
-            .WithOne(x => x.Manufactory)
-            .HasForeignKey(x => x.ManufactoryID);
-
-        _ = builder.Entity<City>()
-            .HasMany(c => c.BrickEntityNManufactoryNCityList)
-            .WithOne(x => x.City)
-            .HasForeignKey(x => x.CityID);
-        _ = builder.Entity<BrickEntityNManufactoryNCity>()
-            .HasOne(x => x.BrickEntity)
-            .WithMany(x => x.BrickEntityNManufactoryNCityList)
-            .IsRequired(true);
-        _ = builder.Entity<BrickEntityNManufactoryNCity>()
-            .HasOne(x => x.Manufactory)
-            .WithMany(x => x.BrickEntityNManufactoryNCityList)
-            .IsRequired(true);
-        _ = builder.Entity<BrickEntityNManufactoryNCity>()
-            .HasOne(x => x.City)
-            .WithMany(x => x.BrickEntityNManufactoryNCityList);
-
-        _ = builder.Entity<BrickEntity>()
-            .HasMany(x => x.BrickEntityNPersonList)
-            .WithOne(x => x.BrickEntity)
-            .HasForeignKey(x => x.BrickEntityID);
-        _ = builder.Entity<Person>()
-            .HasMany(c => c.BrickEntityNPersonList)
-            .WithOne(x => x.Person)
-            .HasForeignKey(x => x.PersonID);
-        _ = builder.Entity<BrickEntityNPerson>()
-            .HasOne(x => x.BrickEntity)
-            .WithMany(x => x.BrickEntityNPersonList)
-            .IsRequired(true);
-        _ = builder.Entity<BrickEntityNPerson>()
-            .HasOne(x => x.Person)
-            .WithMany(x => x.BrickEntityNPersonList)
-            .IsRequired(true);
-
-        _ = builder.Entity<BrickEntity>()
-            .HasMany(x => x.BrickEntityNCityList)
-            .WithOne(x => x.BrickEntity)
-            .HasForeignKey(x => x.BrickEntityID);
-        _ = builder.Entity<City>()
-            .HasMany(c => c.BrickEntityNCityList)
-            .WithOne(x => x.City)
-            .HasForeignKey(x => x.CityID);
-        _ = builder.Entity<BrickEntityNCity>()
-            .HasOne(x => x.BrickEntity)
-            .WithMany(x => x.BrickEntityNCityList)
-            .IsRequired(true);
-        _ = builder.Entity<BrickEntityNCity>()
-            .HasOne(x => x.City)
-            .WithMany(x => x.BrickEntityNCityList)
-            .IsRequired(true);
-
-        _ = builder.Entity<BrickEntity>()
-            .HasMany(x => x.ProductNColorVariantList)
-            .WithOne(x => x.BrickEntity)
-            .HasForeignKey(x => x.BrickEntityID);
+        _ = builder.Entity<CollectionItemEntity>()
+            .HasMany(x => x.CollectionItemNColorList)
+            .WithOne(x => x.CollectionItemEntity)
+            .HasForeignKey(x => x.CollectionItemEntityID);
         _ = builder.Entity<Color>()
-            .HasMany(c => c.ProductNColorVariantList)
+            .HasMany(c => c.CollectionItemNColorList)
             .WithOne(x => x.Color)
             .HasForeignKey(x => x.ColorID);
-        _ = builder.Entity<ProductNColorVariant>()
-            .HasOne(x => x.BrickEntity)
-            .WithMany(x => x.ProductNColorVariantList)
+        _ = builder.Entity<CollectionItemNColor>()
+            .HasOne(x => x.CollectionItemEntity)
+            .WithMany(x => x.CollectionItemNColorList)
             .IsRequired(true);
-        _ = builder.Entity<ProductNColorVariant>()
+        _ = builder.Entity<CollectionItemNColor>()
             .HasOne(x => x.Color)
-            .WithMany(x => x.ProductNColorVariantList)
+            .WithMany(x => x.CollectionItemNColorList)
             .IsRequired(true);
 
-        _ = builder.Entity<BrickEntity>()
-            .HasMany(x => x.ProductNKeywordList)
-            .WithOne(x => x.BrickEntity)
-            .HasForeignKey(x => x.BrickEntityID);
-        _ = builder.Entity<Keyword>()
-            .HasMany(c => c.ProductNKeywordList)
-            .WithOne(x => x.Keyword)
-            .HasForeignKey(x => x.KeywordID);
-        _ = builder.Entity<ProductNKeyword>()
-            .HasOne(x => x.BrickEntity)
-            .WithMany(x => x.ProductNKeywordList)
-            .IsRequired(true);
-        _ = builder.Entity<ProductNKeyword>()
-            .HasOne(x => x.Keyword)
-            .WithMany(x => x.ProductNKeywordList)
-            .IsRequired(true);
-
-        _ = builder.Entity<BrickEntity>()
-            .HasMany(x => x.ProductNMaterialList)
-            .WithOne(x => x.BrickEntity)
-            .HasForeignKey(x => x.BrickEntityID);
+        _ = builder.Entity<CollectionItemEntity>()
+            .HasMany(x => x.CollectionItemNMaterialList)
+            .WithOne(x => x.CollectionItemEntity)
+            .HasForeignKey(x => x.CollectionItemEntityID);
         _ = builder.Entity<Material>()
-            .HasMany(c => c.ProductNMaterialList)
+            .HasMany(c => c.CollectionItemNMaterialList)
             .WithOne(x => x.Material)
             .HasForeignKey(x => x.MaterialID);
-        _ = builder.Entity<ProductNMaterial>()
-            .HasOne(x => x.BrickEntity)
-            .WithMany(x => x.ProductNMaterialList)
+        _ = builder.Entity<CollectionItemNMaterial>()
+            .HasOne(x => x.CollectionItemEntity)
+            .WithMany(x => x.CollectionItemNMaterialList)
             .IsRequired(true);
-        _ = builder.Entity<ProductNMaterial>()
+        _ = builder.Entity<CollectionItemNMaterial>()
             .HasOne(x => x.Material)
-            .WithMany(x => x.ProductNMaterialList)
+            .WithMany(x => x.CollectionItemNMaterialList)
             .IsRequired(true);
 
-        _ = builder.Entity<BrickEntity>()
-            .HasOne(x => x.Condition)
-            .WithMany(x => x.ProductEntityList);
-        _ = builder.Entity<Condition>()
-            .HasMany(x => x.ProductEntityList)
-            .WithOne(x => x.Condition)
-            .HasForeignKey(x => x.ConditionID);
+        _ = builder.Entity<CollectionItemEntity>()
+            .HasOne(x => x.State)
+            .WithMany(x => x.CollectionItemEntityList);
+        _ = builder.Entity<State>()
+            .HasMany(x => x.CollectionItemEntityList)
+            .WithOne(x => x.State)
+            .HasForeignKey(x => x.StateID);
+        _ = builder.Entity<State>()
+            .HasOne(x => x.CollectionArea)
+            .WithMany(x => x.StateList)
+            .HasForeignKey(x => x.CollectionAreaID);
 
-        _ = builder.Entity<BrickEntity>()
+        _ = builder.Entity<CollectionItemEntity>()
+            .HasOne(x => x.ProcessOfManufacture)
+            .WithMany(x => x.CollectionItemEntityList);
+        _ = builder.Entity<ProcessOfManufacture>()
+            .HasMany(x => x.CollectionItemEntityList)
+            .WithOne(x => x.ProcessOfManufacture)
+            .HasForeignKey(x => x.ProcessOfManufactureID);
+
+        _ = builder.Entity<CollectionItemEntity>()
             .HasIndex(i => new { i.UsingIdentityUsersID, i.PersonalIdentificationNumber })
             .IsUnique()
             .HasFilter("[PersonalIdentificationNumber] IS NOT NULL");
@@ -317,10 +121,6 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .HasOne(e => e.Toponymy)
             .WithMany(e => e.PlaceNToponymyList)
             .IsRequired(true);
-        //_ = builder.Entity<Era>()
-        //    .HasMany(e => e.PlaceNToponymyList)
-        //    .WithOne(e => e.Era)
-        //    .HasForeignKey(e => e.EraID);
 
         _ = builder.Entity<Place>()
             .HasOne(c => c.ParentPlace)
@@ -387,20 +187,17 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .HasForeignKey<Settlement>(e => e.RelatedPlaceID)
             .OnDelete(DeleteBehavior.Restrict);
 
-        //_ = builder.Entity<Settlement>()
-        //    .HasMany(e => e.ManufactoryList)
-        //    .With
+        _ = builder.Entity<Party>()
+             .HasOne(p => p.Individual)
+             .WithOne(i => i.Party)
+             .HasForeignKey<Individual>(i => i.PartyID)
+             .IsRequired();
+        _ = builder.Entity<Party>()
+             .HasOne(p => p.Organization)
+             .WithOne(i => i.Party)
+             .HasForeignKey<Organization>(i => i.PartyID)
+             .IsRequired();
 
-       _ = builder.Entity<Party>()
-            .HasOne(p => p.Individual)
-            .WithOne(i => i.Party)
-            .HasForeignKey<Individual>(i => i.PartyID)
-            .IsRequired();
-       _ = builder.Entity<Party>()
-            .HasOne(p => p.Organization)
-            .WithOne(i => i.Party)
-            .HasForeignKey<Organization>(i => i.PartyID)
-            .IsRequired();
         _ = builder.Entity<Party>()
             .HasMany(e => e.PlaceList)
             .WithMany(e => e.PartyList)
@@ -417,44 +214,165 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
                 l => l.HasOne(typeof(Party)).WithMany().HasForeignKey("PartyID"),
                 r => r.HasOne(typeof(Place)).WithMany().HasForeignKey("PlaceID"),
                 j => j.HasKey("PartyID", "PlaceID"));
+
         _ = builder.Entity<Organization>()
             .HasOne(o => o.ProductionFacility)
             .WithMany(p => p.OrganizationList)
             .IsRequired();
 
-        //_ = builder.Entity<BrickEntity>()
-        //    .HasMany(x => x.ProductEntityNPartyList)
-        //    .WithOne(x => x.BrickEntity)
-        //    .HasForeignKey(x => x.ProductEntityID);
-        //_ = builder.Entity<Party>()
-        //    .HasMany(c => c.ProductNPartyList)
-        //    .WithOne(x => x.Party)
-        //    .HasForeignKey(x => x.PartyID);
-        //_ = builder.Entity<ProductEntityNParty>()
-        //    .HasOne(x => x.BrickEntity)
-        //    .WithMany(x => x.ProductEntityNPartyList)
-        //    .IsRequired(true);
-        //_ = builder.Entity<ProductEntityNParty>()
-        //    .HasOne(x => x.Party)
-        //    .WithMany(x => x.ProductNPartyList)
-        //    .IsRequired(true);
+        _ = builder.Entity<CollectionItemEntity>()
+            .HasMany(x => x.CollectionItemNPartyList)
+            .WithOne(x => x.CollectionItemEntity)
+            .HasForeignKey(x => x.CollectionItemEntityID);
+        _ = builder.Entity<Party>()
+            .HasMany(c => c.CollectionItemNPartyList)
+            .WithOne(x => x.Party)
+            .HasForeignKey(x => x.PartyID);
+        _ = builder.Entity<CollectionItemNParty>()
+            .HasOne(x => x.CollectionItemEntity)
+            .WithMany(x => x.CollectionItemNPartyList);
+        _ = builder.Entity<CollectionItemNParty>()
+            .HasOne(x => x.Party)
+            .WithMany(x => x.CollectionItemNPartyList);
+        _ = builder.Entity<CollectionItemNParty>()
+            .HasOne(x => x.CollectionItemPotential)
+            .WithMany(x => x.CollectionItemNPartyList);
+        _ = builder.Entity<CollectionItemPotential>()
+            .HasMany(x => x.CollectionItemNPartyList)
+            .WithOne(x => x.CollectionItemPotential)
+            .HasForeignKey(x => x.CollectionItemPotentialID);
 
-        //_ = builder.Entity<BrickEntity>()
-        //    .HasMany(x => x.ProductEntityNPlaceList)
-        //    .WithOne(x => x.BrickEntity)
-        //    .HasForeignKey(x => x.ProductEntityID);
-        //_ = builder.Entity<Place>()
-        //    .HasMany(c => c.ProductEntityNPlaceList)
-        //    .WithOne(x => x.Place)
-        //    .HasForeignKey(x => x.PlaceID);
-        //_ = builder.Entity<ProductEntityNPlace>()
-        //    .HasOne(x => x.BrickEntity)
-        //    .WithMany(x => x.ProductEntityNPlaceList)
+        _ = builder.Entity<CollectionItemEntity>()
+            .HasMany(x => x.CollectionItemNPlaceList)
+            .WithOne(x => x.CollectionItemEntity)
+            .HasForeignKey(x => x.CollectionItemEntityID);
+        _ = builder.Entity<CollectionItemPotential>()
+            .HasMany(x => x.CollectionItemNPlaceList)
+            .WithOne(x => x.CollectionItemPotential)
+            .HasForeignKey(x => x.CollectionItemPotentialID);
+        _ = builder.Entity<Place>()
+            .HasMany(c => c.CollectionItemNPlaceList)
+            .WithOne(x => x.Place)
+            .HasForeignKey(x => x.PlaceID);
+        _ = builder.Entity<CollectionItemNPlace>()
+            .HasOne(x => x.CollectionItemEntity)
+            .WithMany(x => x.CollectionItemNPlaceList)
+            .IsRequired(true);
+        _ = builder.Entity<CollectionItemNPlace>()
+            .HasOne(x => x.CollectionItemPotential)
+            .WithMany(x => x.CollectionItemNPlaceList)
+            .IsRequired(true);
+        _ = builder.Entity<CollectionItemNPlace>()
+            .HasOne(x => x.Place)
+            .WithMany(x => x.CollectionItemNPlaceList)
+            .IsRequired(true);
+
+        _ = builder.Entity<CollectionArea>()
+            .HasMany(c => c.CollectionAttributeList)
+            .WithOne(cf => cf.CollectionArea)
+            .HasForeignKey(cf => cf.CollectionAreaID);
+        _ = builder.Entity<CollectionAttribute>()
+            .HasOne(cf => cf.CollectionArea)
+            .WithMany(c => c.CollectionAttributeList)
+            .IsRequired(true);
+        _ = builder.Entity<CollectionArea>()
+            .HasMany(cf => cf.CollectionItemEntityList)
+            .WithOne(pe => pe.CollectionArea)
+            .HasForeignKey(pe => pe.CollectionAreaID);
+        _ = builder.Entity<CollectionItemEntity>()
+            .HasOne(pe => pe.CollectionArea)
+            .WithMany(c => c.CollectionItemEntityList)
+            .IsRequired(true);
+
+        _ = builder.Entity<CollectionAttribute>()
+            .HasMany(cf => cf.CollectionItemValueList)
+            .WithOne(civ => civ.CollectionAttribute)
+            .HasForeignKey(civ => civ.CollectionAttributeID);
+        _ = builder.Entity<CollectionItemValue>()
+            .HasOne(civ => civ.CollectionAttribute)
+            .WithMany(cf => cf.CollectionItemValueList)
+            .IsRequired(true);
+        _ = builder.Entity<CollectionItemValue>()
+            .HasOne(civ => civ.CollectionItemEntity)
+            .WithMany(pe => pe.CollectionItemValueList)
+            .IsRequired(false);
+        _ = builder.Entity<CollectionItemEntity>()
+            .HasMany(pe => pe.CollectionItemValueList)
+            .WithOne(civ => civ.CollectionItemEntity)
+            .HasForeignKey(civ => civ.CollectionItemEntityID);
+        _ = builder.Entity<CollectionItemValue>()
+            .HasOne(civ => civ.CollectionItemPotential)
+            .WithMany(pp => pp.CollectionItemValueList)
+            .IsRequired(false);
+        _ = builder.Entity<CollectionItemPotential>()
+            .HasMany(pp => pp.CollectionItemValueList)
+            .WithOne(civ => civ.CollectionItemPotential)
+            .HasForeignKey(civ => civ.CollectionItemPotentialID);
+
+        _ = builder.Entity<CollectionItemEntity>()
+            .HasOne(cie => cie.UsingIdentityUser)
+            .WithMany(uiu => uiu.CollectionItemEntityList)
+            .IsRequired(true);
+        _ = builder.Entity<UsingIdentityUser>()
+            .HasMany(uiu => uiu.CollectionItemEntityList)
+            .WithOne(cie => cie.UsingIdentityUser)
+            .HasForeignKey(cie => cie.UsingIdentityUsersID);
+
+        _ = builder.Entity<Concept>()
+            .HasOne(c => c.CollectionArea)
+            .WithMany(ca => ca.ConceptList)
+            .IsRequired(true);
+        _ = builder.Entity<CollectionArea>()
+            .HasMany(ca => ca.ConceptList)
+            .WithOne(c => c.CollectionArea)
+            .HasForeignKey(c => c.CollectionAreaID);
+        _ = builder.Entity<CollectionItemEntity>()
+    .HasOne(cip => cip.Concept)
+    .WithMany(c => c.CollectionItemEntityList)
+    .HasForeignKey(cip => cip.ConceptID)
+    .IsRequired(false);
+        _ = builder.Entity<CollectionItemEntity>()
+    .HasOne(cip => cip.Era)
+    .WithMany(c => c.CollectionItemEntityList)
+    .HasForeignKey(cip => cip.EraID)
+    .IsRequired(false);
+
+        //_ = builder.Entity<ConceptRelation>()
+        //    .HasOne(cr => cr.FromConcept)
+        //    .WithMany(c => c.ConceptRelationList)
+        //    .OnDelete(DeleteBehavior.Restrict);
+        //_ = builder.Entity<ConceptRelation>()
+        //    .HasOne(cr => cr.ToConcept)
+        //    .WithMany(c => c.ConceptRelationList)
+        //    .OnDelete(DeleteBehavior.Restrict);
+        _ = builder.Entity<ConceptRelationshipQueryResult>()
+            .HasNoKey()                // wichtig, sonst will EF einen PK erzwingen
+            .ToView(null);             // verhindert Mapping auf View/Tabelle
+
+        _ = builder.Entity<ConceptRelation>().ToTable("ConceptRelation", b => b.IsTemporal(false)) // echte Edge-Table
+           .HasNoKey()                // wichtig, sonst will EF einen PK erzwingen
+           .ToView(null);             // verhindert Mapping auf View/Tabelle
+        //_ = builder.Entity<ConceptRelation>().HasKey(e => e.ConceptRelationID);
+        //_ = builder.Entity<ConceptRelation>()
+        //    .HasOne(e => e.FromConcept)
+        //    .WithMany()
+        //    .HasForeignKey(e => e.FromConceptID)
+        //      .OnDelete(DeleteBehavior.Restrict);
+        //_ = builder.Entity<ConceptRelation>()
+        //    .HasOne(e => e.ToConcept)
+        //    .WithMany()
+        //    .HasForeignKey(e => e.ToConceptID)
+        //      .OnDelete(DeleteBehavior.Restrict);
+
+        //_ = builder.Entity<ObjectLayer>()
+        //    .HasOne(ol => ol.CollectionItemEntity)
+        //    .WithOne(cie => cie.ObjectLayer)
+        //    .HasForeignKey(ol => ol.CollectionItemEntityID)
         //    .IsRequired(true);
-        //_ = builder.Entity<ProductEntityNPlace>()
-        //    .HasOne(x => x.Place)
-        //    .WithMany(x => x.ProductEntityNPlaceList)
+        //_ = builder.Entity<CollectionItemEmbedding>()
+        //    .HasOne(cie => cie.CollectionItemEntity)
+        //    .WithMany(cie => cie.CollectionItemEmbeddingList)
+        //    .HasForeignKey(cie => cie.CollectionItemEntityID)
         //    .IsRequired(true);
     }
 }
-

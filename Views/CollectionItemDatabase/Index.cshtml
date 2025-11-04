@@ -1,0 +1,71 @@
+﻿@model IEnumerable<Sammlerplattform.Models.CollectionItemDatabase.CollectionItemOperationParameterModel>
+@using Microsoft.AspNetCore.Authorization
+@using Sammlerplattform.Models.CollectionAreaDatabase
+@inject IAuthorizationService AuthorizationService
+
+@{
+    CollectionArea? collectionArea = ViewData["collectionArea"] as CollectionArea;
+    ViewData["Title"] = collectionArea?.CollectionAreaName + " verwalten";
+    Layout = "~/Views/Shared/_LayoutSettingsCollectionItem.cshtml";
+    int count = 0;
+}
+
+<h3>@ViewData["Title"]</h3>
+<hr />
+
+<div class="btn-group" role="group" aria-label="Basic example">
+    @if(collectionArea != null) {
+        <a type="button" class="btn btn-success" asp-action="Create" asp-route-collectionAreaID="@collectionArea.CollectionAreaID">Eintrag erstellen</a>
+    }
+    <button id="tooltip-SucheOpen" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="under" title="Öffne Suchleiste" type="button" onclick="openNav()"><svg viewBox="0 0 1024 1024"><path class="path1" d="M848.471 928l-263.059-263.059c-48.941 36.706-110.118 55.059-177.412 55.059-171.294 0-312-140.706-312-312s140.706-312 312-312c171.294 0 312 140.706 312 312 0 67.294-24.471 128.471-55.059 177.412l263.059 263.059-79.529 79.529zM189.623 408.078c0 121.364 97.091 218.455 218.455 218.455s218.455-97.091 218.455-218.455c0-121.364-103.159-218.455-218.455-218.455-121.364 0-218.455 97.091-218.455 218.455z"></path></svg></button>
+    <a type="button" class="btn btn-success" asp-action="DownloadCollectionItems" asp-controller="CollectionItemDatabase" asp-route-userId="@ViewData["userId"]">Alle Sammlerstücke als YAML herunterladen</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Abbildung
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CollectionItemEntity.UniqueName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CollectionItemEntity.PersonalIdentificationNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CollectionItemEntity.CollectionItemEntityID)
+            </th>
+            <th>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var image = @"/images/Thumbnail/" + item.CollectionItemPictureList.FirstOrDefault()?.CollectionItemPictureID + ".png";
+            <tr>
+                <td>
+                    <img src="@image" width="240" height="153" alt="Vorschaubild" id="simplePic_@count" class="IndexMobile-Picture" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CollectionItemEntity.UniqueName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CollectionItemEntity.PersonalIdentificationNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CollectionItemEntity.CollectionItemEntityID)
+                </td>
+                <td>
+                    <div>
+                        <a asp-action="Edit" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID">Ändern</a>
+                        | <a asp-action="Delete" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID">Löschen</a>
+                        | <a asp-action="DownloadSubmit" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID" asp-route-userId="@ViewData["userId"]">Herunterladen als YAML</a>
+                    </div>
+                </td>
+            </tr>
+            count++;
+        }
+    </tbody>
+</table>

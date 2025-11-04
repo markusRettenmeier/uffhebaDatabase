@@ -47,20 +47,10 @@
     <button class="btn btn-primary">Erstellen</button>
 </form>
 
-<partial name="~/Views/PlaceDatabase/_PlaceModal.cshtml" />
+<partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
-
-<script>
-    // Initialize all tooltips
-    setTimeout(function () {
-        var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip-byname"]'));
-        var tooltipList = tooltips.map(function (tooltipEl) {
-            return new bootstrap.Tooltip(tooltipEl);
-        });
-    }, 500);
-</script>

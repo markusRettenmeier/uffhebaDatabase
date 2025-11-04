@@ -12,7 +12,7 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
     {
         public Toponymy CreateOrEditToponymy(Toponymy toponymy)
         {
-            if(string.IsNullOrEmpty(toponymy.ToponymyName))
+            if (string.IsNullOrEmpty(toponymy.ToponymyName))
             {
                 return new Toponymy() { ToponymyName = string.Empty };
             }

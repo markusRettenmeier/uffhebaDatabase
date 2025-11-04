@@ -49,20 +49,20 @@ export function createListBox(colName, parentId) {
   });
 
   const options = {
-      BrickPotential_Usage: [
-          { value: "0", label: "Kein Information" },
-          { value: "1", label: "Mauer" },
-      { value: "2", label: "Dach" },
-      { value: "3", label: "Decke" },
-      { value: "4", label: "Fußboden" },
-    ],
-      Condition: [
-          { value: "0", label: "Keine Information" },
-          { value: "1", label: "Neu" },
-      { value: "2", label: "Gebraucht" },
-      { value: "3", label: "Beschädigt" },
-      { value: "4", label: "Repariert" },
-    ],
+    //  CollectionItemPotential_Usage: [
+    //      { value: "0", label: "Kein Information" },
+    //      { value: "1", label: "Mauer" },
+    //  { value: "2", label: "Dach" },
+    //  { value: "3", label: "Decke" },
+    //  { value: "4", label: "Fußboden" },
+    //],
+    //  Condition: [
+    //      { value: "0", label: "Keine Information" },
+    //      { value: "1", label: "Neu" },
+    //  { value: "2", label: "Gebraucht" },
+    //  { value: "3", label: "Beschädigt" },
+    //  { value: "4", label: "Repariert" },
+    //],
       ToponymyTypeInt: [
           { value: "0", label: "Flur" },
           { value: "1", label: "Raum" },

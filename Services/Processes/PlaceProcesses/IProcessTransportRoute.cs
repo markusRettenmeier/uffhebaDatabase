@@ -1,6 +1,5 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.PlaceDatabase;
-using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase;
 using Sammlerplattform.Models.PlaceDatabase.TransportRouteDatabase;
 using System.Transactions;
 
@@ -44,7 +43,7 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                var newPlace = processPlace.CreatePlace(placeOperationParameter);
+                (Place Place, int Statuscode, string Message) newPlace = processPlace.Create(placeOperationParameter);
 
                 operationParameterModel.TransportRoute.PlaceID = newPlace.Place.PlaceID;
                 TransportRoute newTransportRoute = unitOfWork.TransportRouteRepository.Insert(operationParameterModel.TransportRoute);
@@ -95,7 +94,7 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                processPlace.EditPlace(placeOperationParameterModel);
+                _ = processPlace.Edit(placeOperationParameterModel);
 
                 transactionScope.Complete();
                 return (existingTransportRoute.PlaceID, 200, "Gewässer erfolgreich aktualisiert.");

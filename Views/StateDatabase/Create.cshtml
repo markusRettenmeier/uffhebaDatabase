@@ -1,0 +1,43 @@
+﻿@model Sammlerplattform.Models.CollectionItemDatabase.StateDatabase.State
+
+@{
+    ViewData["Title"] = "Zustand erstellen";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CreateSubmit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="StateName" class="control-label"></label>
+                <input asp-for="StateName" class="form-control" />
+                <span asp-validation-for="StateName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="hidden" asp-for="CollectionAreaID" class="form-control">
+            </div>
+            <div class="form-group">
+                <label asp-for="SortingOrder" class="control-label"></label>
+                <input asp-for="SortingOrder" class="form-control" />
+                <span asp-validation-for="SortingOrder" class="text-danger"></span>
+            </div>
+            @* <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsGeneralState" /> @Html.DisplayNameFor(model => model.IsGeneralState)
+                </label>
+            </div> *@
+            <div class="form-group">
+                <button class="btn btn-primary">Erstellen</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index" asp-route-CollectionAreaID="@Model.CollectionAreaID">Zurück zur Liste</a>
+</div>
+

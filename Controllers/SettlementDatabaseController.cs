@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
 using Sammlerplattform.Services.Processes.PlaceProcesses;
 
 namespace Sammlerplattform.Controllers
 {
+    [Authorize]
     public class SettlementDatabaseController(IProcessSettlement processSettlement,
         IProcessPlace processPlace) : Controller
     {
@@ -31,15 +33,15 @@ namespace Sammlerplattform.Controllers
         public ActionResult Edit(string statusMessage, int id)
         {
             ViewData["StatusMessage"] = statusMessage;
-            
+
             PlaceSearchParameter searchParameter = new()
             {
                 PlaceID = [id]
             };
-            Place? existingPlace = processPlace.GetListWithPredicate(searchParameter).FirstOrDefault();            
+            Place? existingPlace = processPlace.GetListWithPredicate(searchParameter).FirstOrDefault();
             if (existingPlace == null)
             {
-                return NotFound("Siedlung nicht gefunden.");
+                return RedirectToAction(nameof(Index), new { statusMessage = "Siedlung nicht gefunden" });
             }
 
             SettlementOperationParameterModel settlementSelect = new()

@@ -1,5 +1,5 @@
 ﻿using Sammlerplattform.Data;
-using Sammlerplattform.Models.CityDatabase;
+using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
 
 namespace Sammlerplattform.Services.Processes.PlaceProcesses
 {

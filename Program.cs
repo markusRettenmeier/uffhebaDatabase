@@ -4,8 +4,11 @@ using Sammlerplattform.Data;
 using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Services.EMail;
 using Sammlerplattform.Services.Processes;
-using Sammlerplattform.Services.Processes.CityProcesses;
+using Sammlerplattform.Services.Processes.CollectionAreaProcesses;
+using Sammlerplattform.Services.Processes.CollectionItemProcesses;
+using Sammlerplattform.Services.Processes.ConceptualRelationshipProcesses;
 using Sammlerplattform.Services.Processes.PartyProcesses;
+using Sammlerplattform.Services.Processes.PictureProcesses;
 using Sammlerplattform.Services.Processes.PlaceProcesses;
 using System.Text.Json.Serialization;
 
@@ -53,16 +56,11 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.AddSession();
 builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
 
-builder.Services.AddScoped<IProcessGeography, GeographyProcessor>();
-builder.Services.AddScoped<IProcessOeconym, OeconymProcessor>();
 builder.Services.AddScoped<IProcessPostalcode, PostalcodeProcessor>();
 builder.Services.AddScoped<IProcessEra, EraProcessor>();
-builder.Services.AddScoped<IProcessCity, CityProcessor>();
-builder.Services.AddScoped<IProcessManufactory, ManufactoryProcessor>();
-builder.Services.AddScoped<IProcessProduct, ProductProcessor>();
+builder.Services.AddScoped<IProcessCollectionItemEntity, CollectionItemEntityProcessor>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IProcessProductPicture, ProductPictureProcessor>();
-builder.Services.AddScoped<IProcessPerson, PersonProcessor>();
+builder.Services.AddScoped<IProcessCollectionItemPicture, CollectionItemPictureProcessor>();
 builder.Services.AddScoped<IProcessProcessOfManufacture, ProcessOfManufactureProcessor>();
 builder.Services.AddScoped<IProcessPlace, PlaceProcessor>();
 builder.Services.AddScoped<IProcessToponymy, ToponymyProcessor>();
@@ -76,6 +74,14 @@ builder.Services.AddScoped<IProcessTransportRoute, TransportRouteProcessor>();
 builder.Services.AddScoped<IProcessParty, PartyProcessor>();
 builder.Services.AddScoped<IProcessIndividual, IndividualProcessor>();
 builder.Services.AddScoped<IProcessOrganization, OrganizationProcessor>();
+builder.Services.AddScoped<IProcessCollectionArea, CollectionAreaProcessor>();
+builder.Services.AddScoped<IProcessCollectionAttribute, CollectionAttributeProcessor>();
+builder.Services.AddScoped<IProcessCollectionItemValue, CollectionItemValueProcessor>();
+builder.Services.AddScoped<IProcessConcept, ConceptualRelationshipProcessor>();
+builder.Services.AddScoped<IProcessConceptRelation, ConceptRelationProcessor>();
+builder.Services.AddScoped<IProcessCollectionItemPotential, CollectionItemPotentialProcessor>();
+builder.Services.AddScoped<IProcessState, StateProcessor>();
+builder.Services.AddScoped<IProcessPicturePhysically, PhysicalPictureProcessor>();
 
 //builder.Services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
 

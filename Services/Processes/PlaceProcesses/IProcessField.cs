@@ -43,7 +43,7 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                var newPlace = processPlace.CreatePlace(placeOperationParameter);
+                (Place Place, int Statuscode, string Message) newPlace = processPlace.Create(placeOperationParameter);
 
                 operationParameterModel.Field.PlaceID = newPlace.Place.PlaceID;
                 Field newField = unitOfWork.FieldRepository.Insert(operationParameterModel.Field);
@@ -94,7 +94,7 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                processPlace.EditPlace(placeOperationParameterModel);
+                _ = processPlace.Edit(placeOperationParameterModel);
 
                 transactionScope.Complete();
                 return (existingField.PlaceID, 200, "Flur erfolgreich aktualisiert.");

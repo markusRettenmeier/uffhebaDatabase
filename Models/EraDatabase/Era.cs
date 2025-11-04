@@ -1,5 +1,4 @@
-﻿using Sammlerplattform.Models.BrickDatabase;
-using Sammlerplattform.Models.CityDatabase;
+﻿using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -28,10 +27,8 @@ namespace Sammlerplattform.Models.EraDatabase
         public int? EndYear { get; set; }
         [Display(Name = "Ära Beschreibung")]
         public string? EraDescription { get; set; }
-
-        public List<BrickEntity> BrickEntityList { get; set; } = [];
-        public List<CityOeconym> CityOeconymList { get; set; } = [];
-        public List<CityPostalcode> CityPostalcodeList { get; set; } = [];
         public List<PlaceNToponymy> PlaceNToponymyList { get; set; } = [];
+        public List<CollectionItemEntity> CollectionItemEntityList { get; set; } = [];
+
     }
 }

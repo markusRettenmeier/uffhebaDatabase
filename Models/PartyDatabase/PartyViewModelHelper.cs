@@ -1,6 +1,4 @@
-﻿using Sammlerplattform.Services;
-
-namespace Sammlerplattform.Models.PartyDatabase
+﻿namespace Sammlerplattform.Models.PartyDatabase
 {
     public class PartyViewModelHelper
     {
@@ -11,7 +9,7 @@ namespace Sammlerplattform.Models.PartyDatabase
             string productionFacility = party.Organization?.ProductionFacility != null ?
                         party.Organization.ProductionFacility.ProductionFacilityName : string.Empty;
 
-            return new PartyViewModel
+            PartyViewModel partyViewModel = new()
             {
                 Name = party.PartyName,
                 Description = party.PartyDescription ?? string.Empty,
@@ -19,11 +17,31 @@ namespace Sammlerplattform.Models.PartyDatabase
                 Signature = party.Individual?.Signature ?? string.Empty,
                 Places = string.Join(", ", places),
                 OrganizationType = party.Organization?.OrganizationTypeEnum.ToString() ?? string.Empty,
-    //            OrganizationType = party.Organization != null
-    //? party.Organization.OrganizationTypeEnum.GetDisplayName()
-    //: string.Empty,
                 ProductionFacility = productionFacility
             };
+
+            if (!string.IsNullOrEmpty(partyViewModel.Pseudonym))
+            {
+                partyViewModel.FurtherSpecs = "Pseudonym: " + partyViewModel.Pseudonym + ", ";
+            }
+            if (!string.IsNullOrEmpty(partyViewModel.Signature))
+            {
+                partyViewModel.FurtherSpecs = "Signatur: " + partyViewModel.Signature + ", ";
+            }
+            if (!string.IsNullOrEmpty(partyViewModel.Places))
+            {
+                partyViewModel.FurtherSpecs = "Orte: " + partyViewModel.Places + ", ";
+            }
+            if (!string.IsNullOrEmpty(partyViewModel.OrganizationType))
+            {
+                partyViewModel.FurtherSpecs = "Organisationstyp: " + partyViewModel.OrganizationType + ", ";
+            }
+            if (!string.IsNullOrEmpty(partyViewModel.ProductionFacility))
+            {
+                partyViewModel.FurtherSpecs = "Branche: " + partyViewModel.ProductionFacility + ", ";
+            }
+
+            return partyViewModel;
         }
     }
     public class PartyViewModel
@@ -35,5 +53,6 @@ namespace Sammlerplattform.Models.PartyDatabase
         public string Places { get; set; } = string.Empty;
         public string OrganizationType { get; set; } = string.Empty;
         public string ProductionFacility { get; set; } = string.Empty;
+        public string FurtherSpecs { get; set; } = string.Empty;
     }
 }

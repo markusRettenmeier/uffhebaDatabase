@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BuildingDatabase;
@@ -9,7 +7,9 @@ using Sammlerplattform.Models.PlaceDatabase.RegionDatabase;
 using Sammlerplattform.Models.PlaceDatabase.ReliefDatabase;
 using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
 using Sammlerplattform.Models.PlaceDatabase.TransportRouteDatabase;
-using Sammlerplattform.Models.ProductDatabase;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models.PlaceDatabase
 {
@@ -22,7 +22,7 @@ namespace Sammlerplattform.Models.PlaceDatabase
 
         [Display(Name = "Toponymie-Typ")]
         public int ToponymyTypeInt { get; set; }
-        [NotMapped] 
+        [NotMapped]
         public ToponymyType ToponymyTypeEnum
         {
             get => (ToponymyType)ToponymyTypeInt;
@@ -41,7 +41,7 @@ namespace Sammlerplattform.Models.PlaceDatabase
         public Settlement? Settlement { get; set; }
         public TransportRoute? TransportRoute { get; set; }
         public List<Party> PartyList { get; set; } = [];
-        public List<ProductEntityNPlace> ProductEntityNPlaceList { get; set; } = [];
+        public List<CollectionItemNPlace> CollectionItemNPlaceList { get; set; } = [];
     }
     public enum ToponymyType
     {

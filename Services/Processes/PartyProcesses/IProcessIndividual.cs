@@ -7,12 +7,12 @@ namespace Sammlerplattform.Services.Processes.PartyProcesses
 {
     public interface IProcessIndividual
     {
-        (int PartyID, int Statuscode, string StatusMessage) CreateIndividual(IndividualOperationParameterModel individualOperationParameterModel);
-        (int PartyID, int Statuscode, string StatusMessage) EditIndividual(IndividualOperationParameterModel individualOperationParameterModel);
+        (int PartyID, int Statuscode, string StatusMessage) Create(IndividualOperationParameterModel individualOperationParameterModel);
+        (int PartyID, int Statuscode, string StatusMessage) Edit(IndividualOperationParameterModel individualOperationParameterModel);
     }
     public class IndividualProcessor(IProcessParty processParty, IUnitOfWork unitOfWork) : IProcessIndividual
     {
-        public (int PartyID, int Statuscode, string StatusMessage) CreateIndividual(IndividualOperationParameterModel individualOperationParameterModel)
+        public (int PartyID, int Statuscode, string StatusMessage) Create(IndividualOperationParameterModel individualOperationParameterModel)
         {
             if (string.IsNullOrWhiteSpace(individualOperationParameterModel.Party.PartyName))
             {
@@ -56,7 +56,7 @@ namespace Sammlerplattform.Services.Processes.PartyProcesses
             }
         }
 
-        public (int PartyID, int Statuscode, string StatusMessage) EditIndividual(IndividualOperationParameterModel individualOperationParameterModel)
+        public (int PartyID, int Statuscode, string StatusMessage) Edit(IndividualOperationParameterModel individualOperationParameterModel)
         {
             if (individualOperationParameterModel.Party.PartyID <= 0)
             {
@@ -79,7 +79,7 @@ namespace Sammlerplattform.Services.Processes.PartyProcesses
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-                if(individualToEdit.Pseudonym != individualOperationParameterModel.Individual.Pseudonym
+                if (individualToEdit.Pseudonym != individualOperationParameterModel.Individual.Pseudonym
                     || individualToEdit.Signature != individualOperationParameterModel.Individual.Signature)
                 {
                     individualToEdit.Pseudonym = individualOperationParameterModel.Individual.Pseudonym;

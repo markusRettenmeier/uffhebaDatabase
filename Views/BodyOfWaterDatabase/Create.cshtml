@@ -7,7 +7,6 @@
 }
 
 <h1>@ViewData["Title"]</h1>
-
 <hr />
 <form asp-action="CreateSubmit" asp-controller="BodyOfWaterDatabase">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -37,7 +36,7 @@
     <button class="btn btn-primary">Erstellen</button>
 </form>
 
-<partial name="~/Views/PlaceDatabase/_PlaceModal.cshtml" />
+<partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
 
 @section Scripts {
     @{

@@ -1,5 +1,4 @@
 ﻿using Sammlerplattform.Data;
-using Sammlerplattform.Models.CityDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
 using System.Transactions;
@@ -47,13 +46,13 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
                     PlaceNToponymyList = settlementOperationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = settlementOperationParameterModel.ChildPlaceList
                 };
-                var newPlace = processPlace.CreatePlace(placeOperationParameter);
+                (Place Place, int Statuscode, string Message) newPlace = processPlace.Create(placeOperationParameter);
 
                 settlementOperationParameterModel.Settlement.PlaceID = newPlace.Place.PlaceID;
                 Settlement newSettlement = unitOfWork.SettlementRepository.Insert(settlementOperationParameterModel.Settlement);
                 unitOfWork.Save();
 
-                foreach(var postalcode in settlementOperationParameterModel.SettlementNPostalcodeList)
+                foreach (SettlementNPostalcode postalcode in settlementOperationParameterModel.SettlementNPostalcodeList)
                 {
                     ConnectPostalcode(newSettlement, postalcode.Postalcode.PostalcodeNumber, postalcode.IsCurrentPostalcode);
                 }
@@ -101,11 +100,11 @@ namespace Sammlerplattform.Services.Processes.PlaceProcesses
 
                 PlaceOperationParameterModel placeOperationParameterModel = new()
                 {
-                    Place = settlementOperationParameterModel.Place,                    
+                    Place = settlementOperationParameterModel.Place,
                     PlaceNToponymyList = settlementOperationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = settlementOperationParameterModel.ChildPlaceList
                 };
-                processPlace.EditPlace(placeOperationParameterModel);
+                _ = processPlace.Edit(placeOperationParameterModel);
 
                 SyncPostalcode(existingSettlement, settlementOperationParameterModel.SettlementNPostalcodeList);
 

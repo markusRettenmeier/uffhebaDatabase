@@ -68,7 +68,7 @@ namespace Sammlerplattform.Services.Processes.PartyProcesses
             {
                 return (0, 412, "Parteiname angeben.");
             }
-            
+
             Organization? existingOrganization = processParty.GetListWithPredicate(
                 new PartySearchParameterModel { PartyID = [organizationOperationParameterModel.Party.PartyID] })
                 .FirstOrDefault()?.Organization;

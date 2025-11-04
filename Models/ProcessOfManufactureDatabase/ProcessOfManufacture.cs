@@ -1,4 +1,4 @@
-﻿using Sammlerplattform.Models.BrickDatabase;
+﻿using Sammlerplattform.Models.CollectionItemDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,6 +13,6 @@ namespace Sammlerplattform.Models.ProcessOfManufactureDatabase
         public required string ProcessOfManufactureName { get; set; } // Tampondruck
         public string? Technique { get; set; } // Tiefdruck
         public string? Description { get; set; }
-        public List<BrickEntity> BrickEntityList { get; set; } = [];
+        public List<CollectionItemEntity> CollectionItemEntityList { get; set; } = [];
     }
 }

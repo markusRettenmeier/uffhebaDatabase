@@ -7,8 +7,6 @@
     Layout = "~/Views/Shared/_LayoutSettingsParty.cshtml";
 }
 
-<div class="row">
-    <div class="col-md-4">
         <h1>@ViewData["Title"]</h1>
         <hr />
         <form asp-action="EditSubmit" asp-controller="OrganizationDatabase">
@@ -29,11 +27,6 @@
             </div>
             <div class="form-group">
                 <label asp-for="Organization.OrganizationTypeInt" class="control-label"></label>
-                @* <select asp-for="Organization.OrganizationTypeInt" class="form-select" aria-label="Organization Type">
-                    <option value="">-- Bitte wählen --</option>
-                    <option value="0">Unternehmen</option>
-                    <option value="1">Institution</option>                    
-                </select> *@
                 <select asp-for="Organization.OrganizationTypeEnum"
                         asp-items="Html.GetEnumSelectList<OrganizationType>()"
                         class="form-select">
@@ -61,7 +54,7 @@
                             {
                                 var vm = PlaceViewModelHelper.FromDomainModel(Model.PlaceList[i]);
                                 <tr class="placeTableRow">
-                                    <td>@Html.Raw(vm.ToponymyHtml)</td>
+                                    <td>@Html.Raw(vm.Toponymy)</td>
                                     <td>@Html.Raw(vm.FurtherSpecs)</td>
                                     <td>
                                         <input type="hidden" name="PlaceList[@i].PlaceID" value="@Model.PlaceList[i].PlaceID">
@@ -78,10 +71,9 @@
             </div>
             <hr />
             <button class="btn btn-primary">Ändern</button>
-        </form>
-    </div>
-</div>
-<partial name="~/Views/PlaceDatabase/_PlaceModal.cshtml" />
+</form>
+
+<partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
 
 @section Scripts {
     @{

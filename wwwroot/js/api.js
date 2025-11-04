@@ -1,118 +1,10 @@
-﻿const toggleCity = document.querySelector('.ExistingCitiesSearchSubmit')
-if (toggleCity) {
-    toggleCity.addEventListener('click', () => {
-        const city = document.querySelector('.InputOeconymSearch').value.trim();
-        fetch('/api/collections/listCities?term=' + encodeURIComponent(city))
-            .then(res => {
-                if (!res.ok) throw new Error(res.statusText);
-                return res.json();
-            })
-            .then(result => {
-                const table = document.getElementById('citySearchResultTable');
-                const oldTbody = document.getElementById('citySearchResultTableBody');
-                if (oldTbody) oldTbody.remove();
-                const tbody = table.createTBody();
-                tbody.id = 'citySearchResultTableBody';
-
-                if (result.length > 0) {
-                    result.forEach((element, idx) => {
-                        tbody.appendChild(buildCitySearchResultRow(element, idx));
-                    });
-                } else {
-                }
-            })
-            .catch(err => {
-                sendErrorMessage(err);
-            });
-    });
-}
-
-function getContextFromUrl() {
-    const url = window.location.href;
-    if (url.includes('BrickDatabase')) return 'BrickDatabase';
-    if (url.includes('BodyOfWater') || url.includes('Building') || url.includes('Field') || url.includes('Region') || url.includes('Relief') || url.includes('Settlement') || url.includes('TransportRoute')) return 'PlaceDatabase';
-    if (url.includes('ManufactoryDatabase')) return 'ManufactoryDatabase';
-    return '';
-}
-
-const createTd = ({ text = '', id = null, scope = null }) => {
+﻿const createTd = ({ text = '', id = null, scope = null }) => {
     const td = document.createElement('td');
     if (id) td.id = id;
     if (scope) td.setAttribute('scope', scope);
     td.textContent = text;
     return td;
 };
-
-function buildCitySearchResultRow(element, idx, context) {
-    const tr = document.createElement('tr');
-    tr.id = `citySearchResult_${idx}`;
-
-    // 1. cityID
-    tr.appendChild(createTd({
-        text: element.cityID,
-        id: `citySearchResultcityID_${idx}`,
-        scope: 'row'
-    }));
-
-    // 2. Oeconym
-    const tdOeconym = document.createElement('td');
-    tdOeconym.id = `citySearchResultOecoynm_${idx}`;
-    if (element.cityNOeconymList) {
-        element.cityNOeconymList.forEach(entry => {
-            const name = entry.oeconym?.oeconymName ?? '';
-            const node = document.createElement(entry.currentName ? 'strong' : 'span');
-            node.textContent = name + ', ';
-            tdOeconym.appendChild(node);
-        });
-    }
-    tr.appendChild(tdOeconym);
-
-    // 3. Postalcode
-    const tdPostal = document.createElement('td');
-    tdPostal.id = `citySearchResultPostalcode_${idx}`;
-    if (element.postalcodeList) {
-        const codes = element.postalcodeList.map(p => p.postalcodeNumber).join(', ');
-        tdPostal.textContent = codes;
-    }
-    tr.appendChild(tdPostal);
-
-    // 4. Byname
-    tr.appendChild(createTd({
-        text: element.byname ?? '',
-        id: `citySearchResultByname_${idx}`
-    }));
-
-    // 5. Geography
-    tr.appendChild(createTd({
-        text: element.geography?.geographyName ?? '',
-        id: `citySearchResultGeography_${idx}`
-    }));
-
-    // 6. Action-Button (je nach Kontext)
-    const tdAction = document.createElement('td');
-    tdAction.id = `citySearchResultAction_${idx}`;
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn btn-primary';
-    btn.id = `citySearchResult_${idx}`;
-
-    if (context === 'BrickDatabase') {
-        btn.textContent = 'Ort hinzufügen';
-        btn.onclick = () => SetCityIntoTableBrickEntity(idx);
-        tdAction.appendChild(btn);
-    } else if (context === 'CityDatabase') {
-        btn.textContent = 'Auswählen';
-        btn.onclick = () => AddParentCity(idx);
-        tdAction.appendChild(btn);
-    } else if (context === 'ManufactoryDatabase') {
-        btn.textContent = 'Auswählen';
-        btn.onclick = () => AddCityToManufactory(idx);
-        tdAction.appendChild(btn);
-    }
-
-    tr.appendChild(tdAction);
-    return tr;
-}
 
 const togglePlace = document.querySelector('.placeSearchSubmit')
 if (togglePlace) {
@@ -158,78 +50,6 @@ if (togglePlace) {
             });
     });
 }
-
-//function buildToponymySearchResultRow(element, idx, context) {
-//    const tr = document.createElement('tr');
-//    tr.id = `placeSearchResult_${idx}`;
-
-//    // 1. placeID
-//    tr.appendChild(createTd({
-//        text: element.placeID,
-//        id: `placeSearchResultPlaceID_${idx}`,
-//        scope: 'row'
-//    }));
-
-//    // 2. Oeconym
-//    const tdOeconym = document.createElement('td');
-//    tdOeconym.id = `placeSearchResultOecoynm_${idx}`;
-//    if (element.placeNToponymyList) {
-//        element.placeNToponymyList.forEach(entry => {
-//            const name = entry.toponymy?.toponymyName ?? '';
-//            const node = document.createElement(entry.currentName ? 'strong' : 'span');
-//            node.textContent = name + ', ';
-//            tdOeconym.appendChild(node);
-//        });
-//    }
-//    tr.appendChild(tdOeconym);
-
-//    tr.appendChild(createTd({
-//        text: element.ToponymyType,
-//        id: `placeSearchResultToponymyType_${idx}`,
-//        scope: 'row'
-//    }));
-
-//    // 3. Postalcode
-//    //let furtherSpecs;
-//    //if (element.settlementData) {
-//    //    //if (element.postalcodeList) {
-//    //    //    furtherSpecs = "PLz: ";
-//    //    //    const furtherSpecs = element.postalcodeList.map(p => p.postalcodeNumber).join(', ');
-//    //    //    furtherSpecs = furtherSpecs + "; ";
-//    //    //}
-//    //    //furtherSpecs += "Siedlung: ";
-//    //    //furtherSpecs += element.settlement.settlementName ?? '';
-//    //    //furtherSpecs += "; ";
-//    //    //furtherSpecs += element.settlement?.byname ?? '';
-//    //    //furtherSpecs += "; " + (element.settlement?.relatedPlace?.placeNToponymyList?. ?? '');
-
-//    //}
-//    const tdFurtherSpecs = document.createElement('td');
-//    tdFurtherSpecs.id = `placeSearchResultPostalcode_${idx}`;
-//    tdFurtherSpecs.textContent = element.settlementData ?? '';
-//    tr.appendChild(tdFurtherSpecs);
-
-//    // 6. Action-Button (je nach Kontext)
-//    const tdAction = document.createElement('td');
-//    tdAction.id = `placeSearchResultAction_${idx}`;
-//    const btn = document.createElement('button');
-//    btn.type = 'button';
-//    btn.className = 'btn btn-primary';
-//    btn.id = `placeSearchResult_${idx}`;
-//    btn.textContent = 'Ort hinzufügen';
-
-//    if (context === 'ProductDatabase') {
-//        btn.onclick = () => SetCityIntoTableBrickEntity(idx);
-//    } else if (context === 'CityDatabase') {
-//        btn.onclick = () => addPlace(idx);
-//    } else if (context === 'ManufactoryDatabase') {
-//        btn.onclick = () => AddCityToManufactory(idx);
-//    }
-//    tdAction.appendChild(btn);
-
-//    tr.appendChild(tdAction);
-//    return tr;
-//}
 function buildToponymySearchResultRow(element, idx) {
     const tr = document.createElement('tr');
     tr.id = `placeSearchResult_${idx}`;
@@ -242,6 +62,7 @@ function buildToponymySearchResultRow(element, idx) {
 
     const tdToponym = document.createElement('td');
     tdToponym.id = `placeSearchResultToponym_${idx}`;
+    //Wichtig: innerHtml, weil sonst <string> nicht interpretiert wird
     tdToponym.innerHTML = element.oeconymDisplay || '';
     tr.appendChild(tdToponym);
 
@@ -251,7 +72,6 @@ function buildToponymySearchResultRow(element, idx) {
         scope: 'row'
     }));
 
-    // 4. FurtherSpecs
     const tdFurtherSpecs = document.createElement('td');
     tdFurtherSpecs.id = `placeSearchResultFurtherSpecs_${idx}`;
     tdFurtherSpecs.textContent = element.furtherSpecs || '';
@@ -263,22 +83,18 @@ function buildToponymySearchResultRow(element, idx) {
     divAction.role = 'group';
     divAction.ariaLabel = "Aktion Div";
     const url = window.location.href;
-    //if (context === 'ProductDatabase') {
-    //    btn.onclick = () => SetCityIntoTableBrickEntity(idx);
-//} else
+
     if (url.includes('BodyOfWater') || url.includes('Building') || url.includes('Field') || url.includes('Region') || url.includes('Relief') || url.includes('Settlement') || url.includes('TransportRoute')) {
         const btnParentPlace = document.createElement('button');
         btnParentPlace.type = 'button';
-        btnParentPlace.className = 'btn btn-primary placeSearchResultParentButton';
-        //btnParentPlace.id = `placeSearchResultParentButton_${idx}`;
+        btnParentPlace.classList.add('btn', 'btn-primary', 'placeSearchResultParentButton');
         btnParentPlace.textContent = 'Eltern Ort hinzufügen';
         btnParentPlace.onclick = () => addParentPlace(idx);
         divAction.appendChild(btnParentPlace);
 
         const btnChildPlace = document.createElement('button');
         btnChildPlace.type = 'button';
-        btnChildPlace.className = 'btn btn-primary placeSearchResultChildButton';
-        //btnChildPlace.id = `placeSearchResultChildButton_${idx}`;
+        btnChildPlace.classList.add('btn', 'btn-primary', 'placeSearchResultChildButton');
         btnChildPlace.textContent = 'Kind Ort hinzufügen';
         btnChildPlace.onclick = () => addChildPlace(idx);
         divAction.appendChild(btnChildPlace);
@@ -286,16 +102,15 @@ function buildToponymySearchResultRow(element, idx) {
         if (url.includes('Settlement')) {
             const btnRelatedPlace = document.createElement('button');
             btnRelatedPlace.type = 'button';
-            btnRelatedPlace.className = 'btn btn-primary placeSearchResultRelatedButton';
-            //btnRelatedPlace.id = `placeSearchResultRelatedButton_${idx}`;
+            btnRelatedPlace.classList.add('btn', 'btn-primary', 'placeSearchResultRelatedButton');
             btnRelatedPlace.textContent = 'Bezugsort hinzufügen';
             btnRelatedPlace.onclick = () => addRelatedPlace(idx);
             divAction.appendChild(btnRelatedPlace);
         }
-    } else if (url.includes('Individual') || url.includes('Organization')) {
+    } else if (url.includes('Individual') || url.includes('Organization') || url.includes('CollectionItem')) {
         const btnParentPlace = document.createElement('button');
         btnParentPlace.type = 'button';
-        btnParentPlace.className = 'btn btn-primary';
+        btnParentPlace.classList.add('btn', 'btn-primary', 'btn-sm');
         btnParentPlace.textContent = 'Ort hinzufügen';
         btnParentPlace.onclick = () => addPlace(idx);
         divAction.appendChild(btnParentPlace);
@@ -306,6 +121,87 @@ function buildToponymySearchResultRow(element, idx) {
     return tr;
 }
 
+const toggleParty = document.querySelector('.partySearchSubmit')
+if (toggleParty) {
+    toggleParty.addEventListener('click', () => {
+        const partyName = document.querySelector('.inputPartySearch').value.trim();
+        const partyType = document.getElementById('partyType').value;
+        fetch('/api/collections/listParties', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: partyName,
+                type: partyType
+            }),
+        })
+            .then(res => {
+                if (!res.ok) throw new Error(res.statusText);
+                return res.json();
+            })
+            .then(result => {
+                const table = document.getElementById('partySearchResultTable');
+                const oldTbody = document.getElementById('partySearchResultTableBody');
+                if (oldTbody) oldTbody.remove();
+                const tbody = table.createTBody();
+                tbody.id = 'partySearchResultTableBody';
+
+                if (result.length > 0) {
+                    result.forEach((element, idx) => {
+                        tbody.appendChild(buildPartySearchResultRow(element, idx));
+                    });
+                } else {
+                    const tr = document.createElement('tr');
+                    tr.appendChild(createTd({
+                            text: 'Keine Einträge zum Suchwort vorhanden.',
+                            scope: 'row'
+                    }))
+                    tbody.appendChild(tr);
+                }
+            })
+            .catch(err => {
+                sendErrorMessage(err);
+            });
+    });
+}
+function buildPartySearchResultRow(element, idx) {
+    const tr = document.createElement('tr');
+    tr.id = `partySearchResult_${idx}`;
+
+    tr.appendChild(createTd({
+        text: element.partyID,
+        id: `partySearchResultPartyID_${idx}`,
+        scope: 'row'
+    }));
+
+    const tdName = document.createElement('td');
+    tdName.id = `partySearchResultName_${idx}`;
+    tdName.textContent = element.name || '';
+    tr.appendChild(tdName);
+
+    tr.appendChild(createTd({
+        text: element.type,
+        id: `partySearchResultType_${idx}`,
+        scope: 'row'
+    }));
+
+    const tdFurtherSpecs = document.createElement('td');
+    tdFurtherSpecs.id = `partySearchResultFurtherSpecs_${idx}`;
+    tdFurtherSpecs.textContent = element.furtherSpecs || '';
+    tr.appendChild(tdFurtherSpecs);
+
+    const tdAction = document.createElement('td');
+    const btnAction = document.createElement('button');
+    btnAction.type = 'button';
+    btnAction.classList.add('btn', 'btn-primary', 'btn-sm');
+    btnAction.textContent = 'Ort hinzufügen';
+    btnAction.onclick = () => addParty(idx);
+    tdAction.appendChild(btnAction);
+
+    tr.appendChild(tdAction);
+    return tr;
+}
 
 function sendErrorMessage(xhr) {
     console.log("fetch-Error:" + xhr)
@@ -336,13 +232,11 @@ function enableAutocomplete(inputID, inputName, sourceUrl, sourceStorage) {
 }
 
 function showAutocompleteSuggestions(inputID, inputName, suggestions) {
-    // Vorhandene Dropdowns entfernen
     let existingDropdown = document.querySelector('.autocomplete-dropdown');
     if (existingDropdown) existingDropdown.remove();
 
     if (suggestions.length === 0) return;
 
-    // Dropdown-Container erstellen
     const dropdown = document.createElement('ul');
     dropdown.className = 'autocomplete-dropdown';
     dropdown.style.position = 'absolute';
@@ -380,4 +274,111 @@ function showAutocompleteSuggestions(inputID, inputName, suggestions) {
             document.removeEventListener('click', closeDropdown);
         }
     });
+}
+
+async function getCollectionAreaList() {
+    const response = await fetch("/api/collections/listCollectionAreas");
+    const json = await response.json();
+    sessionStorage.setItem('collectionAreasList', JSON.stringify(json));
+    return JSON.stringify(json); // damit handlePageLoad sofort etwas zurückbekommt
+}
+
+const conceptToggle = document.querySelector(".conceptSearchSubmit");
+if (conceptToggle) {
+    conceptToggle.addEventListener('click', () => {
+        const name = document.getElementById('inputConceptSearch').value;
+        fetch('/api/collections/listConcepts?conceptName=' + encodeURIComponent(name))
+            .then(res => {
+                if (!res.ok) throw new Error(res.statusText);
+                return res.json();
+            })
+            .then(result => {
+                const tableBody = document.getElementById('conceptSearchResultTableBody')
+                if (tableBody != null)
+                    tableBody.remove()
+                let myTable = document.getElementById("conceptSearchResultTable")
+                let tbody = myTable.createTBody()
+                tbody.setAttribute('id', 'conceptSearchResultTableBody');
+                if (result.length > 0) {
+                    result.forEach((element, idx) => {
+                        tbody.appendChild(buildConceptSearchResultRow(element, idx));
+                    });
+                } else {
+                    const tr = document.createElement('tr');
+                    const td = document.createElement('td');
+                    td.textContent = `Kein Eintrag vorhanden, bitte erstellen Sie ihn.`;
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                }
+            })
+            .catch(err => {
+                sendErrorMessage(err);
+            });
+    });
+}
+
+function buildConceptSearchResultRow(element, idx) {
+    const tr = document.createElement('tr');
+    tr.id = `conceptSearchResult_${idx}`;
+
+    tr.appendChild(createTd({
+        text: element.conceptID,
+        id: `conceptSearchResultConceptID_${idx}`,
+        scope: 'row'
+    }));
+
+    tr.appendChild(createTd({
+        text: element.conceptName,
+        id: `conceptSearchResultName_${idx}`,
+        scope: 'row'
+    }));
+
+    tr.appendChild(createTd({
+        text: element.description,
+        id: `conceptSearchResultDescription_${idx}`,
+        scope: 'row'
+    }));
+
+    const tdAction = document.createElement('td');
+
+    const divAction = document.createElement('div');
+    divAction.className = 'btn-group';
+    divAction.role = 'group'
+
+    const url = window.location.href;
+    if (url.includes('ConceptualRelationshipDatabase')) {
+        const btnSynonym = document.createElement('button');
+        btnSynonym.type = 'button';
+        btnSynonym.className = 'btn btn-primary';
+        btnSynonym.textContent = 'Als Synonym hinzufügen';
+        btnSynonym.onclick = () => addConcept(idx, 'synonym');
+        divAction.appendChild(btnSynonym);
+
+        const btnSubTerm = document.createElement('button');
+        btnSubTerm.type = 'button';
+        btnSubTerm.className = 'btn btn-primary';
+        btnSubTerm.textContent = 'Als Oberbegriff hinzufügen';
+        btnSubTerm.onclick = () => addConcept(idx, 'subterm');
+        divAction.appendChild(btnSubTerm);
+
+        const btnShortterm = document.createElement('button');
+        btnShortterm.type = 'button';
+        btnShortterm.className = 'btn btn-primary';
+        btnShortterm.textContent = 'Als Kurzbezeichnung hinzufügen';
+        btnShortterm.onclick = () => addConcept(idx, 'shortterm');
+        divAction.appendChild(btnShortterm);
+    }
+    else if (url.includes('CollectionItemDatabase')) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-primary';
+        btn.textContent = 'Hinzufügen';
+        btn.onclick = () => addConcept(idx,'');
+        divAction.appendChild(btn);
+    }
+
+    tdAction.appendChild(divAction);
+    tr.appendChild(tdAction);
+
+    return tr;
 }

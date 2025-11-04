@@ -1,12 +1,12 @@
 export const columns = [
-    ["BrickPotential_BricknameSynonymList_Name", "text"],
-    ["BrickPotential_Usage", "multiselect"],
+    ["CollectionItemPotential_CollectionItemnameSynonymList_Name", "text"],
+    ["CollectionItemPotential_Usage", "multiselect"],
     ["FilingLocation", "text"],
     ["Price", "number"],
     ["Fake", "checkbox"],
     ["Material", "text"],
     ["UsingIdentityUser_UserName", "text"],
-    ["Condition", "multiselect"],
+    ["State", "multiselect"],
     ["ManufacturingYear", "year"],
 
     ["PlaceID", "number"],

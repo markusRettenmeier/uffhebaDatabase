@@ -1,0 +1,33 @@
+﻿<div class="modal fade" id="ConceptModal" tabindex="-1" aria-labelledby="ConceptModal" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ConceptModalLabel">Wähle den Begriff aus</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ui-front modalBodyConcept">
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="inputConceptSearch" placeholder="Begriff" aria-label="Ort" />
+                            <button class="btn btn-primary conceptSearchSubmit" type="button">Suchen</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table" id="conceptSearchResultTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">ConceptID</th>
+                            <th scope="col">Konzept</th>
+                            <th scope="col">Beschreibung</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>

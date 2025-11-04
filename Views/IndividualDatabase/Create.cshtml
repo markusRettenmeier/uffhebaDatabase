@@ -6,8 +6,6 @@
     Layout = "~/Views/Shared/_LayoutSettingsParty.cshtml";
 }
 
-<div class="row">
-    <div class="col-md-4">
 <h1>@ViewData["Title"]</h1>
 <hr />
         <form asp-action="CreateSubmit" asp-controller="IndividualDatabase">
@@ -51,10 +49,9 @@
             </div>
             <hr />
             <button class="btn btn-primary">Erstellen</button>
-        </form>
-    </div>
-</div>
-<partial name="~/Views/PlaceDatabase/_PlaceModal.cshtml" />
+</form>
+
+<partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
 
 @section Scripts {
     @{

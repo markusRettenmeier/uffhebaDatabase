@@ -20,6 +20,5 @@ namespace Sammlerplattform.Models.PlaceDatabase.SettlementDatabase
         [StringLength(50)]
         public string? Byname { get; set; }
         public List<SettlementNPostalcode> SettlementNPostalcodeList { get; set; } = [];
-        //public List<Manufactory> ManufactoryList { get; set; } = [];
     }
 }

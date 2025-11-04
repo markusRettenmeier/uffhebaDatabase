@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase;
 using Sammlerplattform.Services.Processes.PlaceProcesses;
 
 namespace Sammlerplattform.Controllers
 {
-    public class BodyOfWaterDatabaseController (IProcessPlace processPlace,
+    [Authorize]
+    public class BodyOfWaterDatabaseController(IProcessPlace processPlace,
         IProcessBodyOfWater processBodyOfWater) : Controller
     {
         public ActionResult Index(string statusMessage, PlaceSearchParameter placeSearchParameter)
@@ -38,7 +40,7 @@ namespace Sammlerplattform.Controllers
             Place? existingPlace = processPlace.GetListWithPredicate(searchParameter).FirstOrDefault();
             if (existingPlace == null)
             {
-                return NotFound("Gewässer nicht gefunden.");
+                return RedirectToAction(nameof(Index), new { statusMessage = "Gewässer nicht gefunden" });
             }
 
             BodyOfWaterOperationParameterModel bodyOfWaterOperationParameterModel = new()

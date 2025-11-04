@@ -16,6 +16,20 @@ async function handlePageLoad() {
 
         setProductionFacilitesIntoOptions(stored);
     }
+    if (url.includes("Database") || url.includes("Settings")) {
+        let stored = sessionStorage.getItem('collectionAreasList');
+        if (!stored) {
+            stored = await getCollectionAreaList(); // warte auf fetch
+        }
+        setCollectionAreasIntoOptions(stored);
+    }
+    if (url.includes("CollectionItemDatabase")) {
+        getColorList();
+        getMaterialList();
+    }
+    if (url.includes("ConceptualRelationshipDatabase/Index")) {
+        getAndSetConceptualRelationshipGraph();
+    }
 }
 
 function openNav() {
@@ -68,4 +82,24 @@ function hideModal(modalName) {
     }
 }
 
+function setCollectionAreasIntoOptions(stored) {
+    const select = document.getElementById("appendCollectionAreasHere");
+    if (!select) return;
+    if (!stored) return;
 
+    const list = JSON.parse(stored);
+    if (!list || list.length === 0) return;
+
+    list.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'nav-item';
+
+        const a = document.createElement('a');
+        a.className = 'nav-link';
+        a.href = `/CollectionItemDatabase/Index?collectionAreaID=${item.id}`;
+        a.textContent = item.name;
+
+        select.appendChild(li);
+        li.appendChild(a);
+    });
+}

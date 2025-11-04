@@ -1,53 +1,38 @@
-﻿using Sammlerplattform.Models.BrickDatabase;
-using Sammlerplattform.Models.CityDatabase;
+﻿using Sammlerplattform.Models.CollectionAreaDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase;
+
+//using Sammlerplattform.Models.CollectionItemDatabase.ObjectLayerDatabase;
+using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.EraDatabase;
-using Sammlerplattform.Models.ManufactoryDatabase;
-using Sammlerplattform.Models.PersonDatabase;
-using Sammlerplattform.Models.ProcessOfManufactureDatabase;
-using Sammlerplattform.Models.ProductDatabase;
-using Sammlerplattform.Models.ProductPictureDatabase;
+using Sammlerplattform.Models.PartyDatabase;
+using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
+using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
-using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BuildingDatabase;
 using Sammlerplattform.Models.PlaceDatabase.FieldDatabase;
 using Sammlerplattform.Models.PlaceDatabase.RegionDatabase;
 using Sammlerplattform.Models.PlaceDatabase.ReliefDatabase;
+using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
 using Sammlerplattform.Models.PlaceDatabase.TransportRouteDatabase;
-using Sammlerplattform.Models.PartyDatabase;
-using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
-using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
+using Sammlerplattform.Models.ProcessOfManufactureDatabase;
 
 namespace Sammlerplattform.Data
 {
     public interface IUnitOfWork : IDisposable
     {
-        GenericRepository<City> CityRepository { get; }
-        GenericRepository<Oeconym> OeconymRepository { get; }
         GenericRepository<Postalcode> PostalcodeRepository { get; }
-        GenericRepository<CityPostalcode> CityPostalcodeRepository { get; }
         GenericRepository<Era> EraRepository { get; }
-        GenericRepository<Geography> GeographyRepository { get; }
-        GenericRepository<CityOeconym> CityNOeconymRepository { get; }
-        GenericRepository<Manufactory> ManufactoryRepository { get; }
         GenericRepository<ProductionFacility> ProductionFacilityRepository { get; }
-        GenericRepository<BrickPotential> BrickPotentialRepository { get; }
-        GenericRepository<BrickEntity> BrickEntityRepository { get; }
-        GenericRepository<Brickname> BricknameRepository { get; }
-        GenericRepository<Person> PersonRepository { get; }
-        GenericRepository<Prize> PrizeRepository { get; }
-        GenericRepository<ProductPicture> ProductPictureRepository { get; }
-        GenericRepository<BrickEntityNManufactoryNCity> BrickEntityNManufactoryNCityRepository { get; }
-        GenericRepository<BrickEntityNPerson> BrickEntityNPersonRepository { get; }
-        GenericRepository<BrickEntityNCity> BrickEntityNCityRepository { get; }
+        GenericRepository<CollectionItemPicture> CollectionItemPictureRepository { get; }
         GenericRepository<ProcessOfManufacture> ProcessOfManufactureRepository { get; }
         GenericRepository<Color> ColorRepository { get; }
-        GenericRepository<ProductNColorVariant> ProductNColorVariantRepository { get; }
+        GenericRepository<CollectionItemNColor> CollectionItemNColorRepository { get; }
         GenericRepository<Material> MaterialRepository { get; }
-        GenericRepository<ProductNMaterial> ProductNMaterialRepository { get; }
-        GenericRepository<Keyword> KeywordRepository { get; }
-        GenericRepository<ProductNKeyword> ProductNKeywordRepository { get; }
-        GenericRepository<Condition> ConditionRepository { get; }
+        GenericRepository<CollectionItemNMaterial> CollectionItemNMaterialRepository { get; }
+        GenericRepository<State> StateRepository { get; }
         GenericRepository<Place> PlaceRepository { get; }
         GenericRepository<Toponymy> ToponymyRepository { get; }
         GenericRepository<PlaceNToponymy> PlaceNToponomyRepository { get; }
@@ -62,41 +47,31 @@ namespace Sammlerplattform.Data
         GenericRepository<Party> PartyRepository { get; }
         GenericRepository<Individual> IndividualRepository { get; }
         GenericRepository<Organization> OrganizationRepository { get; }
-        GenericRepository<ProductEntityNPlace> ProductEntityNPlaceRepository { get; }
-        GenericRepository<ProductEntityNParty> ProductEntityNPartyRepository { get; }
-
+        GenericRepository<CollectionItemNPlace> CollectionItemNPlaceRepository { get; }
+        GenericRepository<CollectionItemNParty> CollectionItemNPartyRepository { get; }
+        GenericRepository<CollectionItemEntity> CollectionItemEntityRepository { get; }
+        GenericRepository<CollectionItemPotential> CollectionItemPotentialRepository { get; }
+        GenericRepository<CollectionArea> CollectionAreaRepository { get; }
+        GenericRepository<CollectionAttribute> CollectionAttributeRepository { get; }
+        GenericRepository<CollectionItemValue> CollectionItemValueRepository { get; }
+        GenericRepository<Concept> ConceptRepository { get; }
+        GenericRepository<ConceptRelation> ConceptRelationRepository { get; }
 
         void Save();
     }
 
     public class UnitOfWork(DbIdentityContext context) : IDisposable, IUnitOfWork
     {
-        private GenericRepository<City>? cityRepository;
-        private GenericRepository<Oeconym>? oeconymRepository;
         private GenericRepository<Postalcode>? postalcodeRepository;
-        private GenericRepository<CityPostalcode>? cityPostalcodeRepository;
         private GenericRepository<Era>? eraRepository;
-        private GenericRepository<Geography>? geographyRepository;
-        private GenericRepository<CityOeconym>? cityNOeconymRepository;
-        private GenericRepository<Manufactory>? manufactoryRepository;
         private GenericRepository<ProductionFacility>? productionFacilityRepository;
-        private GenericRepository<BrickPotential>? brickPotentialRepository;
-        private GenericRepository<BrickEntity>? brickEntityRepository;
-        private GenericRepository<Brickname>? bricknameRepository;
-        private GenericRepository<Person>? personRepository;
-        private GenericRepository<Prize>? prizeRepository;
-        private GenericRepository<ProductPicture>? productPictureRepository;
-        private GenericRepository<BrickEntityNManufactoryNCity>? brickEntityNManufactoryNCityRepository;
-        private GenericRepository<BrickEntityNPerson>? brickEntityNPersonRepository;
-        private GenericRepository<BrickEntityNCity>? brickEntityNCityRepository;
+        private GenericRepository<CollectionItemPicture>? collectionItemPictureRepository;
         private GenericRepository<ProcessOfManufacture>? processOfManufactureRepository;
         private GenericRepository<Color>? colorRepository;
-        private GenericRepository<ProductNColorVariant>? productNColorVariantRepository;
+        private GenericRepository<CollectionItemNColor>? collectionItemNColorRepository;
         private GenericRepository<Material>? materialRepository;
-        private GenericRepository<ProductNMaterial>? productNMaterialRepository;
-        private GenericRepository<Keyword>? keywordRepository;
-        private GenericRepository<ProductNKeyword>? productNKeywordRepository;
-        private GenericRepository<Condition>? conditionRepository;
+        private GenericRepository<CollectionItemNMaterial>? collectionItemNMaterialRepository;
+        private GenericRepository<State>? stateRepository;
         private GenericRepository<Place>? placeRepository;
         private GenericRepository<Toponymy>? toponymyRepository;
         private GenericRepository<PlaceNToponymy>? placeNToponymyRepository;
@@ -111,48 +86,22 @@ namespace Sammlerplattform.Data
         private GenericRepository<Party>? partyRepository;
         private GenericRepository<Individual>? individualRepository;
         private GenericRepository<Organization>? organizationRepository;
-        private GenericRepository<ProductEntityNPlace>? productEntityNPlaceRepository;
-        private GenericRepository<ProductEntityNParty>? productEntityNPartyRepository;
+        private GenericRepository<CollectionItemNPlace>? collectionItemNPlaceRepository;
+        private GenericRepository<CollectionItemNParty>? collectionItemNPartyRepository;
+        private GenericRepository<CollectionItemEntity>? collectionItemEntityRepository;
+        private GenericRepository<CollectionItemPotential>? collectionItemPotentialRepository;
+        private GenericRepository<CollectionArea>? collectionAreaRepository;
+        private GenericRepository<CollectionAttribute>? collectionAttributeRepository;
+        private GenericRepository<CollectionItemValue>? collectionItemValueRepository;
+        private GenericRepository<Concept>? conceptRepository;
+        private GenericRepository<ConceptRelation>? conceptRelationRepository;
 
-
-        public GenericRepository<City> CityRepository
-        {
-            get
-            {
-                cityRepository ??= new GenericRepository<City>(context);
-                return cityRepository;
-            }
-        }
-        public GenericRepository<Oeconym> OeconymRepository
-        {
-            get
-            {
-                oeconymRepository ??= new GenericRepository<Oeconym>(context);
-                return oeconymRepository;
-            }
-        }
-        public GenericRepository<CityOeconym> CityNOeconymRepository
-        {
-            get
-            {
-                cityNOeconymRepository ??= new GenericRepository<CityOeconym>(context);
-                return cityNOeconymRepository;
-            }
-        }
         public GenericRepository<Postalcode> PostalcodeRepository
         {
             get
             {
                 postalcodeRepository = new GenericRepository<Postalcode>(context);
                 return postalcodeRepository;
-            }
-        }
-        public GenericRepository<CityPostalcode> CityPostalcodeRepository
-        {
-            get
-            {
-                cityPostalcodeRepository ??= new GenericRepository<CityPostalcode>(context);
-                return cityPostalcodeRepository;
             }
         }
         public GenericRepository<Era> EraRepository
@@ -163,22 +112,6 @@ namespace Sammlerplattform.Data
                 return eraRepository;
             }
         }
-        public GenericRepository<Geography> GeographyRepository
-        {
-            get
-            {
-                geographyRepository ??= new GenericRepository<Geography>(context);
-                return geographyRepository;
-            }
-        }
-        public GenericRepository<Manufactory> ManufactoryRepository
-        {
-            get
-            {
-                manufactoryRepository ??= new GenericRepository<Manufactory>(context);
-                return manufactoryRepository;
-            }
-        }
         public GenericRepository<ProductionFacility> ProductionFacilityRepository
         {
             get
@@ -187,76 +120,12 @@ namespace Sammlerplattform.Data
                 return productionFacilityRepository;
             }
         }
-        public GenericRepository<BrickPotential> BrickPotentialRepository
+        public GenericRepository<CollectionItemPicture> CollectionItemPictureRepository
         {
             get
             {
-                brickPotentialRepository ??= new GenericRepository<BrickPotential>(context);
-                return brickPotentialRepository;
-            }
-        }
-        public GenericRepository<BrickEntity> BrickEntityRepository
-        {
-            get
-            {
-                brickEntityRepository ??= new GenericRepository<BrickEntity>(context);
-                return brickEntityRepository;
-            }
-        }
-        public GenericRepository<Brickname> BricknameRepository
-        {
-            get
-            {
-                bricknameRepository ??= new GenericRepository<Brickname>(context);
-                return bricknameRepository;
-            }
-        }
-        public GenericRepository<Person> PersonRepository
-        {
-            get
-            {
-                personRepository ??= new GenericRepository<Person>(context);
-                return personRepository;
-            }
-        }
-        public GenericRepository<Prize> PrizeRepository
-        {
-            get
-            {
-                prizeRepository ??= new GenericRepository<Prize>(context);
-                return prizeRepository;
-            }
-        }
-        public GenericRepository<ProductPicture> ProductPictureRepository
-        {
-            get
-            {
-                productPictureRepository ??= new GenericRepository<ProductPicture>(context);
-                return productPictureRepository;
-            }
-        }
-        public GenericRepository<BrickEntityNManufactoryNCity> BrickEntityNManufactoryNCityRepository
-        {
-            get
-            {
-                brickEntityNManufactoryNCityRepository ??= new GenericRepository<BrickEntityNManufactoryNCity>(context);
-                return brickEntityNManufactoryNCityRepository;
-            }
-        }
-        public GenericRepository<BrickEntityNPerson> BrickEntityNPersonRepository
-        {
-            get
-            {
-                brickEntityNPersonRepository ??= new GenericRepository<BrickEntityNPerson>(context);
-                return brickEntityNPersonRepository;
-            }
-        }
-        public GenericRepository<BrickEntityNCity> BrickEntityNCityRepository
-        {
-            get
-            {
-                brickEntityNCityRepository ??= new GenericRepository<BrickEntityNCity>(context);
-                return brickEntityNCityRepository;
+                collectionItemPictureRepository ??= new GenericRepository<CollectionItemPicture>(context);
+                return collectionItemPictureRepository;
             }
         }
         public GenericRepository<ProcessOfManufacture> ProcessOfManufactureRepository
@@ -275,12 +144,12 @@ namespace Sammlerplattform.Data
                 return colorRepository;
             }
         }
-        public GenericRepository<ProductNColorVariant> ProductNColorVariantRepository
+        public GenericRepository<CollectionItemNColor> CollectionItemNColorRepository
         {
             get
             {
-                productNColorVariantRepository ??= new GenericRepository<ProductNColorVariant>(context);
-                return productNColorVariantRepository;
+                collectionItemNColorRepository ??= new GenericRepository<CollectionItemNColor>(context);
+                return collectionItemNColorRepository;
             }
         }
 
@@ -293,40 +162,20 @@ namespace Sammlerplattform.Data
 
             }
         }
-
-        public GenericRepository<ProductNMaterial> ProductNMaterialRepository
-        {
-                       get
-            {
-                productNMaterialRepository ??= new GenericRepository<ProductNMaterial>(context);
-                return productNMaterialRepository;
-            }
-        }
-
-        public GenericRepository<Keyword> KeywordRepository
+        public GenericRepository<CollectionItemNMaterial> CollectionItemNMaterialRepository
         {
             get
             {
-                keywordRepository ??= new GenericRepository<Keyword>(context);
-                return keywordRepository;
+                collectionItemNMaterialRepository ??= new GenericRepository<CollectionItemNMaterial>(context);
+                return collectionItemNMaterialRepository;
             }
         }
-
-        public GenericRepository<ProductNKeyword> ProductNKeywordRepository
-            {
-            get
-            {
-                productNKeywordRepository ??= new GenericRepository<ProductNKeyword>(context);
-                return productNKeywordRepository;
-            }
-        }
-
-        public GenericRepository<Condition> ConditionRepository
+        public GenericRepository<State> StateRepository
         {
             get
             {
-                conditionRepository ??= new GenericRepository<Condition>(context);
-                return conditionRepository;
+                stateRepository ??= new GenericRepository<State>(context);
+                return stateRepository;
             }
         }
         public GenericRepository<Place> PlaceRepository
@@ -441,25 +290,78 @@ namespace Sammlerplattform.Data
                 return organizationRepository;
             }
         }
-        public GenericRepository<ProductEntityNPlace> ProductEntityNPlaceRepository
+        public GenericRepository<CollectionItemNPlace> CollectionItemNPlaceRepository
         {
             get
             {
-                productEntityNPlaceRepository ??= new GenericRepository<ProductEntityNPlace>(context);
-                return productEntityNPlaceRepository;
+                collectionItemNPlaceRepository ??= new GenericRepository<CollectionItemNPlace>(context);
+                return collectionItemNPlaceRepository;
             }
         }
-        public GenericRepository<ProductEntityNParty> ProductEntityNPartyRepository
+        public GenericRepository<CollectionItemNParty> CollectionItemNPartyRepository
         {
             get
             {
-                productEntityNPartyRepository ??= new GenericRepository<ProductEntityNParty>(context);
-                return productEntityNPartyRepository;
+                collectionItemNPartyRepository ??= new GenericRepository<CollectionItemNParty>(context);
+                return collectionItemNPartyRepository;
             }
         }
-
-
-
+        public GenericRepository<CollectionItemEntity> CollectionItemEntityRepository
+        {
+            get
+            {
+                collectionItemEntityRepository ??= new GenericRepository<CollectionItemEntity>(context);
+                return collectionItemEntityRepository;
+            }
+        }
+        public GenericRepository<CollectionItemPotential> CollectionItemPotentialRepository
+        {
+            get
+            {
+                collectionItemPotentialRepository ??= new GenericRepository<CollectionItemPotential>(context);
+                return collectionItemPotentialRepository;
+            }
+        }
+        public GenericRepository<CollectionArea> CollectionAreaRepository
+        {
+            get
+            {
+                collectionAreaRepository ??= new GenericRepository<CollectionArea>(context);
+                return collectionAreaRepository;
+            }
+        }
+        public GenericRepository<CollectionAttribute> CollectionAttributeRepository
+        {
+            get
+            {
+                collectionAttributeRepository ??= new GenericRepository<CollectionAttribute>(context);
+                return collectionAttributeRepository;
+            }
+        }
+        public GenericRepository<CollectionItemValue> CollectionItemValueRepository
+        {
+            get
+            {
+                collectionItemValueRepository ??= new GenericRepository<CollectionItemValue>(context);
+                return collectionItemValueRepository;
+            }
+        }
+        public GenericRepository<Concept> ConceptRepository
+        {
+            get
+            {
+                conceptRepository ??= new GenericRepository<Concept>(context);
+                return conceptRepository;
+            }
+        }
+        public GenericRepository<ConceptRelation> ConceptRelationRepository
+        {
+            get
+            {
+                conceptRelationRepository ??= new GenericRepository<ConceptRelation>(context);
+                return conceptRelationRepository;
+            }
+        }
 
         public void Save()
         {

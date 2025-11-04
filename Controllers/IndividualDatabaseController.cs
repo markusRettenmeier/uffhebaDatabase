@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
 using Sammlerplattform.Services.Processes.PartyProcesses;
 
 namespace Sammlerplattform.Controllers
 {
+    [Authorize]
     public class IndividualDatabaseController(IProcessIndividual processIndividual,
         IProcessParty processParty) : Controller
     {
@@ -24,7 +26,7 @@ namespace Sammlerplattform.Controllers
         }
         public IActionResult CreateSubmit(IndividualOperationParameterModel model)
         {
-            (int _, int _, string statusMessage) = processIndividual.CreateIndividual(model);
+            (int _, int _, string statusMessage) = processIndividual.Create(model);
             return RedirectToAction(nameof(Create), new { statusMessage });
         }
 
@@ -39,7 +41,7 @@ namespace Sammlerplattform.Controllers
             Party? existingParty = processParty.GetListWithPredicate(searchParameterModel).FirstOrDefault();
             if (existingParty == null || existingParty.Individual == null)
             {
-                return NotFound("Individuum nicht gefunden.");
+                return RedirectToAction(nameof(Index), new { statusMessage = "Individuum nicht gefunden" });
             }
 
             IndividualOperationParameterModel individualOperationParameterModel = new()
@@ -52,7 +54,7 @@ namespace Sammlerplattform.Controllers
         }
         public IActionResult EditSubmit(IndividualOperationParameterModel model)
         {
-            (int placeID, int _, string statusMessage) = processIndividual.EditIndividual(model);
+            (int placeID, int _, string statusMessage) = processIndividual.Edit(model);
             return RedirectToAction(nameof(Edit), new { statusMessage, id = placeID });
         }
     }

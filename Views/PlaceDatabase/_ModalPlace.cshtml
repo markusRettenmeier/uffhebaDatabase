@@ -1,0 +1,41 @@
+﻿@using Sammlerplattform.Models.PlaceDatabase
+
+<div class="modal fade" id="placeModal" tabindex="-1" aria-labelledby="placeModal" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="placeModalLabel">Wähle den Ort aus</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ui-front modalBodyPlace">
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control inputPlaceSearch" placeholder="Ort" aria-label="Ort" />
+                            <div>
+                                <select class="form-select" id="toponymyType" 
+                                asp-items="Html.GetEnumSelectList<ToponymyType>()">                                
+                                </select>
+                            </div>
+                            <button class="btn btn-primary placeSearchSubmit" type="button">Suchen</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table" id="placeSearchResultTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">PlaceID</th>
+                            <th scope="col">Topononymie</th>
+                            <th scope="col">Toponymietyp</th>
+                            <th scope="col">Weitere Spezifikationen</th>
+                            <th scope="col">Aktionen</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>

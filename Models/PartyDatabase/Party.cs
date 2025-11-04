@@ -1,7 +1,7 @@
-﻿using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
+﻿using Sammlerplattform.Models.CollectionItemDatabase;
+using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
 using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
-using Sammlerplattform.Models.ProductDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,7 +23,7 @@ namespace Sammlerplattform.Models.PartyDatabase
         }
         public Individual? Individual { get; set; }
         public Organization? Organization { get; set; }
-        public List<ProductEntityNParty> ProductEntityNPartyList { get; set; } = [];
+        public List<CollectionItemNParty> CollectionItemNPartyList { get; set; } = [];
 
         [Display(Name = "Standorte")]
         public List<Place> PlaceList { get; set; } = [];

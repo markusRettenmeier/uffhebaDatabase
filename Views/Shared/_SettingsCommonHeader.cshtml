@@ -14,10 +14,7 @@
                         <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Sammlungsgebiete
                         </a>
-                        <ul class="dropdown-menu" style="background-color: #FFFFF0">
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="BrickDatabase" asp-action="AdministerCollectionBrick">Ziegel verwalten</a>
-                            </li>
+                        <ul class="dropdown-menu" style="background-color: #FFFFF0" id="appendCollectionAreasHere">
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -59,7 +56,9 @@
                             </li>
                         </ul>
                     </li>
-
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="CollectionAreaDatabase" asp-action="Index">Sammlungsgebietsaufbau</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Account" asp-action="Logout">Logout</a>
                     </li>

@@ -7,8 +7,6 @@
     Layout = "~/Views/Shared/_LayoutSettingsParty.cshtml";
 }
 
-<div class="row">
-    <div class="col-md-4">
 <h1>Edit</h1>
 <hr />
         <form asp-action="EditSubmit" >
@@ -51,7 +49,7 @@
                             {
                                 var vm = PlaceViewModelHelper.FromDomainModel(Model.PlaceList[i]);
                                 <tr class="placeTableRow">
-                                    <td>@Html.Raw(vm.ToponymyHtml)</td>
+                                    <td>@Html.Raw(vm.Toponymy)</td>
                                     <td>@Html.Raw(vm.FurtherSpecs)</td>
                                     <td>
                                         <input type="hidden" name="PlaceList[@i].PlaceID" value="@Model.PlaceList[i].PlaceID">
@@ -68,10 +66,9 @@
             </div>
             <hr />
             <button class="btn btn-primary">Ändern</button>
-        </form>
-    </div>
-</div>
-<partial name="~/Views/PlaceDatabase/_PlaceModal.cshtml" />
+</form>
+
+<partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
 
 @section Scripts {
     @{

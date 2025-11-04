@@ -1,12 +1,101 @@
-﻿@model IEnumerable<Sammlerplattform.Models.BrickDatabase.BrickOperationParameterModel>
+﻿@using Sammlerplattform.Models.PartyDatabase
+@using Sammlerplattform.Models.PlaceDatabase
+@model IEnumerable<Sammlerplattform.Models.CollectionItemDatabase.CollectionItemOperationParameterModel>
+
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Startseite";
+
+    int count = 0;
+    int? currentRows = ViewData["currentRows"] as int?;
+    int? maxRows = ViewData["maxRows"] as int?;
+    int? lastAmountRows = ViewData["lastAmountRows"] as int?;
 }
 
-<div id="mySidebar" class="zIndex_5 sidenav-search box-shadow">
-    <form method="post" asp-controller="Home" asp-action="Frontpage">
-        <partial name="_SearchByColumn.cshtml" />
+<h1>Willkommen bei Sammlerplattform</h1>
+
+<p>Dies ist die Startseite der Sammlerplattform. Bitte wählen Sie eine Option aus dem Menü, um fortzufahren.</p>
+@foreach (var item in Model)
+{
+    <div class="row align-items-start pt-3" id="row_@count">
+        @{
+            <div class="col me-1" id="indexSimplePicColumn_@count">
+                @for (int i = 0; i < item.CollectionItemPictureList.Count; i++)
+                {
+                    string imageNormal = $"/images/Klein/{item.CollectionItemPictureList[i].CollectionItemPictureID}.png";
+                    string imageKlein = $"/images/Klein/{item.CollectionItemPictureList[i].CollectionItemPictureID}.png";
+                    @if (i == 0)
+                    {
+                        <a class="photo" data-fancybox="gallery_@item.CollectionItemPictureList[@i].CollectionItemPictureID" href="@imageNormal" data-caption="Nummer @item.CollectionItemPictureList[@i].CollectionItemPictureID">
+                            <img src="@imageKlein" width="498" height="322" alt="" id="simplePic_@count" class="indexMobile-Picture">
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="photo" data-fancybox="gallery_@item.CollectionItemPictureList[@i].CollectionItemPictureID" href="@imageNormal" data-caption="Nummer @item.CollectionItemPictureList[@i].CollectionItemPictureID"></a>
+                    }
+                }
+            </div>
+            <div class="col col-2" id="IndexSimpleCloseColumn_@count" style="display:none">
+                <button class="btn btn-primary indexSimpleButtons IndexSimpleCloseButtons" id="IndexSimpleCloseButton_@count">Bild</button>
+            </div>
+            <div class="col indexSimple2ndColumns" id="IndexSimple2ndColumn_@count">
+                <ul>
+                    <li>
+                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.UniqueName): @Html.DisplayFor(modelItem => item.CollectionItemEntity.UniqueName)
+                    </li>
+                    <li>
+                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Zeit): @Html.DisplayFor(modelItem => item.CollectionItemEntity.Zeit)
+                    </li>
+                    <li>
+                        @Html.DisplayNameFor(modelItem => item.ProcessOfManufacture): @Html.DisplayFor(modelItem => item.ProcessOfManufacture.ProcessOfManufactureName) @Html.DisplayFor(modelItem => item.ProcessOfManufacture.Technique)
+                    </li>
+                    <li>
+                        @Html.DisplayNameFor(modelItem => item.CollectionItemNPartyList):
+                        <ul>
+                            @foreach (var party in item.CollectionItemNPartyList)
+                            {
+                                var vm = PartyViewModelHelper.FromDomainModel(party.Party);
+                                string content = vm.Name + ", " + party.Relationship + ", " + vm.FurtherSpecs;
+                                <li>@Html.Raw(content)</li>
+                            }
+                        </ul>
+                    </li>
+                    <li>
+                        @Html.DisplayNameFor(modelItem => item.CollectionItemNPlaceList):
+                        <ul>
+                            @foreach (var place in item.CollectionItemNPlaceList)
+                            {
+                                var vm = PlaceViewModelHelper.FromDomainModel(place.Place);
+                                var content = vm.Toponymy + ", " + place.Relationship + ", " + vm.FurtherSpecs;
+                                <li>@Html.Raw(content)</li>
+                            }
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div id="IndexSimpleOpenColumn_@count" class="col col-2 IndexSimpleOpenColumn">
+                <button class="btn btn-primary indexSimpleButtons IndexSimpleOpenButtons" id="IndexSimpleOpenButtons_@count">Daten</button>
+            </div>
+            count++;
+        }
+    </div>
+}
+
+@if (count == 0)
+{
+    <h4>Es wurde leider nichts gefunden.</h4>
+    <h4>Bitte versuche es mit einem anderen Begriff.</h4>
+}
+@if (currentRows is not null && currentRows < maxRows)
+{
+    <form asp-controller="Sammlung" asp-action="Kurzansicht">
+        <input id="indexSimpleMaxRows" value="@maxRows" style="display: none">
+        <input id="indexSimpleCurrentRows" name="currentRows" value="@currentRows" style="display: none">
+        <input id="indexSimpleLastRows" value="@lastAmountRows" style="display: none">
+        <div class="d-grid gap-2 mt-4 mb-4">
+            <div class="transmitData" hidden></div>
+            <button id="btnIndexSimpleMore" class="btn btn-primary" onclick="getMoreData()">Mehr Bilder anzeigen</button>
+        </div>
     </form>
-</div>
-<partial name="_KurzansichtDaten.cshtml" />
+}
