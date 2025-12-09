@@ -1,16 +1,16 @@
 ﻿@model Sammlerplattform.Models.CollectionAreaDatabase.CollectionArea
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Begriffsbeziehung verwalten";
+    ViewData["Title"] = @Localizer["ConceptRelation_Administration"];
     Layout = "~/Views/Shared/_LayoutSettingsConceptualRelationship.cshtml";
 }
 
 <h3>@Model.CollectionAreaName: @ViewData["Title"]</h3>
+<p>@Localizer["Delete_NotAllowed"]</p>
 <hr />
-<a type="button" class="btn btn-success" asp-action="Create" asp-controller="ConceptualRelationshipDatabase" asp-route-collectionAreaID="@Model.CollectionAreaID">Eintrag erstellen</a>
-
-@* <div class="mt-3" id="network"></div>
-<input type="hidden" asp-for="CollectionAreaID"> *@
+<a type="button" href="/ConceptualRelationshipDatabase/Create?collectionAreaID=@Model.CollectionAreaID" class="btn btn-success">@Localizer["Create"]</a>
 
 <div class="container py-4 text-center">
     <div class="row gx-5">
@@ -39,8 +39,7 @@
                                     @Html.DisplayFor(modelItem => item.ConceptName)
                                 </td>
                                 <td>
-                                    <a asp-action="Edit" asp-route-id="@item.ConceptID">Ändern</a> |
-                                    <a asp-action="Delete" asp-route-id="@item.ConceptID">Löschen</a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id">@Localizer["Edit"]</a>
                                 </td>
                             </tr>
                         }
@@ -50,8 +49,6 @@
         </div>
     </div>
 </div>
-
-
 
 <style>
     #network {

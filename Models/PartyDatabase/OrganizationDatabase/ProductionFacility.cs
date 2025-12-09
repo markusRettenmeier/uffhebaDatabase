@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sammlerplattform.Resources;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models.PartyDatabase.OrganizationDatabase
@@ -7,13 +8,15 @@ namespace Sammlerplattform.Models.PartyDatabase.OrganizationDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
+        [Display(Name = "ProductionFacilityID", ResourceType = typeof(SharedResources))]
         public int ProductionFacilityID { get; set; }
 
-        [Required(ErrorMessage = "Bitte befüllen.")]
+        [Required]
         [StringLength(30)]
-        [Display(Name = "Produktionsstätte")]
-        [RegularExpression(@"^[a-zA-Z]{1,30}$", ErrorMessage = "Der Name darf nur Buchstaben und max. 30 Zeichen enthalten.")]
+        [RegularExpression(@"^[a-zA-Z]{1,30}$")]
+        [Display(Name = "ProductionFacilityName", ResourceType = typeof(SharedResources))]
         public string ProductionFacilityName { get; set; } = string.Empty;
+        [Display(Name = "OrganizationList", ResourceType = typeof(SharedResources))]
         public List<Organization> OrganizationList { get; set; } = [];
     }
 }

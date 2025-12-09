@@ -1,26 +1,29 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using Sammlerplattform.Models;
 using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
-using Sammlerplattform.Services.Processes.CollectionAreaProcesses;
-using Sammlerplattform.Services.Processes.ConceptualRelationshipProcesses;
+using Sammlerplattform.Resources;
+using Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses;
 
 namespace Sammlerplattform.Controllers
 {
     public class ConceptualRelationshipDatabaseController(IProcessConcept processConcept,
-        IProcessCollectionArea processCollectionArea) : Controller
+        IProcessCollectionArea processCollectionArea,
+            IStringLocalizer<SharedResources> stringLocalizer) : Controller
     {
-        public ActionResult Index(string statusMessage, CollectionAreaSearchParameterModel collectionAreaSearchParameter)
+        public ActionResult Index(Status status, CollectionAreaSearchParameterModel collectionAreaSearchParameter)
         {
-            ViewData["StatusMessage"] = statusMessage;
-            ViewData["CollectionAreaID"] = statusMessage;
+            HandleStatus(status);
 
             CollectionArea? collectionArea = processCollectionArea.GetListWithPredicate(collectionAreaSearchParameter).FirstOrDefault();
             return View(collectionArea);
         }
 
-        public ActionResult Create(string statusMessage, int collectionAreaID)
+        public ActionResult Create(Status status, int collectionAreaID)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
             ViewData["CollectionAreaID"] = collectionAreaID;
 
             return View();
@@ -31,18 +34,15 @@ namespace Sammlerplattform.Controllers
             return RedirectToAction(nameof(Create), new { statusMessage, collectionAreaID });
         }
 
-        public ActionResult Edit(string statusMessage, int id)
+        public ActionResult Edit(Status status, int id)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
-            ConceptualRelationshipSearchParameterModel searchParameter = new()
-            {
-                ConceptID = [id]
-            };
-            ConceptualRelationshipOperationParameterModel? conceptualRelationshipOperationParameter = processConcept.GetWithPredicates(searchParameter).FirstOrDefault();
-            return conceptualRelationshipOperationParameter == null
-                ? RedirectToAction(nameof(Index), new { statusMessage = "Sammlungsgebiet nicht gefunden", id })
-                : View(conceptualRelationshipOperationParameter);
+            ConceptualRelationshipOperationParameterModel? operationParameter = processConcept.GetWithPredicates(
+                new ConceptualRelationshipSearchParameterModel {  ConceptID = [id] }).FirstOrDefault();
+            return operationParameter == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_CollectionArea_NotFound", id })
+                : View(operationParameter);
         }
         public ActionResult EditSubmit(ConceptualRelationshipOperationParameterModel conceptualRelationshipOperationParameter)
         {
@@ -50,23 +50,29 @@ namespace Sammlerplattform.Controllers
             return RedirectToAction(nameof(Index), new { statusMessage });
         }
 
-        public ActionResult Delete(string statusMessage, int id)
+        public ActionResult Delete(Status status, int id)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
-            ConceptualRelationshipSearchParameterModel searchParameter = new()
-            {
-                ConceptID = [id]
-            };
-            ConceptualRelationshipOperationParameterModel? conceptualRelationshipOperationParameter = processConcept.GetWithPredicates(searchParameter).FirstOrDefault();
-            return conceptualRelationshipOperationParameter == null
-                ? RedirectToAction(nameof(Index), new { statusMessage = "Beziehung nicht gefunden", id })
-                : View(conceptualRelationshipOperationParameter);
+            ConceptualRelationshipOperationParameterModel? operationParameter = processConcept.GetWithPredicates(
+                new ConceptualRelationshipSearchParameterModel { ConceptID = [id] }).FirstOrDefault();
+            return operationParameter == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_ConceptualRelation_NotFound", id })
+                : View(operationParameter);
         }
         public ActionResult DeleteSubmit(ConceptualRelationshipOperationParameterModel operationParameterModel)
         {
-            (int _, string statusMessage) = processConcept.DeleteConcept(operationParameterModel.Concept.ConceptID);
+            (int _, string statusMessage) = processConcept.DeleteConcept(operationParameterModel.Concept.Id);
             return RedirectToAction(nameof(Index), new { statusMessage });
+        }
+
+        private void HandleStatus(Status status)
+        {
+            if (!string.IsNullOrEmpty(status.Message))
+            {
+                ViewData["StatusMessage"] = stringLocalizer[status.Message];
+                ViewData["StatusCode"] = status.Code;
+            }
         }
     }
 }

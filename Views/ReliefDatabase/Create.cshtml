@@ -1,40 +1,52 @@
 ﻿@model ReliefOperationParameterModel
 @using Sammlerplattform.Models.PlaceDatabase.ReliefDatabase
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Relief erstellen";
+    ViewData["Title"] = @Localizer["Relief_Create"];
     Layout = "~/Views/Shared/_LayoutSettingsPlace.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
-
+<h3>@ViewData["Title"]</h3>
 <hr />
 <form asp-action="CreateSubmit" asp-controller="Relief">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <input asp-for="Place.ToponymyTypeInt" type="hidden" value="3" />
 
-    <div id="toponymyContainer" class="mb-3"></div>
-    <button type="button" class="btn btn-primary" onclick="addToponymy()">Mehr Ortsnamen hinzufügen</button>
+    <div id="toponymyContainer" class="mb-3">
+        <div class="input-group inputDivToponymy mb-2">
+            <div class="form-group">
+                <label class="form-label">@Localizer["Toponymy"]</label>
+                <input class="form-control inputToponymy" asp-for="PlaceNToponymyList[0].Toponymy.ToponymyName">
+            </div>
+            <div class="form-check">
+                <input class="form-check-input checkboxCurrentName" asp-for="PlaceNToponymyList[0].IsCurrentName" id="currentName_0" checked>
+                <label class="form-check-label ms-1" for="currentName_0">@Localizer["IsCurrentName"]</label>
+            </div>
+            <button type="button" class="btn btn-danger removeToponmy">@Localizer["Remove"]</button>
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="addToponymy()">@Localizer["PlaceName_Add"]</button>
     <div class="mb-3">
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">Geografischer Name</th>
-                    <th scope="col">Weitere Spezifikationen</th>
-                    <th scope="col">Bezug</th>
-                    <th scope="col">Weitere Aktionen</th>
+                    <th scope="col">@Localizer["Toponymy"]</th>
+                    <th scope="col">@Localizer["FurtherSpecs"]</th>
+                    <th scope="col">@Localizer["Relationship"]</th>
+                    <th scope="col"></th>
                 </tr>
             </thead>
             <tbody id="appendPlaceHere">
             </tbody>
         </table>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
-            Orte hinzufügen
+            @Localizer["Relation_Add"]
         </button>
     </div>
-    <hr />
-    <button class="btn btn-primary">Erstellen</button>
+    <button class="btn btn-primary">@Localizer["Create"]</button>
 </form>
 
 <partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />

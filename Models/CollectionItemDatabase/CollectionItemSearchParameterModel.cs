@@ -25,7 +25,7 @@
         public int StartYear { get; set; }
         public int EndYear { get; set; }
         public List<string> Material { get; set; } = [];
-        public List<string> UserName { get; set; } = [];
+        public List<string> UsingIdentityUser_UserName { get; set; } = [];
         public List<int> CollectionItemPotential_CollectionItemPotentialID { get; set; } = [];
         public List<string> CollectionItemPotential_Serialnumber { get; set; } = [];
         public List<string> Inscription { get; set; } = [];
@@ -46,6 +46,12 @@
         public List<string> CollectionItemEntityNPlaceList_Place_PlaceNToponymyList_Toponymy_ToponymyName { get; set; } = [];
         public List<string> CollectionItemEntityNPlaceList_Place_ToponymyTypeInt { get; set; } = [];
         public List<string> CollectionItemEntityNPlaceList_Place_Settlement_SettlementNPostalcodeList_Postalcode_PostalcodeNumber { get; set; } = [];
+
+
+        // Neue Properties für Embedding-Suche
+        public string? SemanticSearchQuery { get; set; }
+        public float? MinimumSimilarityScore { get; set; }
+        public bool? UseHybridSearch { get; set; }
 
     }
 }

@@ -1,4 +1,7 @@
-﻿namespace Sammlerplattform.Models.PlaceDatabase
+﻿using Sammlerplattform.Resources;
+using System.ComponentModel.DataAnnotations;
+
+namespace Sammlerplattform.Models.PlaceDatabase
 {
     public class PlaceViewModelHelper
     {
@@ -15,7 +18,7 @@
                     ? $"<strong>{x.Postalcode.PostalcodeNumber}</strong>"
                     : x.Postalcode.PostalcodeNumber)
                 .ToList();
-            string relatedPlace = place.Settlement?.RelatedPlace?.PlaceNToponymyList?
+            string relatedGeography = place.Settlement?.RelatedGeography?.PlaceNToponymyList?
                 .FirstOrDefault(x => x.IsCurrentName)?.Toponymy.ToponymyName ?? string.Empty;
             IEnumerable<string?> childPlaces = place.ChildPlaceList.Select(x => x.PlaceNToponymyList.Where(x => x.IsCurrentName).FirstOrDefault()?.Toponymy.ToponymyName);
 
@@ -25,7 +28,7 @@
                 Toponymy = string.Join(", ", toponymys ?? []),
                 ParentPlaceName = parentPlace,
                 Postalcodes = string.Join(", ", postalcodes ?? []),
-                RelatedPlaceName = relatedPlace,
+                RelatedGeographyName = relatedGeography,
                 Byname = place.Settlement?.Byname ?? string.Empty,
                 ChildPlaces = string.Join(",", childPlaces ?? [])
             };
@@ -34,9 +37,9 @@
                 placeViewModel.FurtherSpecs = "PLZ: " + placeViewModel.Postalcodes + ", ";
             }
 
-            if (!string.IsNullOrEmpty(placeViewModel.RelatedPlaceName))
+            if (!string.IsNullOrEmpty(placeViewModel.RelatedGeographyName))
             {
-                placeViewModel.FurtherSpecs += "Geo: " + placeViewModel.RelatedPlaceName + ", ";
+                placeViewModel.FurtherSpecs += "Geo: " + placeViewModel.RelatedGeographyName + ", ";
             }
 
             if (!string.IsNullOrEmpty(placeViewModel.Byname))
@@ -60,12 +63,18 @@
 
     public class PlaceViewModel
     {
+        [Display(Name = "PlaceID", ResourceType = typeof(SharedResources))]
         public int PlaceID { get; set; }
+        [Display(Name = "Toponymy", ResourceType = typeof(SharedResources))]
         public string Toponymy { get; set; } = string.Empty;
+        [Display(Name = "ParentPlace", ResourceType = typeof(SharedResources))]
         public string ParentPlaceName { get; set; } = string.Empty;
+        [Display(Name = "ChildPlaceList", ResourceType = typeof(SharedResources))]
         public string ChildPlaces { get; set; } = string.Empty;
+        [Display(Name = "Postalcodes", ResourceType = typeof(SharedResources))]
         public string Postalcodes { get; set; } = string.Empty;
-        public string RelatedPlaceName { get; set; } = string.Empty;
+        [Display(Name = "Postalcodes", ResourceType = typeof(SharedResources))]
+        public string RelatedGeographyName { get; set; } = string.Empty;
         public string Byname { get; set; } = string.Empty;
         public string FurtherSpecs { get; set; } = string.Empty;
     }

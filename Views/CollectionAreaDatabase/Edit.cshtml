@@ -1,28 +1,32 @@
 ﻿@model Sammlerplattform.Models.CollectionAreaDatabase.CollectionArea
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Sammlungsgebiet ändern";
+    ViewData["Title"] = Localizer["CollectionArea_Edit"];
     Layout = "~/Views/Shared/_LayoutSettings.cshtml";
 }
 
-<div class="row">
-    <div class="col-md-4">
-        <h1>@ViewData["Title"]</h1>
+<h3>@ViewData["Title"]</h3>
 
-        <hr />
-        <form asp-action="EditSubmit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="CollectionAreaID" />
-            <div class="form-group mb-3">
-                <label asp-for="CollectionAreaName" class="control-label"></label>
-                <input asp-for="CollectionAreaName" class="form-control" />
-                <span asp-validation-for="CollectionAreaName" class="text-danger"></span>
-            </div>
-            <hr />
-            <div class="form-group">
-                <button class="btn btn-primary">Ändern</button>
-            </div>
-        </form>
+<hr />
+<form asp-action="EditSubmit">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="CollectionAreaID" />
+    <div class="form-group mb-3">
+        <label asp-for="CollectionAreaName" class="control-label"></label>
+        <input asp-for="CollectionAreaName" class="form-control" />
+        <span asp-validation-for="CollectionAreaName" class="text-danger"></span>
     </div>
-</div>
+    <hr />
+    <div class="form-group">
+        <button class="btn btn-primary">@Localizer["Edit"]</button>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
 

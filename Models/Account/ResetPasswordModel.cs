@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sammlerplattform.Resources;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sammlerplattform.Models.Account
 {
@@ -6,20 +7,22 @@ namespace Sammlerplattform.Models.Account
     {
         [Required]
         [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        [Display(Name = "Email", ResourceType = typeof(SharedResources))]
+        public required string Email { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 12)]
+        [StringLength(100, MinimumLength = 12)]
         [DataType(DataType.Password)]
-        [Display(Name = "Passwort")]
-        public string Password { get; set; } = string.Empty;
+        [Display(Name = "Password", ResourceType = typeof(SharedResources))]
+        public required string Password { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Passwort bestätigen")]
-        [Compare("Password", ErrorMessage = "Die PAsswörter stimmen nicht überein")]
+        [Compare(nameof(Password))]
+        [Display(Name = "ConfirmPassword", ResourceType = typeof(SharedResources))]
         public string ConfirmPassword { get; set; } = string.Empty;
 
         [Required]
-        public string Code { get; set; } = string.Empty;
+        [Display(Name = "Code", ResourceType = typeof(SharedResources))]
+        public required string Code { get; set; }
     }
 }

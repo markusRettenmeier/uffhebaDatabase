@@ -1,23 +1,27 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using Sammlerplattform.Resources;
 using Sammlerplattform.Models.EraDatabase;
-using Sammlerplattform.Services.Processes;
+using Sammlerplattform.Services.DatabaseProcesses;
+using Sammlerplattform.Models;
 
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
-    public class EraDatabaseController(IProcessEra processEra) : Controller
+    public class EraDatabaseController(IProcessEra processEra,
+            IStringLocalizer<SharedResources> stringLocalizer) : Controller
     {
-        public ActionResult Index(string statusMessage, EraSearchParameterModel eraSearchParameterModel)
+        public ActionResult Index(Status status, EraSearchParameterModel eraSearchParameterModel)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
             return View(processEra.GetWithPredicates(eraSearchParameterModel));
         }
 
-        public ActionResult Create(string statusMessage)
+        public ActionResult Create(Status status)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
             return View();
         }
@@ -25,21 +29,32 @@ namespace Sammlerplattform.Controllers
         {
             (Era _, int _, string statusMessage) = processEra.Create(eraOperationParameterModel);
 
-            return RedirectToAction(nameof(Create), new { statusMessage });
+            return RedirectToAction(nameof(Index), new { statusMessage });
         }
 
-        public ActionResult Edit(string statusMessage, int id)
+        public ActionResult Edit(Status status, int id)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
-            Era? era = (from e in processEra.GetWithPredicates(new EraSearchParameterModel { EraID = [id] })
-                        select e).FirstOrDefault();
-            return era == null ? RedirectToAction(nameof(Index), new { statusMessage = "Gebäude nicht gefunden" }) : View(era);
+            Era? era = processEra.GetWithPredicates(new EraSearchParameterModel { EraID = [id] })
+                       .FirstOrDefault();
+            return era == null 
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Era_NotFound" }) 
+                : View(era);
         }
         public ActionResult EditSubmit(EraOperationParameterModel model)
         {
             (Era era, int _, string statusMessage) = processEra.Edit(model);
             return RedirectToAction(nameof(Edit), new { statusMessage, id = era.EraID });
+        }
+
+        private void HandleStatus(Status status)
+        {
+            if (!string.IsNullOrEmpty(status.Message))
+            {
+                ViewData["StatusMessage"] = stringLocalizer[status.Message];
+                ViewData["StatusCode"] = status.Code;
+            }
         }
     }
 }

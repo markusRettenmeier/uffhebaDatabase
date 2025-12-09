@@ -1,11 +1,11 @@
-﻿using ImageMagick;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
-using Sammlerplattform.Data;
+using Sammlerplattform.Resources;
 using Sammlerplattform.Models.UserSettings;
 using System.Linq.Dynamic.Core;
 using System.Text;
@@ -16,118 +16,65 @@ using System.Transactions;
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
-    public class UserSettingsController(IWebHostEnvironment hostEnvironment, UserManager<UsingIdentityUser> userManager,
-        IUserStore<UsingIdentityUser> userStore, SignInManager<UsingIdentityUser> signInManager, DbIdentityContext dbIdentityContext,
-        ILogger<AccountController> logger, IEmailSender emailSender) : Controller
+    public class UserSettingsController(UserManager<UsingIdentityUser> userManager,
+        SignInManager<UsingIdentityUser> signInManager,
+        IEmailSender emailSender
+        , IStringLocalizer<SharedResources> stringLocalizer) : Controller
     {
-        private readonly IWebHostEnvironment _hostEnvironment = hostEnvironment;
         private readonly UserManager<UsingIdentityUser> _userManager = userManager;
-        private readonly IUserStore<UsingIdentityUser> _userStore = userStore;
         private readonly SignInManager<UsingIdentityUser> _signInManager = signInManager;
-        private readonly DbIdentityContext _dbIdentityContext = dbIdentityContext;
-        private readonly ILogger<AccountController> _logger = logger;
 
-        public IActionResult Profile(string statusMessage, string subscription)
+        public IActionResult Profile(string statusMessage, int statusCode)
         {
-            UserWithPhoto? user = (from u in _userManager.Users
-                                   join photo in _dbIdentityContext.UserPicture
-                                   on u.Id equals photo.UsingIdentityUsers_ID into gj
-                                   from subphoto in gj.DefaultIfEmpty()
-                                   where u.Id == _userManager.GetUserId(User)
-                                   select new UserWithPhoto { UsingIdentityUsers = u, UserPictured = subphoto.Photo }).FirstOrDefault();
-            if (user == null)
+            var translatedMessage = stringLocalizer[statusMessage];
+            if(translatedMessage.ResourceNotFound == false)
             {
-                return NotFound($"Unmöglich, Nutzer mit Id zu laden '{_userManager.GetUserId(User)}'.");
+                ViewData["StatusMessage"] = stringLocalizer[statusMessage];
+            }
+            else
+            {
+                ViewData["StatusMessage"] = statusMessage;
+            }
+            ViewData["StatusCode"] = statusCode;
+
+            var userID = _userManager.GetUserId(User);
+            if (userID == null)
+            {
+                return RedirectToAction("Login", "Account", new { statusmessage = "Error_Place_NotFound" });
             }
 
-            List<IdentityUserClaim<string>> subItems = [.. from c in _dbIdentityContext.UserClaims
-                                                        where c.UserId == user.UsingIdentityUsers.Id
-                                                        select c];
-            List<string> subscribtionIds = [];
-            double currentFee = 0;
-            double SubscribedDiskspaceFee = 0;
-
-            foreach (IdentityUserClaim<string>? item in subItems)
-            {
-                //if (item.ClaimType != null && item.ClaimValue != null)
-                //{
-                //    string subscriptionId = PaymentService.GetSubFromSubItem(item.ClaimValue, _logger);
-                //    currentFee += PaymentService.GetCurrentInvoice(subscriptionId, item.ClaimValue, _logger);
-
-                //    // Cause Databasespace is counted at end of the month
-                //    if (item.ClaimType.Equals("SubscribedDiskspace"))
-                //    {
-                //        int countUnits = (from e in _dbIdentityContext.PostcardEntity
-                //                          where e.UsingIdentityUsers_ID == user.UsingIdentityUsers.Id
-                //                          select e).Count();
-                //        if (countUnits > 0)
-                //        {
-                //            countUnits /= 500;
-                //            SubscribedDiskspaceFee = countUnits + 5;
-                //        }
-                //    }
-                //}
-            }
-            currentFee /= 100;
-
-
-            string subName = string.Empty;
-            subName = subscription switch
-            {
-                "SubscribedDiskspace" => "Speicherplatz",
-                "SubscribedAnalysisTool" => "Analysetool",
-                _ => subscription,
-            };
-            ViewData["StatusMessage"] = statusMessage == "Cancel"
-                ? "Kauf abgebrochen."
-                : statusMessage == "CancelUpdate"
-                    ? "Das Abonnement " + subName + " wird zum Ende des Abrechnungszeitraums gekündigt."
-                    : statusMessage == "CancelCancelUpdate" ? "Das Abonnement " + subName + "  läuft weiter." : (object)statusMessage;
-
-            ViewData["currentFee"] = currentFee + SubscribedDiskspaceFee;
-
-            return View(user);
+            return View(User);
         }
 
-        public async Task<IActionResult> ProfileChange(UserWithPhoto userWithPhoto)
+        public async Task<IActionResult> ProfileChange(UsingIdentityUser usingIdentityUser)
         {
-            string statusMessage = string.Empty;
             UsingIdentityUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unmöglich, Nutzer mit Id zu laden '{_userManager.GetUserId(User)}'.");
+                return RedirectToAction("Login", "Account", new { statusmessage = "Error_Place_NotFound" });
             }
 
-            if (userWithPhoto.UsingIdentityUsers.Email == null)
-            {
-                return NotFound($"Keine E-Mailadresse vorhanden");
-            }
-
-            //var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (userWithPhoto.UsingIdentityUsers.UserName != user.UserName)
+            if (usingIdentityUser.UserName != user.UserName)
             {
                 IdentityResult usernameResult = new();
                 if (string.IsNullOrEmpty(user.UserName))
                 {
-                    usernameResult = await _userManager.SetUserNameAsync(user, userWithPhoto.UsingIdentityUsers.UserName);
+                    usernameResult = await _userManager.SetUserNameAsync(user, usingIdentityUser.UserName);
                 }
                 else
                 {
-                    user.UserName = userWithPhoto.UsingIdentityUsers.UserName;
+                    user.UserName = usingIdentityUser.UserName;
                     usernameResult = await _userManager.UpdateAsync(user);
                 }
 
                 if (!usernameResult.Succeeded)
                 {
-                    statusMessage = "Unerwarteter Fehler, beim Ändern des Benuternamens";
-                    return RedirectToAction(nameof(Profile), new { statusMessage });
+                    return RedirectToAction(nameof(Profile), new { statusMessage = "Error_UserName_Change" });
                 }
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            statusMessage = "Ihr Profil wurde aktualisiert";
-
-            return RedirectToAction(nameof(Profile), new { statusMessage });
+            return RedirectToAction(nameof(Profile), new { statusMessage = "Success_Profile_Change", statusCode = 200 });
         }
 
 
@@ -136,12 +83,9 @@ namespace Sammlerplattform.Controllers
             UsingIdentityUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unmöglich, Nutzer zu finden mit ID '{_userManager.GetUserId(User)}'.");
+                return RedirectToAction("Login", "Account", new { statusmessage = "Error_User_NotFound" });
             }
 
-            _logger.LogInformation("User with ID '{UserId}' asked for their personal data.", _userManager.GetUserId(User));
-
-            // Only include personal data for download
             Dictionary<string, string> personalData = [];
             IEnumerable<System.Reflection.PropertyInfo> personalDataProps = typeof(UsingIdentityUser).GetProperties().Where(
                             prop => Attribute.IsDefined(prop, typeof(PersonalDataAttribute)));
@@ -153,14 +97,7 @@ namespace Sammlerplattform.Controllers
             IList<UserLoginInfo> logins = await _userManager.GetLoginsAsync(user);
             foreach (UserLoginInfo l in logins)
             {
-                personalData.Add($"{l.LoginProvider} externer Login Provider Key", l.ProviderKey);
-            }
-
-            //Für 2-Faktor Authentifizierung
-            string? authKey = await _userManager.GetAuthenticatorKeyAsync(user);
-            if (authKey != null)
-            {
-                personalData.Add($"Authenticator Key", authKey);
+                personalData.Add(l.LoginProvider + " external login provider key.", l.ProviderKey);
             }
 
             Response.Headers.Append("Content-Disposition", "attachment; filename=PersonalData.json");
@@ -172,7 +109,7 @@ namespace Sammlerplattform.Controllers
             UsingIdentityUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unmöglich, Nutzer zu finden mit ID '{_userManager.GetUserId(User)}'.");
+                return RedirectToAction("Login", "Account", new { statusmessage = "Error_User_NotFound" });
             }
 
             ViewData["RequirePassword"] = await _userManager.HasPasswordAsync(user);
@@ -186,7 +123,7 @@ namespace Sammlerplattform.Controllers
             UsingIdentityUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unmöglich, Nutzer zu finden mit ID '{_userManager.GetUserId(User)}'.");
+                return RedirectToAction("Login", "Account", new { statusmessage = "Error_User_NotFound" });
             }
 
             bool RequirePassword = await _userManager.HasPasswordAsync(user);
@@ -194,7 +131,7 @@ namespace Sammlerplattform.Controllers
             {
                 if (!await _userManager.CheckPasswordAsync(user, Password))
                 {
-                    ModelState.AddModelError(string.Empty, "Falsches Passwort.");
+                    ModelState.AddModelError(string.Empty, "Error_Password_Incorrect");
                     return RedirectToAction(nameof(Profile));
                 }
             }
@@ -203,93 +140,29 @@ namespace Sammlerplattform.Controllers
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-                UserPicture? userPictureJoin = (from u in _dbIdentityContext.Users
-                                                join p in _dbIdentityContext.UserPicture
-                                                on u.Id equals p.UsingIdentityUsers_ID
-                                                where u.Id == user.Id
-                                                select p).FirstOrDefault();
-                if (userPictureJoin != null)
-                {
-                    _ = _dbIdentityContext.Remove(userPictureJoin);
-                    _ = await _dbIdentityContext.SaveChangesAsync();
-                }
-
                 IdentityResult result = await _userManager.DeleteAsync(user);
-                string userId = await _userManager.GetUserIdAsync(user);
                 if (!result.Succeeded)
                 {
-                    throw new InvalidOperationException($"Unerwarteter Fehler trat beim Löschen des Profils auf.");
+                    return RedirectToAction(nameof(Profile), new { statusMessage = "UnexpectedError" + result.ToString() });
                 }
 
                 await _signInManager.SignOutAsync();
-                _logger.LogInformation("User with ID '{UserId}' deleted themselves.", userId);
                 statusMessage = "Löschung erfolgreich.";
                 if (user.Email != null)
                 {
                     await emailSender.SendEmailAsync(
                         user.Email,
-                        "Account wurde gelöscht",
-                        "Ihr Account mit allen Abos wurde gelöscht.");
+                        stringLocalizer["SuccessAccountWasDeleted"],
+                        stringLocalizer["SuccessAccountWasDeleted"]);
                 }
                 scope.Complete();
             }
             catch (Exception ex)
             {
-                _logger.LogError("Abgebrochen mit Exception {ex}", ex);
-                statusMessage = "Löschung wurde abgebrochen. Fehler wurde gemeldet.";
+                statusMessage = "UnexpectedError" + ex.Message + ex.InnerException;
             }
 
             return RedirectToAction("Frontpage", "Home", new { statusMessage });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> PhotoUploading(string id, IFormFile formFile)
-        {
-            byte[] photo;
-            if (formFile != null)
-            {
-                using (MemoryStream ms = new())
-                {
-                    formFile.CopyTo(ms);
-                    ms.Position = 0;
-                    using MagickImage image = new(ms);
-                    image.Quality = 30;
-                    if (image.Width > image.Height)
-                    {
-                        image.Scale(498, 322);
-                    }
-                    else if (image.Height > image.Width)
-                    {
-                        image.Scale(498, 708);
-                        image.Crop(498, 322);
-                    }
-                    image.Write(ms);
-                    photo = ms.ToArray();
-                }
-
-                UserPicture? photoSelect = (from p in _dbIdentityContext.UserPicture
-                                            where p.UsingIdentityUsers_ID == id
-                                            select p).FirstOrDefault();
-
-                if (photoSelect is null)
-                {
-                    UserPicture userPicture = new()
-                    {
-                        UsingIdentityUsers_ID = id,
-                        Photo = photo
-                    };
-                    _ = _dbIdentityContext.Add(userPicture);
-                }
-                else
-                {
-                    photoSelect.Photo = photo;
-                }
-
-                _ = await _dbIdentityContext.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Profile));
         }
 
         public async Task<IActionResult> ChangePassword(string statusMessage)
@@ -297,10 +170,10 @@ namespace Sammlerplattform.Controllers
             UsingIdentityUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unmöglich, Nutzer zu finden mit ID '{_userManager.GetUserId(User)}'.");
+                return RedirectToAction("Login", "Account", new { statusmessage = "Error_User_NotFound" });
             }
 
-            ViewData["StatusMessage"] = statusMessage;
+            ViewData["StatusMessage"] = stringLocalizer[statusMessage];
 
             return View();
         }
@@ -324,33 +197,35 @@ namespace Sammlerplattform.Controllers
                     {
                         ModelState.AddModelError(string.Empty, error.Description);
                         statusMessage += error.Description;
-                        _logger.LogError("ChangePassword nicht erfolgreich mit Fehler {error.Description}", error.Description);
                     }
                     return RedirectToAction(nameof(ChangePassword), new { statusMessage });
                 }
             }
-
             await _signInManager.RefreshSignInAsync(user);
 
-            return RedirectToAction(nameof(ChangePassword), new { statusMessage = "Passwort erfolgreich geändert." });
+            return RedirectToAction(nameof(ChangePassword), new { statusMessage = "Success_Password_Change" });
         }
         public async Task<IActionResult> ChangeEMail(string statusMessage)
         {
             UsingIdentityUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unmöglich, Nutzer zu finden mit ID '{_userManager.GetUserId(User)}'.");
+                return RedirectToAction("Login", "Account", new { statusmessage = "Error_User_NotFound" });
             }
 
-            string email = await _userManager.GetEmailAsync(user) ?? throw new NullReferenceException("email in LoadAsync");
+            string? email = await _userManager.GetEmailAsync(user);
+            if (string.IsNullOrEmpty(email))
+            {
+                return RedirectToAction(nameof(Profile), new { statusMessage = "Error_Email_Missing" });
+            }
             ChangeEMailModel changeEMailModel = new()
             {
-                Email = email,
-                IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user)
+                OldEmail = email,
+                IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user),
+                HasPassword = await _userManager.HasPasswordAsync(user)
             };
 
-            ViewData["StatusMessage"] = statusMessage;
-            ViewData["RequirePassword"] = await _userManager.HasPasswordAsync(user);
+            ViewData["StatusMessage"] = stringLocalizer[statusMessage];
             return View(changeEMailModel);
         }
 
@@ -359,7 +234,7 @@ namespace Sammlerplattform.Controllers
             UsingIdentityUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unmöglich, Nutzer zu finden mit ID '{_userManager.GetUserId(User)}'.");
+                return RedirectToAction("Login", "Account", new { statusmessage = "Error_User_NotFound" });
             }
 
             bool RequirePassword = await _userManager.HasPasswordAsync(user);
@@ -367,7 +242,7 @@ namespace Sammlerplattform.Controllers
             {
                 if (!await _userManager.CheckPasswordAsync(user, changeEMailModel.Password))
                 {
-                    ModelState.AddModelError(string.Empty, "Falsches Passwort.");
+                    ModelState.AddModelError(string.Empty, "Error_Password_Incorrect");
                     return RedirectToAction(nameof(Login));
                 }
             }
@@ -384,16 +259,17 @@ namespace Sammlerplattform.Controllers
                     protocol: Request.Scheme);
                 if (callbackUrl != null)
                 {
+                    string htmlBody = stringLocalizer["ConfirmAccountHtml", HtmlEncoder.Default.Encode(callbackUrl)].Value;
                     await emailSender.SendEmailAsync(
-                    changeEMailModel.NewEmail,
-                    "Bestätige deine E-Mail",
-                    $"Bitte bestätige deinen Account durch <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'> hier klicken</a>.");
+                        changeEMailModel.NewEmail,
+                        stringLocalizer["Confirm your email"],
+                        htmlBody);
                 }
 
-                return RedirectToAction(nameof(ChangeEMail), new { statusMessage = "Bestätungs-E-Mail wurde versandt. Bitte prüfe deinen Briefkasten." });
+                return RedirectToAction(nameof(ChangeEMail), new { statusMessage = "Success_ConfirmationEmail_Sent", statusCode = 200 });
             }
 
-            return RedirectToAction(nameof(ChangeEMail), new { statusMessage = "Deine E-Mail wurde nicht geändert." });
+            return RedirectToAction(nameof(ChangeEMail), new { statusMessage = "Error_Email_NotChanged" });
         }
     }
 }

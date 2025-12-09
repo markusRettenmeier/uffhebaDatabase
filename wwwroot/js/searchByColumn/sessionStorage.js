@@ -16,17 +16,6 @@ export function sessionStorageGetInput(index, columnNo) {
   let localKey = "";
   let type = "";
 
-  const isGesamtansicht = window.location.href.includes("/Gesamtansicht");
-  const isKurzansicht = window.location.href.includes("/Kurzansicht");
-
-  if (isGesamtansicht) {
-    localKey = columns[index][0];
-    type = columns[index][1];
-  } else if (isKurzansicht) {
-    localKey = columnsSimple[index][0];
-    type = columnsSimple[index][1];
-  }
-
   const localValue = sessionStorage.getItem(localKey);
   if (!localValue) return;
 

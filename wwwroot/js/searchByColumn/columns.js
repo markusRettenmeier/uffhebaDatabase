@@ -1,13 +1,11 @@
 export const columns = [
-    ["CollectionItemPotential_CollectionItemnameSynonymList_Name", "text"],
-    ["CollectionItemPotential_Usage", "multiselect"],
+    ["PersonalIdentificationNumber", "text"],
+    ["SerialNumber", "text"],
     ["FilingLocation", "text"],
-    ["Price", "number"],
-    ["Fake", "checkbox"],
-    ["Material", "text"],
-    ["UsingIdentityUser_UserName", "text"],
-    ["State", "multiselect"],
-    ["ManufacturingYear", "year"],
+    ["CollectionItemEntityID", "number"],
+    ["UniqueName", "text"],
+    
+    ["CollectionAreaName", "text"],
 
     ["PlaceID", "number"],
     ["PlaceNToponymyList_Toponymy_ToponymyName", "text"],

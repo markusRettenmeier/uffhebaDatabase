@@ -1,49 +1,53 @@
 ﻿@model Sammlerplattform.Models.EraDatabase.Era
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Erstelle Epoche";
+    ViewData["Title"] = Localizer["Era_Create"];
     Layout = "_LayoutSettings";
 }
 
-<h1>@ViewData["Title"]</h1>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="CreateEra">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="EraName" class="control-label"></label>
-                <input asp-for="EraName" class="form-control" />
-                <span asp-validation-for="EraName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EraShort" class="control-label"></label>
-                <input asp-for="EraShort" class="form-control" />
-                <span asp-validation-for="EraShort" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EraDescription" class="control-label"></label>
-                <textarea asp-for="EraDescription" class="form-control"></textarea>
-                <span asp-validation-for="EraDescription" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StartYear" class="control-label"></label>
-                <textarea asp-for="StartYear" class="form-control"></textarea>
-                <span asp-validation-for="StartYear" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndYear" class="control-label"></label>
-                <textarea asp-for="EndYear" class="form-control"></textarea>
-                <span asp-validation-for="EndYear" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <button class="btn btn-primary">Erstellen</button>
-            </div>
+    <div class="col-md-8">
+        <h3>@ViewData["Title"]</h3>
+        <hr />
+<form asp-action="CreateEra">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="EraName" class="control-label"></label>
+        <input asp-for="EraName" class="form-control" />
+        <span asp-validation-for="EraName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="EraShort" class="control-label"></label>
+        <input asp-for="EraShort" class="form-control" />
+        <span asp-validation-for="EraShort" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="EraDescription" class="control-label"></label>
+        <textarea asp-for="EraDescription" class="form-control"></textarea>
+        <span asp-validation-for="EraDescription" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="StartYear" class="control-label"></label>
+        <textarea asp-for="StartYear" class="form-control"></textarea>
+        <span asp-validation-for="StartYear" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="EndYear" class="control-label"></label>
+        <textarea asp-for="EndYear" class="form-control"></textarea>
+        <span asp-validation-for="EndYear" class="text-danger"></span>
+    </div>
+    <div class="form-group mt-2">
+        <button class="btn btn-primary">@Localizer["Create"]</button>
+    </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="AdministerCollectionEra">Zrück zur Liste</a>
-</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
 

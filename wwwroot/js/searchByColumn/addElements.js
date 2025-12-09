@@ -8,7 +8,7 @@ export function addColumn() {
 
     const columnDropDown = clone.querySelector(".columnDropDown");
     columnDropDown.id = `columnName_${id_count}`;
-    columnDropDown.value = "Wähle_Spalte";
+    columnDropDown.value = i18n.get("Option_Select");
 
     const removeColumn = clone.querySelector(".removeColumn");
     removeColumn.id = `removeColumn_${id_count}`;

@@ -1,20 +1,58 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.CollectionItemDatabase;
-using Sammlerplattform.Services.Processes.CollectionItemProcesses;
+using Sammlerplattform.Resources;
+using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
 using System.Diagnostics;
 
 namespace Sammlerplattform.Controllers
 {
     [AllowAnonymous]
-    public partial class HomeController(IProcessCollectionItemEntity processCollectionItemEntity) : Controller
+    public class HomeController(IProcessCollectionItemEntity processCollectionItemEntity,
+        IStringLocalizer<SharedResources> stringLocalizer) : Controller
     {
-        public IActionResult Frontpage(CollectionItemSearchParameterModel itemSearchParameterModel)
+        public IActionResult Frontpage(Status status, CollectionItemSearchParameterModel itemSearchParameterModel, int topK)
         {
-            List<CollectionItemOperationParameterModel> entities = [.. processCollectionItemEntity.GetWithPredicates(itemSearchParameterModel).Take(20)];
+            HandleStatus(status);
+
+            var entities = processCollectionItemEntity.GetTraditionalTextSearch(itemSearchParameterModel);
+            int maxRows = entities.Count;
+            if (maxRows > 24)
+            {
+                if (topK == 0)
+                {
+                    topK = 25;
+                }
+                else
+                {
+                    int lastAmountRows = topK;
+                    ViewData["lastAmountRows"] = lastAmountRows;
+
+                    topK += 15;
+                }
+
+                ViewData["TopK"] = topK;
+            }
+            else
+            {
+                topK = maxRows;
+            }
+            ViewData["maxRows"] = maxRows;
+            entities = [.. entities.Take(topK)];
+
             return View(entities);
+        }
+
+        private void HandleStatus(Status status)
+        {
+            if (!string.IsNullOrEmpty(status.Message))
+            {
+                ViewData["StatusMessage"] = stringLocalizer[status.Message].Value;
+                ViewData["StatusCode"] = status.Code;
+            }
         }
 
         public ActionResult PrivacyImprint()

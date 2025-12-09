@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Humanizer.Localisation;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 

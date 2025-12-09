@@ -1,17 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Sammlerplattform.Data;
+using Sammlerplattform.Resources;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
-using Sammlerplattform.Models.ProcessOfManufactureDatabase;
 using Sammlerplattform.Services;
-using Sammlerplattform.Services.Processes;
-using Sammlerplattform.Services.Processes.CollectionItemProcesses;
-using Sammlerplattform.Services.Processes.ConceptualRelationshipProcesses;
-using Sammlerplattform.Services.Processes.PartyProcesses;
-using Sammlerplattform.Services.Processes.PlaceProcesses;
+using Sammlerplattform.Services.DatabaseProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.PartyProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
+using Sammlerplattform.Models.Translations;
 
 namespace Sammlerplattform.Controllers
 {
@@ -19,13 +21,14 @@ namespace Sammlerplattform.Controllers
     [Route("api/collections")]
     public class RestController(
         IProcessEra processEra,
-        IProcessProcessOfManufacture processProcessOfManufacture,
         IProcessPlace processPlace,
         IProcessParty processParty,
         IUnitOfWork unitOfWork,
         IProcessConcept processConcept,
         IProcessConceptRelation processConceptRelation,
-        IProcessCollectionItemPotential processCollectionItemPotential
+        IProcessCollectionItemPotential processCollectionItemPotential,
+        IStringLocalizer<SharedResources> stringLocalizer,
+        IProcessTranslations processTranslations
         ) : Controller
     {
 
@@ -35,6 +38,14 @@ namespace Sammlerplattform.Controllers
             PlaceSearchParameter model = new();
             if (placeSearchDTO != null)
             {
+                if (placeSearchDTO.Toponym != null)
+                {
+                    List<int> entityIds = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter { EntityType = [nameof(Place)], TranslatedText = [placeSearchDTO.Toponym] }).Select(x => x.EntityId)];
+                    if (entityIds.Count > 0)
+                    {
+                        model.PlaceID.AddRange(entityIds);
+                    }
+                }
                 if (!string.IsNullOrEmpty(placeSearchDTO.Toponym))
                 {
                     model.PlaceNToponymyList_Toponymy_ToponymyName = [placeSearchDTO.Toponym];
@@ -44,10 +55,9 @@ namespace Sammlerplattform.Controllers
                     model.ToponymyTypeInt = [(int)placeSearchDTO.ToponymyType];
                 }
             }
+            List<Place> placeList = processPlace.GetListWithPredicate(model);
 
-            List<Place> places = processPlace.GetListWithPredicate(model);
-
-            List<PlaceDTO> placeList = [.. places.Select(x =>
+            List<PlaceDTO> placeDTOList = [.. placeList.Select(x =>
             {
                 List<string> oeconymParts = x.PlaceNToponymyList?
                     .Select(t =>
@@ -73,17 +83,17 @@ namespace Sammlerplattform.Controllers
 
                     if (currentPostalcodeList.Count != 0)
                     {
-                        specs.Add("PLZ: " + string.Join(", ", currentPostalcodeList));
+                        specs.Add(stringLocalizer["Postalcode"] + ": " + string.Join(", ", currentPostalcodeList));
                     }
 
                     if (!string.IsNullOrWhiteSpace(x.Settlement.Byname))
                     {
-                        specs.Add("Beiname: " + x.Settlement.Byname);
+                        specs.Add(stringLocalizer["Epithet"] + ": " + x.Settlement.Byname);
                     }
 
-                    if (x.Settlement.RelatedPlace != null)
+                    if (x.Settlement.RelatedGeography != null)
                     {
-                        specs.Add("Geo: " + x.Settlement.RelatedPlace.PlaceNToponymyList
+                        specs.Add(stringLocalizer["Geography"] + ": " + x.Settlement.RelatedGeography.PlaceNToponymyList
                             .FirstOrDefault(x => x.IsCurrentName)?.Toponymy.ToponymyName);
                     }
                 }
@@ -95,7 +105,7 @@ namespace Sammlerplattform.Controllers
 
                     if (!string.IsNullOrWhiteSpace(parentName))
                     {
-                        specs.Add("Teil von: " + parentName);
+                        specs.Add(stringLocalizer["Part of"] + ": " + parentName);
                     }
                 }
 
@@ -108,7 +118,7 @@ namespace Sammlerplattform.Controllers
                 };
             })];
 
-            return Ok(placeList);
+            return Ok(placeDTOList);
         }
         public class PlaceSearchDTO
         {
@@ -125,10 +135,18 @@ namespace Sammlerplattform.Controllers
 
         [HttpPost("listParties")]
         public IActionResult ListParties([FromBody] PartySearchDTO partySearchDTO)
-        {
+        {  
             PartySearchParameterModel model = new();
             if (partySearchDTO != null)
             {
+                if (partySearchDTO.Name != null)
+                {
+                    List<int> entityIds = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter { EntityType = [nameof(Party)], TranslatedText = [partySearchDTO.Name] }).Select(x => x.EntityId)];
+                    if (entityIds.Count > 0)
+                    {
+                        model.PartyID = entityIds;
+                    }
+                }
                 if (!string.IsNullOrEmpty(partySearchDTO.Name))
                 {
                     model.PartyName = [partySearchDTO.Name];
@@ -145,11 +163,11 @@ namespace Sammlerplattform.Controllers
                 List<string> specs = [];
                 if (x.Individual != null)
                 {
-                    if (!string.IsNullOrWhiteSpace(x.Individual.Pseudonym)) { specs.Add("Pseudonym: " + x.Individual.Pseudonym); } if (!string.IsNullOrWhiteSpace(x.Individual.Signature)) { specs.Add("Signatur: " + x.Individual.Signature); } }
+                    if (!string.IsNullOrWhiteSpace(x.Individual.Pseudonym)) { specs.Add(stringLocalizer["Pseudonym"] + ": " + x.Individual.Pseudonym); } if (!string.IsNullOrWhiteSpace(x.Individual.Signature)) { specs.Add("Signatur: " + x.Individual.Signature); } }
                 if (x.Organization != null)
                 {
                     string? productionFacility = x.Organization.ProductionFacility?.ProductionFacilityName;
-                    if (!string.IsNullOrWhiteSpace(productionFacility)) { specs.Add("Branche: " + productionFacility); } specs.Add("Organisationstyp: " + EnumExtensions.GetDescription(x.Organization.OrganizationTypeEnum));
+                    if (!string.IsNullOrWhiteSpace(productionFacility)) { specs.Add(stringLocalizer["ProductionFacility"] + ": " + productionFacility); } specs.Add("Organisationstyp: " + EnumExtensions.GetDescription(x.Organization.OrganizationTypeEnum));
                 }
 
                 return new PartyDTO
@@ -179,10 +197,16 @@ namespace Sammlerplattform.Controllers
         [HttpGet("listEras")]
         public IActionResult ListEras(string? name)
         {
+
             EraSearchParameterModel eraSearchParameter = new();
             if (!string.IsNullOrEmpty(name))
             {
                 eraSearchParameter.EraName.Add(name);
+                List<int> entityIds = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter { EntityType = [nameof(Era)], TranslatedText = [name] }).Select(x => x.EntityId)];
+                if (entityIds.Count > 0)
+                {
+                    eraSearchParameter.EraID = entityIds;
+                }
             }
 
             List<EraDTO> eraList = [.. processEra.GetWithPredicates(eraSearchParameter)
@@ -261,23 +285,6 @@ namespace Sammlerplattform.Controllers
             public string? Name { get; set; }
         }
 
-        [HttpGet("listProcessOfManufacture")]
-        public IActionResult ListProcessOfManufacture(string? process)
-        {
-            ProcessOfManufactureSearchParameter searchParameter = new();
-            if (!string.IsNullOrEmpty(process))
-            {
-                searchParameter.ProcessOfManufactureName.Add(process);
-                searchParameter.Mainprocess.Add(process);
-                searchParameter.Technique.Add(process);
-            }
-
-            List<ProcessOfManufacture> processOfManufactureList = [.. processProcessOfManufacture.GetWithPredicates(searchParameter)
-                 .OrderBy(x => x.Mainprocess)
-                 .ThenBy(x => x.ProcessOfManufactureName)];
-            return Ok(processOfManufactureList);
-        }
-
         [HttpGet("listCollectionAreas")]
         public IActionResult ListCollectionAreas()
         {
@@ -310,7 +317,7 @@ namespace Sammlerplattform.Controllers
             })
                 .Select(c => new NodeDTO
                 {
-                    ID = c.Concept.ConceptID,
+                    ID = c.Concept.Id,
                     Label = c.Concept.ConceptName
                 })];
 
@@ -320,7 +327,7 @@ namespace Sammlerplattform.Controllers
                     From = x.FromConceptID,
                     To = x.ToConceptID,
                     Label = x.RelationType.ToString(),
-                    Arrows = x.IsDirected ? "to" : ""
+                    Arrows = x.IsDirected ? stringLocalizer["to"] : ""
                 })];
 
             var result = new
@@ -345,19 +352,20 @@ namespace Sammlerplattform.Controllers
         }
 
         [HttpGet("listConcepts")]
-        public ActionResult ListConcepts(string conceptName)
+        public ActionResult ListConcepts(string? conceptName)
         {
             ConceptualRelationshipSearchParameterModel searchParameter = new();
             if (!string.IsNullOrEmpty(conceptName))
             {
+                List<int> entityIds = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter { EntityType = [nameof(Concept)], TranslatedText = [conceptName] }).Select(x => x.EntityId)];
+                searchParameter.ConceptID = entityIds;
                 searchParameter.ConceptName = [conceptName];
-            }
-            ;
+            };
 
             List<ConceptDTO> conceptialRelations = [.. processConcept.GetWithPredicates(searchParameter)
                 .Select(x => new ConceptDTO
                 {
-                    ConceptID = x.Concept.ConceptID,
+                    ConceptID = x.Concept.Id,
                     ConceptName = x.Concept.ConceptName,
                     Description = x.Concept.Description
                 })];

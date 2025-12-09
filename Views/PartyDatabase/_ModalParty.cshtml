@@ -1,39 +1,42 @@
 ﻿@using Sammlerplattform.Models.PartyDatabase
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 <div class="modal fade" id="partyModal" tabindex="-1" aria-labelledby="partyModal" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="partyModalLabel">Wähle die Partei aus</h1>
+                <h1 class="modal-title fs-5" id="partyModalLabel">@Localizer["Party_Select"]</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body ui-front modalBodyParty">
                 <div class="row">
                     <div class="col-sm-4 col-sm-offset-4">
                         <div class="input-group">
-                            <input type="text" class="form-control inputPartySearch" placeholder="Ort" aria-label="Ort" />
+                            <input type="text" class="form-control inputPartySearch" placeholder="@Localizer["Party"]" aria-label="@Localizer["Party"]" />
                             <div>
                                 <select class="form-select" id="partyType" asp-items="Html.GetEnumSelectList<PartyType>()">
+                                    <option value="">@Localizer["Party_Select"]</option>
                                 </select>
                             </div>
-                            <button class="btn btn-primary partySearchSubmit" type="button">Suchen</button>
+                            <button class="btn btn-primary partySearchSubmit" type="button">@Localizer["Search"]</button>
                         </div>
                     </div>
                 </div>
                 <table class="table" id="partySearchResultTable">
                     <thead>
                         <tr>
-                            <th scope="col">PartyID</th>
-                            <th scope="col">Partei</th>
-                            <th scope="col">Parteityp</th>
-                            <th scope="col">Weitere Spezifikationen</th>
-                            <th scope="col">Aktionen</th>
+                            <th scope="col">@Localizer["PartyID"]</th>
+                            <th scope="col">@Localizer["Party"]</th>
+                            <th scope="col">@Localizer["PartyType"]</th>
+                            <th scope="col">@Localizer["FurtherSpecs"]</th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Close"]</button>
             </div>
         </div>
     </div>

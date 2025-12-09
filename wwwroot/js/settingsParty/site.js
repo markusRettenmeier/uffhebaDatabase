@@ -24,7 +24,7 @@
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.classList.add("btn", "btn-danger", "btn-sm", "removePlaceRow");
-    removeBtn.textContent = "Entfernen";
+    removeBtn.textContent = i18n.get("Remove");
 
     tdActions.appendChild(hiddenInput);
     tdActions.appendChild(removeBtn);
@@ -71,7 +71,7 @@ function setProductionFacilitesIntoOptions(stored) {
     
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
-    defaultOption.textContent = '-- Bitte wählen --';
+    defaultOption.textContent = i18n.get("Option_Select");
     select.appendChild(defaultOption);
 
     const selectedProductionFacilityIDElement = document.getElementById("hiddenProductionFacilityID");

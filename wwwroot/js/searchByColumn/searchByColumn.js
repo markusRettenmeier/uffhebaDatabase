@@ -36,9 +36,6 @@ document.addEventListener("change", function (event) {
 });
 
 if (window.location.href.includes("/Sammlung")) {
-  let storedColumns = window.location.href.includes("/Gesamtansicht")
-    ? columns
-    : columnsSimple;
   let columnNo = 0;
 
   storedColumns.forEach(([name], i) => {
@@ -68,7 +65,7 @@ function onClickColumnDropDown(event) {
   });
 
   // Always hide the default "Wähle_Spalte" option
-  const defaultOption = select.querySelector(`option[value="Wähle_Spalte"]`);
+  const defaultOption = select.querySelector(`option[value=""]`);
   if (defaultOption) defaultOption.hidden = true;
 }
 
@@ -80,7 +77,7 @@ function changeColumnDropdown(event) {
     column = target.value;
   }
 
-  if (chosenColumn != "Wähle_Spalte") {
+    if (chosenColumn != i18n.get("Option_Select")) {
     columnsSelectedBefore.splice(
       columnsSelectedBefore.indexOf(chosenColumn),
       1

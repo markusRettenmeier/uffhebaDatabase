@@ -1,53 +1,46 @@
-﻿@model Sammlerplattform.Models.UserSettings.UserWithPhoto
+﻿@model Sammlerplattform.Models.UserSettings.UsingIdentityUser
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 @{
+    ViewData["Title"] = Localizer["Profile"];
     Layout = "_LayoutSettings";
-    ViewData["Title"] = "Benutzerprofil";
 }
 
-
-<div class="row">
-    <div class="col-md-6">
 <h3>@ViewData["Title"]</h3>
 <hr />
 
-<h5>Accountdetails</h5>
-
-<label asp-for="UsingIdentityUsers.Email" class="form-label"></label>
+<label asp-for="Email" class="form-label"></label>
 <div class="input-group mb-2">
-    <a type="button" asp-action="changeEMail" class="btn btn-primary">E-Mail ändern</a>
-    <input asp-for="UsingIdentityUsers.Email" class="form-control" disabled />
+    <a type="button" asp-action="ChangeEMail" class="btn btn-primary">@Localizer["Email_Change"]</a>
+    <input asp-for="Email" class="form-control" disabled />
 </div>
 
 <label class="form-label">Password</label>
 <div class="input-group mb-3">
-    <a type="button" asp-action="ChangePassword" class="btn btn-primary">Passwort ändern</a>
+    <a type="button" asp-action="ChangePassword" class="btn btn-primary">@Localizer["Password_Change"]</a>
     <input type="password" value="Password" class="form-control" disabled />
 </div>
 
 <form asp-action="ProfileChange">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="UsingIdentityUsers.Email" />
-    <label asp-for="UsingIdentityUsers.UserName" class="form-label"></label>
+    <label asp-for="UserName" class="form-label"></label>
     <div class="input-group mb-2">
-        <button type="submit" class="btn btn-primary">Benutzername ändern</button>
-        <input asp-for="UsingIdentityUsers.UserName" class="form-control">
+        <button class="btn btn-primary">@Localizer["UserName_Change"]</button>
+        <input asp-for="UserName" class="form-control">
     </div>
-    <span asp-validation-for="UsingIdentityUsers.UserName" class="text-danger"></span>
+    <span asp-validation-for="UserName" class="text-danger"></span>
 </form>
 
 <hr />
 <div class="mb-3">
     <p>
-        Ihr Account beinhaltet persönliche Daten, welche Sie uns gaben. Hier wird Ihnen ermöglicht diese Daten zu herunterzuladen oder zu löschen.
-        </p>
-    <a asp-action="DownloadPersonalData" class="btn btn-primary">Accountdetails herunterladen</a>
+        @Localizer["PersonalData_Notification"]
+    </p>
+    <a asp-action="DownloadPersonalData" class="btn btn-primary">@Localizer["PersonalData_Download"]</a>
 </div>
 <hr />
 <div class="mb-5">
-    <p>
-        <strong>Diese Daten zu löschen, wird für immer Ihren Account löschen, ohne Widerruf.</strong>
-    </p>
-    <a id="delete" asp-action="DeletePersonalData" class="btn btn-danger">Account löschen</a>
+    <a asp-action="DeletePersonalData" class="btn btn-danger">@Localizer["Account_Delete"]</a>
 </div>
 
 @* <hr />
@@ -55,5 +48,3 @@
 <p>Wählen Sie hier ihr Abonnement aus. Dies ermöglicht Ihnen den Speicherplatz oder/und das Analysetool zu nutzen.</p>
 <a class="btn btn-primary" asp-controller="Payment" asp-action="Checkout" asp-route-email="@Model.UsingIdentityUsers.Email">Abonnements verwalten</a>
 <p>Ihre derzeitige Beitragshöhe, falls Sie außerhalb der Probezeit sind. <h5>@ViewData["currentFee"]€</h5></p> *@
-</div>
-</div>

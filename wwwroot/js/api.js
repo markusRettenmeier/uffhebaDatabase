@@ -39,7 +39,7 @@ if (togglePlace) {
                 } else {
                     const tr = document.createElement('tr');
                     tr.appendChild(createTd({
-                            text: 'Keine Einträge zum Suchwort vorhanden.',
+                        text: i18n.get("NothingFound"),
                             scope: 'row'
                     }))
                     tbody.appendChild(tr);
@@ -88,30 +88,30 @@ function buildToponymySearchResultRow(element, idx) {
         const btnParentPlace = document.createElement('button');
         btnParentPlace.type = 'button';
         btnParentPlace.classList.add('btn', 'btn-primary', 'placeSearchResultParentButton');
-        btnParentPlace.textContent = 'Eltern Ort hinzufügen';
+        btnParentPlace.textContent = i18n.get("Place_ParentAdd");
         btnParentPlace.onclick = () => addParentPlace(idx);
         divAction.appendChild(btnParentPlace);
 
         const btnChildPlace = document.createElement('button');
         btnChildPlace.type = 'button';
         btnChildPlace.classList.add('btn', 'btn-primary', 'placeSearchResultChildButton');
-        btnChildPlace.textContent = 'Kind Ort hinzufügen';
+        btnChildPlace.textContent = i18n.get("Place_ChildAdd");
         btnChildPlace.onclick = () => addChildPlace(idx);
         divAction.appendChild(btnChildPlace);
 
         if (url.includes('Settlement')) {
-            const btnRelatedPlace = document.createElement('button');
-            btnRelatedPlace.type = 'button';
-            btnRelatedPlace.classList.add('btn', 'btn-primary', 'placeSearchResultRelatedButton');
-            btnRelatedPlace.textContent = 'Bezugsort hinzufügen';
-            btnRelatedPlace.onclick = () => addRelatedPlace(idx);
-            divAction.appendChild(btnRelatedPlace);
+            const btnRelatedGeography = document.createElement('button');
+            btnRelatedGeography.type = 'button';
+            btnRelatedGeography.classList.add('btn', 'btn-primary', 'placeSearchResultRelatedButton');
+            btnRelatedGeography.textContent = i18n.get("RelatedGeography_Add");
+            btnRelatedGeography.onclick = () => addRelatedPlace(idx);
+            divAction.appendChild(btnRelatedGeography);
         }
     } else if (url.includes('Individual') || url.includes('Organization') || url.includes('CollectionItem')) {
         const btnParentPlace = document.createElement('button');
         btnParentPlace.type = 'button';
         btnParentPlace.classList.add('btn', 'btn-primary', 'btn-sm');
-        btnParentPlace.textContent = 'Ort hinzufügen';
+        btnParentPlace.textContent = i18n.get("Place_Add");
         btnParentPlace.onclick = () => addPlace(idx);
         divAction.appendChild(btnParentPlace);
     }
@@ -154,7 +154,7 @@ if (toggleParty) {
                 } else {
                     const tr = document.createElement('tr');
                     tr.appendChild(createTd({
-                            text: 'Keine Einträge zum Suchwort vorhanden.',
+                        text: i18n.get("NothingFound"),
                             scope: 'row'
                     }))
                     tbody.appendChild(tr);
@@ -195,7 +195,7 @@ function buildPartySearchResultRow(element, idx) {
     const btnAction = document.createElement('button');
     btnAction.type = 'button';
     btnAction.classList.add('btn', 'btn-primary', 'btn-sm');
-    btnAction.textContent = 'Ort hinzufügen';
+    btnAction.textContent = i18n.get("Place_Add");
     btnAction.onclick = () => addParty(idx);
     tdAction.appendChild(btnAction);
 
@@ -207,73 +207,6 @@ function sendErrorMessage(xhr) {
     console.log("fetch-Error:" + xhr)
     const createCitySpan = $("#createCitySpan");
     createCitySpan.text(xhr).css('color', 'red');
-}
-
-function enableAutocomplete(inputID, inputName, sourceUrl, sourceStorage) {
-    inputName.addEventListener('input', async function () {
-        if (sourceUrl != "") {
-            const query = inputName.value.trim();
-            if (query.length < 2) return; // Warte, bis mindestens 2 Zeichen eingegeben sind
-
-            try {
-                const response = await fetch(`${sourceUrl}?q=${encodeURIComponent(query)}`);
-                if (!response.ok) throw new Error('Netzwerkfehler');
-
-                const suggestions = await response.json();
-                showAutocompleteSuggestions(inputID, inputName, suggestions);
-            } catch (error) {
-                console.error('Autocomplete Fehler:', error);
-            }
-        }
-        else if (sourceStorage != "") {
-            showAutocompleteSuggestions(inputID, inputName, sourceStorage);
-        }
-    });
-}
-
-function showAutocompleteSuggestions(inputID, inputName, suggestions) {
-    let existingDropdown = document.querySelector('.autocomplete-dropdown');
-    if (existingDropdown) existingDropdown.remove();
-
-    if (suggestions.length === 0) return;
-
-    const dropdown = document.createElement('ul');
-    dropdown.className = 'autocomplete-dropdown';
-    dropdown.style.position = 'absolute';
-    dropdown.style.left = `${inputName.offsetLeft}px`;
-    dropdown.style.top = `${inputName.offsetTop + inputName.offsetHeight}px`;
-    dropdown.style.width = `${inputName.offsetWidth}px`;
-    dropdown.style.listStyle = 'none';
-    dropdown.style.padding = '5px';
-    dropdown.style.margin = '0';
-    dropdown.style.backgroundColor = 'white';
-    dropdown.style.border = '1px solid #ccc';
-    dropdown.style.zIndex = '1000';
-
-    suggestions.forEach(suggestion => {
-        const item = document.createElement('li');
-        item.textContent = suggestion.value;
-        item.style.padding = '5px';
-        item.style.cursor = 'pointer';
-
-        item.addEventListener('click', function () {
-            inputID.value = suggestion.id;
-            inputName.value = suggestion.value;
-            dropdown.remove();
-        });
-
-        dropdown.appendChild(item);
-    });
-
-    document.body.appendChild(dropdown);
-
-    // Schließen, wenn außerhalb geklickt wird
-    document.addEventListener('click', function closeDropdown(event) {
-        if (!dropdown.contains(event.target) && event.target !== inputName) {
-            dropdown.remove();
-            document.removeEventListener('click', closeDropdown);
-        }
-    });
 }
 
 async function getCollectionAreaList() {
@@ -306,7 +239,7 @@ if (conceptToggle) {
                 } else {
                     const tr = document.createElement('tr');
                     const td = document.createElement('td');
-                    td.textContent = `Kein Eintrag vorhanden, bitte erstellen Sie ihn.`;
+                    td.textContent = i18n.get("NothingFound");
                     tr.appendChild(td);
                     tbody.appendChild(tr);
                 }
@@ -350,21 +283,21 @@ function buildConceptSearchResultRow(element, idx) {
         const btnSynonym = document.createElement('button');
         btnSynonym.type = 'button';
         btnSynonym.className = 'btn btn-primary';
-        btnSynonym.textContent = 'Als Synonym hinzufügen';
+        btnSynonym.textContent = i18n.get("Concept_SynonymAdd");
         btnSynonym.onclick = () => addConcept(idx, 'synonym');
         divAction.appendChild(btnSynonym);
 
         const btnSubTerm = document.createElement('button');
         btnSubTerm.type = 'button';
         btnSubTerm.className = 'btn btn-primary';
-        btnSubTerm.textContent = 'Als Oberbegriff hinzufügen';
+        btnSubTerm.textContent = i18n.get("Concept_SubTermAdd");
         btnSubTerm.onclick = () => addConcept(idx, 'subterm');
         divAction.appendChild(btnSubTerm);
 
         const btnShortterm = document.createElement('button');
         btnShortterm.type = 'button';
         btnShortterm.className = 'btn btn-primary';
-        btnShortterm.textContent = 'Als Kurzbezeichnung hinzufügen';
+        btnShortterm.textContent = i18n.get("Concept_ShortForAdd");
         btnShortterm.onclick = () => addConcept(idx, 'shortterm');
         divAction.appendChild(btnShortterm);
     }
@@ -372,7 +305,7 @@ function buildConceptSearchResultRow(element, idx) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'btn btn-primary';
-        btn.textContent = 'Hinzufügen';
+        btn.textContent = i18n.get("Add");
         btn.onclick = () => addConcept(idx,'');
         divAction.appendChild(btn);
     }

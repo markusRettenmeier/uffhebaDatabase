@@ -1,14 +1,17 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+@{
     bool? inAdministration = ViewData["inAdministration"] as bool?;
 }
 
 <div id="mySidebar" class="zIndex_5 sidenav-search box-shadow">
     <div class="d-grid gap-2 m-2 sidenav-search-upperPart">
         <button type="button" class="btn-close" aria-label="Close" onclick="closeNav()"></button>
-        <input type="submit" value="Suche starten" class="btn btn-primary hochladenSubmitSuche" onclick="setSessionStorageData()">
+        <button class="btn btn-primary hochladenSubmitSuche">@Localizer["Search"]</button>
         <button class="btn btn-primary hochladenSpinnerSuche" disabled style="display: none;">
             <span class="spinner-border spinner-border-sm"></span>
-            Suche wurde gestartet...
+            @Localizer["Search_Started"]
         </button>
     </div>
     <div class="divToTransmit container">
@@ -16,9 +19,9 @@
             <div class="col input-group">
                 <button id="removeColumn_0" type="button" class="btn btn-outline-danger removeColumn" style="display:none">-</button>
                 <select name="columnName" id="columnName_0" class="form-select columnDropDown">
-                    <option value="Choose_Column" selected>Wähle Spalte</option>
-                    <option value="PlaceNToponymyList_Toponymy_ToponymyName">Ortsname</option>
-                    <option value="ToponymyTypeInt">Geographietyp</option>
+                    <option value="" selected>@Localizer["Option_Select"]</option>
+                    <option value="PlaceNToponymyList_Toponymy_ToponymyName">@Localizer["ToponymyName"]</option>
+                    <option value="ToponymyTypeInt">@Localizer["ToponymyType"]</option>
                     @if ((string?)ViewData["Place"] == "Settlement") {
                         <option value="Settlement_SettlementNPostalcodeList_Postalcode_PostalcodeNumber">PLZ</option>
                     }
@@ -33,8 +36,8 @@
     </div>
     <div class="text-center mt-2">
         <div class="btn-group" role="group" aria-label="addCol reset">
-            <button class="btn btn-primary addColumn" type="button">Spalte hinzufügen</button>
-            <button class="btn btn-outline-primary searchReset" onclick="searchReset()" type="button">Zurücksetzen</button>
+            <button class="btn btn-primary addColumn" type="button">@Localizer["Column_Add"]</button>
+            <button class="btn btn-outline-primary searchReset" onclick="searchReset()" type="button">@Localizer["Reset"]</button>
         </div>
     </div>
 </div>

@@ -1,29 +1,30 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Sammlerplattform.Resources;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sammlerplattform.Models.Account
 {
     public class RegisterViewModel : IdentityUser
     {
-        [Required(ErrorMessage = "E-Mail ist notwendig")]
-        [EmailAddress(ErrorMessage = "E-Mail ist ungültig")]
-        [Display(Name = "E-Mail*")]
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Email", ResourceType = typeof(SharedResources))]
         public override string? Email { get => base.Email; set => base.Email = value; }
 
-        [Required(ErrorMessage = "Benutzername ist notwendig")]
-        [Display(Name = "Benutzername*")]
+        [Required]
+        [Display(Name = "UserName", ResourceType = typeof(SharedResources))]
         public override string? UserName { get => base.UserName; set => base.UserName = value; }
 
-        [Required(ErrorMessage = "Passwort ist notwendig")]
-        [StringLength(100, ErrorMessage = "Das {0} muss zumindest {2} und maximal {1} Zeichen lang sein.", MinimumLength = 12)]
+        [Required]
+        [StringLength(100, MinimumLength = 12)]
         [DataType(DataType.Password)]
-        [Display(Name = "Passwort*")]
+        [Display(Name = "Password", ResourceType = typeof(SharedResources))]
         public string? Password { get; set; }
 
-        [Required(ErrorMessage = "Bitte bestätige dein Passwort")]
+        [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Bestätige Passwort*")]
-        [Compare("Password", ErrorMessage = "Das Passwort und Bestätigungspasswort stimmen nicht überein.")]
-        public string? ConfirmPassword { get; set; }
+        [Compare(nameof(Password))]
+        [Display(Name = "ConfirmPassword", ResourceType = typeof(SharedResources))]
+        public required string ConfirmPassword { get; set; }
     }
 }

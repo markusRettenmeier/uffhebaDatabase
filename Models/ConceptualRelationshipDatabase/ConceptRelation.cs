@@ -1,13 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Sammlerplattform.Resources;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
 {
     public class ConceptRelation
     {
-        //public int ConceptRelationID { get; set; }
-
+        [Display(Name = "RelationType", ResourceType = typeof(SharedResources))]
         public int RelationTypeInt { get; set; }
         [NotMapped]
+        [Display(Name = "RelationType", ResourceType = typeof(SharedResources))]
         public RelationType RelationType
         {
             get => (RelationType)RelationTypeInt; set => RelationTypeInt = (int)value;
@@ -26,8 +28,11 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
 
     public enum RelationType
     {
+        [Display(Name = "SynonymFor", ResourceType = typeof(SharedResources))]
         SynonymFor = 0,
+        [Display(Name = "SubTermOf", ResourceType = typeof(SharedResources))]
         SubTermOf = 1,
+        [Display(Name = "ShortFor", ResourceType = typeof(SharedResources))]
         ShortFor = 2
     }
 }

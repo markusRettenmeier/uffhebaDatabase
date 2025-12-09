@@ -1,26 +1,51 @@
-﻿@using Sammlerplattform.Models.PartyDatabase
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase
+@using Sammlerplattform.Models.PartyDatabase
 @using Sammlerplattform.Models.PlaceDatabase
 @model IEnumerable<Sammlerplattform.Models.CollectionItemDatabase.CollectionItemOperationParameterModel>
+@* @inject IViewLocalizer ViewLocalizer *@
+@* @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer *@
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> SharedLocalizer
+@* @using Sammlerplattform.Resources.Views.Home
+@inject IHtmlLocalizer<Frontpage> HomeLocalizer *@
 
 @{
+    ViewData["Title"] = SharedLocalizer["Frontpage"];
     Layout = "_Layout";
-    ViewData["Title"] = "Startseite";
 
+    var test = SharedLocalizer["Search_TypeIn"];
+    Console.WriteLine($"Key: {test.Name}, Value: {test.Value}, ResourceNotFound: {test.IsResourceNotFound}");
+    // var test1 = HomeLocalizer["Search_TypeIn"];
+    // Console.WriteLine($"Key: {test1.Name}, Value: {test1.Value}, ResourceNotFound: {test1.IsResourceNotFound}");    
+    // var test2 = ViewLocalizer["Search_TypeIn"];
+    // Console.WriteLine($"Key: {test2.Name}, Value: {test2.Value}, ResourceNotFound: {test2.IsResourceNotFound}");
+    
     int count = 0;
-    int? currentRows = ViewData["currentRows"] as int?;
+    int? topK = ViewData["TopK"] as int?;
     int? maxRows = ViewData["maxRows"] as int?;
     int? lastAmountRows = ViewData["lastAmountRows"] as int?;
 }
 
-<h1>Willkommen bei Sammlerplattform</h1>
+<div class="mx-auto p-2" style="display: block; width: 800px">
+    <div class="badge text-bg-info text-wrap">
+        <p>Dies ist ein Prototyp in der Beta-Phase. Es gibt nur einen Nutzer. Alle Daten werden später gelöscht.</p>
+        <p>Bei Änderungsvorschlägen, rund um Lesbarkeit, Aubau, Handhabung usw. steht ein Forum bereit.</p>
+        <p>Nähere Informationen zur Benutzung der Verwaltung finden Sie in der Dokumentation.</p>
+    </div>
+</div>
+<form asp-for="Frontpage">
+    <div class="position-relative mb-4">
+        <input name="SemanticSearchQuery" type="text" class="form-control search-input" placeholder="@SharedLocalizer["Search_TypeIn"]">
+        <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
+    </div>
+</form>
 
-<p>Dies ist die Startseite der Sammlerplattform. Bitte wählen Sie eine Option aus dem Menü, um fortzufahren.</p>
 @foreach (var item in Model)
 {
     <div class="row align-items-start pt-3" id="row_@count">
         @{
             <div class="col me-1" id="indexSimplePicColumn_@count">
-                @for (int i = 0; i < item.CollectionItemPictureList.Count; i++)
+                @for (int i = 0;i < item.CollectionItemPictureList.Count; i++)
                 {
                     string imageNormal = $"/images/Klein/{item.CollectionItemPictureList[i].CollectionItemPictureID}.png";
                     string imageKlein = $"/images/Klein/{item.CollectionItemPictureList[i].CollectionItemPictureID}.png";
@@ -45,10 +70,11 @@
                         @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.UniqueName): @Html.DisplayFor(modelItem => item.CollectionItemEntity.UniqueName)
                     </li>
                     <li>
-                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Zeit): @Html.DisplayFor(modelItem => item.CollectionItemEntity.Zeit)
+                        @{var statenameValue = item.CollectionItemEntity.State != null ? item.CollectionItemEntity.State.StateName : "N/A";}
+                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.State!.StateName): @statenameValue
                     </li>
                     <li>
-                        @Html.DisplayNameFor(modelItem => item.ProcessOfManufacture): @Html.DisplayFor(modelItem => item.ProcessOfManufacture.ProcessOfManufactureName) @Html.DisplayFor(modelItem => item.ProcessOfManufacture.Technique)
+                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Time): @Html.DisplayFor(modelItem => item.CollectionItemEntity.Time)
                     </li>
                     <li>
                         @Html.DisplayNameFor(modelItem => item.CollectionItemNPartyList):
@@ -74,9 +100,9 @@
                     </li>
                 </ul>
             </div>
-            <div id="IndexSimpleOpenColumn_@count" class="col col-2 IndexSimpleOpenColumn">
-                <button class="btn btn-primary indexSimpleButtons IndexSimpleOpenButtons" id="IndexSimpleOpenButtons_@count">Daten</button>
-            </div>
+            // <div id="IndexSimpleOpenColumn_@count" class="col col-2 IndexSimpleOpenColumn">
+            //     <button class="btn btn-primary indexSimpleButtons IndexSimpleOpenButtons" id="IndexSimpleOpenButtons_@count">@ViewLocalizer["Details"]</button>
+            // </div>
             count++;
         }
     </div>
@@ -84,14 +110,13 @@
 
 @if (count == 0)
 {
-    <h4>Es wurde leider nichts gefunden.</h4>
-    <h4>Bitte versuche es mit einem anderen Begriff.</h4>
+    @SharedLocalizer["Message_NothingFound"]
 }
-@if (currentRows is not null && currentRows < maxRows)
+@if (topK is not null && topK < maxRows)
 {
     <form asp-controller="Sammlung" asp-action="Kurzansicht">
         <input id="indexSimpleMaxRows" value="@maxRows" style="display: none">
-        <input id="indexSimpleCurrentRows" name="currentRows" value="@currentRows" style="display: none">
+        <input id="indexSimpleCurrentRows" name="topK" value="@topK" style="display: none">
         <input id="indexSimpleLastRows" value="@lastAmountRows" style="display: none">
         <div class="d-grid gap-2 mt-4 mb-4">
             <div class="transmitData" hidden></div>

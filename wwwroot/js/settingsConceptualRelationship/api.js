@@ -13,7 +13,7 @@
             const container = document.getElementById("network");
             new vis.Network(container, { nodes, edges }, {
                 edges: {
-                    arrows: "to",
+                    arrows: i18n.get("to"),
                     font: { align: "middle" },
                     length: 200
                 },

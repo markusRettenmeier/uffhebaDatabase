@@ -4,6 +4,7 @@ using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.VectorSearch;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
@@ -16,15 +17,15 @@ using Sammlerplattform.Models.PlaceDatabase.RegionDatabase;
 using Sammlerplattform.Models.PlaceDatabase.ReliefDatabase;
 using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
 using Sammlerplattform.Models.PlaceDatabase.TransportRouteDatabase;
-using Sammlerplattform.Models.ProcessOfManufactureDatabase;
+using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Models.UserSettings;
 
 namespace Sammlerplattform.Data;
 
 public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : IdentityDbContext<UsingIdentityUser>(options)
 {
-    public DbSet<UserPicture> UserPicture { get; set; } = null!;
     public DbSet<ConceptRelationshipQueryResult> ConceptRelationshipQueryResult { get; set; }
+    public DbSet<EntityTranslation> EntityTranslation { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -91,14 +92,6 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .HasOne(x => x.CollectionArea)
             .WithMany(x => x.StateList)
             .HasForeignKey(x => x.CollectionAreaID);
-
-        _ = builder.Entity<CollectionItemEntity>()
-            .HasOne(x => x.ProcessOfManufacture)
-            .WithMany(x => x.CollectionItemEntityList);
-        _ = builder.Entity<ProcessOfManufacture>()
-            .HasMany(x => x.CollectionItemEntityList)
-            .WithOne(x => x.ProcessOfManufacture)
-            .HasForeignKey(x => x.ProcessOfManufactureID);
 
         _ = builder.Entity<CollectionItemEntity>()
             .HasIndex(i => new { i.UsingIdentityUsersID, i.PersonalIdentificationNumber })
@@ -182,9 +175,9 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .IsRequired(true);
 
         _ = builder.Entity<Settlement>()
-            .HasOne(e => e.RelatedPlace)
+            .HasOne(e => e.RelatedGeography)
             .WithOne(e => e.RelatedSettlement)
-            .HasForeignKey<Settlement>(e => e.RelatedPlaceID)
+            .HasForeignKey<Settlement>(e => e.RelatedGeographyID)
             .OnDelete(DeleteBehavior.Restrict);
 
         _ = builder.Entity<Party>()
@@ -285,27 +278,27 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .IsRequired(true);
 
         _ = builder.Entity<CollectionAttribute>()
-            .HasMany(cf => cf.CollectionItemValueList)
+            .HasMany(cf => cf.CollectionAttributeValueList)
             .WithOne(civ => civ.CollectionAttribute)
             .HasForeignKey(civ => civ.CollectionAttributeID);
-        _ = builder.Entity<CollectionItemValue>()
+        _ = builder.Entity<CollectionAttributeValue>()
             .HasOne(civ => civ.CollectionAttribute)
-            .WithMany(cf => cf.CollectionItemValueList)
+            .WithMany(cf => cf.CollectionAttributeValueList)
             .IsRequired(true);
-        _ = builder.Entity<CollectionItemValue>()
+        _ = builder.Entity<CollectionAttributeValue>()
             .HasOne(civ => civ.CollectionItemEntity)
-            .WithMany(pe => pe.CollectionItemValueList)
+            .WithMany(pe => pe.CollectionAttributeValueList)
             .IsRequired(false);
         _ = builder.Entity<CollectionItemEntity>()
-            .HasMany(pe => pe.CollectionItemValueList)
+            .HasMany(pe => pe.CollectionAttributeValueList)
             .WithOne(civ => civ.CollectionItemEntity)
             .HasForeignKey(civ => civ.CollectionItemEntityID);
-        _ = builder.Entity<CollectionItemValue>()
+        _ = builder.Entity<CollectionAttributeValue>()
             .HasOne(civ => civ.CollectionItemPotential)
-            .WithMany(pp => pp.CollectionItemValueList)
+            .WithMany(pp => pp.CollectionAttributeValueList)
             .IsRequired(false);
         _ = builder.Entity<CollectionItemPotential>()
-            .HasMany(pp => pp.CollectionItemValueList)
+            .HasMany(pp => pp.CollectionAttributeValueList)
             .WithOne(civ => civ.CollectionItemPotential)
             .HasForeignKey(civ => civ.CollectionItemPotentialID);
 
@@ -327,24 +320,15 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .WithOne(c => c.CollectionArea)
             .HasForeignKey(c => c.CollectionAreaID);
         _ = builder.Entity<CollectionItemEntity>()
-    .HasOne(cip => cip.Concept)
-    .WithMany(c => c.CollectionItemEntityList)
-    .HasForeignKey(cip => cip.ConceptID)
-    .IsRequired(false);
+            .HasOne(cip => cip.Concept)
+            .WithMany(c => c.CollectionItemEntityList)
+            .HasForeignKey(cip => cip.ConceptID)
+            .IsRequired(false);
         _ = builder.Entity<CollectionItemEntity>()
-    .HasOne(cip => cip.Era)
-    .WithMany(c => c.CollectionItemEntityList)
-    .HasForeignKey(cip => cip.EraID)
-    .IsRequired(false);
-
-        //_ = builder.Entity<ConceptRelation>()
-        //    .HasOne(cr => cr.FromConcept)
-        //    .WithMany(c => c.ConceptRelationList)
-        //    .OnDelete(DeleteBehavior.Restrict);
-        //_ = builder.Entity<ConceptRelation>()
-        //    .HasOne(cr => cr.ToConcept)
-        //    .WithMany(c => c.ConceptRelationList)
-        //    .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(cip => cip.Era)
+            .WithMany(c => c.CollectionItemEntityList)
+            .HasForeignKey(cip => cip.EraID)
+            .IsRequired(false);
         _ = builder.Entity<ConceptRelationshipQueryResult>()
             .HasNoKey()                // wichtig, sonst will EF einen PK erzwingen
             .ToView(null);             // verhindert Mapping auf View/Tabelle
@@ -352,27 +336,17 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
         _ = builder.Entity<ConceptRelation>().ToTable("ConceptRelation", b => b.IsTemporal(false)) // echte Edge-Table
            .HasNoKey()                // wichtig, sonst will EF einen PK erzwingen
            .ToView(null);             // verhindert Mapping auf View/Tabelle
-        //_ = builder.Entity<ConceptRelation>().HasKey(e => e.ConceptRelationID);
-        //_ = builder.Entity<ConceptRelation>()
-        //    .HasOne(e => e.FromConcept)
-        //    .WithMany()
-        //    .HasForeignKey(e => e.FromConceptID)
-        //      .OnDelete(DeleteBehavior.Restrict);
-        //_ = builder.Entity<ConceptRelation>()
-        //    .HasOne(e => e.ToConcept)
-        //    .WithMany()
-        //    .HasForeignKey(e => e.ToConceptID)
-        //      .OnDelete(DeleteBehavior.Restrict);
 
         //_ = builder.Entity<ObjectLayer>()
         //    .HasOne(ol => ol.CollectionItemEntity)
         //    .WithOne(cie => cie.ObjectLayer)
         //    .HasForeignKey(ol => ol.CollectionItemEntityID)
         //    .IsRequired(true);
-        //_ = builder.Entity<CollectionItemEmbedding>()
-        //    .HasOne(cie => cie.CollectionItemEntity)
-        //    .WithMany(cie => cie.CollectionItemEmbeddingList)
-        //    .HasForeignKey(cie => cie.CollectionItemEntityID)
-        //    .IsRequired(true);
+        _ = builder.Entity<CollectionItemEmbedding>()
+            .HasOne(cie => cie.CollectionItemEntity)
+            .WithOne(ce => ce.CollectionItemEmbedding)
+            .IsRequired(true);
     }
+
+//public DbSet<Sammlerplattform.Models.ProcessOfManufactureDatabase.ProcessOfManufacture> ProcessOfManufacture { get; set; } = default!;
 }

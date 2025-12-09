@@ -1,23 +1,24 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sammlerplattform.Resources;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sammlerplattform.Models.UserSettings
 {
     public class ChangePasswordModel
     {
-        [Required(ErrorMessage = "Feld bitte ausfüllen")]
+        [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Aktuelles Passwort")]
+        [Display(Name = "OldPassword", ResourceType = typeof(SharedResources))]
         public string? OldPassword { get; set; }
 
-        [Required(ErrorMessage = "Feld bitte ausfüllen")]
-        [StringLength(100, ErrorMessage = "Das Passwort muss mindestens 12 Zeichen haben.", MinimumLength = 12)]
+        [Required]
+        [StringLength(100, MinimumLength = 12)]
         [DataType(DataType.Password)]
-        [Display(Name = "Neues Passwort")]
+        [Display(Name = "NewPassword", ResourceType = typeof(SharedResources))]
         public string? NewPassword { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Bestätige neues Passwort")]
-        [Compare("NewPassword", ErrorMessage = "Das neue Passwort stimmt nicht überein.")]
+        [Display(Name = "ConfirmPassword", ResourceType = typeof(SharedResources))]
+        [Compare(nameof(NewPassword))]
         public string? ConfirmPassword { get; set; }
     }
 }

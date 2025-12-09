@@ -5,6 +5,6 @@ namespace Sammlerplattform.Models.Download
     public class YAMLCollectionItemDownloadModel
     {
         public List<CollectionItemPicture> Scans { get; set; } = [];
-        public YAMLCollectionItem Product { get; set; } = new();
+        public YAMLCollectionItem CollectionItem { get; set; } = new();
     }
 }

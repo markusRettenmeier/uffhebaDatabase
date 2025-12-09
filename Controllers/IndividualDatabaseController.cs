@@ -1,27 +1,31 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using Sammlerplattform.Models;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
-using Sammlerplattform.Services.Processes.PartyProcesses;
+using Sammlerplattform.Resources;
+using Sammlerplattform.Services.DatabaseProcesses.PartyProcesses;
 
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
     public class IndividualDatabaseController(IProcessIndividual processIndividual,
-        IProcessParty processParty) : Controller
+        IProcessParty processParty,
+        IStringLocalizer<SharedResources> stringLocalizer) : Controller
     {
-        public ActionResult Index(string statusMessage, PartySearchParameterModel partySearchParameter)
+        public ActionResult Index(Status status, PartySearchParameterModel partySearchParameter)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
             ViewData["Party"] = "Individual";
 
             List<Party> partyList = [.. processParty.GetListWithPredicate(partySearchParameter).Where(x => x.Individual != null)];
             return View(partyList);
         }
 
-        public ActionResult Create(string statusMessage)
+        public ActionResult Create(Status status)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
             return View();
         }
         public IActionResult CreateSubmit(IndividualOperationParameterModel model)
@@ -30,32 +34,34 @@ namespace Sammlerplattform.Controllers
             return RedirectToAction(nameof(Create), new { statusMessage });
         }
 
-        public ActionResult Edit(string statusMessage, int id)
+        public ActionResult Edit(Status status, int id)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
-            PartySearchParameterModel searchParameterModel = new()
-            {
-                PartyID = [id]
-            };
-            Party? existingParty = processParty.GetListWithPredicate(searchParameterModel).FirstOrDefault();
-            if (existingParty == null || existingParty.Individual == null)
-            {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Individuum nicht gefunden" });
-            }
-
-            IndividualOperationParameterModel individualOperationParameterModel = new()
-            {
-                Party = existingParty,
-                Individual = existingParty.Individual!,
-                PlaceList = existingParty.PlaceList
-            };
-            return View(individualOperationParameterModel);
+            Party? existingParty = processParty.GetListWithPredicate(new PartySearchParameterModel{ PartyID = [id] }).FirstOrDefault();
+            
+            return existingParty == null || existingParty.Individual == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Party_NotFound" })
+                : View(new IndividualOperationParameterModel
+                {
+                    Party = existingParty,
+                    Individual = existingParty.Individual!,
+                    PlaceList = existingParty.PlaceList
+                }); 
         }
         public IActionResult EditSubmit(IndividualOperationParameterModel model)
         {
             (int placeID, int _, string statusMessage) = processIndividual.Edit(model);
             return RedirectToAction(nameof(Edit), new { statusMessage, id = placeID });
+        }
+
+        private void HandleStatus(Status status)
+        {
+            if (!string.IsNullOrEmpty(status.Message))
+            {
+                ViewData["StatusMessage"] = stringLocalizer[status.Message];
+                ViewData["StatusCode"] = status.Code;
+            }
         }
     }
 }

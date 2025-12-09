@@ -85,7 +85,7 @@ function addPlace(idx) {
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.classList.add("btn", "btn-danger", "btn-sm", "removePlaceRow");
-    removeBtn.textContent = "Entfernen";
+    removeBtn.textContent = i18n.get("Remove");
 
     tdActions.appendChild(hiddenInput);
     tdActions.appendChild(removeBtn);
@@ -164,7 +164,7 @@ function addParty(idx) {
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.classList.add("btn", "btn-danger", "btn-sm", "removePartyRow");
-    removeBtn.textContent = "Entfernen";
+    removeBtn.textContent = i18n.get("Remove");
 
     tdActions.appendChild(hiddenInput);
     tdActions.appendChild(removeBtn);
@@ -246,7 +246,7 @@ function addColor() {
     const defaultOption = document.createElement("option");
     defaultOption.selected = true;
     defaultOption.value = "";
-    defaultOption.textContent = "Farbe wählen";
+    defaultOption.textContent = i18n.get("Color_Select");
     select.appendChild(defaultOption);
 
     autocompleteSource.forEach((element) => {
@@ -271,14 +271,14 @@ function addColor() {
     const mainColorLabel = document.createElement("label");
     mainColorLabel.className = "form-check-label";
     mainColorLabel.setAttribute("for", `mainColorCheckbox${index}`);
-    mainColorLabel.textContent = "Hauptfarbe";
+    mainColorLabel.textContent = i18n.get("IsPrimaryColor");
     mainColorDiv.appendChild(mainColorCheckbox);
     mainColorDiv.appendChild(mainColorLabel);
 
     const removeButton = document.createElement("button");
     removeButton.type = "button";
     removeButton.className = "btn btn-danger removeColor";
-    removeButton.textContent = "Entfernen";
+    removeButton.textContent = i18n.get("Remove");
 
     cardBody.appendChild(select);
     cardBody.appendChild(mainColorDiv);
@@ -288,7 +288,6 @@ function addColor() {
 }
 (function initRemoveColorButtonHandler() {
     const container = document.getElementById('colorContainer');
-
     if (!container) return;
 
     container.addEventListener('click', function (e) {
@@ -340,7 +339,7 @@ function addMaterial() {
     const defaultOption = document.createElement("option");
     defaultOption.selected = true;
     defaultOption.value = "";
-    defaultOption.textContent = "Material wählen";
+    defaultOption.textContent = i18n.get("Material_Select");
     select.appendChild(defaultOption);
 
     autocompleteSource.forEach((element) => {
@@ -361,19 +360,18 @@ function addMaterial() {
     mainMaterialCheckbox.value = "true";
     mainMaterialCheckbox.id = `mainMaterialCheckbox${index}`; // <<< wichtig!
     mainMaterialCheckbox.setAttribute("data-val", "true");
-    mainMaterialCheckbox.setAttribute("data-val-required", "Bitte wählen Sie aus, ob es das Hauptmaterial ist.");
 
     const mainMaterialLabel = document.createElement("label");
     mainMaterialLabel.className = "form-check-label";
     mainMaterialLabel.setAttribute("for", `mainMaterialCheckbox${index}`);
-    mainMaterialLabel.textContent = "Hauptmaterial";
+    mainMaterialLabel.textContent = i18n.get("IsPrimaryMaterial");
     mainMaterialDiv.appendChild(mainMaterialCheckbox);
     mainMaterialDiv.appendChild(mainMaterialLabel);
 
     const removeButton = document.createElement("button");
     removeButton.type = "button";
     removeButton.className = "btn btn-danger removeMaterial";
-    removeButton.textContent = "Entfernen";
+    removeButton.textContent = i18n.get("Remove");
 
     cardBody.appendChild(select);
     cardBody.appendChild(mainMaterialDiv);
@@ -411,7 +409,7 @@ function reindexMaterialFields(container) {
 }
 
 function addInputFormFile(sourcePage) {
-    const perspective = ["Vorderseite", "Rückseite", "Linke Seite", "Rechte Seite"]
+    const perspective = [i18n.get("Side_Front"), i18n.get("Side_Back"), i18n.get("Side_Left"), i18n.get("Side_Right"), i18n.get("Side_Top"), i18n.get("Side_Bottom")]
     const container = document.getElementById("appendInputFormFile");
     const pictureCount = container.children.length;
 
@@ -444,7 +442,7 @@ function addInputFormFile(sourcePage) {
     const removeButton = document.createElement("button");
     removeButton.type = "button";
     removeButton.className = "btn btn-danger removeFormFileInput";
-    removeButton.textContent = "Entfernen";
+    removeButton.textContent = i18n.get("Remove");
     divInputGroup.appendChild(removeButton);
     div.appendChild(divInputGroup);
 
@@ -466,11 +464,6 @@ function addInputFormFile(sourcePage) {
 
     container.appendChild(div);
 }
-//function removeFormFileInput(pictureCount) {
-//    const appendInputFormFile = document.getElementById('appendInputFormFile');
-//    const inputGroupFormFile = document.getElementById(`inputGroupFormFile_${pictureCount}`)
-//    appendInputFormFile.removeChild(inputGroupFormFile);
-//}
 (function initRemoveFormFileButtonHandler() {
     const container = document.getElementById('appendInputFormFile');
     if (!container) return;
@@ -501,6 +494,7 @@ if (window.location.href.indexOf('Database') > -1) {
 }
 (function showPotentialTable() {
     const checkbox = document.getElementById('IsPartOfASeries');
+    if (!checkbox) return;
 
     checkbox.addEventListener('click', function (e) {
         if (e.target && e.target.checked) {
@@ -512,15 +506,8 @@ if (window.location.href.indexOf('Database') > -1) {
     });
 })();
 function SetCollectionItemPotentialIntoTable(buttonId) {
-    let value = document.getElementById(`CollectionItemPotentialSearchResultPotentialID_${buttonId}`).textContent;
+    let value = document.getElementById(`CollectionItemPotentialSearchResultPotentialID_${buttonId}`).value;
     document.getElementById('CollectionItemPotentialID').innerText = value;
-
-    const img = document.createElement("img");
-    img.src = document.getElementById(`CollectionItemPotentialSearchResultImageURL_${buttonId}`).textContent;
-    img.style.maxWidth = "100px";
-    const imageContainer = document.getElementById('PotentialPicture');
-    imageContainer.innerHTML = '';
-    imageContainer.appendChild(img);
 
     document.getElementById(`ClearOneRowCollectionItemPotentialTable`).style.display = 'inline';
     hideModal('CollectionItemPotentialModal');

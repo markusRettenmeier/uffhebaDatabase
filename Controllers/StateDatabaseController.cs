@@ -1,22 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using Sammlerplattform.Models;
 using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase;
-using Sammlerplattform.Services.Processes.CollectionItemProcesses;
+using Sammlerplattform.Resources;
+using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
 
 namespace Sammlerplattform.Controllers
 {
-    public class StateDatabaseController(IProcessState processStates) : Controller
+    public class StateDatabaseController(IProcessState processStates, IStringLocalizer<SharedResources> stringLocalizer) : Controller
     {
-        public IActionResult Index(string statusMessage, StateSearchParameterModel stateSearchParameterModel)
+        public IActionResult Index(Status status, StateSearchParameterModel stateSearchParameterModel)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
             ViewData["CollectionAreaID"] = stateSearchParameterModel.CollectionArea_CollectionAreaID[0];
 
             return View(processStates.GetWithPredicates(stateSearchParameterModel));
         }
 
-        public ActionResult Create(string statusMessage, int collectionAreaID)
+        public ActionResult Create(Status status, int collectionAreaID)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
             State state = new() { StateName = string.Empty, CollectionAreaID = collectionAreaID };
             return View(state);
@@ -28,14 +31,14 @@ namespace Sammlerplattform.Controllers
             return RedirectToAction(nameof(Index), new { statusMessage, collectionAreaID });
         }
 
-        public ActionResult Edit(string statusMessage, int stateID)
+        public ActionResult Edit(Status status, int stateID)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
-            StateSearchParameterModel stateSearch = new();
-            stateSearch.StateID.Add(stateID);
-            State state = processStates.GetWithPredicates(stateSearch).First();
-            return View(state);
+            State existingState = processStates.GetWithPredicates(new StateSearchParameterModel { StateID = [stateID] }).First();
+            return existingState == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_State_NotFound" })
+                : View(existingState);
         }
         public ActionResult EditSubmit(State state)
         {
@@ -44,19 +47,29 @@ namespace Sammlerplattform.Controllers
             return RedirectToAction(nameof(Index), new { statusMessage, collectionAreaID });
         }
 
-        public ActionResult Delete(string statusMessage, int stateID)
+        public ActionResult Delete(Status status, int stateID)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
-            StateSearchParameterModel stateSearch = new();
-            stateSearch.StateID.Add(stateID);
-            return View(processStates.GetWithPredicates(stateSearch).First());
+            State existingState = processStates.GetWithPredicates(new StateSearchParameterModel { StateID = [stateID] }).First();
+            return existingState == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_State_NotFound" })
+                : View(existingState);
         }
         public IActionResult DeleteSubmit(int stateID, int collectionAreaID)
         {
             (int _, string statusMessage) = processStates.Delete(stateID, collectionAreaID);
 
             return RedirectToAction(nameof(Index), new { statusMessage, collectionAreaID });
+        }
+
+        private void HandleStatus(Status status)
+        {
+            if (!string.IsNullOrEmpty(status.Message))
+            {
+                ViewData["StatusMessage"] = stringLocalizer[status.Message];
+                ViewData["StatusCode"] = status.Code;
+            }
         }
     }
 }

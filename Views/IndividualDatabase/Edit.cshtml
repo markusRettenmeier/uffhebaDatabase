@@ -1,71 +1,72 @@
 ﻿@model IndividualOperationParameterModel
 @using Sammlerplattform.Models.PartyDatabase.IndividualDatabase
 @using Sammlerplattform.Models.PlaceDatabase
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = Localizer["Individual_Edit"];
     Layout = "~/Views/Shared/_LayoutSettingsParty.cshtml";
 }
 
-<h1>Edit</h1>
+<h3>ViewData["Title"]</h3>
 <hr />
-        <form asp-action="EditSubmit" >
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Party.PartyID">
-            <input type="hidden" asp-for="Party.PartyTypeInt">
-            <div class="form-group">
-                <label asp-for="Party.PartyName" class="control-label"></label>
-                <input asp-for="Party.PartyName" class="form-control" />
-                <span asp-validation-for="Party.PartyName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Party.PartyDescription" class="control-label"></label>
-                <textarea asp-for="Party.PartyDescription" class="form-control" rows="10"></textarea>
-                <span asp-validation-for="Party.PartyDescription" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Individual.Pseudonym" class="control-label"></label>
-                <input asp-for="Individual.Pseudonym" class="form-control" />
-                <span asp-validation-for="Individual.Pseudonym" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Individual.Signature" class="control-label"></label>
-                <input asp-for="Individual.Signature" class="form-control" />
-                <span asp-validation-for="Individual.Signature" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Geografischer Name</th>
-                            <th scope="col">Weitere Spezifikationen</th>
-                            <th scope="col">Weitere Aktionen</th>
+<form asp-action="EditSubmit" >
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Party.PartyID">
+    <input type="hidden" asp-for="Party.PartyTypeInt">
+    <div class="form-group">
+        <label asp-for="Party.PartyName" class="control-label"></label>
+        <input asp-for="Party.PartyName" class="form-control" />
+        <span asp-validation-for="Party.PartyName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Party.PartyDescription" class="control-label"></label>
+        <textarea asp-for="Party.PartyDescription" class="form-control" rows="10"></textarea>
+        <span asp-validation-for="Party.PartyDescription" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Individual.Pseudonym" class="control-label"></label>
+        <input asp-for="Individual.Pseudonym" class="form-control" />
+        <span asp-validation-for="Individual.Pseudonym" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Individual.Signature" class="control-label"></label>
+        <input asp-for="Individual.Signature" class="form-control" />
+        <span asp-validation-for="Individual.Signature" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">@Localizer["PlaceName"]</th>
+                    <th scope="col">@Localizer["FurtherSpecs"]</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody id="appendPlaceHere">                        
+                @if (Model.PlaceList.Count > 0)
+                {
+                    for (int i = 0; i < Model.PlaceList.Count; i++)
+                    {
+                        var vm = PlaceViewModelHelper.FromDomainModel(Model.PlaceList[i]);
+                        <tr class="placeTableRow">
+                            <td>@Html.Raw(vm.Toponymy)</td>
+                            <td>@Html.Raw(vm.FurtherSpecs)</td>
+                            <td>
+                                <input type="hidden" name="PlaceList[@i].PlaceID" value="@Model.PlaceList[i].PlaceID">
+                                <button type="button" class="btn btn-danger btn-sm removePlaceRow">@Localizer["Remove"]</button>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody id="appendPlaceHere">                        
-                        @if (Model.PlaceList.Count > 0)
-                        {
-                            for (int i = 0; i < Model.PlaceList.Count; i++)
-                            {
-                                var vm = PlaceViewModelHelper.FromDomainModel(Model.PlaceList[i]);
-                                <tr class="placeTableRow">
-                                    <td>@Html.Raw(vm.Toponymy)</td>
-                                    <td>@Html.Raw(vm.FurtherSpecs)</td>
-                                    <td>
-                                        <input type="hidden" name="PlaceList[@i].PlaceID" value="@Model.PlaceList[i].PlaceID">
-                                        <button type="button" class="btn btn-danger btn-sm removePlaceRow">Entfernen</button>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
-                    Orte hinzufügen
-                </button>
-            </div>
-            <hr />
-            <button class="btn btn-primary">Ändern</button>
+                    }
+                }
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
+            @Localizer["Place_Add"]
+        </button>
+    </div>
+    <button class="btn btn-primary">@Localizer["Edit"]</button>
 </form>
 
 <partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />

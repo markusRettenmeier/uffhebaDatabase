@@ -1,20 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sammlerplattform.Resources;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sammlerplattform.Models.Account
 {
     public class LoginViewModel
     {
-        [Required(ErrorMessage = "E-Mail wird benötigt")]
+        [Required]
         [EmailAddress]
-        [Display(Name = "E-Mail")]
+        [Display(Name = "Email", ResourceType = typeof(SharedResources))]
         public string? Email { get; set; }
 
-        [Required(ErrorMessage = "Passwort wird benötigt")]
+        [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Passwort")]
+        [Display(Name = "Password", ResourceType = typeof(SharedResources))]
         public string? Password { get; set; }
-
-        //[Display(Name = "Erinnere mich?")]
-        //public bool RememberMe { get; set; }
     }
 }

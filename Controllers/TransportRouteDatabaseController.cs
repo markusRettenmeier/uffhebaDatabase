@@ -1,62 +1,67 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using Sammlerplattform.Models;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.TransportRouteDatabase;
-using Sammlerplattform.Services.Processes.PlaceProcesses;
+using Sammlerplattform.Resources;
+using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
 
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
     public class TransportRouteDatabaseController(IProcessPlace processPlace
-        , IProcessTransportRoute processTransportRoute) : Controller
+        , IProcessTransportRoute processTransportRoute,
+        IStringLocalizer<SharedResources> stringLocalizer) : Controller
     {
-        public ActionResult Index(string statusMessage, PlaceSearchParameter placeSearchParameter)
+        public ActionResult Index(Status status, PlaceSearchParameter placeSearchParameter)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
             List<Place> placeList = [.. processPlace.GetListWithPredicate(placeSearchParameter).Where(x => x.BodyOfWater != null)];
             return View(placeList);
         }
 
-        public ActionResult Create(string statusMessage)
+        public ActionResult Create(Status status)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
             return View();
         }
         public IActionResult CreateSubmit(TransportRouteOperationParameterModel model)
         {
             (int _, int _, string statusMessage) = processTransportRoute.CreateTransportRoute(model);
-            return RedirectToAction(nameof(Create), new { statusMessage });
+            return RedirectToAction(nameof(Index), new { statusMessage });
         }
 
-        public ActionResult Edit(string statusMessage, int id)
+        public ActionResult Edit(Status status, int id)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
-            PlaceSearchParameter searchParameter = new()
-            {
-                PlaceID = [id]
-            };
-            Place? existingPlace = processPlace.GetListWithPredicate(searchParameter).FirstOrDefault();
-            if (existingPlace == null)
-            {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Transportroute nicht gefunden" });
-            }
+            Place? existingPlace = processPlace.GetListWithPredicate(new PlaceSearchParameter { PlaceID = [id] }).FirstOrDefault();
 
-            TransportRouteOperationParameterModel transportRouteOperationParameterModel = new()
-            {
-                Place = existingPlace,
-                TransportRoute = existingPlace.TransportRoute!,
-                PlaceNToponymyList = existingPlace.PlaceNToponymyList,
-                ChildPlaceList = existingPlace.ChildPlaceList
-            };
-
-            return View(transportRouteOperationParameterModel);
+            return existingPlace == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Place_NotFound" })
+                : View(new TransportRouteOperationParameterModel
+                {
+                    Place = existingPlace,
+                    TransportRoute = existingPlace.TransportRoute!,
+                    PlaceNToponymyList = existingPlace.PlaceNToponymyList,
+                    ChildPlaceList = existingPlace.ChildPlaceList
+                });
         }
         public IActionResult EditSubmit(TransportRouteOperationParameterModel model)
         {
             (int placeID, int _, string statusMessage) = processTransportRoute.EditTransportRoute(model);
             return RedirectToAction(nameof(Edit), new { statusMessage, id = placeID });
+        }
+
+        private void HandleStatus(Status status)
+        {
+            if (!string.IsNullOrEmpty(status.Message))
+            {
+                ViewData["StatusMessage"] = stringLocalizer[status.Message];
+                ViewData["StatusCode"] = status.Code;
+            }
         }
     }
 }

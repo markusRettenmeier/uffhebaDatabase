@@ -10,13 +10,13 @@
 
     const tdName = document.createElement("td");
     if (relation == 'synonym') {
-        tdName.textContent = 'Synonym für ' + nameValue;
+        tdName.textContent = i18n.get("SynonymFor") + " " + nameValue;
     }
     else if (relation == 'subterm') {
-        tdName.textContent = 'Unterbegriff von ' + nameValue;
+        tdName.textContent = i18n.get("SubTermOf") + " " + nameValue;
     }
     else {
-        tdName.textContent = 'Kurzbegriff für ' + nameValue;
+        tdName.textContent = i18n.get("ShortFor") + " " + nameValue;
     }
     const tdActions = document.createElement("td");
 

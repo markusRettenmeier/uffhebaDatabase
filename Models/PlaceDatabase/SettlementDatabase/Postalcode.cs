@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sammlerplattform.Resources;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models.PlaceDatabase.SettlementDatabase
@@ -7,13 +8,14 @@ namespace Sammlerplattform.Models.PlaceDatabase.SettlementDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
+        [Display(Name = "PostalcodeID", ResourceType = typeof(SharedResources))]
         public int PostalcodeID { get; set; }
 
-        [Required(ErrorMessage = "Bitte PLZ eingeben")]
+        [Required]
         [StringLength(5)]
-        [Display(Name = "Postleitzahl")]
-        [RegularExpression(@"^[0-9]{1,5}$", ErrorMessage = "Die PLZ darf nur Zahlen und max. 5 Zeichen enthalten.")]
+        [Display(Name = "PostalcodeNumber", ResourceType = typeof(SharedResources))]
         public required string PostalcodeNumber { get; set; }
+        [Display(Name = "SettlementNPostalcodeList", ResourceType = typeof(SharedResources))]
         public List<SettlementNPostalcode> SettlementNPostalcodeList { get; set; } = [];
     }
 }

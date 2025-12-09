@@ -2,25 +2,39 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models.UserSettings;
+using Sammlerplattform.Services;
 using Sammlerplattform.Services.EMail;
-using Sammlerplattform.Services.Processes;
-using Sammlerplattform.Services.Processes.CollectionAreaProcesses;
-using Sammlerplattform.Services.Processes.CollectionItemProcesses;
-using Sammlerplattform.Services.Processes.ConceptualRelationshipProcesses;
-using Sammlerplattform.Services.Processes.PartyProcesses;
-using Sammlerplattform.Services.Processes.PictureProcesses;
-using Sammlerplattform.Services.Processes.PlaceProcesses;
+using Sammlerplattform.Services.ML.VectorSearch;
+using Sammlerplattform.Services.DatabaseProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.PartyProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.PictureProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
 using System.Text.Json.Serialization;
+using Sammlerplattform.Services.Translation;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews()
-        .AddJsonOptions(options =>
-        {
-            // Cycles cause of self referencing tables
-            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        });
+//builder.Services.AddLocalization(options => options.ResourcesPath = nameof(SharedResources));
+
+//builder.Services.AddControllersWithViews()
+builder.Services.AddMvc()
+    //.AddViewLocalization(options => options.ResourcesPath = nameof(SharedResources))
+    //.AddDataAnnotationsLocalization(options => {
+    //    options.DataAnnotationLocalizerProvider = (type, factory) =>
+    //        factory.Create(typeof(SharedResources));
+    //})
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization()
+    .AddJsonOptions(options =>
+    {
+        // Cycles cause of self referencing tables
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<DeeplTranslationService>();
 builder.Services.AddResponseCaching();
 builder.Services.AddHttpContextAccessor();
 
@@ -28,6 +42,14 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.CheckConsentNeeded = context => true;
     options.MinimumSameSitePolicy = SameSiteMode.None;
+});
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    string[] supportedCultures = ["de-DE"];
+    options.SetDefaultCulture(supportedCultures[0])
+           .AddSupportedCultures(supportedCultures)
+           .AddSupportedUICultures(supportedCultures);
 });
 
 builder.Services.AddDbContext<DbIdentityContext>(options =>
@@ -61,7 +83,6 @@ builder.Services.AddScoped<IProcessEra, EraProcessor>();
 builder.Services.AddScoped<IProcessCollectionItemEntity, CollectionItemEntityProcessor>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProcessCollectionItemPicture, CollectionItemPictureProcessor>();
-builder.Services.AddScoped<IProcessProcessOfManufacture, ProcessOfManufactureProcessor>();
 builder.Services.AddScoped<IProcessPlace, PlaceProcessor>();
 builder.Services.AddScoped<IProcessToponymy, ToponymyProcessor>();
 builder.Services.AddScoped<IProcessSettlement, SettlementProcessor>();
@@ -76,21 +97,23 @@ builder.Services.AddScoped<IProcessIndividual, IndividualProcessor>();
 builder.Services.AddScoped<IProcessOrganization, OrganizationProcessor>();
 builder.Services.AddScoped<IProcessCollectionArea, CollectionAreaProcessor>();
 builder.Services.AddScoped<IProcessCollectionAttribute, CollectionAttributeProcessor>();
-builder.Services.AddScoped<IProcessCollectionItemValue, CollectionItemValueProcessor>();
+builder.Services.AddScoped<IProcessCollectionAttributeValue, CollectionAttributeValueProcessor>();
 builder.Services.AddScoped<IProcessConcept, ConceptualRelationshipProcessor>();
 builder.Services.AddScoped<IProcessConceptRelation, ConceptRelationProcessor>();
 builder.Services.AddScoped<IProcessCollectionItemPotential, CollectionItemPotentialProcessor>();
 builder.Services.AddScoped<IProcessState, StateProcessor>();
 builder.Services.AddScoped<IProcessPicturePhysically, PhysicalPictureProcessor>();
-
-//builder.Services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
+builder.Services.AddSingleton<IEmbeddingService, SimpleEmbeddingService>();
+builder.Services.AddScoped<IProcessCollectionItemEmbedding, CollectionItemEmbeddingProcessor>();
+builder.Services.AddScoped<IDeeplTranslationService, DeeplTranslationService>();
+builder.Services.AddScoped<IProcessTranslations, ProcessTranslations>();
+builder.Services.AddScoped<ITranslationStore, TranslationStore>();
 
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
 
 WebApplication app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     _ = app.UseExceptionHandler("/Home/Error");
@@ -106,7 +129,6 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Frontpage}/{id?}");

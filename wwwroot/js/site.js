@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     handlePageLoad();
 });
 async function handlePageLoad() {
+    await i18n.loadTranslations();
+
     const url = window.location.href;
     if (url.includes("/Login")) handleShowPassowrd();
     if (url.includes("OrganizationDatabase/Create") || url.includes("OrganizationDatabase/Edit")) {
@@ -52,7 +54,7 @@ function generatePDF() {
     // eslint-disable-next-line no-undef
     html2pdf()
         .set({
-            filename: "Details_Nummer" + currentId + ".pdf",
+            filename: i18n.get("Details") + " " + currentId + ".pdf",
         })
         .from(element)
         .output("dataurlnewwindow");

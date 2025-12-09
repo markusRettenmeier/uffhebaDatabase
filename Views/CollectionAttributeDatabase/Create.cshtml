@@ -1,44 +1,47 @@
 ﻿@using Sammlerplattform.Models.CollectionAreaDatabase
 @model Sammlerplattform.Models.CollectionAreaDatabase.CollectionAttribute
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Sammlungsgebietsmerkmal ertellen";
+    ViewData["Title"] = Localizer["CollectionAttribute_Create"];
     Layout = "~/Views/Shared/_LayoutSettings.cshtml";
 }
 
-<div class="row">
-    <div class="col-md-4">
-        <h1>@ViewData["Title"]</h1>
-
-        <hr />
-        <form asp-action="CreateSubmit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input asp-for="CollectionAreaID" class="form-control" type="hidden">
-            <div class="form-group mb-3">
-                <label asp-for="CollectionAttributeName" class="control-label"></label>
-                <input asp-for="CollectionAttributeName" class="form-control" />
-                <span asp-validation-for="CollectionAttributeName" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="CollectionAttributeType" class="control-label"></label>
-                <select asp-for="CollectionAttributeType"
-                        asp-items="Html.GetEnumSelectList<CollectionAttributeType>()"
-                        class="form-select">
-                    <option value="">-- Bitte Typ wählen --</option>
-                </select>
-                <span asp-validation-for="CollectionAttributeType" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check mb-3">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Required" /> @Html.DisplayNameFor(model => model.Required)
-                </label>
-            </div>
-            <hr />
-            <div class="form-group">
-                <button class="btn btn-primary">Erstellen</button>
-            </div>
-        </form>
+<h3>@ViewData["Title"]</h3>
+<hr />
+<form asp-action="CreateSubmit">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input asp-for="CollectionAreaID" class="form-control" type="hidden">
+    <div class="form-group mb-3">
+        <label asp-for="CollectionAttributeName" class="control-label"></label>
+        <input asp-for="CollectionAttributeName" class="form-control" />
+        <span asp-validation-for="CollectionAttributeName" class="text-danger"></span>
     </div>
-</div>
+    <div class="form-group mb-3">
+        <label asp-for="CollectionAttributeType" class="control-label"></label>
+        <select asp-for="CollectionAttributeType"
+                asp-items="Html.GetEnumSelectList<CollectionAttributeType>()"
+                class="form-select">
+            <option value="" selected>-- @Localizer["CollectionAttribute_Select"] --</option>
+        </select>
+        <span asp-validation-for="CollectionAttributeType" class="text-danger"></span>
+    </div>
+    <div class="form-group form-check mb-3">
+        <label class="form-check-label">
+            <input class="form-check-input" asp-for="RequiredAttribute" /> @Html.DisplayNameFor(model => model.RequiredAttribute)
+        </label>
+    </div>
+    <hr />
+    <div class="form-group">
+        <button class="btn btn-primary">@Localizer["Create"]</button>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
 
             

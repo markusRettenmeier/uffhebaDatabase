@@ -5,12 +5,13 @@
 @using Sammlerplattform.Models.PlaceDatabase
 @using Sammlerplattform.Services
 @model Sammlerplattform.Models.CollectionItemDatabase.CollectionItemOperationParameterModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Sammlungsstück ändern";
+    ViewData["Title"] = Localizer["CollectionItemEntity_Edit"];
     Layout = "~/Views/Shared/_LayoutSettingsCollectionItem.cshtml";
 
-    string potentialImgPath = "/images/Thumbnail/" + Model.CollectionItemPotential.CollectionItemPotentialID + ".png";
     string displayName = string.Empty;
     if (!string.IsNullOrEmpty(Model.CollectionItemEntity.UniqueName))
         displayName = Model.CollectionItemEntity.UniqueName;
@@ -20,13 +21,13 @@
         displayName = Model.CollectionItemEntity.CollectionItemEntityID.ToString();
 }
 
-<h4>@ViewData["Title"]: @displayName</h4>
+<h3>@ViewData["Title"]: @displayName</h3>
 <hr />
 <form asp-action="EditSubmit" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="CollectionItemEntity.CollectionAreaID" />
     <input type="hidden" asp-for="CollectionItemEntity.CollectionItemEntityID" />
-    <p>Alle Bilder werden automatisch mit einem Wasserzeichen versehen.</p>
+    <p>@Localizer["Picture_Watermark"]</p>
     <div id="cardDiv" class="row">
         @if (Model.CollectionItemPictureList.Count > 0)
         {
@@ -40,7 +41,7 @@
                             <p class="card-text">@Model.CollectionItemPictureList[i].Perspective</p>
                             @if (i > 0)
                             {
-                                <button type="button" class="btn btn-danger" onclick="removePicture(@i)">Bild entfernen</button>
+                                <button type="button" class="btn btn-danger" onclick="removePicture(@i)">@Localizer["Remove"]</button>
                             }
                         </div>
                     </div>
@@ -63,13 +64,13 @@
             }
         }
     </div>
-    <button type="button" class="btn btn-primary" onclick="addInputFormFile('Create')">Mehr Bilder hinzufügen</button>
+    <button type="button" class="btn btn-primary" onclick="addInputFormFile('Create')">@Localizer["Picture_Add"]</button>
 
     <div class="accordion pt-2" id="accordionCollectionItem">
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingCollectionItem">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCollectionItem" aria-expanded="false" aria-controls="collapseCollectionItem">
-                    Sammlerstück
+                    @Localizer["CollectionItemEntity_Details"]
                 </button>
             </h2>
             <div id="collapseCollectionItem" class="accordion-collapse collapse show" aria-labelledby="headingCollectionItem" data-bs-parent="#accordionCollectionItem">
@@ -93,15 +94,15 @@
                                 <td scope="col">
                                     <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ConceptModal">
-                                            Begriff auswählen
+                                            @Localizer["Concept_Select"]"]
                                         </button>
                                         @if (Model.CollectionItemEntity.ConceptID != null)
                                         {
-                                            <button type="button" id="clearOneRowConcept" class="btn btn-outline-danger">Entfernen</button>
+                                            <button type="button" id="clearOneRowConcept" class="btn btn-outline-danger">@Localizer["Remove"]</button>
                                         }
                                         else
                                         {
-                                            <button type="button" id="clearOneRowConcept" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                            <button type="button" id="clearOneRowConcept" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
                                         }
                                     </div>
                                 </td>
@@ -114,33 +115,55 @@
                         </label>
                     </div>
                     <input type="hidden" asp-for="CollectionItemEntity.CollectionItemPotentialID">
-                    @if (Model.CollectionItemPotential != null)
+                    @if (Model.IsPartOfASeries)
                     {
                         <table class="table" id="PotentialTable">
                             <thead>
                                 <tr>
-                                    <th scope="col">Bild</th>
                                     <th scope="col">@Html.DisplayNameFor(x => x.CollectionItemPotential.CollectionItemPotentialID)</th>
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td scope="col" id="PotentialPicture"><img src="@potentialImgPath" width="100" /></td>
                                     <td scope="col" id="CollectionItemPotentialID">@Html.DisplayFor(x => x.CollectionItemPotential.CollectionItemPotentialID)</td>
                                     <td scope="col">
                                         <div class="btn-group" role="group">
                                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CollectionItemPotentialModal">
-                                                Potential auswählen
+                                                @Localizer["CollectionItemPotential_Select"]
                                             </button>
                                             @if (Model.CollectionItemEntity.CollectionItemPotentialID != null)
                                             {
-                                                <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger">Entfernen</button>
+                                                <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger">@Localizer["Remove"]</button>
                                             }
                                             else
                                             {
-                                                <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                                <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
                                             }
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <table class="table" id="PotentialTable" style="display:none">
+                            <thead>
+                                <tr>
+                                    <th scope="col">@Html.DisplayNameFor(x => x.CollectionItemPotential.CollectionItemPotentialID)</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td scope="col" id="CollectionItemPotentialID"></td>
+                                    <td scope="col">
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CollectionItemPotentialModal">
+                                                @Localizer["CollectionItemPotential_Select"]
+                                            </button>
+                                            <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -157,11 +180,11 @@
                         <select asp-for="CollectionItemEntity.StateID" class="form-select">
                             @if (Model.StateList == null || Model.StateList.Count == 0)
                             {
-                                <option value="">-- Keine Zustände vorhanden --</option>
+                                <option value="">-- @Localizer["State_NotAvailable"] --</option>
                             }
                             else
                             {
-                                <option value="">-- Bitte Zustand wählen --</option>
+                                <option value="">@Localizer["State_Select"]</option>
                                 @foreach (var state in Model.StateList)
                                 {
                                     if (state.StateID == Model.CollectionItemEntity.StateID)
@@ -200,7 +223,7 @@
                                 <div class="card cardColor m-2" id="cardColor_@i" style="width: 18rem;">
                                     <div class="card-body">
                                         <select name="CollectionItemNColorList[@i].ColorID" class="form-select selectColorID">
-                                            <option value="">Farbe wählen</option>
+                                            <option value="">@Localizer["Color_Select"]</option>
                                             @foreach (var color in Model.ColorList)
                                             {
                                                 if (color.ColorID == Model.CollectionItemNColorList[i].ColorID)
@@ -222,14 +245,14 @@
                                             {
                                                 <input type="checkbox" data-val="true" value="true" class="form-check-input checkboxPrimaryColor" name="CollectionItemNColorList[@i].IsPrimaryColor">
                                             }
-                                            <label class="form-check-label" for="mainColorCheckbox0">Hauptfarbe</label>
-                                        </div><button type="button" class="btn btn-danger removeColor">Entfernen</button>
+                                            <label class="form-check-label" for="mainColorCheckbox0">@Localizer["IsPrimaryColor"]</label>
+                                        </div><button type="button" class="btn btn-danger removeColor">@Localizer["Remove"]</button>
                                     </div>
                                 </div>
                             }
                         }
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="addColor()">Mehr Farben hinzufügen</button>
+                    <button type="button" class="btn btn-primary" onclick="addColor()">@Localizer["Color_Add"]</button>
                     <hr />
                     <label asp-for="MaterialList" class="control-label"></label>
                     <div id="materialContainer">
@@ -240,7 +263,7 @@
                                 <div class="card cardMaterial m-2" id="cardMaterial_@i" style="width: 18rem;">
                                     <div class="card-body">
                                         <select name="CollectionItemNMaterialList[@i].MaterialID" class="form-select selectMaterialID">
-                                            <option value="">Farbe wählen</option>
+                                            <option value="">@Localizer["Material_Select"]</option>
                                             @foreach (var material in Model.MaterialList)
                                             {
                                                 if (material.MaterialID == Model.CollectionItemNMaterialList[i].MaterialID)
@@ -262,34 +285,34 @@
                                             {
                                                 <input type="checkbox" data-val="true" value="true" class="form-check-input checkboxPrimaryMaterial" name="CollectionItemNMaterialList[@i].IsPrimaryMaterial">
                                             }
-                                            <label class="form-check-label" for="IsPrimaryMaterial">Hauptmaterial</label>
-                                        </div><button type="button" class="btn btn-danger removeMaterial">Entfernen</button>
+                                            <label class="form-check-label" for="IsPrimaryMaterial">@Localizer["IsPrimaryMaterial"]</label>
+                                        </div><button type="button" class="btn btn-danger removeMaterial">@Localizer["Remove"]</button>
                                     </div>
                                 </div>
                             }
                         }
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="addMaterial()">Mehr Materialien hinzufügen</button>
+                    <button type="button" class="btn btn-primary" onclick="addMaterial()">@Localizer["Material_Add"]</button>
                     <hr />
                     @if (Model.CollectionAttributeList != null)
                     {
                         @for (int i = 0; i < Model.CollectionAttributeList.Count; i++)
                         {
                             var attributeModel = Model.CollectionAttributeList[i];
-                            var itemValue = Model.CollectionItemValueList?.FirstOrDefault(v =>
+                            var itemValue = Model.CollectionAttributeValueList?.FirstOrDefault(v =>
                             v.CollectionAttributeID == attributeModel.CollectionAttributeID);
 
                             <div class="form-group">
                                 <label class="control-label">@attributeModel.CollectionAttributeName</label>
-                                <input type="hidden" name="CollectionItemValueList[@i].CollectionAttributeID"
+                                <input type="hidden" name="CollectionAttributeValueList[@i].CollectionAttributeID"
                                        value="@attributeModel.CollectionAttributeID" />
-                                <input type="hidden" name="CollectionItemValueList[@i].CollectionItemValueID"
-                                       value="@itemValue?.CollectionItemValueID" />
+                                <input type="hidden" name="CollectionAttributeValueList[@i].CollectionAttributeValueID"
+                                       value="@itemValue?.CollectionAttributeValueID" />
 
                                 @if (attributeModel.CollectionAttributeType.ToString() == "Text")
                                 {
                                     <input type="text"
-                                           name="CollectionItemValueList[@i].ValueString"
+                                           name="CollectionAttributeValueList[@i].ValueString"
                                            value="@itemValue?.ValueString"
                                            class="form-control" />
                                 }
@@ -297,14 +320,14 @@
                                 {
                                     <input type="number"
                                            step="0.01"
-                                           name="CollectionItemValueList[@i].ValueInt"
+                                           name="CollectionAttributeValueList[@i].ValueInt"
                                            value="@itemValue?.ValueInt"
                                            class="form-control" />
                                 }
                                 else if (attributeModel.CollectionAttributeType.ToString() == "Date")
                                 {
                                     <input type="date"
-                                           name="CollectionItemValueList[@i].ValueDate"
+                                           name="CollectionAttributeValueList[@i].ValueDate"
                                            value="@itemValue?.ValueDate?.ToString("yyyy-MM-dd")"
                                            class="form-control" />
                                 }
@@ -312,7 +335,7 @@
                                 {
                                     <input type="number"
                                            step="0.01"
-                                           name="CollectionItemValueList[@i].ValueDecimal"
+                                           name="CollectionAttributeValueList[@i].ValueDecimal"
                                            value="@itemValue?.ValueDecimal"
                                            class="form-control" />
                                 }
@@ -321,9 +344,9 @@
                                     <input class="form-check-input"
                                            type="checkbox"
                                            data-val="true"
-                                           name="CollectionItemValueList[@i].ValueBool"
+                                           name="CollectionAttributeValueList[@i].ValueBool"
                                            value="true"
-                                           checked="@(itemValue?.ValueBool == true)" />
+                                           checked="@itemValue?.ValueBool" />
                                 }
                             </div>
                         }
@@ -334,7 +357,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingSize">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSize" aria-expanded="false" aria-controls="collapseSize">
-                    Maße und Gewicht
+                    @Localizer["WeightDimensions"]
                 </button>
             </h2>
             <div id="collapseSize" class="accordion-collapse collapse" aria-labelledby="headingSize" data-bs-parent="#accordionSize">
@@ -370,7 +393,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingManufacturingDate">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufacturingDate" aria-expanded="false" aria-controls="collapseManufacturingDate">
-                    Herstellungszeit
+                    @Localizer["ManufacturingTime"]
                 </button>
             </h2>
             <div id="collapseManufacturingDate" class="accordion-collapse collapse" aria-labelledby="headingManufacturingDate" data-bs-parent="#accordionManufacturingDate">
@@ -398,7 +421,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">@Html.DisplayNameFor(x => x.Era.EraName)</th>
-                                <th scope="col">Weitere Aktionen</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -407,59 +430,15 @@
                                 <td scope="col">
                                     <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#EraModal">
-                                            Ära auswählen
+                                            @Localizer["Era_Select"]
                                         </button>
                                         @if(Model.CollectionItemEntity.EraID != null)
                                         {
-                                            <button type="button" id="clearOneRowEraTable" class="btn btn-outline-danger">Entfernen</button>
+                                            <button type="button" id="clearOneRowEraTable" class="btn btn-outline-danger">@Localizer["Remove"]</button>
                                         }
                                         else
                                         {
-                                            <button type="button" id="clearOneRowEraTable" class="btn btn-outline-danger" style="display: none">Entfernen</button>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingManufactureProcess">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufactureProcess" aria-expanded="false" aria-controls="collapseManufacturingDate">
-                    Herstellungsprozess
-                </button>
-            </h2>
-            <div id="collapseManufactureProcess" class="accordion-collapse collapse" aria-labelledby="headingManufactureProcess" data-bs-parent="#accordionManufactureProcess">
-                <div class="accordion-body">
-                    <input type="hidden" asp-for="CollectionItemEntity.ProcessOfManufactureID">
-                    <table class="table" id="processOfManufactureTable">
-                        <thead>
-                            <tr>
-                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Mainprocess)</th>
-                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.ProcessOfManufactureName)</th>
-                                <th scope="col">@Html.DisplayNameFor(x => x.ProcessOfManufacture.Technique)</th>
-                                <th scope="col">Weitere Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td scope="col" id="processOfManufactureMainprocess">@Html.DisplayFor(x => x.ProcessOfManufacture.Mainprocess)</td>
-                                <td scope="col" id="processOfManufactureProcessOfManufactureName">@Html.DisplayFor(x => x.ProcessOfManufacture.ProcessOfManufactureName)</td>
-                                <td scope="col" id="processOfManufactureTechnique">@Html.DisplayFor(x => x.ProcessOfManufacture.Technique)</td>
-                                <td scope="col">
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#processOfManufactureModal">
-                                            Herstellungsprozess auswählen
-                                        </button>
-                                        @if(Model.CollectionItemEntity.ProcessOfManufactureID != null)
-                                        {
-                                            <button type="button" id="clearOneRowProcessOfManufactureTableButton" class="btn btn-outline-danger">Entfernen</button>
-                                        }
-                                        else
-                                        {
-                                            <button type="button" id="clearOneRowProcessOfManufactureTableButton" onclick="clearOneRowProcessOfManufactureTable()" class="btn btn-outline-danger" style="display: none">Entfernen</button>
+                                            <button type="button" id="clearOneRowEraTable" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
                                         }
                                     </div>
                                 </td>
@@ -472,7 +451,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingParty">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseParty" aria-expanded="false" aria-controls="collapseParty">
-                    Parteien (Individuen, Organisationen)
+                    @Localizer["PartyList"]
                 </button>
             </h2>
             <div id="collapseParty" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#accordionParty">
@@ -480,10 +459,10 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th scope="col">Name</th>
-                                <th scope="col">Weitere Spezifikationen</th>
-                                <th scope="col">Beziehung</th>
-                                <th scope="col">Weitere Aktionen</th>
+                                <th scope="col">@Localizer["PartyName"]</th>
+                                <th scope="col">@Localizer["FurtherSpecs"]</th>
+                                <th scope="col">@Localizer["Relationship"]</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody id="appendPartyHere">
@@ -500,7 +479,7 @@
                                         </td>
                                         <td>
                                             <input type="hidden" class="form-control partyResultTableId" asp-for="CollectionItemNPartyList[@i].PartyID">
-                                            <button type="button" class="btn btn-danger btn-sm removePartyRow">Entfernen</button>
+                                            <button type="button" class="btn btn-danger btn-sm removePartyRow">@Localizer["Remove"]</button>
                                         </td>
                                     </tr>
                                 }
@@ -508,7 +487,7 @@
                         </tbody>
                     </table>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#partyModal">
-                        Partei hinzufügen
+                        @Localizer["Party_Add"]
                     </button>
                 </div>
             </div>
@@ -516,7 +495,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingPlace">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlace" aria-expanded="false" aria-controls="collapsePlace">
-                    Orte (Siedlungen, Gewässer, Regionen,...)
+                    @Localizer["PlaceList"]
                 </button>
             </h2>
             <div id="collapsePlace" class="accordion-collapse collapse" aria-labelledby="headingPlace" data-bs-parent="#accordionPlace">
@@ -524,10 +503,10 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th scope="col">Geografischer Name</th>
-                                <th scope="col">Weitere Spezifikationen</th>
-                                <th scope="col">Beziehung</th>
-                                <th scope="col">Weitere Aktionen</th>
+                                <th scope="col">@Localizer["Place"]</th>
+                                <th scope="col">@Localizer["FurtherSpecs"]</th>
+                                <th scope="col">@Localizer["Relationship"]</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody id="appendPlaceHere">
@@ -542,7 +521,7 @@
                                         <td><input name="CollectionItemNPlaceList[@i].Relationship" required="" class="form-control placeResultTableRelationship" value="@Model.CollectionItemNPlaceList[i].Relationship" /></td>
                                         <td>
                                             <input type="hidden" name="CollectionItemNPlaceList[@i].PlaceID" value="@Model.CollectionItemNPlaceList[i].PlaceID">
-                                            <button type="button" class="btn btn-danger btn-sm removePlaceRow">Entfernen</button>
+                                            <button type="button" class="btn btn-danger btn-sm removePlaceRow">@Localizer["Remove"]</button>
                                         </td>
                                     </tr>
                                 }
@@ -550,7 +529,7 @@
                         </tbody>
                     </table>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
-                        Orte hinzufügen
+                        @Localizer["Place_Add"]
                     </button>
                 </div>
             </div>
@@ -558,7 +537,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingAdministration">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdministration" aria-expanded="false" aria-controls="collapseAdministration">
-                    Verwaltung
+                    @Localizer["AdministrationData"]
                 </button>
             </h2>
             <div id="collapseAdministration" class="accordion-collapse collapse" aria-labelledby="headingAdministration" data-bs-parent="#accordionAdministration">
@@ -588,21 +567,20 @@
                         <input asp-for="CollectionItemEntity.DeliveryAdress" class="form-control">
                         <span asp-validation-for="CollectionItemEntity.DeliveryAdress" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.TransferFromOwner"></label>
-                        <input asp-for="CollectionItemEntity.TransferFromOwner" class="form-control" />
-                        <span asp-validation-for="CollectionItemEntity.TransferFromOwner" class="text-danger"></span>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <button type="submit" class="btn btn-success mt-2">Ändern</button>
+    <button class="btn btn-success mt-2">@Localizer["Edit"]</button>
 </form>
 
 <partial name="~/Views/EraDatabase/_ModalEra.cshtml" />
 <partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
 <partial name="~/Views/PartyDatabase/_ModalParty.cshtml" />
-<partial name="~/Views/ProcessOfManufactureDatabase/_ModalProcessOfManufacture.cshtml" />
 <partial name="~/Views/CollectionItemDatabase/_ModalCollectionItemPotential.cshtml" />
 <partial name="~/Views/ConceptualRelationshipDatabase/_ModalConcept.cshtml" />
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

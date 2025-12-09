@@ -49,39 +49,23 @@ export function createListBox(colName, parentId) {
   });
 
   const options = {
-    //  CollectionItemPotential_Usage: [
-    //      { value: "0", label: "Kein Information" },
-    //      { value: "1", label: "Mauer" },
-    //  { value: "2", label: "Dach" },
-    //  { value: "3", label: "Decke" },
-    //  { value: "4", label: "Fußboden" },
-    //],
-    //  Condition: [
-    //      { value: "0", label: "Keine Information" },
-    //      { value: "1", label: "Neu" },
-    //  { value: "2", label: "Gebraucht" },
-    //  { value: "3", label: "Beschädigt" },
-    //  { value: "4", label: "Repariert" },
-    //],
       ToponymyTypeInt: [
-          { value: "0", label: "Flur" },
-          { value: "1", label: "Raum" },
-          { value: "2", label: "Weg" },
-          { value: "3", label: "Gewässer" },
-          { value: "4", label: "Siedlung" },
-          { value: "5", label: "Gebäude" },
-          { value: "6", label: "Relief" },
+          { value: "0", label: i18n.get("Field") },
+          { value: "1", label: i18n.get("Region") },
+          { value: "2", label: i18n.get("TransportRoute") },
+          { value: "3", label: i18n.get("BodyOfWater") },
+          { value: "4", label: i18n.get("Settlement") },
+          { value: "5", label: i18n.get("Building") },
+          { value: "6", label: i18n.get("Relief") },
     ],
       PartyTypeInt: [
-          { value: "0", label: "Individuum" },
-          { value: "1", label: "Organisation" }
+          { value: "0", label: i18n.get("Individual") },
+          { value: "1", label: i18n.get("Organization") }
     ],
       Organization_OrganizationTypeInt: [
-          { value: "0", label: "Unternhemen" },
-          { value: "1", label: "Institution" },
-          { value: "2", label: "NonProfit" },
-          { value: "3", label: "Regierung" },
-          { value: "99", label: "Sonstiges" }
+          { value: "0", label: i18n.get("Company") },
+          { value: "1", label: i18n.get("Institution") },
+          { value: "2", label: i18n.get("Other") }
     ],
   };
 
@@ -131,7 +115,7 @@ export function createPeriodButton(idParent) {
       type: "button",
       id: `btnPeriod_${idParent}`,
     },
-    "Zu Zahlenraum ändern"
+    i18n.get("NumberRange_Change")
   );
 
   document.getElementById(`divAdd_${idParent}`)?.appendChild(periodButton);

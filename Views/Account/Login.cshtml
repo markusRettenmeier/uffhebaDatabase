@@ -1,22 +1,22 @@
-﻿@model Sammlerplattform.Models.Account.LoginViewModel
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@model Sammlerplattform.Models.Account.LoginViewModel
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = @Localizer["Login"];
 }
-
 
 <div class="row">
     <div class="col-md-6">
         <h3>@ViewData["Title"]</h3>
-        <p>Nutze einen lokalen Account, um dich einzuloggen.</p>
         <hr />
         <form id="account" asp-controller="Account" asp-action="LoginPost" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="mb-3">
+            <div class="form-group mb-3">
                 <label asp-for="Email" class="form-label"></label>
                 <input type="email" asp-for="Email" class="form-control" required />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
-            <div class="mb-3">
+            <div class="form-group mb-3">
                 <label asp-for="Password" class="form-label"></label>
                 <div class="input-group">
                     <input asp-for="Password" class="form-control" required />
@@ -27,39 +27,39 @@
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Anmelden</button>
+                <button type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["Login"]</button>
             </div>
         </form>
         <div>
             <p>
-                <a href="#forgot-password" data-bs-toggle="modal" data-bs-target="#forgot-password">Passwort vergessen?</a>
+                <a href="#forgotPasswordModal" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">@Localizer["Password_Forgotten"]</a>
             </p>
             <p>
-                <a href="#registerModal" data-bs-target="#registerModal" data-bs-toggle="modal">Als neuen Nutzer registrieren</a>
+                <a href="#registerModal" data-bs-target="#registerModal" data-bs-toggle="modal">@Localizer["User_Register"]</a>
             </p>
             <p>
-                <a href="#ResendEmailConfirmationModal" data-bs-target="#ResendEmailConfirmationModal" data-bs-toggle="modal">E-Mail-Bestätigung erneut senden</a>
+                <a href="#ResendEmailConfirmationModal" data-bs-target="#ResendEmailConfirmationModal" data-bs-toggle="modal">@Localizer["EmailConfirmation_Resend"]</a>
             </p>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="forgot-password" tabindex="0" role="dialog" aria-hidden="true">
+<div class="modal fade" id="forgotPasswordModal" tabindex="0" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="myModalLabel">Link zum Zurücksetzen des Passworts, wird an Ihre E-Mail gesendet.</h4>
+                <h4 class="modal-title">@Localizer["Password_Reset_ConfirmationSent"]</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form asp-action="ForgotPasswordSubmit">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-floating">
-                        <input asp-for="Email" placeholder="" class="form-control" autocomplete="E-Mail" required />
+                        <input asp-for="Email" class="form-control" autocomplete="E-Mail" />
                         <label asp-for="Email"></label>
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
-                    <button type="submit" class="w-100 btn btn-lg btn-primary mt-1">Passwort zurücksetzen</button>
+                    <button class="w-100 btn btn-lg btn-primary mt-1">@Localizer["Password_Reset"]</button>
                 </form>
             </div>
         </div>
@@ -70,7 +70,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="myModalLabel">Hier können Sie sich registrieren</h4>
+                <h4 class="modal-title">@Localizer["Register_Here"]</h4>
                 <button type="button" class="btn-close pt-1" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -80,28 +80,27 @@
     </div>
 </div>
 
-<div class="modal fade" id="ResendEmailConfirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="ResendEmailConfirmationModal" tabindex="-1" aria-labelledby="ResendEmailConfirmationModal" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">E-Mail-Bestätigung erneut senden</h5>
+                <h5 class="modal-title">@Localizer["EmailConfirmation_Resend"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form asp-action="ResendEmailSubmit" asp-controller="Account">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-floating">
-                        <input asp-for="Email" placeholder="" autocomplete="E-Mail" class="form-control" required />
+                        <input asp-for="Email" autocomplete="E-Mail" class="form-control" />
                         <label asp-for="Email"></label>
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
-                    <button type="submit" class="w-100 btn btn-lg btn-primary mt-1">Erneut senden</button>
+                    <button class="w-100 btn btn-lg btn-primary mt-1">@Localizer["Resend"]</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

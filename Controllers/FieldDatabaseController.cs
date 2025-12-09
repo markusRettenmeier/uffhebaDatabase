@@ -1,61 +1,71 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using Sammlerplattform.Models;
 using Sammlerplattform.Models.PlaceDatabase;
+using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase;
 using Sammlerplattform.Models.PlaceDatabase.FieldDatabase;
-using Sammlerplattform.Services.Processes.PlaceProcesses;
+using Sammlerplattform.Resources;
+using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
 
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
-    public class FieldDatabaseController(IProcessPlace processPlace, IProcessField processField) : Controller
+    public class FieldDatabaseController(IProcessPlace processPlace, IProcessField processField,
+            IStringLocalizer<SharedResources> stringLocalizer) : Controller
     {
-        public ActionResult Index(string statusMessage, PlaceSearchParameter placeSearchParameter)
+        public ActionResult Index(Status status, PlaceSearchParameter placeSearchParameter)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
             List<Place> placeList = [.. processPlace.GetListWithPredicate(placeSearchParameter).Where(x => x.Field != null)];
             return View(placeList);
         }
 
-        public ActionResult Create(string statusMessage)
+        public ActionResult Create(Status status)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
             return View();
         }
         public IActionResult CreateSubmit(FieldOperationParameterModel model)
         {
-            (int _, int _, string statusMessage) = processField.CreateField(model);
-            return RedirectToAction(nameof(Create), new { statusMessage });
+            (int _, int _, string statusMessage) = processField.Create(model);
+            return RedirectToAction(nameof(Index), new { statusMessage });
         }
 
-        public ActionResult Edit(string statusMessage, int id)
+        public ActionResult Edit(Status status, int id)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
-            PlaceSearchParameter searchParameter = new()
-            {
-                PlaceID = [id]
-            };
-            Place? existingPlace = processPlace.GetListWithPredicate(searchParameter).FirstOrDefault();
+            Place? existingPlace = processPlace.GetListWithPredicate(new PlaceSearchParameter { PlaceID = [id] }).FirstOrDefault();
             if (existingPlace == null)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Flur nicht gefunden" });
-            }
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_Place_NotFound" });
+            }            
 
-            FieldOperationParameterModel fieldOperationParameterModel = new()
-            {
-                Place = existingPlace,
-                Field = existingPlace.Field!,
-                PlaceNToponymyList = existingPlace.PlaceNToponymyList,
-                ChildPlaceList = existingPlace.ChildPlaceList
-            };
-
-            return View(fieldOperationParameterModel);
+            return existingPlace == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Place_NotFound" })
+                : View(new FieldOperationParameterModel
+                {
+                    Place = existingPlace,
+                    Field = existingPlace.Field!,
+                    PlaceNToponymyList = existingPlace.PlaceNToponymyList,
+                    ChildPlaceList = existingPlace.ChildPlaceList
+                });
         }
         public IActionResult EditSubmit(FieldOperationParameterModel model)
         {
-            (int placeID, int _, string statusMessage) = processField.EditField(model);
+            (int placeID, int _, string statusMessage) = processField.Edit(model);
             return RedirectToAction(nameof(Edit), new { statusMessage, id = placeID });
+        }
+
+        private void HandleStatus(Status status)
+        {
+            if (!string.IsNullOrEmpty(status.Message))
+            {
+                ViewData["StatusMessage"] = stringLocalizer[status.Message];
+                ViewData["StatusCode"] = status.Code;
+            }
         }
     }
 }

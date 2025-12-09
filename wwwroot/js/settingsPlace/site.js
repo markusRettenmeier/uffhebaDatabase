@@ -11,7 +11,7 @@
     const postalcodeInput = document.createElement("input");
     postalcodeInput.type = "text";
     postalcodeInput.className = "form-control inputPostalcode";
-    postalcodeInput.placeholder = "PLZ";
+    postalcodeInput.placeholder = i18n.get("Postalcode");
     postalcodeInput.name = `SettlementNPostalcodeList[${index}].Postalcode.PostalcodeNumber`;
 
     const divCheckbox = document.createElement("div");
@@ -28,12 +28,12 @@
     const currentNameLabel = document.createElement("label");
     currentNameLabel.className = "form-check-label ms-1";
     currentNameLabel.htmlFor = "currentPostalcode_" + index
-    currentNameLabel.innerText = "Aktuelle PLZ";
+    currentNameLabel.innerText = i18n.get("IsCurrentPostalcode");
 
     const removeButton = document.createElement("button");
     removeButton.type = "button";
     removeButton.className = "btn btn-danger removePostalcode";
-    removeButton.textContent = "Entfernen";
+    removeButton.textContent = i18n.get("Remove");
 
     divInputs.appendChild(postalcodeInput);
     divCheckbox.appendChild(currentNameCheckbox);
@@ -45,8 +45,7 @@
 }
 (function initRemovePostalcodeButtonHandler() {
     const container = document.getElementById('postalcodeContainer');
-
-    if (!container) return; // Frühzeitiger Ausstieg, wenn Tabelle nicht vorhanden
+    if (!container) return;
 
     container.addEventListener('click', function (e) {
         if (e.target && e.target.classList.contains('removePostalcode')) {
@@ -75,7 +74,7 @@ function addRelatedPlace(idx) {
     const tbody = document.getElementById("appendPlaceHere");
 
     if (tbody.querySelector("tr[data-type='related']")) {
-        alert("Es darf nur ein Related Place existieren.");
+        alert(i18n.get("RelatedGeography_Max1"));
         return;
     }
     addPlaceToRelationTable(idx, "Bezug");
@@ -84,13 +83,13 @@ function addParentPlace(idx) {
     const tbody = document.getElementById("appendPlaceHere");
 
     if (tbody.querySelector("tr[data-type='parent']")) {
-        alert("Es darf nur ein Parent Place existieren.");
+        alert(i18n.get("ParentPlace_Max1"));
         return;
     }
-    addPlaceToRelationTable(idx, "Eltern");
+    addPlaceToRelationTable(idx, "ParentPlace");
 }
 function addChildPlace(idx) {
-    addPlaceToRelationTable(idx, "Kind");
+    addPlaceToRelationTable(idx, "ChildPlace");
 }
 function addPlaceToRelationTable(idx, type) {
     const tbody = document.getElementById("appendPlaceHere");
@@ -107,7 +106,7 @@ function addPlaceToRelationTable(idx, type) {
     tdSpecs.innerHTML = value;
 
     const tdType = document.createElement("td");
-    tdType.textContent = type;
+    tdType.textContent = i18n.get(type);
 
     const tdActions = document.createElement("td");
 
@@ -115,11 +114,11 @@ function addPlaceToRelationTable(idx, type) {
     hiddenInput.type = "hidden";
 
     if (type === "Bezug") {
-        hiddenInput.name = "Settlement.RelatedPlaceID";
+        hiddenInput.name = "Settlement.RelatedGeographyID";
         hiddenInput.value = document.getElementById(`placeSearchResultPlaceID_${idx}`);
-    } else if (type === "Eltern") {
+    } else if (type === "ParentPlace") {
         hiddenInput.name = "Place.ParentPlaceID";
-    } else if (type === "Kind") {
+    } else if (type === "ChildPlace") {
         const index = tbody.querySelectorAll("tr[data-type='child']").length;
         hiddenInput.name = `ChildPlaceList[${index}].PlaceID`;
     }
@@ -128,7 +127,7 @@ function addPlaceToRelationTable(idx, type) {
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.classList.add("btn", "btn-danger", "btn-sm", "removePlaceRow");
-    removeBtn.textContent = "Entfernen";
+    removeBtn.textContent = i18n.get("Remove");
 
     tdActions.appendChild(hiddenInput);
     tdActions.appendChild(removeBtn);
@@ -175,7 +174,7 @@ function addToponymy() {
     const toponymyInput = document.createElement("input");
     toponymyInput.type = "text";
     toponymyInput.className = "form-control inputToponymy";
-    toponymyInput.placeholder = "Geografischer Name";
+    toponymyInput.placeholder = i18n.get("ToponymyName");
     toponymyInput.name = `PlaceNToponymyList[${index}].Toponymy.ToponymyName`;
 
     divInputs.appendChild(toponymyInput);
@@ -195,13 +194,13 @@ function addToponymy() {
     const currentNameLabel = document.createElement("label");
     currentNameLabel.className = "form-check-label ms-1";
     currentNameLabel.htmlFor = "currentName_" + index
-    currentNameLabel.innerText = "Aktueller Name";
+    currentNameLabel.innerText = i18n.get("IsCurrentName");
     divCheckbox.appendChild(currentNameLabel);
 
     const removeButton = document.createElement("button");
     removeButton.type = "button";
     removeButton.className = "btn btn-danger removeToponmy";
-    removeButton.textContent = "Entfernen";
+    removeButton.textContent = i18n.get("Remove");
 
     wrapper.appendChild(divInputs);
     wrapper.appendChild(divCheckbox);

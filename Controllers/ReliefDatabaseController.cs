@@ -1,45 +1,45 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using Sammlerplattform.Models;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.ReliefDatabase;
-using Sammlerplattform.Services.Processes.PlaceProcesses;
+using Sammlerplattform.Resources;
+using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
 
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
-    public class ReliefDatabaseController(IProcessPlace processPlace, IProcessRelief processRelief) : Controller
+    public class ReliefDatabaseController(IProcessPlace processPlace, IProcessRelief processRelief,
+        IStringLocalizer<SharedResources> stringLocalizer) : Controller
     {
-        public ActionResult Index(string statusMessage, PlaceSearchParameter placeSearchParameter)
+        public ActionResult Index(Status status, PlaceSearchParameter placeSearchParameter)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
             List<Place> placeList = [.. processPlace.GetListWithPredicate(placeSearchParameter).Where(x => x.Relief != null)];
             return View(placeList);
         }
 
-        public ActionResult Create(string statusMessage)
+        public ActionResult Create(Status status)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
             return View();
         }
         public IActionResult CreateSubmit(ReliefOperationParameterModel model)
         {
             (int _, int _, string statusMessage) = processRelief.CreateRelief(model);
-            return RedirectToAction(nameof(Create), new { statusMessage });
+            return RedirectToAction(nameof(Index), new { statusMessage });
         }
 
-        public ActionResult Edit(string statusMessage, int id)
+        public ActionResult Edit(Status status, int id)
         {
-            ViewData["StatusMessage"] = statusMessage;
+            HandleStatus(status);
 
-            PlaceSearchParameter searchParameter = new()
-            {
-                PlaceID = [id]
-            };
-            Place? existingPlace = processPlace.GetListWithPredicate(searchParameter).FirstOrDefault();
+            Place? existingPlace = processPlace.GetListWithPredicate(new PlaceSearchParameter { PlaceID = [id] }).FirstOrDefault();
             if (existingPlace == null)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Relief nicht gefunden" });
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_Place_NotFound" });
             }
 
             ReliefOperationParameterModel reliefOperationParameterModel = new()
@@ -49,12 +49,29 @@ namespace Sammlerplattform.Controllers
                 PlaceNToponymyList = existingPlace.PlaceNToponymyList,
                 ChildPlaceList = existingPlace.ChildPlaceList
             };
-            return View(reliefOperationParameterModel);
+            return existingPlace == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Place_NotFound" })
+                : View(new ReliefOperationParameterModel
+                {
+                    Place = existingPlace,
+                    Relief = existingPlace.Relief!,
+                    PlaceNToponymyList = existingPlace.PlaceNToponymyList,
+                    ChildPlaceList = existingPlace.ChildPlaceList
+                });
         }
         public IActionResult EditSubmit(ReliefOperationParameterModel model)
         {
             (int placeID, int _, string statusMessage) = processRelief.EditRelief(model);
             return RedirectToAction(nameof(Edit), new { statusMessage, id = placeID });
+        }
+
+        private void HandleStatus(Status status)
+        {
+            if (!string.IsNullOrEmpty(status.Message))
+            {
+                ViewData["StatusMessage"] = stringLocalizer[status.Message];
+                ViewData["StatusCode"] = status.Code;
+            }
         }
     }
 }

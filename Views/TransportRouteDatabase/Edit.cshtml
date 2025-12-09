@@ -1,15 +1,16 @@
 ﻿@model TransportRouteOperationParameterModel
 @using Sammlerplattform.Models.PlaceDatabase
-@using Sammlerplattform.Models.PlaceDatabase.TransportRouteDatabase
+@using Sammlerplattform.Models.PlaceDatabase.TransportRouteDatabase 
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Gewässer ändern";
+    ViewData["Title"] = @Localizer["TransportRoute_Edit"];
     Layout = "~/Views/Shared/_LayoutSettingsPlace.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h3>@ViewData["Title"]</h3>
 <hr />
-
 <form asp-action="EditSubmit" asp-controller="TransportRouteDatabase">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -21,25 +22,26 @@
         {
             <div class="input-group inputDivToponymy mb-2">
                 <div class="input-group">
+                    <label class="form-label">@Localizer["Toponymy"]</label>
                     <input class="form-control inputToponymy" placeholder="Geografischer Name" asp-for="PlaceNToponymyList[@i].Toponymy.ToponymyName">
                 </div>
                 <div class="form-check">
                     <input class="form-check-input checkboxCurrentName" asp-for="PlaceNToponymyList[i].IsCurrentName" id="currentName_@i">
-                    <label class="form-check-label ms-1" for="currentName_@i">Aktueller Name</label>
+                    <label class="form-check-label ms-1" for="currentName_@i">@Localizer["IsCurrentName"]</label>
                 </div>
-                <button type="button" class="btn btn-danger removeToponmy">Entfernen</button>
+                <button type="button" class="btn btn-danger removeToponmy">@Localizer["Remove"]</button>
             </div>
         }
     </div>
-    <button type="button" class="btn btn-primary" onclick="addToponymy()">Mehr Ortsnamen hinzufügen</button>
+    <button type="button" class="btn btn-primary" onclick="addToponymy()">@Localizer["PlaceName_Add"]</button>
     <div class="mb-3">
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">Geografischer Name</th>
-                    <th scope="col">Weitere Spezifikationen</th>
-                    <th scope="col">Bezug</th>
-                    <th scope="col">Weitere Aktionen</th>
+                    <th scope="col">@Localizer["Toponymy"]</th>
+                    <th scope="col">@Localizer["FurtherSpecs"]</th>
+                    <th scope="col">@Localizer["Relationship"]</th>
+                    <th scope="col"></th>
                 </tr>
             </thead>
             <tbody id="appendPlaceHere">
@@ -49,10 +51,10 @@
                     <tr data-type="parent" class="placeTableRow">
                         <td>@Html.Raw(vm.Toponymy)</td>
                         <td>@Html.Raw(vm.FurtherSpecs)</td>
-                        <td>Eltern</td>
+                        <td>@Localizer["ParentPlace"]</td>
                         <td>
                             <input type="hidden" asp-for="Place.ParentPlaceID">
-                            <button type="button" class="btn btn-danger btn-sm removePlaceRow">Entfernen</button>
+                            <button type="button" class="btn btn-danger btn-sm removePlaceRow">@Localizer["Remove"]</button>
                         </td>
                     </tr>
                 }
@@ -64,10 +66,10 @@
                         <tr data-type="child" class="placeTableRow">
                             <td>@Html.Raw(vm.Toponymy)</td>
                             <td>@Html.Raw(vm.FurtherSpecs)</td>
-                            <td>Kind</td>
+                            <td>@Localizer["ChildPlace"]</td>
                             <td>
                                 <input type="hidden" name="ChildPlaceList[@i].PlaceID" value="@Model.ChildPlaceList[i].PlaceID">
-                                <button type="button" class="btn btn-danger btn-sm removePlaceRow">Entfernen</button>
+                                <button type="button" class="btn btn-danger btn-sm removePlaceRow">@Localizer["Remove"]</button>
                             </td>
                         </tr>
                     }
@@ -75,12 +77,10 @@
             </tbody>
         </table>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
-            Orte hinzufügen
+            @Localizer["Place_Add"]
         </button>
     </div>
-    <hr />
-
-    <button class="btn btn-primary">Ändern</button>
+    <button class="btn btn-primary">@Localizer["Edit"]</button>
 </form>
 
 <partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />

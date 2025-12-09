@@ -1,54 +1,55 @@
 ﻿@model IndividualOperationParameterModel
 @using Sammlerplattform.Models.PartyDatabase.IndividualDatabase
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Partei erstellen";
+    ViewData["Title"] = Localizer["Individual_Create"];
     Layout = "~/Views/Shared/_LayoutSettingsParty.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h3>@ViewData["Title"]</h3>
 <hr />
-        <form asp-action="CreateSubmit" asp-controller="IndividualDatabase">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input asp-for="Party.PartyTypeInt" type="hidden" value="0"/>
-            <div class="form-group">
-                <label asp-for="Party.PartyName" class="control-label"></label>
-                <input asp-for="Party.PartyName" class="form-control" />
-                <span asp-validation-for="Party.PartyName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Party.PartyDescription" class="control-label"></label>
-                <textarea asp-for="Party.PartyDescription" class="form-control" rows="10"></textarea>
-                <span asp-validation-for="Party.PartyDescription" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Individual.Pseudonym" class="control-label"></label>
-                <input asp-for="Individual.Pseudonym" class="form-control" />
-                <span asp-validation-for="Individual.Pseudonym" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Individual.Signature" class="control-label"></label>
-                <input asp-for="Individual.Signature" class="form-control" />
-                <span asp-validation-for="Individual.Signature" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Geografischer Name</th>
-                            <th scope="col">Weitere Spezifikationen</th>
-                            <th scope="col">Weitere Aktionen</th>
-                        </tr>
-                    </thead>
-                    <tbody id="appendPlaceHere">
-                    </tbody>
-                </table>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
-                    Orte hinzufügen
-                </button>
-            </div>
-            <hr />
-            <button class="btn btn-primary">Erstellen</button>
+<form asp-action="CreateSubmit" asp-controller="IndividualDatabase">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input asp-for="Party.PartyTypeInt" type="hidden" value="0" />
+    <div class="form-group">
+        <label asp-for="Party.PartyName" class="control-label"></label>
+        <input asp-for="Party.PartyName" class="form-control" />
+        <span asp-validation-for="Party.PartyName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Party.PartyDescription" class="control-label"></label>
+        <textarea asp-for="Party.PartyDescription" class="form-control" rows="10"></textarea>
+        <span asp-validation-for="Party.PartyDescription" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Individual.Pseudonym" class="control-label"></label>
+        <input asp-for="Individual.Pseudonym" class="form-control" />
+        <span asp-validation-for="Individual.Pseudonym" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Individual.Signature" class="control-label"></label>
+        <input asp-for="Individual.Signature" class="form-control" />
+        <span asp-validation-for="Individual.Signature" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">@Localizer["PlaceName"]</th>
+                    <th scope="col">@Localizer["FurtherSpecs"]</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody id="appendPlaceHere">
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
+            @Localizer["Place_Add"]
+        </button>
+    </div>
+    <button class="btn btn-primary">@Localizer["Create"]</button>
 </form>
 
 <partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />

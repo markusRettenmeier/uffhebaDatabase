@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sammlerplattform.Resources;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models.PlaceDatabase
@@ -7,13 +8,15 @@ namespace Sammlerplattform.Models.PlaceDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
+        [Display(Name = "ToponymyID", ResourceType = typeof(SharedResources))]
         public int ToponymyID { get; set; }
 
-        [Required(ErrorMessage = "Bitte Toponymie-Name eingeben")]
+        [Required]
         [StringLength(80)]
-        [Display(Name = "Toponymie-Name (auch ehemalige)")]
+        [Display(Name = "ToponymyName", ResourceType = typeof(SharedResources))]
         public required string ToponymyName { get; set; }
 
+        [Display(Name = "PlaceNToponymyList", ResourceType = typeof(SharedResources))]
         public List<PlaceNToponymy> PlaceNToponymyList { get; set; } = [];
     }
 }

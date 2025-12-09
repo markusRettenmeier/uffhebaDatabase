@@ -18,20 +18,41 @@ namespace Sammlerplattform.Services
 
             foreach (CollectionItemOperationParameterModel operationParameterModel in modelList)
             {
-                string yamlFolder = Path.Combine(downloadFolder, operationParameterModel.CollectionItemEntity.CollectionItemEntityID.ToString());
+                // Sicherstellen, dass CollectionItemEntity nicht null ist
+                if (operationParameterModel.CollectionItemEntity == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("Warnung: CollectionItemEntity ist null");
+                    continue;
+                }
+
+                string itemId = operationParameterModel.CollectionItemEntity.CollectionItemEntityID.ToString();
+                string yamlFolder = Path.Combine(downloadFolder, itemId);
                 _ = Directory.CreateDirectory(yamlFolder);
 
                 string yamlFile = Path.Combine(yamlFolder, "PostcardDatas.yaml");
                 using FileStream sw = File.Create(yamlFile);
                 byte[] yamlBytes = CreateYAMLFile(operationParameterModel);
-                sw.Write(yamlBytes);
+                await sw.WriteAsync(yamlBytes);
 
-                foreach (CollectionItemPicture scan in operationParameterModel.CollectionItemPictureList)
+                // Sicherstellen, dass CollectionItemPictureList nicht null ist
+                if (operationParameterModel.CollectionItemPictureList != null)
                 {
-                    string sourceFilePath = Path.Combine(sourceDir, scan.CollectionItemPictureID.ToString() + ".png");
-                    string targetFilePath = Path.Combine(yamlFolder, scan.CollectionItemPictureID.ToString() + ".png");
-                    File.Copy(sourceFilePath, targetFilePath, true);
+                    foreach (CollectionItemPicture scan in operationParameterModel.CollectionItemPictureList)
+                    {
+                        string sourceFilePath = Path.Combine(sourceDir, scan.CollectionItemPictureID.ToString() + ".png");
+                        string targetFilePath = Path.Combine(yamlFolder, scan.CollectionItemPictureID.ToString() + ".png");
+                        if (File.Exists(sourceFilePath))
+                        {
+                            File.Copy(sourceFilePath, targetFilePath, true);
+                        }
+                    }
                 }
+            }
+
+            // Überprüfen ob Ordner Inhalte hat bevor ZIP erstellt wird
+            if (!Directory.EnumerateFileSystemEntries(downloadFolder).Any())
+            {
+                throw new InvalidOperationException("Download folder is empty - no data to zip");
             }
 
             ZipFile.CreateFromDirectory(downloadFolder, zipFile);
@@ -41,19 +62,34 @@ namespace Sammlerplattform.Services
                 await stream.CopyToAsync(memory);
             }
             memory.Position = 0;
-            Directory.Delete(downloadFolder, true);
-            File.Delete(zipFile);
+
+            // Cleanup
+            try
+            {
+                Directory.Delete(downloadFolder, true);
+                File.Delete(zipFile);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Cleanup error: {ex.Message}");
+            }
+
             return memory;
         }
 
         public static byte[] CreateYAMLFile(CollectionItemOperationParameterModel operationParameterModel)
         {
-            YAMLCollectionItemDownloadModel collectionItemDownloadModel = new()
+            var exportDto = new YamlExportDto
             {
-                Scans = operationParameterModel.CollectionItemPictureList,
-                Product = new YAMLCollectionItem
+                Scans = [.. operationParameterModel.CollectionItemPictureList.Select(p => new YamlScanDto
                 {
-                    //SerialNumber = operationParameterModel.CollectionItemEntity.SerialNumber,
+                    CollectionItemPictureID = p.CollectionItemPictureID,
+                    Perspective = p.Perspective.ToString(),
+                    FileName = $"{p.CollectionItemPictureID}.png"
+                })],
+
+                CollectionItem = new YamlCollectionItemDto
+                {
                     FilingLocation = operationParameterModel.CollectionItemEntity.FilingLocation,
                     Price = operationParameterModel.CollectionItemEntity.DeliveryPrice,
                     Fake = operationParameterModel.CollectionItemEntity.Fake,
@@ -65,22 +101,34 @@ namespace Sammlerplattform.Services
                     EndYear = operationParameterModel.CollectionItemEntity.EndYear,
                     IsApproximate = operationParameterModel.CollectionItemEntity.IsApproximate,
                     Comment = operationParameterModel.CollectionItemEntity.Comment,
-                    TransferFromOwner = operationParameterModel.CollectionItemEntity.TransferFromOwner.ToString(),
-                    ProductionSize = operationParameterModel.CollectionItemEntity.ProductionSize,
-                    Condition = operationParameterModel.CollectionItemEntity.State?.StateName
+                    Condition = operationParameterModel.CollectionItemEntity.State?.StateName,
+                    Colors = operationParameterModel.CollectionItemEntity.CollectionItemNColorList?
+                        .Where(c => c.Color != null)
+                        .Select(c => c.Color.Name)
+                        .ToList(),
+                    Materials = operationParameterModel.CollectionItemEntity.CollectionItemNMaterialList?
+                        .Where(m => m.Material != null)
+                        .Select(m => m.Material.MaterialName)
+                        .ToList(),
+                    Parties = operationParameterModel.CollectionItemEntity.CollectionItemNPartyList?
+                        .ToDictionary(p => p.Relationship, p => p.Party.PartyName),
+                    Places = operationParameterModel.CollectionItemEntity.CollectionItemNPlaceList?
+                        .Select(pl => pl.Place.PlaceNToponymyList?.FirstOrDefault()?.Toponymy?.ToponymyName)
+                        .Where(name => !string.IsNullOrEmpty(name))
+                        .ToList(),
+                    ProcessOfManufacture = operationParameterModel.CollectionItemEntity.ProcessOfManufacture?.ProcessOfManufactureName,
+                    Concept = operationParameterModel.CollectionItemEntity.Concept?.ConceptName,
+                    Era = operationParameterModel.CollectionItemEntity.Era?.EraName
                 }
             };
 
-            byte[] yamlBytes = SerializeProductToYaml(collectionItemDownloadModel);
-            using MemoryStream memoryStream = new();
-            return yamlBytes;
+            return SerializeCollectionItemToYaml(exportDto);
         }
-
-        public static byte[] SerializeProductToYaml(YAMLCollectionItemDownloadModel model)
+        public static byte[] SerializeCollectionItemToYaml(YamlExportDto exportDto)
         {
             ISerializer serializer = new SerializerBuilder()
                 .Build();
-            string yaml = "# ----------Start----------\r\n" + serializer.Serialize(model);
+            string yaml = "# ----------Start----------\r\n" + serializer.Serialize(exportDto);
             yaml += "# -----------End-----------";
 
             MemoryStream buffer = new();
@@ -92,6 +140,43 @@ namespace Sammlerplattform.Services
             byte[] bytes = buffer.ToArray();
 
             return bytes;
+        }
+
+        // Spezielle DTOs für YAML-Export
+        public class YamlScanDto
+        {
+            public int CollectionItemPictureID { get; set; }
+            public string? Perspective { get; set; }
+            public string? FileName { get; set; }
+        }
+
+        public class YamlCollectionItemDto
+        {
+            public string? FilingLocation { get; set; }
+            public decimal? Price { get; set; }
+            public bool Fake { get; set; }
+            public decimal? Width { get; set; }
+            public decimal? Height { get; set; }
+            public decimal? Length { get; set; }
+            public int? ExactYear { get; set; }
+            public int? StartYear { get; set; }
+            public int? EndYear { get; set; }
+            public bool IsApproximate { get; set; }
+            public string? Comment { get; set; }
+            public string? Condition { get; set; }
+            public List<string>? Colors { get; set; }
+            public List<string>? Materials { get; set; }
+            public Dictionary<string, string>? Parties { get; set; }
+            public List<string?>? Places { get; set; }
+            public string? ProcessOfManufacture { get; set; }
+            public string? Concept { get; set; }
+            public string? Era { get; set; }
+        }
+
+        public class YamlExportDto
+        {
+            public List<YamlScanDto> Scans { get; set; } = [];
+            public YamlCollectionItemDto CollectionItem { get; set; } = new();
         }
     }
 }

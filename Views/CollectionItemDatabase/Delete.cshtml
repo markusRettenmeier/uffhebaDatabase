@@ -2,9 +2,11 @@
 @using Sammlerplattform.Models.PartyDatabase
 @using Sammlerplattform.Models.PlaceDatabase
 @model Sammlerplattform.Models.CollectionItemDatabase.CollectionItemOperationParameterModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Sammlungsstück löschen";
+    ViewData["Title"] = Localizer["CollectionItemEntity_Delete"];
     Layout = "~/Views/Shared/_LayoutSettingsCollectionItem.cshtml";
 
     string displayName = string.Empty;
@@ -16,32 +18,26 @@
         displayName = Model.CollectionItemEntity.CollectionItemEntityID.ToString();
 }
 
-<h4>@ViewData["Title"]: @displayName</h4>
+<h3>@ViewData["Title"]: @displayName</h3>
+<h4>@Localizer["Delete_Confirm"]</h4>
 <hr />
-
-<h4>Soll das Sammlungsstück wirklich gelöscht werden?</h4>
-<hr />
-        <div class="row">
-            @if (Model.CollectionItemPictureList.Count > 0)
-            {
-                @for (int i = 0; i < Model.CollectionItemPictureList.Count; i++)
-                {
-                    string pathPicture = @"/images/Normal/" + Model.CollectionItemPictureList[i].CollectionItemPictureID + ".png";
-                    <div class="col">
-                        <div class="card" style="width: 30rem;">
-                            <img src="@pathPicture" class="card-img-top">
-                            <div class="card-body">
-                                <p class="card-text">@Model.CollectionItemPictureList[i].Perspective</p>
-                                @if (i > 0)
-                                {
-                                    <button type="button" class="btn btn-danger" onclick="removePicture(@i)">Bild entfernen</button>
-                                }
-                            </div>
-                        </div>
+<div class="row">
+    @if (Model.CollectionItemPictureList.Count > 0)
+    {
+        @for (int i = 0; i < Model.CollectionItemPictureList.Count; i++)
+        {
+            string pathPicture = @"/images/Normal/" + Model.CollectionItemPictureList[i].CollectionItemPictureID + ".png";
+            <div class="col">
+                <div class="card" style="width: 30rem;">
+                    <img src="@pathPicture" class="card-img-top">
+                    <div class="card-body">
+                        <p class="card-text">@Model.CollectionItemPictureList[i].Perspective</p>
                     </div>
-                }
-            }
-        </div>
+                </div>
+            </div>
+        }
+    }
+</div>
 <dl class="row">
     <dt class="col-sm-4">
         @Html.DisplayNameFor(model => model.CollectionItemEntity.UniqueName)
@@ -128,23 +124,18 @@
         @Html.DisplayFor(model => model.CollectionItemEntity.Comment)
     </dd>
     <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.CollectionItemEntity.TransferFromOwner)
+        @Html.DisplayNameFor(model => model.CollectionItemPotential.ProductionSize)
     </dt>
     <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.CollectionItemEntity.TransferFromOwner)
-    </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.CollectionItemEntity.ProductionSize)
-    </dt>
-    <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.CollectionItemEntity.ProductionSize)
+        @Html.DisplayFor(model => model.CollectionItemPotential.ProductionSize)
     </dd>
     <dt class="col-sm-4">
         @Html.DisplayNameFor(model => model.CollectionItemEntity.State!.StateName)
     </dt>
     <dd class="col-sm-10">
         @if(Model.CollectionItemEntity.State != null){
-            @Html.DisplayFor(model => model.CollectionItemEntity.State.StateName)
+            string stateName = Model.CollectionItemEntity.State.StateName;
+            @stateName
         }        
     </dd>
     <dt class="col-sm-4">
@@ -178,12 +169,6 @@
         @Html.DisplayFor(model => model.Era.EraName)
     </dd>
     <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.ProcessOfManufacture)
-    </dt>
-    <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.ProcessOfManufacture.ProcessOfManufactureName)
-    </dd>
-    <dt class="col-sm-4">
         @Html.DisplayNameFor(model => model.CollectionItemEntity.Inscription)
     </dt>
     <dd class="col-sm-10">
@@ -201,7 +186,7 @@
     <dd class="col-sm-10">
         @Html.DisplayFor(model => model.Concept.ConceptName)
     </dd>
-    @foreach(var itemValue in Model.CollectionItemValueList)
+    @foreach(var itemValue in Model.CollectionAttributeValueList)
     {
         <dt class="col-sm-4">
             @itemValue.CollectionAttribute.CollectionAttributeName
@@ -252,8 +237,8 @@
     </dd>
 </dl>
 
-    <form asp-action="DeleteSubmit">
-        <input type="hidden" asp-for="CollectionItemEntity.CollectionItemEntityID" />
-        <input type="hidden" asp-for="CollectionItemEntity.CollectionAreaID" />
-        <button class="btn btn-danger">Entfernen</button>
-    </form>
+<form asp-action="DeleteSubmit">
+    <input type="hidden" asp-for="CollectionItemEntity.CollectionItemEntityID" />
+    <input type="hidden" asp-for="CollectionItemEntity.CollectionAreaID" />
+    <button class="btn btn-danger">@Localizer["Delete"]</button>
+</form>

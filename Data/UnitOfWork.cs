@@ -2,6 +2,8 @@
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.VectorSearch;
+
 
 //using Sammlerplattform.Models.CollectionItemDatabase.ObjectLayerDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
@@ -17,7 +19,8 @@ using Sammlerplattform.Models.PlaceDatabase.RegionDatabase;
 using Sammlerplattform.Models.PlaceDatabase.ReliefDatabase;
 using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
 using Sammlerplattform.Models.PlaceDatabase.TransportRouteDatabase;
-using Sammlerplattform.Models.ProcessOfManufactureDatabase;
+using Sammlerplattform.Models.Translations;
+using System.Data.Entity.Core.EntityClient;
 
 namespace Sammlerplattform.Data
 {
@@ -27,7 +30,6 @@ namespace Sammlerplattform.Data
         GenericRepository<Era> EraRepository { get; }
         GenericRepository<ProductionFacility> ProductionFacilityRepository { get; }
         GenericRepository<CollectionItemPicture> CollectionItemPictureRepository { get; }
-        GenericRepository<ProcessOfManufacture> ProcessOfManufactureRepository { get; }
         GenericRepository<Color> ColorRepository { get; }
         GenericRepository<CollectionItemNColor> CollectionItemNColorRepository { get; }
         GenericRepository<Material> MaterialRepository { get; }
@@ -53,9 +55,11 @@ namespace Sammlerplattform.Data
         GenericRepository<CollectionItemPotential> CollectionItemPotentialRepository { get; }
         GenericRepository<CollectionArea> CollectionAreaRepository { get; }
         GenericRepository<CollectionAttribute> CollectionAttributeRepository { get; }
-        GenericRepository<CollectionItemValue> CollectionItemValueRepository { get; }
+        GenericRepository<CollectionAttributeValue> CollectionAttributeValueRepository { get; }
         GenericRepository<Concept> ConceptRepository { get; }
         GenericRepository<ConceptRelation> ConceptRelationRepository { get; }
+        GenericRepository<CollectionItemEmbedding> CollectionItemEmbeddingRepository { get; }
+        GenericRepository<EntityTranslation> EntityTranslationRepository { get; }
 
         void Save();
     }
@@ -66,7 +70,6 @@ namespace Sammlerplattform.Data
         private GenericRepository<Era>? eraRepository;
         private GenericRepository<ProductionFacility>? productionFacilityRepository;
         private GenericRepository<CollectionItemPicture>? collectionItemPictureRepository;
-        private GenericRepository<ProcessOfManufacture>? processOfManufactureRepository;
         private GenericRepository<Color>? colorRepository;
         private GenericRepository<CollectionItemNColor>? collectionItemNColorRepository;
         private GenericRepository<Material>? materialRepository;
@@ -92,9 +95,19 @@ namespace Sammlerplattform.Data
         private GenericRepository<CollectionItemPotential>? collectionItemPotentialRepository;
         private GenericRepository<CollectionArea>? collectionAreaRepository;
         private GenericRepository<CollectionAttribute>? collectionAttributeRepository;
-        private GenericRepository<CollectionItemValue>? collectionItemValueRepository;
+        private GenericRepository<CollectionAttributeValue>? collectionAttributeValueRepository;
         private GenericRepository<Concept>? conceptRepository;
         private GenericRepository<ConceptRelation>? conceptRelationRepository;
+        private GenericRepository<CollectionItemEmbedding>? collectionItemEmbeddingRepository;
+        private GenericRepository<EntityTranslation>? entityTranslationRepository;
+        public GenericRepository<CollectionItemEmbedding> CollectionItemEmbeddingRepository
+        {
+            get
+            {
+                collectionItemEmbeddingRepository ??= new GenericRepository<CollectionItemEmbedding>(context);
+                return collectionItemEmbeddingRepository;
+            }
+        }
 
         public GenericRepository<Postalcode> PostalcodeRepository
         {
@@ -126,14 +139,6 @@ namespace Sammlerplattform.Data
             {
                 collectionItemPictureRepository ??= new GenericRepository<CollectionItemPicture>(context);
                 return collectionItemPictureRepository;
-            }
-        }
-        public GenericRepository<ProcessOfManufacture> ProcessOfManufactureRepository
-        {
-            get
-            {
-                processOfManufactureRepository ??= new GenericRepository<ProcessOfManufacture>(context);
-                return processOfManufactureRepository;
             }
         }
         public GenericRepository<Color> ColorRepository
@@ -338,12 +343,12 @@ namespace Sammlerplattform.Data
                 return collectionAttributeRepository;
             }
         }
-        public GenericRepository<CollectionItemValue> CollectionItemValueRepository
+        public GenericRepository<CollectionAttributeValue> CollectionAttributeValueRepository
         {
             get
             {
-                collectionItemValueRepository ??= new GenericRepository<CollectionItemValue>(context);
-                return collectionItemValueRepository;
+                collectionAttributeValueRepository ??= new GenericRepository<CollectionAttributeValue>(context);
+                return collectionAttributeValueRepository;
             }
         }
         public GenericRepository<Concept> ConceptRepository
@@ -360,6 +365,14 @@ namespace Sammlerplattform.Data
             {
                 conceptRelationRepository ??= new GenericRepository<ConceptRelation>(context);
                 return conceptRelationRepository;
+            }
+        }
+        public GenericRepository<EntityTranslation> EntityTranslationRepository
+        {
+            get
+            {
+                entityTranslationRepository ??= new GenericRepository<EntityTranslation>(context);
+                return entityTranslationRepository;
             }
         }
 

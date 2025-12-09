@@ -72,7 +72,7 @@ if (eraToggle) {
                 } else {
                     const tr = document.createElement('tr');
                     const td = document.createElement('td');
-                    td.textContent = `Kein Eintrag vorhanden, bitte erstellen Sie ihn.`;
+                    td.textContent = i18n.get("NothingFound");
                     tr.appendChild(td);
                     tbody.appendChild(tr);
                 }
@@ -103,7 +103,7 @@ function buildEraSearchResultRow(element, idx) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'btn btn-primary';
-    btn.textContent = 'Hinzufügen';
+    btn.textContent = i18n.get("Add");
     btn.onclick = () => SetEraIntoTable(idx);
     tdAction.appendChild(btn);
 
@@ -144,7 +144,7 @@ if (collectionItemPotentialToggle) {
                 } else {
                     const tr = document.createElement('tr');
                     const td = document.createElement('td');
-                    td.textContent = `Kein Eintrag vorhanden, neue Serie wird automatisch erstellt.`;
+                    td.textContent = i18n.get("NothingFound");
                     tr.appendChild(td);
                     tbody.appendChild(tr);
                 }
@@ -159,7 +159,8 @@ function buildCollectionItemPotentialSearchResultRow(element, idx) {
     const tr = document.createElement('tr');
     tr.id = `CollectionItemPotentialSearchResult_${idx}`;
 
-    const imgPath = `/images/Thumbnail/${element.leadingPictureID}`;
+    const pictureTd = document.createElement('td');   
+    const imgPath = `/images/Thumbnail/${element.leadingPictureID}.webp`;    
     const img = document.createElement('img');
     img.src = imgPath;
     img.alt = 'Vorschaubild';
@@ -178,18 +179,11 @@ function buildCollectionItemPotentialSearchResultRow(element, idx) {
     const tdAction = document.createElement('td');
     tdAction.id = `CollectionItemPotentialSearchResultAction_${idx}`;
 
-    tdAction.appendChild(createTd({
-        text: imgPath,
-        id: `CollectionItemPotentialSearchResultImageURL_${idx}`,
-        scope: 'row',
-        type: 'hidden'
-    }));
-
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'btn btn-primary';
     btn.id = `CollectionItemPotentialSearchResult_${idx}`;
-    btn.textContent = 'Hinzufügen';
+    btn.textContent = i18n.get("Add");
     btn.onclick = () => SetCollectionItemPotentialIntoTable(idx);
     tdAction.appendChild(btn);
 
@@ -220,7 +214,7 @@ if (processOfManufactoryToggle) {
                 } else {
                     const tr = document.createElement('tr');
                     const td = document.createElement('td');
-                    td.textContent = `Kein Eintrag vorhanden, bitte erstellen Sie ihn.`;
+                    td.textContent = i18n.get("NothingFound");
                     tr.appendChild(td);
                     tbody.appendChild(tr);
                 }
@@ -269,7 +263,7 @@ function buildProcessOfManufactureSearchResultRow(element, idx) {
     btn.type = 'button';
     btn.className = 'btn btn-primary';
     btn.id = `processOfManufactureSearchResult_${idx}`;
-    btn.textContent = 'Hinzufügen';
+    btn.textContent = i18n.get("Add");
     btn.onclick = () => SetProcessOfManufactureIntoTable(idx);
     tdAction.appendChild(btn);
 

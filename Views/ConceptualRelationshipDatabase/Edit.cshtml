@@ -1,34 +1,35 @@
 ﻿@model ConceptualRelationshipOperationParameterModel
 @using Sammlerplattform.Models.ConceptualRelationshipDatabase
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = "Begriffsbeziehung ändern";
+    ViewData["Title"] = Localizer["ConceptRelation_Edit"];
     Layout = "~/Views/Shared/_LayoutSettingsConceptualRelationship.cshtml";
 }
 
-<h4>@ViewData["Title"]</h4>
+<h3>@ViewData["Title"]</h3>
 <hr />
 <form asp-action="EditSubmit" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input asp-for="Concept.CollectionAreaID" class="form-control" type="hidden">
-    <input asp-for="Concept.ConceptID" class="form-control" type="hidden">
+    <input asp-for="Concept.Id" class="form-control" type="hidden">
     <div class="form-group mb-3">
         <label asp-for="Concept.ConceptName" class="control-label"></label>
-        <input asp-for="Concept.ConceptName" class="form-control" placeholder="z. B. Mönchziegel" />
+        <input asp-for="Concept.ConceptName" class="form-control">
         <span asp-validation-for="Concept.ConceptName" class="text-danger"></span>
     </div>
     <div class="form-group mb-3">
-        <label asp-for="Concept.Description" class="control-label">Beschreibung</label>
-        <textarea asp-for="Concept.Description" rows="3" class="form-control" placeholder="Kurzbeschreibung (optional)"></textarea>
+        <label asp-for="Concept.Description" class="control-label"></label>
+        <textarea asp-for="Concept.Description" rows="3" class="form-control"></textarea>
         <span asp-validation-for="Concept.Description" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">Beziehung</th>
-                    <th scope="col">
-                    <th>
+                    <th scope="col">@Localizer["Relationship"]</th>
+                    <th scope="col"></th>
                 </tr>
             </thead>
             <tbody id="appendConceptHere">
@@ -36,7 +37,7 @@
                 {
                     <tr class="conceptResultTableTr">
                         @if (Model.ConceptRelationList[i].RelationTypeInt == 0){
-                        <td>Synonym für @Model.ConceptRelationList[i].ToConcept.ConceptName</td>
+                            <td>Synonym für @Model.ConceptRelationList[i].ToConcept.ConceptName</td>
                         }
                         else if (Model.ConceptRelationList[i].RelationTypeInt == 1)
                         {
@@ -47,21 +48,19 @@
                             <td>Kurz für @Model.ConceptRelationList[i].ToConcept.ConceptName</td>
                         }
                         <td>
-                        <input type="hidden" class="form-control conceptResultTableId" asp-for="ConceptRelationList[@i].ToConceptID">
-                        <input type="hidden" class="form-control conceptResultTableRelationship" asp-for="ConceptRelationList[@i].RelationTypeInt">
-                            <button type="button" class="btn btn-danger btn-sm removeConceptRow">Entfernen</button>
+                            <input type="hidden" class="form-control conceptResultTableId" asp-for="ConceptRelationList[@i].ToConceptID">
+                            <input type="hidden" class="form-control conceptResultTableRelationship" asp-for="ConceptRelationList[@i].RelationTypeInt">
+                            <button type="button" class="btn btn-danger btn-sm removeConceptRow">@Localizer["Remove"]</button>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ConceptModal">
-            Beziehung hinzufügen
+            @Localizer["ConceptRelation_Add"]
         </button>
     </div>
-
-    <hr />
-    <button class="btn btn-success mt-2">Ändern</button>
+    <button class="btn btn-success mt-2">@Localizer["Edit"]</button>
 </form>
 
 <partial name="~/Views/ConceptualRelationshipDatabase/_ModalConcept.cshtml" model="null" />
