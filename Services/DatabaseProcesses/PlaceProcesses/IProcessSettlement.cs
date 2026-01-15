@@ -7,25 +7,31 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
 {
     public interface IProcessSettlement
     {
-        (int PlaceID, int Statuscode, string Message) Insert(SettlementOperationParameterModel settlementOperationParameterModel);
-        (int PlaceID, int Statuscode, string Message) Update(SettlementOperationParameterModel settlementOperationParameterModel);
-        void DeleteSettlement(int settlementID);
+        (int Statuscode, string Message, int PlaceID) Insert(SettlementOperationParameterModel settlementOperationParameterModel);
+        (int Statuscode, string Message, int PlaceID) Update(SettlementOperationParameterModel settlementOperationParameterModel);
+        void Delete(int settlementID);
     }
 
     public class SettlementProcessor(IProcessPlace processPlace,
                                     IUnitOfWork unitOfWork,
                                     IProcessPostalcode processPostalcode,
-                                    IProcessTranslations processTranslations) : IProcessSettlement
+                                    IProcessTranslations processTranslations,
+                                    ITrackEvents trackEvents) : IProcessSettlement
     {
-        public (int PlaceID, int Statuscode, string Message) Insert(SettlementOperationParameterModel settlementOperationParameterModel)
+        public (int Statuscode, string Message, int PlaceID) Insert(SettlementOperationParameterModel settlementOperationParameterModel)
         {
             if (settlementOperationParameterModel.PlaceNToponymyList == null ||
                     !settlementOperationParameterModel.PlaceNToponymyList.Any(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
-                return (0, 412, "Error_PlaceName_Missing");
+                trackEvents.TrackWarning("SettlementProcessor.Insert: PlaceName is missing.", new Dictionary<string, object>
+                {
+                    { "Place", settlementOperationParameterModel.Place},
+                    { "Settlement", settlementOperationParameterModel.Settlement}
+                });
+                return (412, "Error_PlaceName_Missing", 0);
             }
 
-            (bool flowControl, (int PlaceID, int Statuscode, string Message) value) = IsPlaceExistingProcessCreate(settlementOperationParameterModel);
+            (bool flowControl, (int Statuscode, string Message, int PlaceID) value) = IsPlaceExistingProcessCreate(settlementOperationParameterModel);
             if (!flowControl)
             {
                 return value;
@@ -41,7 +47,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     PlaceNToponymyList = settlementOperationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = settlementOperationParameterModel.ChildPlaceList
                 };
-                (Place Place, int Statuscode, string Message) newPlace = processPlace.Create(placeOperationParameter);
+                (int Statuscode, string Message, Place Place) newPlace = processPlace.Insert(placeOperationParameter);
 
                 settlementOperationParameterModel.Settlement.PlaceID = newPlace.Place.PlaceID;
                 Settlement newSettlement = unitOfWork.SettlementRepository.Insert(settlementOperationParameterModel.Settlement);
@@ -53,35 +59,39 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                 }
 
                 transactionScope.Complete();
-                return (newSettlement.PlaceID, 201, "Success_Place_Created");
+                return (201, "Success_Place_Created", newSettlement.PlaceID);
             }
             catch (Exception ex)
             {
-                //logger.LogError("Fehler beim Hinzufügen der Siedlung: {ex}", ex);
-                return (0, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "SettlementProcessor.Insert: Error occurred while creating Settlement.", new Dictionary<string, object>
+                {
+                    { "Place", settlementOperationParameterModel.Place},
+                    { "Settlement", settlementOperationParameterModel.Settlement}
+                });
+                return (500, "Error_Error_Ocurred", 0);
             }
         }
 
-        private (bool flowControl, (int PlaceID, int Statuscode, string Message) value) IsPlaceExistingProcessCreate(SettlementOperationParameterModel settlementOperationParameterModel)
+        private (bool flowControl, (int Statuscode, string Message, int PlaceID) value) IsPlaceExistingProcessCreate(SettlementOperationParameterModel settlementOperationParameterModel)
         {
-            PlaceSearchParameter placeSearchParameter = new()
+            PlaceSearchParameterModel placeSearchParameter = new()
             {
                 PlaceNToponymyList_Toponymy_ToponymyName = [.. settlementOperationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)],
                 ToponymyTypeInt = [settlementOperationParameterModel.Place.ToponymyTypeInt],
+                PlaceNToponymyList_Toponymy_ToponymyID = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
+                    {
+                        EntityType = [nameof(Toponymy)],
+                        TranslatedText = [.. settlementOperationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)]
+                    }).Select(x => x.EntityId)]
             };
-
-            List<int> entityIdList = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
+            if (placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID.Count == 0)
             {
-                EntityType = [nameof(Toponymy)],
-                TranslatedText = [.. settlementOperationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)]
-            }).Select(x => x.EntityId)];
-            if (entityIdList.Count > 0)
-            {
-                placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID = entityIdList;
+                placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID = [0];
             }
-            if(settlementOperationParameterModel.Settlement.RelatedGeography?.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)!= null && settlementOperationParameterModel.Settlement.RelatedGeography?.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName).ToList().Count > 0)
+            List<string>? names = settlementOperationParameterModel.Settlement.RelatedGeography?.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName).ToList();
+            if (names != null && names.Count > 0)
             {
-                placeSearchParameter.Settlement_RelatedGeography_PlaceNToponymyList_Toponymy_ToponymyName = [.. settlementOperationParameterModel.Settlement.RelatedGeography?.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)];
+                placeSearchParameter.Settlement_RelatedGeography_PlaceNToponymyList_Toponymy_ToponymyName = names;
             }
             if (settlementOperationParameterModel.SettlementNPostalcodeList.Where(x => !string.IsNullOrWhiteSpace(x.Postalcode.PostalcodeNumber)).Select(s => s.Postalcode.PostalcodeNumber).ToList().Count > 0)
             {
@@ -90,30 +100,52 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
             Place? placeExists = processPlace.GetListWithPredicate(placeSearchParameter).FirstOrDefault();
             if (placeExists != null)
             {
-                return (flowControl: false, value: (placeExists.PlaceID, 409, "Error_Place_Exists"));
+                trackEvents.TrackWarning("SettlementProcessor.IsPlaceExistingProcessCreate: Place already exists.", new Dictionary<string, object>
+                {
+                    { "Place", settlementOperationParameterModel.Place},
+                    { "PlaceNToponymyList", settlementOperationParameterModel.PlaceNToponymyList },
+                    { "Toponymy", settlementOperationParameterModel.PlaceNToponymyList.Select(x => x.Toponymy)},
+                    { "Settlement", settlementOperationParameterModel.Settlement}
+                });
+                return (flowControl: false, value: (409, "Error_Place_Exists", 0));
             }
 
             return (flowControl: true, value: default);
         }
 
-        public (int PlaceID, int Statuscode, string Message) Update(SettlementOperationParameterModel settlementOperationParameterModel)
+        public (int Statuscode, string Message, int PlaceID) Update(SettlementOperationParameterModel settlementOperationParameterModel)
         {
             if (settlementOperationParameterModel.Place.PlaceID == 0)
             {
-                return (new(), 412, "Error_PlaceID_Missing");
+                trackEvents.TrackWarning("SettlementProcessor.Update: PlaceID is missing.", new Dictionary<string, object>
+                {
+                    { "Place", settlementOperationParameterModel.Place},
+                    { "Settlement", settlementOperationParameterModel.Settlement}
+                });
+                return (412, "Error_PlaceID_Missing", new());
             }
             if (settlementOperationParameterModel.PlaceNToponymyList == null ||
                 !settlementOperationParameterModel.PlaceNToponymyList.Any(x => x.Toponymy != null && !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
-                return (settlementOperationParameterModel.Place.PlaceID, 412, "Error_PlaceName_Missing");
+                trackEvents.TrackWarning("SettlementProcessor.Update: PlaceName is missing.", new Dictionary<string, object>
+                {
+                    { "Place", settlementOperationParameterModel.Place},
+                    { "Settlement", settlementOperationParameterModel.Settlement}
+                });
+                return (412, "Error_PlaceName_Missing", settlementOperationParameterModel.Place.PlaceID);
             }
 
-            PlaceSearchParameter placeSearchParameter = new();
+            PlaceSearchParameterModel placeSearchParameter = new();
             placeSearchParameter.PlaceID.Add(settlementOperationParameterModel.Place.PlaceID);
             Settlement? existingSettlement = processPlace.GetListWithPredicate(placeSearchParameter).FirstOrDefault()?.Settlement;
             if (existingSettlement == null)
             {
-                return (new(), 404, "Error_Place_NotFound");
+                trackEvents.TrackWarning("SettlementProcessor.Update: Settlement not found.", new Dictionary<string, object>
+                {
+                    { "Place", settlementOperationParameterModel.Place},
+                    { "Settlement", settlementOperationParameterModel.Settlement}
+                });
+                return (404, "Error_Place_NotFound", new());
             }
 
             try
@@ -134,17 +166,21 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     PlaceNToponymyList = settlementOperationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = settlementOperationParameterModel.ChildPlaceList
                 };
-                _ = processPlace.Edit(placeOperationParameterModel);
+                _ = processPlace.Update(placeOperationParameterModel);
 
                 SyncPostalcode(existingSettlement, settlementOperationParameterModel.SettlementNPostalcodeList);
 
                 transactionScope.Complete();
-                return (existingSettlement.PlaceID, 200, "Success_Place_Updated");
+                return (200, "Success_Place_Updated", existingSettlement.PlaceID);
             }
             catch (Exception ex)
             {
-                //logger.LogError("Fehler beim Aktualisieren der Siedlung: {ex}", ex);
-                return (existingSettlement.PlaceID, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "SettlementProcessor.Update: Error occurred while updating Settlement.", new Dictionary<string, object>
+                {
+                    { "Place", settlementOperationParameterModel.Place},
+                    { "Settlement", settlementOperationParameterModel.Settlement}
+                });
+                return (500, "Error_Error_Ocurred", existingSettlement.PlaceID);
             }
         }
 
@@ -161,7 +197,6 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
             {
                 SettlementID = settlement.SettlementID,
                 PostalcodeID = postalcode.PostalcodeID,
-                //EraID = eraID,
                 IsCurrentPostalcode = currentPostalcode
             };
             _ = unitOfWork.SettlementNPostalcodeRepository.Insert(settlementNPostalcode);
@@ -220,7 +255,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
             }
         }
 
-        public void DeleteSettlement(int settlementID)
+        public void Delete(int settlementID)
         {
             throw new NotImplementedException();
         }

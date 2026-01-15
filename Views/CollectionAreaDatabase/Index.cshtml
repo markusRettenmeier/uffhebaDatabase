@@ -32,9 +32,8 @@
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.CollectionAreaID">@Localizer["CollectionArea_Edit"]</a> |
-                    <a asp-action="Index" asp-controller="CollectionAttributeDatabase" asp-route-CollectionAreaID="@item.CollectionAreaID">@Localizer["CollectionAttribute_Administration"]</a> |
-                    <a asp-action="Index" asp-controller="StateDatabase" asp-route-CollectionArea_CollectionAreaID="@item.CollectionAreaID">@Localizer["State_Administration"]</a> |
-                    <a asp-action="Index" asp-controller="ConceptualRelationshipDatabase" asp-route-CollectionAreaID="@item.CollectionAreaID">@Localizer["ConceptRelation_Administration"]</a>
+                    <a asp-action="IndexSpecific" asp-controller="ConceptualRelationshipDatabase" asp-route-CollectionAreaID="@item.CollectionAreaID">@Localizer["CollectionItemEntity_AdditionalAttribute_Administration"]</a> |
+                    <a asp-action="Index" asp-controller="StateDatabase" asp-route-CollectionArea_CollectionAreaID="@item.CollectionAreaID">@Localizer["StatePreservation_Administration"]</a>
                 </td>
             </tr>
         }

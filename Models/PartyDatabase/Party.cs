@@ -14,12 +14,14 @@ namespace Sammlerplattform.Models.PartyDatabase
         [Key]
         [Display(Name = "PartyID", ResourceType = typeof(SharedResources))]
         public int PartyID { get; set; }
+
+        [Required(ErrorMessageResourceName = "Error_Party_NameMissing", ErrorMessageResourceType = typeof(SharedResources))]
         [Display(Name = "PartyName", ResourceType = typeof(SharedResources))]
         public required string PartyName { get; set; }
-        [Display(Name = "Description", ResourceType = typeof(SharedResources))]
-        public string? PartyDescription { get; set; }
+
         [Display(Name = "PartyType", ResourceType = typeof(SharedResources))]
         public int PartyTypeInt { get; set; }
+
         [NotMapped]
         [Display(Name = "PartyType", ResourceType = typeof(SharedResources))]
         public PartyType PartyTypeEnum
@@ -27,10 +29,16 @@ namespace Sammlerplattform.Models.PartyDatabase
             get => (PartyType)PartyTypeInt;
             set => PartyTypeInt = (int)value;
         }
+
+        [Display(Name = "WikipediaUrl", ResourceType = typeof(SharedResources))]
+        public string? WikipediaUrl { get; set; }
+
         [Display(Name = "Individual", ResourceType = typeof(SharedResources))]
         public Individual? Individual { get; set; }
+
         [Display(Name = "Organization", ResourceType = typeof(SharedResources))]
         public Organization? Organization { get; set; }
+
         [Display(Name = "CollectionItemNPartyList", ResourceType = typeof(SharedResources))]
         public List<CollectionItemNParty> CollectionItemNPartyList { get; set; } = [];
 

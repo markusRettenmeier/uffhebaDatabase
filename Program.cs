@@ -17,15 +17,7 @@ using Sammlerplattform.Services.Translation;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddLocalization(options => options.ResourcesPath = nameof(SharedResources));
-
-//builder.Services.AddControllersWithViews()
 builder.Services.AddMvc()
-    //.AddViewLocalization(options => options.ResourcesPath = nameof(SharedResources))
-    //.AddDataAnnotationsLocalization(options => {
-    //    options.DataAnnotationLocalizerProvider = (type, factory) =>
-    //        factory.Create(typeof(SharedResources));
-    //})
     .AddViewLocalization()
     .AddDataAnnotationsLocalization()
     .AddJsonOptions(options =>
@@ -34,7 +26,6 @@ builder.Services.AddMvc()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<DeeplTranslationService>();
 builder.Services.AddResponseCaching();
 builder.Services.AddHttpContextAccessor();
 
@@ -46,7 +37,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
-    string[] supportedCultures = ["de-DE"];
+    string[] supportedCultures = ["de", "fr", "es"];
     options.SetDefaultCulture(supportedCultures[0])
            .AddSupportedCultures(supportedCultures)
            .AddSupportedUICultures(supportedCultures);
@@ -96,21 +87,21 @@ builder.Services.AddScoped<IProcessParty, PartyProcessor>();
 builder.Services.AddScoped<IProcessIndividual, IndividualProcessor>();
 builder.Services.AddScoped<IProcessOrganization, OrganizationProcessor>();
 builder.Services.AddScoped<IProcessCollectionArea, CollectionAreaProcessor>();
-builder.Services.AddScoped<IProcessCollectionAttribute, CollectionAttributeProcessor>();
-builder.Services.AddScoped<IProcessCollectionAttributeValue, CollectionAttributeValueProcessor>();
+builder.Services.AddScoped<IProcessConceptValue, ConceptValueProcessor>();
 builder.Services.AddScoped<IProcessConcept, ConceptualRelationshipProcessor>();
 builder.Services.AddScoped<IProcessConceptRelation, ConceptRelationProcessor>();
-builder.Services.AddScoped<IProcessCollectionItemPotential, CollectionItemPotentialProcessor>();
-builder.Services.AddScoped<IProcessState, StateProcessor>();
+builder.Services.AddScoped<IProcessCollectionSet, CollectionSetProcessor>();
+builder.Services.AddScoped<IProcessStatePreservation, StatePreservationProcessor>();
 builder.Services.AddScoped<IProcessPicturePhysically, PhysicalPictureProcessor>();
 builder.Services.AddSingleton<IEmbeddingService, SimpleEmbeddingService>();
 builder.Services.AddScoped<IProcessCollectionItemEmbedding, CollectionItemEmbeddingProcessor>();
 builder.Services.AddScoped<IDeeplTranslationService, DeeplTranslationService>();
 builder.Services.AddScoped<IProcessTranslations, ProcessTranslations>();
 builder.Services.AddScoped<ITranslationStore, TranslationStore>();
+builder.Services.AddScoped<ITrackEvents, EventTracker>();
+builder.Services.AddScoped<IProcessImprovementSuggestions, ImprovementSuggestionsProcessor>();
 
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
-
 
 WebApplication app = builder.Build();
 
@@ -131,6 +122,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(
         name: "default",
-        pattern: "{controller=Home}/{action=Frontpage}/{id?}");
+        pattern: "{controller=Home}/{action=Frontpage}");
 
 app.Run();

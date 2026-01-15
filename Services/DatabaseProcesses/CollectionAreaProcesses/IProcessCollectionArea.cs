@@ -1,5 +1,6 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.CollectionAreaDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Services.Translation;
@@ -11,121 +12,180 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
     public interface IProcessCollectionArea
     {
         List<CollectionArea> GetListWithPredicate(CollectionAreaSearchParameterModel searchParameterModel);
-        (int CollectionID, int StatusCode, string StatusMessage) Create(string collectionName);
-        (int CollectionID, int StatusCode, string StatusMessage) Edit(CollectionArea collectionArea);
+        (int StatusCode, string StatusMessage, int CollectionAreaID) Insert(CollectionArea collectionArea);
+        (int StatusCode, string StatusMessage, int CollectionAreaID) Update(CollectionArea collectionArea);
     }
     public class CollectionAreaProcessor(IUnitOfWork unitOfWork, 
-        DeeplTranslationService translationService, 
+        IDeeplTranslationService translationService, 
         IProcessTranslations processTranslations, 
-        ITranslationStore translationStore) : IProcessCollectionArea
+        ITranslationStore translationStore,
+        ITrackEvents trackEvents) : IProcessCollectionArea
     {
-        public (int CollectionID, int StatusCode, string StatusMessage) Create(string collectionAreaName)
+        public (int StatusCode, string StatusMessage, int CollectionAreaID) Insert(CollectionArea collectionArea)
         {
-            if (string.IsNullOrWhiteSpace(collectionAreaName))
+            if (string.IsNullOrWhiteSpace(collectionArea.CollectionAreaName))
             {
-                return (0, 400, "Error_CollectionArea_NameEmpty");
+                trackEvents.TrackWarning("Attempted to create CollectionArea with empty name");
+                return (400, "Error_CollectionArea_NameEmpty", 0);
             }
 
-            CollectionAreaSearchParameterModel collectionSearchParameterModel = new() { CollectionAreaName = [collectionAreaName] };
-            List<int> entityIds = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter
+            CollectionAreaSearchParameterModel searchParameterModel = new() { 
+                CollectionAreaID = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter
+                    {
+                        EntityType = [nameof(CollectionArea)],
+                        FieldName = [nameof(CollectionArea.CollectionAreaName)],
+                        TranslatedText = [collectionArea.CollectionAreaName]
+                    }).Select(et => et.EntityId).Distinct()]
+            };
+            if (searchParameterModel.CollectionAreaID.Count > 0)
             {
-                EntityType = [nameof(CollectionArea)],
-                FieldName = [nameof(CollectionArea.CollectionAreaName)],
-                TranslatedText = [collectionAreaName]
-            }).Select(et => et.EntityId).Distinct()];
-            if (entityIds.Count > 0)
-            {
-                collectionSearchParameterModel.CollectionAreaID = entityIds;
-            }
-            CollectionArea? existingCollection = GetListWithPredicate(collectionSearchParameterModel).FirstOrDefault();
-            if (existingCollection != null)
-            {
-                return (0, 409, "Error_CollectionArea_Exists");
+                trackEvents.TrackWarning("Attempted to create duplicate CollectionArea", new Dictionary<string, object>
+                {
+                    { "CollectionAreaName", collectionArea.CollectionAreaName }
+                });
+                return (409, "Error_CollectionArea_Exists", 0);
             }
 
             try
             {
                 using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-                CollectionArea newCollection = new() { CollectionAreaName = translationService.SetIntoFallbackLanguage(collectionAreaName) };
-                newCollection = unitOfWork.CollectionAreaRepository.Insert(newCollection);
+                CollectionArea newCollection = unitOfWork.CollectionAreaRepository.Insert(collectionArea);
                 unitOfWork.Save();
 
-                Concept newConcept = new()
-                {
-                    ConceptName = translationService.SetIntoFallbackLanguage(newCollection.CollectionAreaName),
-                    CollectionAreaID = newCollection.CollectionAreaID
-                };
-                newConcept = unitOfWork.ConceptRepository.Insert(newConcept);
-                unitOfWork.Save();
-
-                processTranslations.Create(
+                processTranslations.Insert(
                     new EntityTranslation
                     {
                         EntityType = nameof(CollectionArea),
                         EntityId = newCollection.CollectionAreaID,
                         FieldName = nameof(newCollection.CollectionAreaName),
-                        TranslatedText = collectionAreaName,
+                        TranslatedText = collectionArea.CollectionAreaName,
                         Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
                     },
-                    collectionAreaName);
+                    collectionArea.CollectionAreaName);
 
-                transactionScope.Complete();
-                return (newCollection.CollectionAreaID, 201, "Success_CollectionArea_Created");
-            }
-            catch (Exception ex)
-            {
-                return (0, 500, "Error_Error_Ocurred");
-            }
-        }
-
-        public (int CollectionID, int StatusCode, string StatusMessage) Edit(CollectionArea collectionArea)
-        {
-            if (collectionArea.CollectionAreaID <= 0)
-            {
-                return (0, 400, "Error_CollectionAreaID_Missing");
-            }
-
-            CollectionAreaSearchParameterModel collectionSearchParameterModel = new() { CollectionAreaID = [collectionArea.CollectionAreaID] };
-            CollectionArea? existingCollection = GetListWithPredicate(collectionSearchParameterModel).FirstOrDefault();
-            if (existingCollection == null)
-            {
-                return (0, 404, "Error_CollectionArea_NotFound");
-            }
-
-            try
-            {
-                using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-
-                existingCollection.CollectionAreaName = translationService.SetIntoFallbackLanguage(collectionArea.CollectionAreaName);
+                Concept newConcept = new()
+                {
+                    Name = collectionArea.CollectionAreaName,
+                    CollectionAreaID = newCollection.CollectionAreaID
+                };
+                newConcept = unitOfWork.ConceptRepository.Insert(newConcept);
                 unitOfWork.Save();
 
-                Concept? linkedConcept = unitOfWork.ConceptRepository.Get(
-                    filter: c => c.CollectionAreaID == existingCollection.CollectionAreaID).FirstOrDefault();
-                if (linkedConcept != null)
-                {
-                    linkedConcept.ConceptName = existingCollection.CollectionAreaName;
-                    unitOfWork.Save();
-                }
-
-                processTranslations.Edit(
+                processTranslations.Insert(
                     new EntityTranslation
                     {
-                        EntityType = nameof(CollectionArea),
-                        EntityId = existingCollection.CollectionAreaID,
-                        FieldName = nameof(existingCollection.CollectionAreaName),
+                        EntityType = nameof(Concept),
+                        EntityId = newConcept.Id,
+                        FieldName = nameof(newConcept.Name),
                         TranslatedText = collectionArea.CollectionAreaName,
                         Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
                     },
                     collectionArea.CollectionAreaName);
 
                 transactionScope.Complete();
-                return (existingCollection.CollectionAreaID, 200, "Success_CollectionArea_Updated");
+                return (201, "Success_CollectionArea_Created", newCollection.CollectionAreaID);
             }
             catch (Exception ex)
             {
-                // Log the exception (ex) as needed
-                return (0, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "Creating CollectionArea", new Dictionary<string, object>
+                {
+                    { "CollectionAreaName", collectionArea.CollectionAreaName }
+                });
+                return (500, "Error_Error_Ocurred", 0);
+            }
+        }
+
+        public (int StatusCode, string StatusMessage, int CollectionAreaID) Update(CollectionArea collectionArea)
+        {
+            if (collectionArea.CollectionAreaID <= 0)
+            {
+                trackEvents.TrackWarning("Attempted to edit CollectionArea with missing ID", new Dictionary<string, object> {
+                    {
+                        "CollectionArea", collectionArea
+                    } 
+                });
+                return (400, "Error_CollectionArea_IdMissing", 0);
+            }
+
+            CollectionAreaSearchParameterModel collectionSearchParameterModel = new() { CollectionAreaID = [collectionArea.CollectionAreaID] };
+            CollectionArea? existingCollection = GetListWithPredicate(collectionSearchParameterModel).FirstOrDefault();
+            if (existingCollection == null)
+            {
+                trackEvents.TrackWarning("Attempted to edit non-existing CollectionArea", new Dictionary<string, object>
+                {
+                    { "CollectionArea", collectionArea }
+                });
+                return (404, "Error_CollectionArea_NotFound", 0);
+            }
+
+            try
+            {
+                using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+                if(collectionArea.WikipediaUrl != existingCollection.WikipediaUrl)
+                {
+                    existingCollection.WikipediaUrl = collectionArea.WikipediaUrl;
+                    unitOfWork.Save();
+                }
+
+                var existingTranslations = processTranslations.GetWithPredicate(new EntityTranslationSearchParameter
+                {
+                    EntityType = [nameof(CollectionArea)],
+                    EntityId = [collectionArea.CollectionAreaID],
+                    FieldName = [nameof(CollectionArea.CollectionAreaName)],
+                    Culture = [translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)]
+                }).FirstOrDefault();
+                if (existingTranslations != null && existingTranslations.TranslatedText != collectionArea.CollectionAreaName)
+                {
+                    processTranslations.Update(
+                        new EntityTranslation
+                        {
+                            EntityType = nameof(CollectionArea),
+                            EntityId = collectionArea.CollectionAreaID,
+                            FieldName = nameof(CollectionArea.CollectionAreaName),
+                            TranslatedText = collectionArea.CollectionAreaName,
+                            Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
+                        },
+                        collectionArea.CollectionAreaName);
+                }
+
+                Concept? linkedConcept = unitOfWork.ConceptRepository.Get(
+                    filter: c => c.CollectionAreaID == existingCollection.CollectionAreaID).FirstOrDefault();
+                if (linkedConcept != null)
+                {
+                    var conceptTranslations = processTranslations.GetWithPredicate(new EntityTranslationSearchParameter
+                    {
+                        EntityType = [nameof(Concept)],
+                        EntityId = [linkedConcept.Id],
+                        FieldName = [nameof(Concept.Name)],
+                        Culture = [translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)]
+                    }).FirstOrDefault();
+                    if (conceptTranslations != null && conceptTranslations.TranslatedText != collectionArea.CollectionAreaName)
+                    {
+                        processTranslations.Update(
+                            new EntityTranslation
+                            {
+                                EntityType = nameof(Concept),
+                                EntityId = linkedConcept.Id,
+                                FieldName = nameof(Concept.Name),
+                                TranslatedText = collectionArea.CollectionAreaName,
+                                Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
+                            },
+                            collectionArea.CollectionAreaName);
+                    }
+                }
+
+                transactionScope.Complete();
+                return (200, "Success_CollectionArea_Updated", existingCollection.CollectionAreaID);
+            }
+            catch (Exception ex)
+            {
+                trackEvents.TrackException(ex, "Editing CollectionArea", new Dictionary<string, object>
+                {
+                    {"CollectionArea", collectionArea }
+                });
+                return (500, "Error_Error_Ocurred", 0);
             }
         }
 
@@ -133,10 +193,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
         {
             IEnumerable<CollectionArea> query = unitOfWork.CollectionAreaRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<CollectionArea>(searchParameterModel),
-                includeProperties: "CollectionAttributeList,ConceptList");
+                includeProperties: nameof(CollectionArea.StatePreservationList) + "," + nameof(CollectionArea.ConceptList));
 
-            List<CollectionArea> collectionAreaList = [.. query];
-            foreach (CollectionArea collectionArea in collectionAreaList)
+            foreach (CollectionArea collectionArea in query)
             {
                 collectionArea.CollectionAreaName = translationStore.GetTranslation(
                         nameof(CollectionArea),
@@ -146,7 +205,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
                     ?? collectionArea.CollectionAreaName;
             }
 
-            return [.. collectionAreaList.OrderBy(x => x.CollectionAreaName)];
+            return [.. query.OrderBy(x => x.CollectionAreaName)];
         }
     }
 }

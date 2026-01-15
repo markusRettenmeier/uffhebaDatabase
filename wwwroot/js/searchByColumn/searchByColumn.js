@@ -1,5 +1,5 @@
 ﻿import { id_count, countRemove, decreaseCountRemove, resetCounters } from "./variables.min.js";
-import { columns, columnsSimple } from "./columns.js";
+import { columns } from "./columns.js";
 import { createInput, createAddButton, createListBox, createPeriodButton} from "./createElements.js";
 import { sessionStorageGetInput } from "./sessionStorage.js";
 import { addField, addColumn} from "./addElements.min.js";

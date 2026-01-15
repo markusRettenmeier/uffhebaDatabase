@@ -4,40 +4,42 @@ using Microsoft.Extensions.Localization;
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
-using Sammlerplattform.Resources;
+using Sammlerplattform.Services;
 using Sammlerplattform.Services.DatabaseProcesses.PartyProcesses;
 
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
     public class IndividualDatabaseController(IProcessIndividual processIndividual,
-        IProcessParty processParty,
-        IStringLocalizer<SharedResources> stringLocalizer) : Controller
+        IProcessParty processParty) : Controller
     {
-        public ActionResult Index(Status status, PartySearchParameterModel partySearchParameter)
+        [HandleStatus]
+        public ActionResult Index(PartySearchParameterModel partySearchParameter)
         {
-            HandleStatus(status);
             ViewData["Party"] = "Individual";
 
             List<Party> partyList = [.. processParty.GetListWithPredicate(partySearchParameter).Where(x => x.Individual != null)];
             return View(partyList);
         }
 
-        public ActionResult Create(Status status)
+        [HandleStatus]
+        public ActionResult Create()
         {
-            HandleStatus(status);
             return View();
         }
         public IActionResult CreateSubmit(IndividualOperationParameterModel model)
         {
-            (int _, int _, string statusMessage) = processIndividual.Create(model);
-            return RedirectToAction(nameof(Create), new { statusMessage });
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+            }
+            (int statusCode, string statusMessage, int _) = processIndividual.Insert(model);
+            return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
 
-        public ActionResult Edit(Status status, int id)
+        [HandleStatus]
+        public ActionResult Edit(int id)
         {
-            HandleStatus(status);
-
             Party? existingParty = processParty.GetListWithPredicate(new PartySearchParameterModel{ PartyID = [id] }).FirstOrDefault();
             
             return existingParty == null || existingParty.Individual == null
@@ -51,17 +53,15 @@ namespace Sammlerplattform.Controllers
         }
         public IActionResult EditSubmit(IndividualOperationParameterModel model)
         {
-            (int placeID, int _, string statusMessage) = processIndividual.Edit(model);
-            return RedirectToAction(nameof(Edit), new { statusMessage, id = placeID });
-        }
-
-        private void HandleStatus(Status status)
-        {
-            if (!string.IsNullOrEmpty(status.Message))
+            if (!ModelState.IsValid)
             {
-                ViewData["StatusMessage"] = stringLocalizer[status.Message];
-                ViewData["StatusCode"] = status.Code;
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
             }
+            (int statusCode, string statusMessage, int id) = processIndividual.Update(model);
+            if (statusCode == 200)
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
+            else
+                return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
     }
 }

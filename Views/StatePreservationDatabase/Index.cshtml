@@ -1,0 +1,54 @@
+﻿@model IEnumerable<StatePreservation>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["StatePreservation_Administration"];
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>@Localizer["Delete_NotAllowed"]</p>
+<hr />
+
+<p>
+    <a type="button" href="/StateDatabase/Create?collectionAreaID=@ViewData["CollectionAreaID"]" class="btn btn-success">@Localizer["Create"]</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.StatePreservationName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SortingOrder)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsGeneralState)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StatePreservationName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SortingOrder)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsGeneralState)
+                </td>
+                <td>
+                    @if(!item.IsGeneralState) {
+                        <a asp-action="Edit" asp-route-statePreservationID="@item.StatePreservationID">@Localizer["Edit"]</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

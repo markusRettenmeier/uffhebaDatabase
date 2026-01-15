@@ -1,6 +1,6 @@
 ﻿@using Sammlerplattform.Models.CollectionAreaDatabase
 @using Sammlerplattform.Models.CollectionItemDatabase
-@using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase
+@using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase
 @using Sammlerplattform.Services
 @model Sammlerplattform.Models.CollectionItemDatabase.CollectionItemOperationParameterModel
 @using Microsoft.AspNetCore.Mvc.Localization
@@ -16,340 +16,494 @@
 <form asp-action="CreateSubmit" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="CollectionItemEntity.CollectionAreaID" />
-    <p>@Localizer["Picture_Watermark"]</p>
-    <div id="appendInputFormFile">
-        <div class="mb-3" id="inputGroupFormFile_0">
-            <label asp-for="CollectionItemPictureList[0].PerspectiveInt" class="form-label">@Localizer["Side_Front"]</label>
-            <input type="file" name="CollectionItemPictureList[0].Datei" class="form-control" required>
-            <input type="hidden" asp-for="CollectionItemPictureList[0].PerspectiveInt" value="0">
+
+    <!-- 1. BILDER - IMMER OBEN (wichtigste Eigenschaft) -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">@Localizer["Pictures"]</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">@Localizer["Picture_Watermark"]</p>
+            <div id="appendInputFormFile">
+                <div class="mb-3" id="inputGroupFormFile_0">
+                    <label asp-for="CollectionItemPictureList[0].PerspectiveInt" class="form-label fw-bold">
+                        @Localizer["Side_Front"] *
+                    </label>
+                    <input type="file" name="CollectionItemPictureList[0].Datei" class="form-control" required>
+                    <input type="hidden" asp-for="CollectionItemPictureList[0].PerspectiveInt" value="0">
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-primary mt-2" onclick="addInputFormFile('Create')">
+                <i class="bi bi-plus-circle"></i> @Localizer["Picture_Add"]
+            </button>
         </div>
     </div>
-    <button type="button" class="btn btn-primary" onclick="addInputFormFile('Create')">@Localizer["Picture_Add"]</button>
-    <div class="accordion pt-2" id="accordionCollectionItem">
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingCollectionItem">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCollectionItem" aria-expanded="false" aria-controls="collapseCollectionItem">
-                    @Localizer["CollectionItemEntity_Details"]
-                </button>
-            </h2>
-            <div id="collapseCollectionItem" class="accordion-collapse collapse show" aria-labelledby="headingCollectionItem" data-bs-parent="#accordionCollectionItem">
-                <div class="accordion-body">
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.UniqueName" class="control-label"></label>
-                        <input asp-for="CollectionItemEntity.UniqueName" class="form-control" />
-                        <span asp-validation-for="CollectionItemEntity.UniqueName" class="text-danger"></span>
-                    </div>
-                    <input type="hidden" asp-for="CollectionItemEntity.ConceptID">
-                    <table class="table" id="ConceptTable">
-                        <thead>
-                            <tr>
-                                <th scope="col">@Html.DisplayNameFor(x => x.Concept.ConceptName)</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td scope="col" id="ConceptName"></td>
-                                <td scope="col">
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ConceptModal">
-                                            @Localizer["Concept_Choose"]
-                                        </button>
-                                        <button type="button" id="clearOneRowConcept" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="form-group form-check">
-                        <label class="form-check-label">
-                            <input class="form-check-input" asp-for="IsPartOfASeries"> @Html.DisplayNameFor(model => model.IsPartOfASeries)
-                        </label>
-                    </div>
-                    <input type="hidden" name="CollectionItemEntity.CollectionItemPotentialID">
-                    <table class="table" id="PotentialTable" style="display:none">
-                        <thead>
-                            <tr>
-                                <th scope="col">@Html.DisplayNameFor(x => x.CollectionItemPotential.CollectionItemPotentialID)</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td scope="col" id="CollectionItemPotentialID"></td>
-                                <td scope="col">
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CollectionItemPotentialModal">
-                                            @Localizer["CollectionItemPotential_Choose"]
-                                        </button>
-                                        <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="form-group form-check">
-                        <label class="form-check-label">
-                            <input class="form-check-input" asp-for="CollectionItemEntity.Fake"> @Html.DisplayNameFor(model => model.CollectionItemEntity.Fake)
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.StateID" class="control-label"></label>
-                        <select asp-for="CollectionItemEntity.StateID" class="form-select">
-                            @if(Model.StateList == null)
-                            {
-                                <option value="">-- @Localizer["State_NotAvailable"] --</option>
-                            }
-                            else
-                            {
-                                <option value="" selected>-- @Localizer["State_Select"] --</option>
-                                @foreach (var state in Model.StateList)
-                                {
-                                    <option value="@state.StateID">@state.StateName</option>
-                                }
-                            }
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.Inscription" class="control-label"></label>
-                        <textarea asp-for="CollectionItemEntity.Inscription" class="form-control" rows="10" cols="5"></textarea>
-                        <span asp-validation-for="CollectionItemEntity.Inscription" class="text-danger"></span>
-                    </div>
-                    @* <div class="form-group">
-                        <label asp-for="KeywordList" class="control-label"></label>
-                        <select asp-for="CollectionItemNKeywordList" class="chosen-select" id="keywordSelect" multiple style="width: 350px;"></select>
-                    </div> *@
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.Comment" class="control-label"></label>
-                        <textarea asp-for="CollectionItemEntity.Comment" class="form-control" rows="10" cols="5"></textarea>
-                        <span asp-validation-for="CollectionItemEntity.Comment" class="text-danger"></span>
-                    </div>
-                    <hr />
-                    <label asp-for="ColorList" class="control-label"></label>
-                    <div id="colorContainer"></div>
-                    <button type="button" class="btn btn-primary" onclick="addColor()">@Localizer["Color_Add"]</button>
-                    <hr />
-                    <label asp-for="MaterialList" class="control-label"></label>
-                    <div id="materialContainer"></div>
-                    <button type="button" class="btn btn-primary" onclick="addMaterial()">@Localizer["Material_Add"]</button>
-                    <hr />
-                    @if (Model.CollectionAttributeList != null)
-                    {
-                        @for (int i = 0; i < Model.CollectionAttributeList.Count; i++)
-                        {
-                            <div class="form-group">
-                                <label class="control-label">@Model.CollectionAttributeList[i].CollectionAttributeName</label>
-                                <input type="hidden" name="CollectionAttributeValueList[@i].CollectionAttributeID" value="@Model.CollectionAttributeList[i].CollectionAttributeID">
-                                @if (Model.CollectionAttributeList[@i].CollectionAttributeType.ToString() == "Text")
-                                {
-                                    <input type="text" name="CollectionAttributeValueList[@i].ValueString" class="form-control" />
-                                }
-                                else if (Model.CollectionAttributeList[@i].CollectionAttributeType.ToString() == "Number")
-                                {
-                                    <input type="number" step="0.01" name="CollectionAttributeValueList[@i].ValueInt" class="form-control" />
-                                }
-                                else if (Model.CollectionAttributeList[@i].CollectionAttributeType.ToString() == "Date")
-                                {
-                                    <input type="date" name="CollectionAttributeValueList[@i].ValueDate" class="form-control" />
-                                }
-                                else if (Model.CollectionAttributeList[@i].CollectionAttributeType.ToString() == "Decimal")
-                                {
-                                    <input type="date" name="CollectionAttributeValueList[@i].ValueDecimal" class="form-control" />
-                                }
-                                else if (Model.CollectionAttributeList[@i].CollectionAttributeType.ToString() == "Bool")
-                                {
-                                    <input class="form-check-input" type="checkbox" data-val="true" id="CollectionAttributeValueList_[@i]_ValueBool" name="CollectionAttributeValueList[@i].ValueBool" value="true">
-                                }
-                            </div>
-                        }
-                    }
 
-                </div>
-            </div>
-        </div>
+    <!-- 2. SAMMLUNGSSPEZIFISCHE DATEN -->
+    <div class="accordion" id="accordionMain">
+        <!-- B: GRUNDLEGENDE OBJEKTDATEN (unabhängig) -->
         <div class="accordion-item">
-            <h2 class="accordion-header" id="headingSize">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSize" aria-expanded="false" aria-controls="collapseSize">
-                    @Localizer["WeightDimensions"]
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseBasicData">
+                    @Localizer["CollectionItemEntity_BasicAttributes"]
                 </button>
             </h2>
-            <div id="collapseSize" class="accordion-collapse collapse" aria-labelledby="headingSize" data-bs-parent="#accordionSize">
+            <div id="collapseBasicData" class="accordion-collapse collapse">
                 <div class="accordion-body">
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.Length" class="control-label"></label>
-                        <input asp-for="CollectionItemEntity.Length" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.Length" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.Width" class="control-label"></label>
-                        <input asp-for="CollectionItemEntity.Width" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.Width" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.Height" class="control-label"></label>
-                        <input asp-for="CollectionItemEntity.Height" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.Height" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.Diameter" class="control-label"></label>
-                        <input asp-for="CollectionItemEntity.Diameter" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.Diameter" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.Weight" class="control-label"></label>
-                        <input asp-for="CollectionItemEntity.Weight" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.Weight" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingManufacturingDate">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseManufacturingDate" aria-expanded="false" aria-controls="collapseManufacturingDate">
-                    @Localizer["ManufacturingTime"]
-                </button>
-            </h2>
-            <div id="collapseManufacturingDate" class="accordion-collapse collapse" aria-labelledby="headingManufacturingDate" data-bs-parent="#accordionManufacturingDate">
-                <div class="accordion-body">
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.ExactYear"></label>
-                        <input asp-for="CollectionItemEntity.ExactYear" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.ExactYear" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.StartYear"></label>
-                        <input asp-for="CollectionItemEntity.StartYear" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.StartYear" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.EndYear"></label>
-                        <input asp-for="CollectionItemEntity.EndYear" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.EndYear" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <input class="form-check-input" asp-for="CollectionItemEntity.IsApproximate"> @Html.DisplayNameFor(model => model.CollectionItemEntity.IsApproximate)
-                    </div>
-                    <input type="hidden" asp-for="CollectionItemEntity.EraID">
-                    <table class="table" id="eraTable">
-                        <thead>
-                            <tr>
-                                <th scope="col">@Html.DisplayNameFor(x => x.Era.EraName)</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td scope="col" id="eraName"></td>
-                                <td scope="col">
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#EraModal">
-                                            @Localizer["Era_Choose"]
-                                        </button>
-                                        <button type="button" id="clearOneRowEraTable" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
+                    <div class="row">
+                        <!-- Linke Spalte: Identifikation -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">@Localizer["Identification"]</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="CollectionItemEntity.UniqueName" class="form-label fw-bold"></label>
+                                        <input asp-for="CollectionItemEntity.UniqueName" class="form-control" />
+                                        <span asp-validation-for="CollectionItemEntity.UniqueName" class="text-danger"></span>
                                     </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox"
+                                                       asp-for="IsPartOfASet">
+                                                <label class="form-check-label" asp-for="IsPartOfASet"></label>
+                                            </div>
+                                            <input type="hidden" name="CollectionItemEntity.SetId">
+                                            <table class="table" id="SetTable" style="display:none">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">@Html.DisplayNameFor(x => x.CollectionSet.CollectionSetName)</th>
+                                                        <th scope="col"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td scope="col" id="SetID"></td>
+                                                        <td scope="col">
+                                                            <div class="btn-group" role="group">
+                                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#SetModal">
+                                                                    @Localizer["Set_Select"]
+                                                                </button>
+                                                                <button type="button" id="ClearOneRowSetTable" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox"
+                                                       asp-for="CollectionItemEntity.Fake">
+                                                <label class="form-check-label" asp-for="CollectionItemEntity.Fake"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rechte Spalte: Zustand & Beschreibung -->
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">@Localizer["State"]</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="CollectionItemEntity.StatePreservation" class="form-label fw-bold"></label>
+                                        <select asp-for="CollectionItemEntity.StatePreservationID" class="form-select">
+                                            @if (Model.StatePreservationList == null)
+                                            {
+                                                <option value="">-- @Localizer["StatePreservation_NotAvailable"] --</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="">-- @Localizer["StatePreservation_Select"] --</option>
+                                                @foreach (var state in Model.StatePreservationList)
+                                                {
+                                                    <option value="@state.StatePreservationID">@state.StatePreservationName</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label asp-for="CollectionItemEntity.Inscription" class="form-label fw-bold"></label>
+                                        <textarea asp-for="CollectionItemEntity.Inscription" class="form-control"
+                                                  rows="3"></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="CollectionItemEntity.Comment" class="form-label fw-bold"></label>
+                                        <textarea asp-for="CollectionItemEntity.Comment" class="form-control"
+                                                  rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- A: SAMMLUNGSSPEZIFISCHE ATTRIBUTE (Nicht-Bool) -->
         <div class="accordion-item">
-            <h2 class="accordion-header" id="headingParty">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseParty" aria-expanded="false" aria-controls="collapseParty">
-                    @Localizer["PartyList"]
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseCollectionAttributes">
+                    @Localizer["CollectionItemEntity_AttributesConcepts"]
                 </button>
             </h2>
-            <div id="collapseParty" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#accordionParty">
+            <div id="collapseCollectionAttributes" class="accordion-collapse collapse">
                 <div class="accordion-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">@Localizer["PartyName"]</th>
-                                <th scope="col">@Localizer["FurtherSpecs"]</th>
-                                <th scope="col">@Localizer["Relationship"]</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="appendPartyHere">
-                        </tbody>
-                    </table>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#partyModal">
-                        @Localizer["Party_Add"]
-                    </button>
+                    <!-- Konzept-Auswahl -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">@Localizer["Keywords"]</h6>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">@Html.DisplayNameFor(x => x.Concept.Name)</th>
+                                        <th scope="col">@Localizer["FurtherSpecs"]</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="appendBoolConceptHere">
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ConceptModal">
+                                @Localizer["Concept_Add"]
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sammlungsspezifische Attribute (Nicht-Bool) -->
+                    @if (Model.ConceptList != null && Model.ConceptList.Any(c => c.ConceptType.ToString() != "Bool"))
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0">@Localizer["Other"]</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @{
+                                        int nonBoolIndex = 0;
+                                        for (int i = 0; i < Model.ConceptList.Count; i++)
+                                        {
+                                            if (Model.ConceptList[i].ConceptType.ToString() != "Bool")
+                                            {
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label fw-bold">
+                                                        @Model.ConceptList[i].Name
+                                                        @if (Model.ConceptList[i].IsRequired)
+                                                        {
+                                                            <span class="text-danger">*</span>
+                                                        }
+                                                    </label>
+                                                    <input type="hidden"
+                                                           name="ConceptValueList[@nonBoolIndex].ConceptValueID"
+                                                           value="@Model.ConceptList[i].Id">
+
+                                                    @if (Model.ConceptList[i].ConceptType.ToString() == "Text")
+                                                    {
+                                                        <input type="text"
+                                                               name="ConceptValueList[@nonBoolIndex].ValueString"
+                                                               class="form-control"
+                                                               @(Model.ConceptList[i].IsRequired ? "required" : "") />
+                                                    }
+                                                    else if (Model.ConceptList[i].ConceptType.ToString() == "Number")
+                                                    {
+                                                        <input type="number" step="0.01"
+                                                               name="ConceptValueList[@nonBoolIndex].ValueInt"
+                                                               class="form-control"
+                                                               @(Model.ConceptList[i].IsRequired ? "required" : "") />
+                                                    }
+                                                    else if (Model.ConceptList[i].ConceptType.ToString() == "Date")
+                                                    {
+                                                        <input type="date"
+                                                               name="ConceptValueList[@nonBoolIndex].ValueDate"
+                                                               class="form-control"
+                                                               @(Model.ConceptList[i].IsRequired ? "required" : "") />
+                                                    }
+                                                    else if (Model.ConceptList[i].ConceptType.ToString() == "Decimal")
+                                                    {
+                                                        <input type="number" step="0.01"
+                                                               name="ConceptValueList[@nonBoolIndex].ValueDecimal"
+                                                               class="form-control"
+                                                               @(Model.ConceptList[i].IsRequired ? "required" : "") />
+                                                    }
+                                                </div>
+                                                nonBoolIndex++;
+                                            }
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
+        </div>        
+
+        <!-- C: DIMENSIONEN (Zeit, Ort, Parteien) -->
         <div class="accordion-item">
-            <h2 class="accordion-header" id="headingPlace">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlace" aria-expanded="false" aria-controls="collapsePlace">
-                    @Localizer["PlaceList"]
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseDimensions">
+                    @Localizer["Dimensions"]
                 </button>
             </h2>
-            <div id="collapsePlace" class="accordion-collapse collapse" aria-labelledby="headingPlace" data-bs-parent="#accordionPlace">
+            <div id="collapseDimensions" class="accordion-collapse collapse">
                 <div class="accordion-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">@Localizer["PlaceName"]</th>
-                                <th scope="col">@Localizer["FurtherSpecs"]</th>
-                                <th scope="col">@Localizer["Relationship"]</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="appendPlaceHere">
-                        </tbody>
-                    </table>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
-                        @Localizer["Place_Add"]
-                    </button>
+                    <!-- Zeitdimension -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">@Localizer["Time_Dimension"]</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="CollectionItemEntity.ExactYear" class="form-label fw-bold"></label>
+                                        <input asp-for="CollectionItemEntity.ExactYear" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="CollectionItemEntity.StartYear" class="form-label fw-bold"></label>
+                                        <input asp-for="CollectionItemEntity.StartYear" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="CollectionItemEntity.EndYear" class="form-label fw-bold"></label>
+                                        <input asp-for="CollectionItemEntity.EndYear" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" asp-for="CollectionItemEntity.IsApproximate">
+                                        <label class="form-check-label" asp-for="CollectionItemEntity.IsApproximate"></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="hidden" asp-for="CollectionItemEntity.EraID">
+                                    <table class="table" id="eraTable">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">@Html.DisplayNameFor(x => x.Era.EraName)</th>
+                                                <th scope="col"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td scope="col" id="eraName"></td>
+                                                <td scope="col">
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#EraModal">
+                                                            @Localizer["Era_Select"]
+                                                        </button>
+                                                        <button type="button" id="clearOneRowEraTable" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orts- und Parteien-Dimensionen nebeneinander -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">@Localizer["Place"]</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scape="col">@Localizer["PlaceName"]</th>
+                                                <th scope="col">@Localizer["FurtherSpecs"]</th>
+                                                <th scope="col">@Localizer["Relationship"]</th>
+                                                <th width="100"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="appendPlaceHere">
+                                        </tbody>
+                                    </table>
+                                    <button type="button" class="btn btn-outline-primary"
+                                            data-bs-toggle="modal" data-bs-target="#placeModal">
+                                        <i class="bi bi-geo-alt"></i> @Localizer["Place_Add"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">@Localizer["Party"]</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col">@Localizer["PartyName"]</th>
+                                                <th scope="col">@Localizer["FurtherSpecs"]</th>
+                                                <th scope="col">@Localizer["Relationship"]</th>
+                                                <th scope="col" width="100"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="appendPartyHere">
+                                        </tbody>
+                                    </table>
+                                    <button type="button" class="btn btn-outline-primary"
+                                            data-bs-toggle="modal" data-bs-target="#partyModal">
+                                        <i class="bi bi-people"></i> @Localizer["Party_Add"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- D: MASSANGABEN & GEWICHT -->
         <div class="accordion-item">
-            <h2 class="accordion-header" id="headingAdministration">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdministration" aria-expanded="false" aria-controls="collapseAdministration">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseMeasurements">
+                    @Localizer["Measurements_Weight"]
+                </button>
+            </h2>
+            <div id="collapseMeasurements" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="CollectionItemEntity.Length" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <input asp-for="CollectionItemEntity.Length" class="form-control">
+                                    <span class="input-group-text">mm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="CollectionItemEntity.Width" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <input asp-for="CollectionItemEntity.Width" class="form-control">
+                                    <span class="input-group-text">mm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="CollectionItemEntity.Height" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <input asp-for="CollectionItemEntity.Height" class="form-control">
+                                    <span class="input-group-text">mm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="CollectionItemEntity.Diameter" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <input asp-for="CollectionItemEntity.Diameter" class="form-control">
+                                    <span class="input-group-text">mm</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="CollectionItemEntity.Weight" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <input asp-for="CollectionItemEntity.Weight" class="form-control">
+                                    <span class="input-group-text">g</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- E: ADMINISTRATIONSDATEN -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseAdministration">
                     @Localizer["AdministrationData"]
                 </button>
             </h2>
-            <div id="collapseAdministration" class="accordion-collapse collapse" aria-labelledby="headingAdministration" data-bs-parent="#accordionAdministration">
+            <div id="collapseAdministration" class="accordion-collapse collapse">
                 <div class="accordion-body">
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.PersonalIdentificationNumber"></label>
-                        <input asp-for="CollectionItemEntity.PersonalIdentificationNumber" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.PersonalIdentificationNumber" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.FilingLocation"></label>
-                        <input asp-for="CollectionItemEntity.FilingLocation" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.FilingLocation" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.DeliveryPrice"></label>
-                        <input asp-for="CollectionItemEntity.DeliveryPrice" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.DeliveryPrice" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.DeliveryDate"></label>
-                        <input asp-for="CollectionItemEntity.DeliveryDate" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.DeliveryDate" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="CollectionItemEntity.DeliveryAdress"></label>
-                        <input asp-for="CollectionItemEntity.DeliveryAdress" class="form-control">
-                        <span asp-validation-for="CollectionItemEntity.DeliveryAdress" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="CollectionItemEntity.PersonalIdentificationNumber"
+                                       class="form-label fw-bold"></label>
+                                <input asp-for="CollectionItemEntity.PersonalIdentificationNumber"
+                                       class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="CollectionItemEntity.DeliveryDate" class="form-label fw-bold"></label>
+                                <input asp-for="CollectionItemEntity.DeliveryDate" class="form-control">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label asp-for="CollectionItemEntity.DeliveryAdress" class="form-label fw-bold"></label>
+                                <input asp-for="CollectionItemEntity.DeliveryAdress" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="CollectionItemEntity.FilingLocation" class="form-label fw-bold"></label>
+                                <input asp-for="CollectionItemEntity.FilingLocation" class="form-control">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label asp-for="CollectionItemEntity.DeliveryPrice" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">€</span>
+                                    <input asp-for="CollectionItemEntity.DeliveryPrice" class="form-control">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+    </div> <!-- Ende Accordion -->
+    <!-- Absenden-Button -->
+    <div class="mt-4 pt-3 border-top">
+        <button type="submit" class="btn btn-success btn-lg px-5">
+            <i class="bi bi-check-circle"></i> @Localizer["Create"]
+        </button>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary ms-2">
+            @Localizer["Cancel"]
+        </a>
     </div>
-    <button class="btn btn-success mt-2">@Localizer["Create"]</button>
 </form>
 
 <partial name="~/Views/EraDatabase/_ModalEra.cshtml" />
 <partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
 <partial name="~/Views/PartyDatabase/_ModalParty.cshtml" />
-<partial name="~/Views/CollectionItemDatabase/_ModalCollectionItemPotential.cshtml" />
 <partial name="~/Views/ConceptualRelationshipDatabase/_ModalConcept.cshtml" />
 @section Scripts {
     @{

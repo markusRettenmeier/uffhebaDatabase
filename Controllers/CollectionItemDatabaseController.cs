@@ -6,7 +6,7 @@ using Sammlerplattform.Models;
 using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
-using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Resources;
 using Sammlerplattform.Services;
@@ -17,8 +17,7 @@ namespace Sammlerplattform.Controllers
 {
     public class CollectionItemDatabaseController(IProcessCollectionItemEntity processCollectionItem,
         IProcessCollectionArea processCollectionArea,
-        IProcessCollectionAttribute processCollectionAttribute,
-        IProcessState processState,
+        IProcessStatePreservation processState,
         UserManager<UsingIdentityUser> userManager,
         IWebHostEnvironment hostEnvironment,
         IStringLocalizer<SharedResources> stringLocalizer) : Controller
@@ -39,6 +38,7 @@ namespace Sammlerplattform.Controllers
         public ActionResult Create(Status status, int collectionAreaID)
         {
             HandleStatus(status);
+            ViewData["CollectionAreaID"] = collectionAreaID;
 
             CollectionItemOperationParameterModel model = new()
             {
@@ -48,19 +48,23 @@ namespace Sammlerplattform.Controllers
                     CollectionAreaID = collectionAreaID
                 },
                 CollectionItemPictureList = [new CollectionItemPicture()], // MINDESTENS EIN ELEMENT HINZUFÜGEN, weil CollectionItemPictureList[0] in Create
-                CollectionAttributeValueList = [],
-                CollectionAttributeList = processCollectionAttribute.GetListWithPredicate(new CollectionAttributeSearchParameterModel() { CollectionAreaID = [collectionAreaID] }),
-                StateList = processState.GetWithPredicates(new StateSearchParameterModel() { CollectionArea_CollectionAreaID = [collectionAreaID] })
+                ConceptValueList = [],
+                StatePreservationList = processState.GetWithPredicates(new StatePreservationSearchParameterModel() { CollectionArea_CollectionAreaID = [collectionAreaID] })
             };
 
             return View(model);
         }
         public IActionResult CreateSubmit(CollectionItemOperationParameterModel collectionItemOperationParameter)
         {
-            collectionItemOperationParameter.CollectionItemEntity.UsingIdentityUsersID = userManager.GetUserId(User) ?? throw new NullReferenceException();
-            string statusMessage = processCollectionItem.Insert(collectionItemOperationParameter);
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+            }
 
-            return RedirectToAction(nameof(Index), new { statusMessage, collectionItemOperationParameter.CollectionItemEntity.CollectionAreaID });
+            collectionItemOperationParameter.CollectionItemEntity.UsingIdentityUsersID = userManager.GetUserId(User) ?? throw new NullReferenceException();
+            (int statusCode, string statusMessage) = processCollectionItem.Insert(collectionItemOperationParameter);
+
+            return RedirectToAction(nameof(Index), new { statusCode, statusMessage, collectionItemOperationParameter.CollectionItemEntity.CollectionAreaID });
         }
 
         public ActionResult Edit(Status status, int entityId)
@@ -70,6 +74,10 @@ namespace Sammlerplattform.Controllers
             CollectionItemOperationParameterModel? existingCollectionItem = processCollectionItem
                 .GetWithPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [entityId] })
                 .FirstOrDefault();
+            if (existingCollectionItem != null)
+            {
+                ViewData["CollectionAreaID"] = existingCollectionItem.CollectionItemEntity.CollectionAreaID;
+            }
 
             return existingCollectionItem == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_CollectionItemEntity_NotFound" })
@@ -77,8 +85,13 @@ namespace Sammlerplattform.Controllers
         }
         public ActionResult EditSubmit(CollectionItemOperationParameterModel collectionItemOperationParameter)
         {
-            string statusMessage = processCollectionItem.Update(collectionItemOperationParameter);
-            return RedirectToAction(nameof(Index), new { statusMessage, collectionItemOperationParameter.CollectionItemEntity.CollectionAreaID });
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+            }
+
+            (int statusCode, string statusMessage) = processCollectionItem.Update(collectionItemOperationParameter);
+            return RedirectToAction(nameof(Index), new { statusCode, statusMessage, collectionItemOperationParameter.CollectionItemEntity.CollectionAreaID });
         }
 
         public ActionResult Delete(Status status, int entityId)
@@ -95,8 +108,13 @@ namespace Sammlerplattform.Controllers
         }
         public IActionResult DeleteSubmit(CollectionItemOperationParameterModel collectionItemOperation)
         {
-            string statusMessage = processCollectionItem.Delete(collectionItemOperation);
-            return RedirectToAction(nameof(Index), new { statusMessage, collectionItemOperation.CollectionItemEntity.CollectionAreaID });
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+            }
+
+            (int statusCode, string statusMessage) = processCollectionItem.Delete(collectionItemOperation);
+            return RedirectToAction(nameof(Index), new { statusCode, statusMessage, collectionItemOperation.CollectionItemEntity.CollectionAreaID });
         }
 
         public async Task<ActionResult> DownloadSubmit(int? entityId)
@@ -125,10 +143,10 @@ namespace Sammlerplattform.Controllers
 
         private void HandleStatus(Status status)
         {
-            if (!string.IsNullOrEmpty(status.Message))
+            if (!string.IsNullOrEmpty(status.StatusMessage))
             {
-                ViewData["StatusMessage"] = stringLocalizer[status.Message];
-                ViewData["StatusCode"] = status.Code;
+                ViewData["StatusMessage"] = stringLocalizer[status.StatusMessage];
+                ViewData["StatusCode"] = status.StatusCode;
             }
         }
     }

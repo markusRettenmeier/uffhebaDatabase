@@ -1,60 +1,59 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using Sammlerplattform.Resources;
-using Sammlerplattform.Models.EraDatabase;
-using Sammlerplattform.Services.DatabaseProcesses;
 using Sammlerplattform.Models;
+using Sammlerplattform.Models.EraDatabase;
+using Sammlerplattform.Resources;
+using Sammlerplattform.Services;
+using Sammlerplattform.Services.DatabaseProcesses;
 
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
-    public class EraDatabaseController(IProcessEra processEra,
-            IStringLocalizer<SharedResources> stringLocalizer) : Controller
+    public class EraDatabaseController(IProcessEra processEra) : Controller
     {
-        public ActionResult Index(Status status, EraSearchParameterModel eraSearchParameterModel)
+        [HandleStatus]
+        public ActionResult Index(EraSearchParameterModel eraSearchParameterModel)
         {
-            HandleStatus(status);
-
             return View(processEra.GetWithPredicates(eraSearchParameterModel));
         }
 
-        public ActionResult Create(Status status)
+        [HandleStatus]
+        public ActionResult Create()
         {
-            HandleStatus(status);
-
             return View();
-        }
-        public ActionResult CreateSubmit(EraOperationParameterModel eraOperationParameterModel)
+        }        
+        public ActionResult CreateSubmit(Era era)
         {
-            (Era _, int _, string statusMessage) = processEra.Create(eraOperationParameterModel);
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+            }
+            (int _, string statusMessage, int _) = processEra.Insert(era);
 
             return RedirectToAction(nameof(Index), new { statusMessage });
         }
 
-        public ActionResult Edit(Status status, int id)
+        [HandleStatus]
+        public ActionResult Edit(int id)
         {
-            HandleStatus(status);
-
             Era? era = processEra.GetWithPredicates(new EraSearchParameterModel { EraID = [id] })
                        .FirstOrDefault();
             return era == null 
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Era_NotFound" }) 
                 : View(era);
         }
-        public ActionResult EditSubmit(EraOperationParameterModel model)
+        public ActionResult EditSubmit(Era model)
         {
-            (Era era, int _, string statusMessage) = processEra.Edit(model);
-            return RedirectToAction(nameof(Edit), new { statusMessage, id = era.EraID });
-        }
-
-        private void HandleStatus(Status status)
-        {
-            if (!string.IsNullOrEmpty(status.Message))
+            if (!ModelState.IsValid)
             {
-                ViewData["StatusMessage"] = stringLocalizer[status.Message];
-                ViewData["StatusCode"] = status.Code;
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
             }
+            (int statusCode, string statusMessage, int id) = processEra.Update(model);
+            if (statusCode == 200)
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
+            else
+                return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
     }
 }

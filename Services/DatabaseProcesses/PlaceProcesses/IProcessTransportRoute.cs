@@ -7,23 +7,29 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
 {
     public interface IProcessTransportRoute
     {
-        (int PlaceID, int Statuscode, string Message) CreateTransportRoute(TransportRouteOperationParameterModel operationParameterModel);
-        (int PlaceID, int Statuscode, string Message) EditTransportRoute(TransportRouteOperationParameterModel operationParameterModel);
+        (int Statuscode, string Message, int PlaceID) Insert(TransportRouteOperationParameterModel operationParameterModel);
+        (int Statuscode, string Message, int PlaceID) Update(TransportRouteOperationParameterModel operationParameterModel);
         void DeleteTransportRoute(int transportRouteID);
     }
     public class TransportRouteProcessor(IProcessPlace processPlace,
                                        IUnitOfWork unitOfWork,
-                                       IProcessTranslations processTranslations) : IProcessTransportRoute
+                                       IProcessTranslations processTranslations,
+                                       ITrackEvents trackEvents) : IProcessTransportRoute
     {
-        public (int PlaceID, int Statuscode, string Message) CreateTransportRoute(TransportRouteOperationParameterModel operationParameterModel)
+        public (int Statuscode, string Message, int PlaceID) Insert(TransportRouteOperationParameterModel operationParameterModel)
         {
             if (operationParameterModel.PlaceNToponymyList == null ||
                 !operationParameterModel.PlaceNToponymyList.Any(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
-                return (0, 412, "Error_PlaceName_Missing");
+                trackEvents.TrackWarning("TransportRouteProcessor.CreateTransportRoute: PlaceName is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "TransportRoute", operationParameterModel.TransportRoute}
+                });
+                return (412, "Error_PlaceName_Missing", 0);
             }
 
-            (bool flowControl, (int PlaceID, int Statuscode, string Message) value) = IsPlaceExistingProcessCreate(operationParameterModel);
+            (bool flowControl, (int Statuscode, string Message, int PlaceID) value) = IsPlaceExistingProcessCreate(operationParameterModel);
             if (!flowControl)
             {
                 return value;
@@ -39,42 +45,52 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                (Place Place, int Statuscode, string Message) newPlace = processPlace.Create(placeOperationParameter);
+                (int Statuscode, string Message, Place Place) newPlace = processPlace.Insert(placeOperationParameter);
 
                 operationParameterModel.TransportRoute.PlaceID = newPlace.Place.PlaceID;
                 TransportRoute newTransportRoute = unitOfWork.TransportRouteRepository.Insert(operationParameterModel.TransportRoute);
                 unitOfWork.Save();
 
                 transactionScope.Complete();
-                return (newTransportRoute.PlaceID, 201, "Success_Place_Created");
+                return (201, "Success_Place_Created", newTransportRoute.PlaceID);
             }
             catch (Exception ex)
             {
-                //logger.LogError("Fehler beim Hinzufügen der Verkehrswege: {ex}", ex);
-                return (0, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "TransportRouteProcessor.CreateTransportRoute: Error occurred while creating TransportRoute.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "TransportRoute", operationParameterModel.TransportRoute}
+                });
+                return (500, "Error_Error_Ocurred", 0);
             }
         }
-        private (bool flowControl, (int PlaceID, int Statuscode, string Message) value) IsPlaceExistingProcessCreate(TransportRouteOperationParameterModel operationParameterModel)
+        private (bool flowControl, (int Statuscode, string Message, int PlaceID) value) IsPlaceExistingProcessCreate(TransportRouteOperationParameterModel operationParameterModel)
         {
-
-            PlaceSearchParameter placeSearchParameter = new()
+            PlaceSearchParameterModel placeSearchParameter = new()
             {
                 PlaceNToponymyList_Toponymy_ToponymyName = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)],
-                ToponymyTypeInt = [operationParameterModel.Place.ToponymyTypeInt]
+                ToponymyTypeInt = [operationParameterModel.Place.ToponymyTypeInt],
+                PlaceNToponymyList_Toponymy_ToponymyID = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
+                    {
+                        EntityType = [nameof(Toponymy)],
+                        TranslatedText = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)]
+                    }).Select(x => x.EntityId)]
             };
-            List<int> entityIdList = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
+            if (placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID.Count == 0)
             {
-                EntityType = [nameof(Toponymy)],
-                TranslatedText = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)]
-            }).Select(x => x.EntityId)];
-            if (entityIdList.Count > 0)
-            {
-                placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID = entityIdList;
+                placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID = [0];
             }
             Place? placeExists = processPlace.GetListWithPredicate(placeSearchParameter).FirstOrDefault();
             if (placeExists != null)
             {
-                return (flowControl: false, value: (placeExists.PlaceID, 409, "Error_Place_Exists"));
+                trackEvents.TrackWarning("TransportRouteProcessor.IsPlaceExistingProcessCreate: Place already exists.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "PlaceNToponymyList", operationParameterModel.PlaceNToponymyList },
+                    { "Toponymy", operationParameterModel.PlaceNToponymyList.Select(x => x.Toponymy)},
+                    { "TransportRoute", operationParameterModel.TransportRoute}
+                });
+                return (flowControl: false, value: (409, "Error_Place_Exists", placeExists.PlaceID));
             }
 
             return (flowControl: true, value: default);
@@ -85,24 +101,39 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
             throw new NotImplementedException();
         }
 
-        public (int PlaceID, int Statuscode, string Message) EditTransportRoute(TransportRouteOperationParameterModel operationParameterModel)
+        public (int Statuscode, string Message, int PlaceID) Update(TransportRouteOperationParameterModel operationParameterModel)
         {
             if (operationParameterModel.Place.PlaceID == 0)
             {
-                return (new(), 412, "Error_PlaceID_Missing");
+                trackEvents.TrackWarning("TransportRouteProcessor.EditTransportRoute: PlaceID is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "TransportRoute", operationParameterModel.TransportRoute}
+                });
+                return (412, "Error_PlaceID_Missing", new());
             }
             if (operationParameterModel.PlaceNToponymyList == null ||
                 !operationParameterModel.PlaceNToponymyList.Any(x => x.Toponymy != null && !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
-                return (operationParameterModel.Place.PlaceID, 412, "Error_PlaceName_Missing");
+                trackEvents.TrackWarning("TransportRouteProcessor.EditTransportRoute: PlaceName is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "TransportRoute", operationParameterModel.TransportRoute}
+                });
+                return (412, "Error_PlaceName_Missing", operationParameterModel.Place.PlaceID);
             }
 
-            PlaceSearchParameter placeSearchParameter = new();
+            PlaceSearchParameterModel placeSearchParameter = new();
             placeSearchParameter.PlaceID.Add(operationParameterModel.Place.PlaceID);
             TransportRoute? existingTransportRoute = processPlace.GetListWithPredicate(placeSearchParameter).FirstOrDefault()?.TransportRoute;
             if (existingTransportRoute == null)
             {
-                return (0, 404, "Error_Place_NotFound");
+                trackEvents.TrackWarning("TransportRouteProcessor.EditTransportRoute: TransportRoute not found.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "TransportRoute", operationParameterModel.TransportRoute}
+                });
+                return (404, "Error_Place_NotFound", 0);
             }
 
             try
@@ -115,15 +146,19 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                _ = processPlace.Edit(placeOperationParameterModel);
+                _ = processPlace.Update(placeOperationParameterModel);
 
                 transactionScope.Complete();
-                return (existingTransportRoute.PlaceID, 200, "Success_Place_Updated");
+                return (200, "Success_Place_Updated", existingTransportRoute.PlaceID);
             }
             catch (Exception ex)
             {
-                //logger.LogError("Fehler beim Aktualisieren der Gewässer: {ex}", ex);
-                return (existingTransportRoute.PlaceID, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "TransportRouteProcessor.EditTransportRoute: Error occurred while editing TransportRoute.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "TransportRoute", operationParameterModel.TransportRoute}
+                });
+                return (500, "Error_Error_Ocurred", existingTransportRoute.PlaceID);
             }
         }
     }

@@ -1,0 +1,54 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@using Sammlerplattform.Models.ImprovementSuggestions
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+@model IEnumerable<Sammlerplattform.Models.ImprovementSuggestions.Topic>
+
+@{
+    ViewData["Title"] = Localizer["ImprovementSuggestions_Administration"];
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+
+    string? userId = ViewData["UserID"] as string;
+}
+
+<h3>@ViewData["Title"]</h3>
+<hr />
+<a type="button" href="/ImprovementSuggestions/Create" class="btn btn-success">@Localizer["Create"]</a>
+@foreach (var topic in Model)
+{
+@*     <div class="list-group-item">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">
+                <a asp-action="Details" asp-route-id="@topic.Id">@topic.Title</a>
+            </h5>
+            <small>@topic.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+        </div>
+        <p class="mb-1">@topic.Content</p>
+    </div> *@
+    <div class="pt- 2">
+    <div class="card">
+        <div class="card-header">
+            <h2>@topic.Title</h2>
+            <small>@Localizer["CreatedAt"]@topic.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+        </div>
+        <div class="card-body">
+            <p>@topic.Content</p>
+
+            <div class="d-flex gap-2 mt-3">
+                <button class="btn btn-outline-success btn-sm vote-btn" data-type="Up" data-topicId="@topic.Id">
+                    ↑ Plus (@(topic.VoteList?.Where(v => v.VoteType == VoteType.Up).Count() ?? 0))
+                </button>
+                <button class="btn btn-outline-danger btn-sm vote-btn" data-type="Down" data-topicId="@topic.Id">
+                    ↓ Minus (@(topic.VoteList?.Where(v => v.VoteType == VoteType.Down).Count() ?? 0))
+                </button>
+            </div>
+            @if (userId != null && topic.UserId == userId)
+            {
+                <div>
+                    <a asp-action="Edit" asp-route-id="@topic.Id">@Localizer["Edit"]</a> |
+                    <a asp-action="Delete" asp-route-id="@topic.Id">@Localizer["Delete"]</a>
+                </div>
+            }
+        </div>
+    </div>
+    </div>
+}

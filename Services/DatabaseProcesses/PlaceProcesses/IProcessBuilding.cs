@@ -1,30 +1,35 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BuildingDatabase;
-using Sammlerplattform.Services.Translation;
 using System.Transactions;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
 {
     public interface IProcessBuilding
     {
-        (int PlaceID, int Statuscode, string Message) CreateBuilding(BuildingOperationParameterModel operationParameterModel);
-        (int PlaceID, int Statuscode, string Message) EditBuilding(BuildingOperationParameterModel operationParameterModel);
+        (int Statuscode, string Message, int PlaceID) Insert(BuildingOperationParameterModel operationParameterModel);
+        (int Statuscode, string Message, int PlaceID) Update(BuildingOperationParameterModel operationParameterModel);
     }
 
     public class BuildingProcessor(IProcessPlace processPlace,
                                    IUnitOfWork unitOfWork,
-                                   IProcessTranslations processTranslations) : IProcessBuilding
+                                   IProcessTranslations processTranslations,
+                                   ITrackEvents trackEvents) : IProcessBuilding
     {
-        public (int PlaceID, int Statuscode, string Message) CreateBuilding(BuildingOperationParameterModel operationParameterModel)
+        public (int Statuscode, string Message, int PlaceID) Insert(BuildingOperationParameterModel operationParameterModel)
         {
             if (operationParameterModel.PlaceNToponymyList == null ||
                 !operationParameterModel.PlaceNToponymyList.Any(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
-                return (0, 412, "Error_PlaceName_Missing");
+                trackEvents.TrackWarning("BuildingProcessor.CreateBuilding: PlaceName is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "Building", operationParameterModel.Building}
+                });
+                return (412, "Error_PlaceName_Missing", 0);
             }
 
-            (bool flowControl, (int PlaceID, int Statuscode, string Message) value) = IsPlaceExistingProcessCreate(operationParameterModel);
+            (bool flowControl, (int Statuscode, string Message, int PlaceID) value) = IsPlaceExistingProcessCreate(operationParameterModel);
             if (!flowControl)
             {
                 return value;
@@ -39,40 +44,63 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                (Place Place, int Statuscode, string Message) newPlace = processPlace.Create(placeOperationParameter);
+                (int Statuscode, string Message, Place Place) newPlace = processPlace.Insert(placeOperationParameter);
 
                 operationParameterModel.Building.PlaceID = newPlace.Place.PlaceID;
                 Building newBuilding = unitOfWork.BuildingRepository.Insert(operationParameterModel.Building);
                 unitOfWork.Save();
 
                 transactionScope.Complete();
-                return (newBuilding.PlaceID, 201, "Success_Place_Created");
+                return (201, "Success_Place_Created", newBuilding.PlaceID);
             }
             catch (Exception ex)
             {
-                //logger.LogError("Fehler beim Hinzufügen des Gebäudes: {ex}", ex);
-                return (0, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "BuildingProcessor.CreateBuilding: Error occurred while creating Building.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "PlaceNToponymyList", operationParameterModel.PlaceNToponymyList },
+                    { "Toponymy", operationParameterModel.PlaceNToponymyList.Select(x => x.Toponymy)},
+                    { "Building", operationParameterModel.Building}
+                });
+                return (500, "Error_Error_Ocurred", 0);
             }
         }
 
-        public (int PlaceID, int Statuscode, string Message) EditBuilding(BuildingOperationParameterModel operationParameterModel)
+        public (int Statuscode, string Message, int PlaceID) Update(BuildingOperationParameterModel operationParameterModel)
         {
             if (operationParameterModel.Place.PlaceID == 0)
             {
-                return (new(), 412, "Error_PlaceID_Missing");
+                trackEvents.TrackWarning("BuildingProcessor.EditBuilding: PlaceID is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "Building", operationParameterModel.Building}
+                });
+                return (412, "Error_PlaceID_Missing", new());
             }
             if (operationParameterModel.PlaceNToponymyList == null ||
                 !operationParameterModel.PlaceNToponymyList.Any(x => x.Toponymy != null && !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
-                return (operationParameterModel.Place.PlaceID, 412, "Error_PlaceName_Missing");
+                trackEvents.TrackWarning("BuildingProcessor.EditBuilding: PlaceName is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "Building", operationParameterModel.Building}
+                });
+                return (412, "Error_PlaceName_Missing", operationParameterModel.Place.PlaceID);
             }
 
-            PlaceSearchParameter placeSearchParameter = new();
+            PlaceSearchParameterModel placeSearchParameter = new();
             placeSearchParameter.PlaceID.Add(operationParameterModel.Place.PlaceID);
             Building? existingBuilding = processPlace.GetListWithPredicate(placeSearchParameter).FirstOrDefault()?.Building;
             if (existingBuilding == null)
             {
-                return (0, 404, "Error_Place_NotFound");
+                trackEvents.TrackWarning("BuildingProcessor.EditBuilding: Building not found for the given PlaceID.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "PlaceNToponymyList", operationParameterModel.PlaceNToponymyList },
+                    { "Toponymy", operationParameterModel.PlaceNToponymyList.Select(x => x.Toponymy)},
+                    { "Building", operationParameterModel.Building}
+                });
+                return (404, "Error_Place_NotFound", 0);
             }
 
             try
@@ -85,38 +113,49 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                _ = processPlace.Edit(placeOperationParameterModel);
+                _ = processPlace.Update(placeOperationParameterModel);
 
                 transactionScope.Complete();
-                return (existingBuilding.PlaceID, 200, "Success_Place_Updated");
+                return (200, "Success_Place_Updated", existingBuilding.PlaceID);
             }
             catch (Exception ex)
             {
-                //logger.LogError("Fehler beim Aktualisieren der Gewässer: {ex}", ex);
-                return (existingBuilding.PlaceID, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "BuildingProcessor.EditBuilding: Error occurred while editing Building.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "PlaceNToponymyList", operationParameterModel.PlaceNToponymyList },
+                    { "Toponymy", operationParameterModel.PlaceNToponymyList.Select(x => x.Toponymy)},
+                    { "Building", operationParameterModel.Building}
+                });
+                return (500, "Error_Error_Ocurred", existingBuilding.PlaceID);
             }
 
         }
-        private (bool flowControl, (int PlaceID, int Statuscode, string Message) value) IsPlaceExistingProcessCreate(BuildingOperationParameterModel operationParameterModel)
+        private (bool flowControl, (int Statuscode, string Message, int PlaceID) value) IsPlaceExistingProcessCreate(BuildingOperationParameterModel operationParameterModel)
         {
-            PlaceSearchParameter placeSearchParameter = new()
+            PlaceSearchParameterModel placeSearchParameter = new()
             {
                 PlaceNToponymyList_Toponymy_ToponymyName = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)],
                 ToponymyTypeInt = [operationParameterModel.Place.ToponymyTypeInt],
+                PlaceNToponymyList_Toponymy_ToponymyID = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
+                    {
+                        EntityType = [nameof(Toponymy)],
+                        TranslatedText = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)]
+                    }).Select(x => x.EntityId)]
             };
-            List<int> entityIdList = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
+            if (placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID.Count == 0)
             {
-                EntityType = [nameof(Toponymy)],
-                TranslatedText = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)]
-            }).Select(x => x.EntityId)];
-            if (entityIdList.Count > 0)
-            {
-                placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID = entityIdList;
+                placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID = [0];
             }
             Place? placeExists = processPlace.GetListWithPredicate(placeSearchParameter).FirstOrDefault();
             if (placeExists != null)
             {
-                return (flowControl: false, value: (placeExists.PlaceID, 409, "Error_Place_Exists"));
+                trackEvents.TrackWarning("BuildingProcessor.IsPlaceExistingProcessCreate: Place already exists.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "Building", operationParameterModel.Building}
+                });
+                return (flowControl: false, value: (409, "Error_Place_Exists", placeExists.PlaceID));
             }
 
             return (flowControl: true, value: default);

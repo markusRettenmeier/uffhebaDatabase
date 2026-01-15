@@ -11,7 +11,8 @@ namespace Sammlerplattform.Services.EMail
     public class EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor,
                        IWebHostEnvironment hostEnvironment,
         IStringLocalizer<SharedResources> stringLocalizer,
-        IHtmlLocalizer<SharedResources> htmlLocalizer) : IEmailSender
+        IHtmlLocalizer<SharedResources> htmlLocalizer,
+        ITrackEvents trackEvents) : IEmailSender
     {
         public AuthMessageSenderOptions Options { get; } = optionsAccessor.Value;
 
@@ -45,14 +46,18 @@ namespace Sammlerplattform.Services.EMail
             }
 
             Response response = await client.SendEmailAsync(msg);
-            //if (response.IsSuccessStatusCode)
-            //{
-            //    _logger.LogInformation("Email to {toEmail} queued successfully!", toEmail);
-            //}
-            //else
-            //{
-            //    _logger.LogError("Failure Email to {toEmail} with error {response.StatusCode}.", toEmail, response.StatusCode);
-            //}
+            if (response.IsSuccessStatusCode)
+            {
+                trackEvents.TrackInfo("Email sent to {toEmail} with subject {subject}.", new Dictionary<string, object>
+                {
+                    { "toEmail", toEmail },
+                    { "subject", subject }
+                });
+            }
+            else
+            {
+                trackEvents.TrackEmailResponse(response, toEmail, "Failure Email to {toEmail} with error {response.StatusCode}.");
+            }
         }
 
         private static void AttachFile(SendGridMessage msg, string name, string path)

@@ -1,0 +1,34 @@
+﻿@model Sammlerplattform.Models.ImprovementSuggestions.Topic
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["ImprovementSuggestions_Edit"];
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+}
+
+<h3>@ViewData["Title"]</h3>
+<hr />
+<form asp-action="EditSubmit">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Title" class="control-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Content" class="control-label"></label>
+        <textarea asp-for="Content" class="form-control" rows="20"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+    <div class="mt-4 pt-3 border-top">
+        <button type="submit" class="btn btn-success btn-lg px-5">
+            <i class="bi bi-check-circle"></i> @Localizer["Edit"]
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+            @Localizer["Cancel"]
+        </a>
+    </div>
+</form>
+

@@ -24,9 +24,6 @@
                 @Html.DisplayNameFor(model => model.PartyName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PartyDescription)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Individual!.Pseudonym)
             </th>
             <th>
@@ -44,7 +41,6 @@
             var vm = PartyViewModelHelper.FromDomainModel(item);
             <tr>
                 <td>@Html.Raw(vm.Name)</td>
-                <td>@Html.Raw(vm.Description)</td>
                 <td>@Html.Raw(vm.Pseudonym)</td>
                 <td>@Html.Raw(vm.Signature)</td>
                 <td>@Html.Raw(vm.Places)</td>

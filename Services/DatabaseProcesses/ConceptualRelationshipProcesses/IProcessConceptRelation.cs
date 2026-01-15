@@ -10,6 +10,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
         int Update(ConceptRelation conceptRelation);
         int Delete(ConceptRelation conceptRelation);
         List<ConceptRelation> GetByConceptID(int conceptID);
+        List<ConceptRelation> GetByRootConceptID(int rootConceptID);
         List<ConceptRelation> GetByCollectionAreaID(int collectionAreaID);
 
     }
@@ -25,8 +26,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                             SELECT 1 
                             FROM Concept c1, Concept c2
                             WHERE MATCH (c1-(r)->c2)
-                              AND c1.ConceptID = @p0
-                              AND c2.ConceptID = @p1
+                              AND c1.Id = @p0
+                              AND c2.Id = @p1
                         )";
 
             int returncode = dbIdentityContext.Database.ExecuteSqlRaw(sql, conceptRelation.FromConceptID, conceptRelation.ToConceptID);
@@ -37,8 +38,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
         {
             return GetConceptRelations(
                 @"SELECT 
-                    c1.ConceptID AS FromId,
-                    c2.ConceptID AS ToId,
+                    c1.Id AS FromId,
+                    c2.Id AS ToId,
                     r.RelationTypeInt AS RelationshipInt,
                     r.IsDirected
                 FROM Concept c1, ConceptRelation r, Concept c2
@@ -52,14 +53,30 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
         {
             return GetConceptRelations(
                 @"SELECT 
-                    c1.ConceptID AS FromId,
-                    c2.ConceptID AS ToId,
+                    c1.Id AS FromId,
+                    c2.Id AS ToId,
                     r.RelationTypeInt AS RelationshipInt,
                     r.IsDirected
                 FROM Concept c1, ConceptRelation r, Concept c2
-                WHERE c1.ConceptID = @p0
+                WHERE c1.Id = @p0
                   AND MATCH (c1-(r)->c2)",
                 conceptID
+            );
+        }
+
+        public List<ConceptRelation> GetByRootConceptID(int rootConceptID)
+        {
+            return GetConceptRelations(
+                @"SELECT 
+                    c1.Id AS FromId,
+                    c2.Id AS ToId,
+                    r.RelationTypeInt AS RelationshipInt,
+                    r.IsDirected
+                FROM Concept c1, ConceptRelation r, Concept c2
+                WHERE (c1.Id = @p0
+                  OR c1.RootConceptID = @p0)
+                  AND MATCH (c1-(r)->c2)",
+                rootConceptID
             );
         }
 

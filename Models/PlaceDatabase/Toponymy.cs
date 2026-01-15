@@ -8,15 +8,14 @@ namespace Sammlerplattform.Models.PlaceDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        [Display(Name = "ToponymyID", ResourceType = typeof(SharedResources))]
         public int ToponymyID { get; set; }
 
-        [Required]
+        [Required(ErrorMessageResourceName = "Error_PlaceName_Missing", ErrorMessageResourceType = typeof(SharedResources))]
         [StringLength(80)]
-        [Display(Name = "ToponymyName", ResourceType = typeof(SharedResources))]
+        [Display(Name = "PlaceName", ResourceType = typeof(SharedResources))]
+        [NotMapped]
         public required string ToponymyName { get; set; }
 
-        [Display(Name = "PlaceNToponymyList", ResourceType = typeof(SharedResources))]
         public List<PlaceNToponymy> PlaceNToponymyList { get; set; } = [];
     }
 }

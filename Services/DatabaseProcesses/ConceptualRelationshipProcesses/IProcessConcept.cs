@@ -9,50 +9,71 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
 {
     public interface IProcessConcept
     {
-        (int CollectionAreaID, int Statuscode, string StatusMessage) Insert(ConceptualRelationshipOperationParameterModel conceptualRelationshipOperation);
-        (int CollectionAreaID, int Statuscode, string StatusMessage) Update(ConceptualRelationshipOperationParameterModel conceptualRelationshipOperation);
+        (int RootConceptID, int? CollectionAreaID, int Statuscode, string StatusMessage) Insert(ConceptualRelationshipOperationParameterModel conceptualRelationshipOperation);
+        (int RootConceptID, int? CollectionAreaID, int Statuscode, string StatusMessage) Update(ConceptualRelationshipOperationParameterModel conceptualRelationshipOperation);
         List<ConceptualRelationshipOperationParameterModel> GetWithPredicates(ConceptualRelationshipSearchParameterModel conceptSearchParameter);
-        (int Statuscode, string StatusMessage) DeleteConcept(int conceptID);
+        (int Statuscode, string StatusMessage) Delete(int conceptID);
     }
 
     public class ConceptualRelationshipProcessor(IUnitOfWork unitOfWork
         , IProcessConceptRelation processConceptRelation
-        , DeeplTranslationService translationService
-        , IProcessTranslations processTranslations) : IProcessConcept
+        , IDeeplTranslationService translationService
+        , IProcessTranslations processTranslations
+        , ITranslationStore translationStore
+        , ITrackEvents trackEvents) : IProcessConcept
     {
-        public (int CollectionAreaID, int Statuscode, string StatusMessage) Insert(ConceptualRelationshipOperationParameterModel conceptualRelationshipOperation)
+        public (int RootConceptID, int? CollectionAreaID, int Statuscode, string StatusMessage) Insert(ConceptualRelationshipOperationParameterModel conceptualRelationshipOperation)
         {
-            if (conceptualRelationshipOperation.Concept.Id != 0 || conceptualRelationshipOperation.Concept.CollectionAreaID <= 0 || string.IsNullOrWhiteSpace(conceptualRelationshipOperation.Concept.ConceptName))
+            if (string.IsNullOrWhiteSpace(conceptualRelationshipOperation.Concept.Name))
             {
-                return (conceptualRelationshipOperation.Concept.CollectionAreaID, 400, "Error_CollectionAreaID_Missing");
+                trackEvents.TrackWarning("ConceptualRelationshipProcessor/Insert: Concept Name is missing.", new Dictionary<string, object>
+                {
+                    {"Concept", conceptualRelationshipOperation.Concept }
+                });
+                return (conceptualRelationshipOperation.Concept.GetRootConceptId(), conceptualRelationshipOperation.Concept.CollectionAreaID, 400, "Error_Concept_NameMissing");
             }
 
             ConceptualRelationshipSearchParameterModel searchParameterModel = new()
+            { 
+                Id = [.. unitOfWork.EntityTranslationRepository.Get(et =>
+                        et.EntityType == nameof(Concept) &&
+                        et.FieldName == nameof(Concept.Name) &&
+                        et.TranslatedText == conceptualRelationshipOperation.Concept.Name)
+                        .Select(et => et.EntityId).Distinct()]
+            };
+            if(searchParameterModel.Id.Count == 0)
             {
-                ConceptName = [conceptualRelationshipOperation.Concept.ConceptName],
-                CollectionAreaID = [conceptualRelationshipOperation.Concept.CollectionAreaID]
-            }
-            List<int> entityIds = [.. unitOfWork.EntityTranslationRepository.Get(et =>
-                et.EntityType == nameof(Concept) &&
-                et.FieldName == nameof(Concept.ConceptName) &&
-                et.TranslatedText == conceptualRelationshipOperation.Concept.ConceptName)
-                .Select(et => et.EntityId).Distinct()];
-            if (entityIds.Count > 0)
-            {
-                searchParameterModel.ConceptID = entityIds;
+                searchParameterModel.Id = [0]; // To prevent querying all concepts when no matching translations are found
             }
             Concept? existingConcept = GetWithPredicates(searchParameterModel).Select(x => x.Concept).FirstOrDefault();
             if (existingConcept != null)
             {
-                return (existingConcept.CollectionAreaID, 409, "Error_Concept_Exists");
+                trackEvents.TrackWarning("ConceptualRelationshipProcessor/Insert: Concept already exists.", new Dictionary<string, object>
+                {
+                    {"Concept", conceptualRelationshipOperation.Concept },
+                    {"ExistingConcept", existingConcept }
+                });
+                return (existingConcept.GetRootConceptId(), null, 409, "Error_Concept_Exists");
             }
 
             try
             {
                 using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-                conceptualRelationshipOperation.Concept.ConceptName = translationService.SetIntoFallbackLanguage(conceptualRelationshipOperation.Concept.ConceptName);
+
                 Concept newConcept = unitOfWork.ConceptRepository.Insert(conceptualRelationshipOperation.Concept);
                 unitOfWork.Save();
+
+                processTranslations.Insert(
+                    new EntityTranslation
+                    {
+                        EntityType = nameof(Concept),
+                        FieldName = nameof(Concept.Name),
+                        EntityId = newConcept.Id,
+                        TranslatedText = conceptualRelationshipOperation.Concept.Name,
+                        Abbreviation = conceptualRelationshipOperation.Concept.Abbreviation,
+                        Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
+                    },
+                    conceptualRelationshipOperation.Concept.Name);
 
                 foreach (ConceptRelation relation in conceptualRelationshipOperation.ConceptRelationList)
                 {
@@ -60,20 +81,27 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 }
 
                 transactionScope.Complete();
-                return (newConcept.CollectionAreaID, 201, "Success_Concept_Created");
+                return (newConcept.GetRootConceptId(), null, 201, "Success_Concept_Created");
             }
             catch (Exception ex)
             {
-                // Log the exception (ex) as needed
-                return (conceptualRelationshipOperation.Concept.CollectionAreaID, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "ConceptualRelationshipProcessor/Insert", new Dictionary<string, object>
+                {
+                    { "Concept", conceptualRelationshipOperation.Concept }
+                });
+                return (conceptualRelationshipOperation.Concept.GetRootConceptId(), null, 500, "Error_Error_Ocurred");
             }
         }
 
-        public (int Statuscode, string StatusMessage) DeleteConcept(int conceptID)
+        public (int Statuscode, string StatusMessage) Delete(int conceptID)
         {
-            Concept? existingConcept = GetWithPredicates(new ConceptualRelationshipSearchParameterModel { ConceptID = [conceptID] }).FirstOrDefault()?.Concept;
+            Concept? existingConcept = GetWithPredicates(new ConceptualRelationshipSearchParameterModel { Id = [conceptID] }).FirstOrDefault()?.Concept;
             if (existingConcept == null)
             {
+                trackEvents.TrackWarning("ConceptualRelationshipProcessor/DeleteConcept: Concept not found.", new Dictionary<string, object>
+                {
+                    {"ConceptID", conceptID }
+                });
                 return (404, "Error_Concept_NotFound");
             }
 
@@ -95,7 +123,11 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
             }
             catch (Exception ex)
             {
-                return (500, ex.Message);
+                trackEvents.TrackException(ex, "ConceptualRelationshipProcessor/DeleteConcept", new Dictionary<string, object>
+                {
+                    { "ConceptID", conceptID }
+                });
+                return (500, "Error_Error_Ocurred");
             }
         }
 
@@ -103,11 +135,30 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
         {
             IEnumerable<Concept> query = unitOfWork.ConceptRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<Concept>(conceptSearchParameter),
-                includeProperties: "CollectionArea," +
-                "CollectionItemEntityList");
+                includeProperties: nameof(Concept.CollectionArea) + "," +
+                                   nameof(Concept.CollectionItemEntityList));
+
+            foreach (Concept concept in query)
+            {
+                concept.Name = translationStore.GetTranslation(
+                    nameof(Concept),
+                    concept.Id,
+                    nameof(concept.Name),
+                    concept.Name)
+                    ?? concept.Name;
+                if (!string.IsNullOrEmpty(concept.Description))
+                {
+                    concept.Description = translationStore.GetTranslation(
+                        nameof(Concept),
+                        concept.Id,
+                        nameof(concept.Description),
+                        concept.Description)
+                        ?? concept.Description;
+                }
+            }
 
             return [.. query
-                .OrderBy(x => x.ConceptName)
+                .OrderBy(x => x.Name)
                 .Select(c => new ConceptualRelationshipOperationParameterModel
                 {
                     Concept = c,
@@ -115,82 +166,90 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 })];
         }
 
-        public (int CollectionAreaID, int Statuscode, string StatusMessage) Update(ConceptualRelationshipOperationParameterModel conceptualRelationshipOperation)
+        public (int RootConceptID, int? CollectionAreaID, int Statuscode, string StatusMessage) Update(ConceptualRelationshipOperationParameterModel conceptualRelationshipOperation)
         {
             if (conceptualRelationshipOperation.Concept.Id == 0)
             {
-                return (conceptualRelationshipOperation.Concept.CollectionAreaID, 400, "Error_Concept_IDMissing");
+                return (conceptualRelationshipOperation.Concept.GetRootConceptId(), conceptualRelationshipOperation.Concept.CollectionAreaID, 400, "Error_Concept_IDMissing");
             }
-            if (conceptualRelationshipOperation.Concept.CollectionAreaID <= 0)
+            if (string.IsNullOrWhiteSpace(conceptualRelationshipOperation.Concept.Name))
             {
-                return (conceptualRelationshipOperation.Concept.CollectionAreaID, 400, "Error_CollectionArea_IdMissing");
-            }
-            if (string.IsNullOrWhiteSpace(conceptualRelationshipOperation.Concept.ConceptName))
-            {
-                return (conceptualRelationshipOperation.Concept.CollectionAreaID, 400, "Error_Concept_NameMissing");
+                return (conceptualRelationshipOperation.Concept.GetRootConceptId(), conceptualRelationshipOperation.Concept.CollectionAreaID, 400, "Error_Concept_NameMissing");
             }
 
             Concept? existingConcept = unitOfWork.ConceptRepository.Get(c =>
                 c.Id == conceptualRelationshipOperation.Concept.Id).FirstOrDefault();
             if (existingConcept == null)
             {
-                return (0, 404, "Error_Concept_NotFound");
+                return (conceptualRelationshipOperation.Concept.GetRootConceptId(), conceptualRelationshipOperation.Concept.CollectionAreaID, 404, "Error_Concept_NotFound");
             }
 
             try
             {
                 using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-                bool isChanged = false;
-                bool translatedTextExists = GetWithPredicates(new ConceptualRelationshipSearchParameterModel
+                var existingTranslations = processTranslations.GetWithPredicate(new EntityTranslationSearchParameter
                 {
-                    ConceptName = [conceptualRelationshipOperation.Concept.ConceptName],
-                    ConceptID = [conceptualRelationshipOperation.Concept.Id],
-                    CollectionAreaID = [conceptualRelationshipOperation.Concept.CollectionAreaID]
-                }).Count != 0;
-                if (translatedTextExists || existingConcept.ConceptName != conceptualRelationshipOperation.Concept.ConceptName)
+                    EntityType = [nameof(Concept)],
+                    EntityId = [existingConcept.Id],
+                    Culture = [translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)]
+                });
+                if (existingTranslations.First(x => x.FieldName == nameof(Concept.Name)).TranslatedText != conceptualRelationshipOperation.Concept.Name)
                 {
-                    existingConcept.ConceptName = translationService.SetIntoFallbackLanguage(conceptualRelationshipOperation.Concept.ConceptName);
-                    processTranslations.Edit(
+                    //existingConcept.Name = translationService.SetIntoFallbackLanguage(conceptualRelationshipOperation.Concept.Name);
+                    processTranslations.Update(
                         new EntityTranslation
                         {
                             EntityType = nameof(Concept),
                             EntityId = existingConcept.Id,
-                            FieldName = nameof(existingConcept.ConceptName),
-                            TranslatedText = conceptualRelationshipOperation.Concept.ConceptName,
+                            FieldName = nameof(existingConcept.Name),
+                            TranslatedText = conceptualRelationshipOperation.Concept.Name,
                             Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
                         },
-                        conceptualRelationshipOperation.Concept.ConceptName);
-                    isChanged = true;
+                        conceptualRelationshipOperation.Concept.Name);
                 }
-                if( existingConcept.Description != conceptualRelationshipOperation.Concept.Description)
+                if (!string.IsNullOrEmpty(conceptualRelationshipOperation.Concept.Description))
                 {
-                    existingConcept.Description = conceptualRelationshipOperation.Concept.Description;
-                    processTranslations.Edit(
-                        new EntityTranslation
-                        {
-                            EntityType = nameof(Concept),
-                            EntityId = existingConcept.Id,
-                            FieldName = nameof(existingConcept.Description),
-                            TranslatedText = conceptualRelationshipOperation.Concept.Description,
-                            Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
-                        },
-                        conceptualRelationshipOperation.Concept.Description);
-                    isChanged = true;
-                }
-                if (isChanged)
-                {
-                    unitOfWork.Save();
+                    if (existingTranslations.FirstOrDefault(x => x.FieldName == nameof(Concept.Description))?.TranslatedText != conceptualRelationshipOperation.Concept.Description)
+                    {
+                        processTranslations.Update(
+                            new EntityTranslation
+                            {
+                                EntityType = nameof(Concept),
+                                EntityId = existingConcept.Id,
+                                FieldName = nameof(existingConcept.Description),
+                                TranslatedText = conceptualRelationshipOperation.Concept.Description,
+                                Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
+                            },
+                            conceptualRelationshipOperation.Concept.Description);
+                    }
+                    else
+                    {
+                        processTranslations.Insert(
+                            new EntityTranslation
+                            {
+                                EntityType = nameof(Concept),
+                                EntityId = existingConcept.Id,
+                                FieldName = nameof(Concept.Description),
+                                TranslatedText = conceptualRelationshipOperation.Concept.Description,
+                                Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
+                            },
+                            conceptualRelationshipOperation.Concept.Description);
+                    }
                 }
 
                 SyncRelationConnections(existingConcept, conceptualRelationshipOperation.ConceptRelationList);
 
                 transactionScope.Complete();
-                return (existingConcept.CollectionAreaID, 201, "Success_Concept_Updated");
+                return (existingConcept.GetRootConceptId(), null, 201, "Success_Concept_Updated");
             }
             catch (Exception ex)
             {
-                return (existingConcept.CollectionAreaID, 500, ex.Message);
+                trackEvents.TrackException(ex, "ConceptualRelationshipProcessor/Update", new Dictionary<string, object>
+                {
+                    { "Concept", conceptualRelationshipOperation.Concept }
+                });
+                return (existingConcept.GetRootConceptId(), null, 500, "Error_Error_Ocurred");
             }
         }
 

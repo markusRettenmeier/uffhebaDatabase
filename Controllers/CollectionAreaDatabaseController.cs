@@ -3,40 +3,46 @@ using Microsoft.Extensions.Localization;
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Resources;
+using Sammlerplattform.Services;
 using Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses;
 
 namespace Sammlerplattform.Controllers
 {
-    public class CollectionAreaDatabaseController(IProcessCollectionArea processCollection,
-            IStringLocalizer<SharedResources> stringLocalizer) : Controller
+    public class CollectionAreaDatabaseController(IProcessCollectionArea processCollection) : Controller
     {
-        public ActionResult Index(Status status, CollectionAreaSearchParameterModel collectionSearchParameterModel)
+        [HandleStatus]
+        public ActionResult Index(CollectionAreaSearchParameterModel collectionSearchParameterModel)
         {
-            HandleStatus(status);
-
             List<CollectionArea> collectionList = processCollection
                 .GetListWithPredicate(collectionSearchParameterModel);
 
             return View(collectionList);
         }
 
-        public ActionResult Create(Status status)
+        [HandleStatus]
+        public ActionResult Create()
         {
-            HandleStatus(status);
             return View();
         }
-        public IActionResult CreateSubmit(string collectionAreaName)
+        public IActionResult CreateSubmit(CollectionArea collectionArea)
         {
-            (int collectionAreaID, int _, string statusMessage) = processCollection.Create(collectionAreaName);
-            return RedirectToAction("Create", "CollectionAttributeDatabase", new { statusMessage, collectionAreaID });
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+            }
+
+            (int statusCode, string statusMessage, int collectionAreaID) = processCollection.Insert(collectionArea);
+            if (collectionAreaID == 0)
+                return RedirectToAction(nameof(Index), new { statusMessage });
+            else
+                return RedirectToAction("Create", "ConceptualRelationshipDatabase", new { statusMessage, statusCode, collectionAreaID });
         }
 
-        public ActionResult Edit(Status status, int id)
+        [HandleStatus]
+        public ActionResult Edit(int id)
         {
-            HandleStatus(status);
-
             CollectionArea? existingCollection = processCollection.
-                GetListWithPredicate(new CollectionAreaSearchParameterModel{ CollectionAreaID = [id]})
+                GetListWithPredicate(new CollectionAreaSearchParameterModel{ CollectionAreaID = [id] })
                 .FirstOrDefault();
 
             return existingCollection == null
@@ -45,17 +51,16 @@ namespace Sammlerplattform.Controllers
         }
         public IActionResult EditSubmit(CollectionArea collectionArea)
         {
-            (int _, int _, string statusMessage) = processCollection.Edit(collectionArea);
-            return RedirectToAction(nameof(Index), new { statusMessage });
-        }
-
-        private void HandleStatus(Status status)
-        {
-            if (!string.IsNullOrEmpty(status.Message))
+            if (!ModelState.IsValid)
             {
-                ViewData["StatusMessage"] = stringLocalizer[status.Message];
-                ViewData["StatusCode"] = status.Code;
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
             }
+
+            (int statusCode, string statusMessage, int id) = processCollection.Update(collectionArea);
+            if (statusCode == 200)
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
+            else
+                return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
     }
 }

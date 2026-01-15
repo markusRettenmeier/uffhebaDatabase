@@ -5,19 +5,18 @@ using Microsoft.Extensions.Localization;
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Resources;
+using Sammlerplattform.Services;
 using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
 using System.Diagnostics;
 
 namespace Sammlerplattform.Controllers
 {
     [AllowAnonymous]
-    public class HomeController(IProcessCollectionItemEntity processCollectionItemEntity,
-        IStringLocalizer<SharedResources> stringLocalizer) : Controller
+    public class HomeController(IProcessCollectionItemEntity processCollectionItemEntity) : Controller
     {
-        public IActionResult Frontpage(Status status, CollectionItemSearchParameterModel itemSearchParameterModel, int topK)
+        [HandleStatus]
+        public IActionResult Frontpage(CollectionItemSearchParameterModel itemSearchParameterModel, int topK)
         {
-            HandleStatus(status);
-
             var entities = processCollectionItemEntity.GetTraditionalTextSearch(itemSearchParameterModel);
             int maxRows = entities.Count;
             if (maxRows > 24)
@@ -46,13 +45,13 @@ namespace Sammlerplattform.Controllers
             return View(entities);
         }
 
-        private void HandleStatus(Status status)
+        public ActionResult Details(int entityId)
         {
-            if (!string.IsNullOrEmpty(status.Message))
-            {
-                ViewData["StatusMessage"] = stringLocalizer[status.Message].Value;
-                ViewData["StatusCode"] = status.Code;
-            }
+            CollectionItemOperationParameterModel? entity = processCollectionItemEntity.GetWithPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [entityId] }).FirstOrDefault();
+            
+            return entity == null
+                ? RedirectToAction(nameof(Frontpage), new Status { StatusCode = 404, StatusMessage = "Status_EntityNotFound" })
+                : View(entity);
         }
 
         public ActionResult PrivacyImprint()

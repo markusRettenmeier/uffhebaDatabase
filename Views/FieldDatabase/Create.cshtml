@@ -46,7 +46,19 @@
             @Localizer["Relation_Add"]
         </button>
     </div>
-    <button class="btn btn-primary">@Localizer["Create"]</button>
+    <div class="form-group mb-3">
+        <label asp-for="Place.WikipediaUrl" class="control-label"></label>
+        <input asp-for="Place.WikipediaUrl" class="form-control" />
+        <span asp-validation-for="Place.WikipediaUrl" class="text-danger"></span>
+    </div>
+    <div class="mt-4 pt-3 border-top">
+        <button type="submit" class="btn btn-success btn-lg px-5">
+            <i class="bi bi-check-circle"></i> @Localizer["Create"]
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+            @Localizer["Cancel"]
+        </a>
+    </div>
 </form>
 
 <partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />

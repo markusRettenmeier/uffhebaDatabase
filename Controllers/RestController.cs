@@ -2,22 +2,24 @@
 using Microsoft.Extensions.Localization;
 using Sammlerplattform.Data;
 using Sammlerplattform.Resources;
-using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Services;
 using Sammlerplattform.Services.DatabaseProcesses;
-using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.PartyProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
 using Sammlerplattform.Models.Translations;
-
+using Sammlerplattform.Services.Translation;
+using System.Globalization;
+using Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses;
+using Sammlerplattform.Models.ImprovementSuggestions;
+using Microsoft.AspNetCore.Identity;
+using Sammlerplattform.Models.UserSettings;
 namespace Sammlerplattform.Controllers
 {
-    //[AllowAnonymous]
     [Route("api/collections")]
     public class RestController(
         IProcessEra processEra,
@@ -26,16 +28,19 @@ namespace Sammlerplattform.Controllers
         IUnitOfWork unitOfWork,
         IProcessConcept processConcept,
         IProcessConceptRelation processConceptRelation,
-        IProcessCollectionItemPotential processCollectionItemPotential,
+        IProcessCollectionArea processCollectionArea,
         IStringLocalizer<SharedResources> stringLocalizer,
-        IProcessTranslations processTranslations
+        IProcessTranslations processTranslations,
+        ITranslationStore translationStore,
+        IDeeplTranslationService translationService,
+        UserManager<UsingIdentityUser> userManager
         ) : Controller
     {
 
         [HttpPost("listPlaces")]
         public IActionResult ListPlaces([FromBody] PlaceSearchDTO placeSearchDTO)
         {
-            PlaceSearchParameter model = new();
+            PlaceSearchParameterModel model = new();
             if (placeSearchDTO != null)
             {
                 if (placeSearchDTO.Toponym != null)
@@ -113,7 +118,7 @@ namespace Sammlerplattform.Controllers
                 {
                     PlaceID = x.PlaceID,
                     OeconymDisplay = oeconymDisplay,
-                    ToponymyType = EnumExtensions.GetDescription(x.ToponymyTypeEnum),
+                    ToponymyType = x.ToponymyTypeEnum.GetDisplayName(),
                     FurtherSpecs = string.Join("; ", specs)
                 };
             })];
@@ -163,18 +168,30 @@ namespace Sammlerplattform.Controllers
                 List<string> specs = [];
                 if (x.Individual != null)
                 {
-                    if (!string.IsNullOrWhiteSpace(x.Individual.Pseudonym)) { specs.Add(stringLocalizer["Pseudonym"] + ": " + x.Individual.Pseudonym); } if (!string.IsNullOrWhiteSpace(x.Individual.Signature)) { specs.Add("Signatur: " + x.Individual.Signature); } }
+                    if (!string.IsNullOrWhiteSpace(x.Individual.Pseudonym)) 
+                    { 
+                        specs.Add(stringLocalizer["Pseudonym"] + ": " + x.Individual.Pseudonym); 
+                    } 
+                    if (!string.IsNullOrWhiteSpace(x.Individual.Signature)) 
+                    { 
+                        specs.Add("Signatur: " + x.Individual.Signature); 
+                    } 
+                }
                 if (x.Organization != null)
                 {
                     string? productionFacility = x.Organization.ProductionFacility?.ProductionFacilityName;
-                    if (!string.IsNullOrWhiteSpace(productionFacility)) { specs.Add(stringLocalizer["ProductionFacility"] + ": " + productionFacility); } specs.Add("Organisationstyp: " + EnumExtensions.GetDescription(x.Organization.OrganizationTypeEnum));
+                    if (!string.IsNullOrWhiteSpace(productionFacility)) 
+                    { 
+                        specs.Add(stringLocalizer["ProductionFacility"] + ": " + productionFacility); 
+                    } 
+                    specs.Add("Organisationstyp: " + x.Organization.OrganizationTypeEnum.GetDisplayName());
                 }
 
                 return new PartyDTO
                 {
                     PartyID = x.PartyID,
                     Name = x.PartyName,
-                    Type = EnumExtensions.GetDescription(x.PartyTypeEnum),
+                    Type = x.PartyTypeEnum.GetDisplayName(),
                     FurtherSpecs = string.Join("; ", specs)
                 };
             })];
@@ -201,7 +218,6 @@ namespace Sammlerplattform.Controllers
             EraSearchParameterModel eraSearchParameter = new();
             if (!string.IsNullOrEmpty(name))
             {
-                eraSearchParameter.EraName.Add(name);
                 List<int> entityIds = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter { EntityType = [nameof(Era)], TranslatedText = [name] }).Select(x => x.EntityId)];
                 if (entityIds.Count > 0)
                 {
@@ -223,42 +239,6 @@ namespace Sammlerplattform.Controllers
         {
             public int EraID { get; set; }
             public string? EraName { get; set; }
-        }
-
-        [HttpGet("listColors")]
-        public IActionResult ListColors()
-        {
-            List<ColorDTO> colorList = [.. unitOfWork.ColorRepository.Get()
-                .OrderBy(x => x.Name)
-                .Select(x => new ColorDTO
-                {
-                    ColorID = x.ColorID,
-                    ColorName = x.Name
-                })];
-
-            return Ok(colorList);
-        }
-        public class ColorDTO
-        {
-            public int ColorID { get; set; }
-            public string? ColorName { get; set; }
-        }
-
-        [HttpGet("listMaterials")]
-        public IActionResult ListMaterials()
-        {
-            List<MaterialDTO> materialList = [.. unitOfWork.MaterialRepository.Get()
-                .OrderBy(x => x.MaterialName)
-                .Select(x => new MaterialDTO{
-                    MaterialID = x.MaterialID,
-                    Name = x.MaterialName
-                })];
-            return Ok(materialList);
-        }
-        public class MaterialDTO
-        {
-            public int MaterialID { get; set; }
-            public string? Name { get; set; }
         }
 
         [HttpGet("listProductionFacilities")]
@@ -288,8 +268,7 @@ namespace Sammlerplattform.Controllers
         [HttpGet("listCollectionAreas")]
         public IActionResult ListCollectionAreas()
         {
-            List<CollectionAreaDTO> collectionAreas = [.. unitOfWork.CollectionAreaRepository.Get()
-                .OrderBy(ca => ca.CollectionAreaName)
+            List<CollectionAreaDTO> collectionAreas = [.. processCollectionArea.GetListWithPredicate(new Models.CollectionAreaDatabase.CollectionAreaSearchParameterModel())
                 .Select(ca => new CollectionAreaDTO
                 {
                     ID = ca.CollectionAreaID,
@@ -304,24 +283,31 @@ namespace Sammlerplattform.Controllers
         }
 
         [HttpGet("conceptualRelationship")]
-        public IActionResult ConceptualRelationship(int collectionAreaID)
+        public IActionResult ConceptualRelationship(int rootConceptId)
         {
-            if (collectionAreaID <= 0)
+            if (rootConceptId <= 0)
             {
                 return BadRequest("Invalid collectionAreaID.");
             }
 
-            List<NodeDTO> nodes = [.. processConcept.GetWithPredicates(new ConceptualRelationshipSearchParameterModel()
-            {
-                CollectionAreaID = [collectionAreaID]
-            })
-                .Select(c => new NodeDTO
+            List<NodeDTO> nodes = [.. unitOfWork.ConceptRepository.Get(filter: x => x.Id == rootConceptId || x.RootConceptID == rootConceptId)
+                .Select(c =>
                 {
-                    ID = c.Concept.Id,
-                    Label = c.Concept.ConceptName
+                    c.Name = translationStore.GetTranslation(
+                        nameof(Concept),
+                        c.Id,
+                        nameof(Concept.Name),
+                        translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
+                        ?? c.Name;
+
+                    return new NodeDTO
+                    {
+                        ID = c.Id,
+                        Label = c.Name
+                    };
                 })];
 
-            List<EdgeDTO> edges = [.. processConceptRelation.GetByCollectionAreaID(collectionAreaID)
+            List<EdgeDTO> edges = [.. processConceptRelation.GetByConceptID(rootConceptId)
                 .Select(x => new EdgeDTO
                 {
                     From = x.FromConceptID,
@@ -352,87 +338,101 @@ namespace Sammlerplattform.Controllers
         }
 
         [HttpGet("listConcepts")]
-        public ActionResult ListConcepts(string? conceptName)
+        public ActionResult ListConcepts(string? conceptName, int? collectionAreaID)
         {
-            ConceptualRelationshipSearchParameterModel searchParameter = new();
+            ConceptualRelationshipSearchParameterModel searchParameter = new()
+            {
+                ConceptTypeInt = [4] // Bool
+            };
             if (!string.IsNullOrEmpty(conceptName))
             {
                 List<int> entityIds = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter { EntityType = [nameof(Concept)], TranslatedText = [conceptName] }).Select(x => x.EntityId)];
-                searchParameter.ConceptID = entityIds;
-                searchParameter.ConceptName = [conceptName];
+                searchParameter.Id = entityIds;
+                searchParameter.Name = [conceptName];
             };
+            if(collectionAreaID!= null && collectionAreaID > 0)
+            {
+                searchParameter.CollectionAreaID = [(int)collectionAreaID];
+            }
+            List<ConceptualRelationshipOperationParameterModel> conceptialRelations = processConcept.GetWithPredicates(searchParameter);
 
-            List<ConceptDTO> conceptialRelations = [.. processConcept.GetWithPredicates(searchParameter)
-                .Select(x => new ConceptDTO
+            List<ConceptDTO> conceptDtoList = [.. conceptialRelations
+                .Select(x =>  
                 {
-                    ConceptID = x.Concept.Id,
-                    ConceptName = x.Concept.ConceptName,
-                    Description = x.Concept.Description
+                    List<string> specs = [];
+                    if(x.Concept.GetRootConceptId() != x.Concept.Id)
+                    {
+                        specs.Add(stringLocalizer["RootConcept"] + ": " + x.Concept.RootConcept?.Name);
+                    }
+                    if(x.Concept.SubConceptList.Count > 0)
+                    {
+                        specs.Add(stringLocalizer["SubConcepts"] + ": " + string.Join(", ", x.Concept.SubConceptList.Select(sc => sc.Name)));
+                    }
+                    if(x.Concept.Description != null)
+                    {
+                        specs.Add(stringLocalizer["Description"] + ": " + x.Concept.Description);
+                    }
+
+                    return new ConceptDTO
+                    {
+                        ConceptID = x.Concept.Id,
+                        ConceptName = x.Concept.Name,
+                        FurtherSpecs = string.Join("; ", specs)
+                    };
                 })];
 
-            return Ok(conceptialRelations);
+            return Ok(conceptDtoList);
         }
 
         public class ConceptDTO
         {
             public int ConceptID { get; set; }
             public string? ConceptName { get; set; }
-            public string? Description { get; set; }
+            public string? FurtherSpecs { get; set; }
         }
 
-        [HttpPost("listPotentials")]
-        public IActionResult ListPotentials([FromBody] CollectionItemPotentialSearchDTO searchDTO)
+        [HttpPost("VoteTopic")]
+        public IActionResult VoteTopic([FromBody]VoteDTO voteDTO)
         {
-            try
+            if(voteDTO == null || voteDTO.TopicId <= 0)
             {
-                var searchParameter = new CollectionItemSearchParameterModel();
+                return BadRequest("Invalid topicId.");
+            }
 
-                if (searchDTO != null)
+            TopicVote? existingVote = unitOfWork.TopicVoteRepository.Get(
+                filter: tv => tv.UserId == userManager.GetUserId(User) && tv.TopicId == voteDTO.TopicId).FirstOrDefault();
+            if (existingVote != null)
+            {
+                if (Enum.Parse<VoteType>(voteDTO.VoteType) == existingVote.VoteType)
                 {
-                    if (searchDTO.PotentialID != null)
-                        searchParameter.CollectionItemEntityID = [searchDTO.PotentialID.Value];
-
-                    if (searchDTO.CollectionAreaID != null)
-                        searchParameter.CollectionAreaID = [searchDTO.CollectionAreaID.Value];
-
-                    if (searchDTO.UsingIdentityUsersID != null)
-                        searchParameter.UsingIdentityUsersID = [searchDTO.UsingIdentityUsersID];
+                    // If the same vote is cast again, remove the vote
+                    unitOfWork.TopicVoteRepository.Delete(existingVote);
                 }
-
-                List<CollectionItemPotential> potentials = processCollectionItemPotential.GetWithPredicates(searchParameter);
-
-                var collectionItemPotentialDTOList = potentials.Select(p =>
+                else
                 {
-                    // Hole das führende (Frontside) Bild direkt aus dem geladenen Include
-                    var leadingPicture = p.CollectionItemEntityList?
-                        .SelectMany(ci => ci.CollectionItemPictureList)
-                        .FirstOrDefault(pic => pic.Frontside);
-
-                    return new CollectionItemPotentialDTO
-                    {
-                        CollectionItemPotentialID = p.CollectionItemPotentialID,
-                        LeadingPictureID = leadingPicture?.CollectionItemPictureID ?? 0
-                    };
-                }).ToList();
-
-                return Ok(collectionItemPotentialDTOList);
+                    existingVote.VoteType = Enum.Parse<VoteType>(voteDTO.VoteType);
+                    existingVote.VotedAt = DateTime.UtcNow;
+                }
             }
-            catch (Exception ex)
+            else
             {
-                return StatusCode(500, ex.ToString());
+                unitOfWork.TopicVoteRepository.Insert(new TopicVote
+                {
+                    TopicId = voteDTO.TopicId,
+                    UserId = userManager.GetUserId(User) ?? throw new NullReferenceException(),
+                    VoteType = Enum.Parse<VoteType>(voteDTO.VoteType),
+                    VotedAt = DateTime.UtcNow
+                });
             }
+            unitOfWork.Save();
+
+            return Ok();
         }
 
-        public class CollectionItemPotentialSearchDTO
+        public class VoteDTO
         {
-            public int? PotentialID { get; set; }
-            public int? CollectionAreaID { get; set; }
-            public string? UsingIdentityUsersID { get; set; }
-        }
-        public class CollectionItemPotentialDTO
-        {
-            public int CollectionItemPotentialID { get; set; }
-            public int LeadingPictureID { get; set; }
+            public int TopicId { get; set; } 
+            public required string VoteType { get; set; } // not public VoteType VoteType { get; set; }, cause can't fill it correctly and than in VoteTopic voteDTO is null
         }
     }
 }

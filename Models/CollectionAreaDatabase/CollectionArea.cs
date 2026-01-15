@@ -1,9 +1,9 @@
 ﻿using Sammlerplattform.Resources;
 using Sammlerplattform.Models.CollectionItemDatabase;
-using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 
 namespace Sammlerplattform.Models.CollectionAreaDatabase
 {
@@ -14,12 +14,13 @@ namespace Sammlerplattform.Models.CollectionAreaDatabase
         [Display(Name = "CollectionAreaID", ResourceType = typeof(SharedResources))]
         public int CollectionAreaID { get; set; }
 
-        [Required]
+        [NotMapped]
+        [Required(ErrorMessageResourceName = "CollectionArea_Name_IsMissing", ErrorMessageResourceType = typeof(SharedResources))]
         [Display(Name = "CollectionAreaName", ResourceType = typeof(SharedResources))]
-        public required string CollectionAreaName { get; set; }
+        public string CollectionAreaName { get; set; } = string.Empty;
 
-        [Display(Name = "CollectionAttributeList", ResourceType = typeof(SharedResources))]
-        public List<CollectionAttribute> CollectionAttributeList { get; set; } = [];
+        [Display(Name = "WikipediaUrl", ResourceType = typeof(SharedResources))]
+        public string? WikipediaUrl { get; set; }
 
         [Display(Name = "CollectionItemEntityList", ResourceType = typeof(SharedResources))]
         public List<CollectionItemEntity> CollectionItemEntityList { get; set; } = [];
@@ -27,7 +28,7 @@ namespace Sammlerplattform.Models.CollectionAreaDatabase
         [Display(Name = "ConceptList", ResourceType = typeof(SharedResources))]
         public List<Concept> ConceptList { get; set; } = [];
 
-        [Display(Name = "StateList", ResourceType = typeof(SharedResources))]
-        public List<State> StateList { get; set; } = [];
+        [Display(Name = "StatePreservationList", ResourceType = typeof(SharedResources))]
+        public List<StatePreservation> StatePreservationList { get; set; } = [];
     }
 }

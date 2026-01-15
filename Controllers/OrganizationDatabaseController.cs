@@ -1,42 +1,43 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
-using Sammlerplattform.Models;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
-using Sammlerplattform.Resources;
+using Sammlerplattform.Services;
 using Sammlerplattform.Services.DatabaseProcesses.PartyProcesses;
 
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
-    public class OrganizationDatabaseController(IProcessOrganization processOrganization, IProcessParty processParty,
-        IStringLocalizer<SharedResources> stringLocalizer) : Controller
+    public class OrganizationDatabaseController(IProcessOrganization processOrganization
+        , IProcessParty processParty) : Controller
     {
-        public ActionResult Index(Status status, PartySearchParameterModel partySearchParameter)
+        [HandleStatus]
+        public ActionResult Index(PartySearchParameterModel partySearchParameter)
         {
-            HandleStatus(status);
             ViewData["Party"] = "Organization";
 
             List<Party> partyList = [.. processParty.GetListWithPredicate(partySearchParameter).Where(x => x.Organization != null)];
             return View(partyList);
         }
 
-        public ActionResult Create(Status status)
+        [HandleStatus]
+        public ActionResult Create()
         {
-            HandleStatus(status);
             return View();
         }
         public IActionResult CreateSubmit(OrganizationOperationParameterModel model)
         {
-            (int _, int _, string statusMessage) = processOrganization.CreateOrganization(model);
-            return RedirectToAction(nameof(Create), new { statusMessage });
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+            }
+            (int statusCode, string statusMessage, int _) = processOrganization.Insert(model);
+            return RedirectToAction(nameof(Index), new { statusMessage, statusCode });
         }
 
-        public ActionResult Edit(Status status, int id)
+        [HandleStatus]
+        public ActionResult Edit(int id)
         {
-            HandleStatus(status);
-
             Party? existingParty = processParty.GetListWithPredicate(new PartySearchParameterModel { PartyID = [id] }).FirstOrDefault();
             
 
@@ -52,17 +53,15 @@ namespace Sammlerplattform.Controllers
         }
         public IActionResult EditSubmit(OrganizationOperationParameterModel model)
         {
-            (int placeID, int _, string statusMessage) = processOrganization.EditOrganization(model);
-            return RedirectToAction(nameof(Edit), new { statusMessage, id = placeID });
-        }
-
-        private void HandleStatus(Status status)
-        {
-            if (!string.IsNullOrEmpty(status.Message))
+            if (!ModelState.IsValid)
             {
-                ViewData["StatusMessage"] = stringLocalizer[status.Message];
-                ViewData["StatusCode"] = status.Code;
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
             }
+            (int statusCode, string statusMessage, int id) = processOrganization.Update(model);
+            if (statusCode == 200)
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
+            else
+                return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
     }
 }

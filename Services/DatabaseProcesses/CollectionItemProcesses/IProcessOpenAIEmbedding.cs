@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
+﻿
 namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 {
     public interface IProcessOpenAIEmbedding

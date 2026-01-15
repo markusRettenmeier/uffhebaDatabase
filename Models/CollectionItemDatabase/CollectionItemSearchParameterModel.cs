@@ -26,16 +26,8 @@
         public int EndYear { get; set; }
         public List<string> Material { get; set; } = [];
         public List<string> UsingIdentityUser_UserName { get; set; } = [];
-        public List<int> CollectionItemPotential_CollectionItemPotentialID { get; set; } = [];
-        public List<string> CollectionItemPotential_Serialnumber { get; set; } = [];
         public List<string> Inscription { get; set; } = [];
         public List<string> Era_EraName { get; set; } = [];
-        public List<string> Era_EraShort { get; set; } = [];
-        public List<string> ProcessOfManufacture_Mainprocess { get; set; } = [];
-        public List<string> ProcessOfManufacture_ProcessOfManufactureName { get; set; } = [];
-        public List<string> ProcessOfManufacture_Technique { get; set; } = [];
-        public List<string> CollectionItemNMaterialList_Material_MaterialName { get; set; } = [];
-        public List<string> CollectionItemNKeywordList_Keyword { get; set; } = [];
         public List<string> CollectionItemEntityNPartyList_Party_PartyName { get; set; } = [];
         public List<string> CollectionItemEntityNPartyList_Party_PartyTypeInt { get; set; } = [];
         public List<string> CollectionItemEntityNPartyList_Party_Individual_Pseudonym { get; set; } = [];
@@ -52,6 +44,5 @@
         public string? SemanticSearchQuery { get; set; }
         public float? MinimumSimilarityScore { get; set; }
         public bool? UseHybridSearch { get; set; }
-
     }
 }

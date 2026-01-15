@@ -2,7 +2,7 @@
 {
     public class Status
     {
-        public string? Message { get; set; }
-        public int Code { get; set; }
+        public string? StatusMessage { get; set; }
+        public int StatusCode { get; set; }
     }
 }

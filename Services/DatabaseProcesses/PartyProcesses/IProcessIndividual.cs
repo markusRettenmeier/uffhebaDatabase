@@ -7,19 +7,26 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
 {
     public interface IProcessIndividual
     {
-        (int PartyID, int Statuscode, string StatusMessage) Create(IndividualOperationParameterModel individualOperationParameterModel);
-        (int PartyID, int Statuscode, string StatusMessage) Edit(IndividualOperationParameterModel individualOperationParameterModel);
+        (int Statuscode, string StatusMessage, int PartyID) Insert(IndividualOperationParameterModel individualOperationParameterModel);
+        (int Statuscode, string StatusMessage, int PartyID) Update(IndividualOperationParameterModel individualOperationParameterModel);
     }
-    public class IndividualProcessor(IProcessParty processParty, IUnitOfWork unitOfWork) : IProcessIndividual
+    public class IndividualProcessor(IProcessParty processParty
+        , IUnitOfWork unitOfWork
+        , ITrackEvents trackEvents) : IProcessIndividual
     {
-        public (int PartyID, int Statuscode, string StatusMessage) Create(IndividualOperationParameterModel individualOperationParameterModel)
+        public (int Statuscode, string StatusMessage, int PartyID) Insert(IndividualOperationParameterModel individualOperationParameterModel)
         {
             if (string.IsNullOrWhiteSpace(individualOperationParameterModel.Party.PartyName))
             {
-                return (0, 412, "Error_PartyName_Missing");
+                trackEvents.TrackWarning("IndividualProcessor.Create: PartyName is missing.", new Dictionary<string, object>
+                {
+                    { "Party", individualOperationParameterModel.Party},
+                    { "Individual", individualOperationParameterModel.Individual }
+                });
+                return (412, "Error_Party_NameMissing", 0);
             }
 
-            (bool flowControl, (int PartyID, int Statuscode, string StatusMessage) value) = IsPlaceExistingProcessCreate(individualOperationParameterModel);
+            (bool flowControl, (int Statuscode, string StatusMessage, int PartyID) value) = IsPlaceExistingProcessCreate(individualOperationParameterModel);
             if (!flowControl)
             {
                 return value;
@@ -34,22 +41,27 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
                     Party = individualOperationParameterModel.Party,
                     PlaceList = individualOperationParameterModel.PlaceList
                 };
-                Party newParty = processParty.CreateParty(partyOperationParameterModel).Party;
+                Party newParty = processParty.Insert(partyOperationParameterModel).Party;
 
                 individualOperationParameterModel.Individual.PartyID = newParty.PartyID;
                 Individual newIndividual = unitOfWork.IndividualRepository.Insert(individualOperationParameterModel.Individual);
                 unitOfWork.Save();
 
                 scope.Complete();
-                return (newIndividual.PartyID, 201, "Success_Individual_Created");
+                return (201, "Success_Individual_Created", newIndividual.PartyID);
             }
             catch (Exception ex)
             {
-                return (0, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "IndividualProcessor.Create: Exception occurred.", new Dictionary<string, object>
+                {
+                    { "Party", individualOperationParameterModel.Party},
+                    { "Individual", individualOperationParameterModel.Individual }
+                });
+                return (500, "Error_Error_Ocurred", 0);
             }
         }
 
-        private (bool flowControl, (int PartyID, int Statuscode, string StatusMessage) value) IsPlaceExistingProcessCreate(IndividualOperationParameterModel individualOperationParameterModel)
+        private (bool flowControl, (int Statuscode, string StatusMessage, int PartyID) value) IsPlaceExistingProcessCreate(IndividualOperationParameterModel individualOperationParameterModel)
         {
             PartySearchParameterModel partySearchParameterModel = new()
             {
@@ -63,21 +75,36 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
             Party? existingParty = processParty.GetListWithPredicate(partySearchParameterModel).FirstOrDefault();
             if (existingParty != null)
             {
-                return (flowControl: false, value: (0, 409, "Error_Party_Exists"));
+                trackEvents.TrackWarning("IndividualProcessor.Create: Individual already exists.", new Dictionary<string, object>
+                {
+                    { "Party", individualOperationParameterModel.Party},
+                    { "Individual", individualOperationParameterModel.Individual }
+                });
+                return (flowControl: false, value: (409, "Error_Party_Exists", 0));
             }
 
             return (flowControl: true, value: default);
         }
 
-        public (int PartyID, int Statuscode, string StatusMessage) Edit(IndividualOperationParameterModel individualOperationParameterModel)
+        public (int Statuscode, string StatusMessage, int PartyID) Update(IndividualOperationParameterModel individualOperationParameterModel)
         {
             if (individualOperationParameterModel.Party.PartyID <= 0)
             {
-                return (0, 412, "Error_PartyID_Missing");
+                trackEvents.TrackWarning("IndividualProcessor.Edit: PartyID is missing or invalid.", new Dictionary<string, object>
+                {
+                    { "Party", individualOperationParameterModel.Party },
+                    { "Individual", individualOperationParameterModel.Individual }
+                });
+                return (412, "Error_PartyID_Missing", 0);
             }
             if (string.IsNullOrWhiteSpace(individualOperationParameterModel.Party.PartyName))
             {
-                return (0, 412, "Error_PartyName_Missing");
+                trackEvents.TrackWarning("IndividualProcessor.Edit: PartyName is missing.", new Dictionary<string, object>
+                {
+                    { "Party", individualOperationParameterModel.Party },
+                    { "Individual", individualOperationParameterModel.Individual }
+                });
+                return (412, "Error_Party_NameMissing", 0);
             }
 
             Individual? individualToEdit = processParty.GetListWithPredicate(
@@ -85,7 +112,12 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
                 ).FirstOrDefault()?.Individual;
             if (individualToEdit == null)
             {
-                return (0, 404, "Error_Individual_NotFound");
+                trackEvents.TrackWarning("IndividualProcessor.Edit: Individual not found.", new Dictionary<string, object>
+                {
+                    { "Party", individualOperationParameterModel.Party },
+                    { "Individual", individualOperationParameterModel.Individual }
+                });
+                return (404, "Error_Individual_NotFound", 0);
             }
 
             try
@@ -105,14 +137,19 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
                     Party = individualOperationParameterModel.Party,
                     PlaceList = individualOperationParameterModel.PlaceList
                 };
-                Party editedParty = processParty.EditParty(partyOperationParameterModel).Party;
+                Party editedParty = processParty.Update(partyOperationParameterModel).Party;
 
                 scope.Complete();
-                return (editedParty.PartyID, 200, "Success_Individual_Updated");
+                return (200, "Success_Individual_Updated", editedParty.PartyID);
             }
             catch (Exception ex)
             {
-                return (0, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "IndividualProcessor.Edit: Exception occurred.", new Dictionary<string, object>
+                {
+                    { "Party", individualOperationParameterModel.Party },
+                    { "Individual", individualOperationParameterModel.Individual }
+                });
+                return (500, "Error_Error_Ocurred", 0);
             }
         }
     }

@@ -3,103 +3,159 @@ using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Services.Translation;
+using System.Transactions;
 
 namespace Sammlerplattform.Services.DatabaseProcesses
 {
     public interface IProcessEra
     {
         List<Era> GetWithPredicates(EraSearchParameterModel eraSearchParameter);
-        (Era era, int statuscode, string message) Create(EraOperationParameterModel eraOperationParameterModel);
-        (Era era, int statuscode, string message) Edit(EraOperationParameterModel eraOperationParameterModel);
+        (int statuscode, string message, int EraId) Insert(Era era);
+        (int statuscode, string message, int EraId) Update(Era era);
     }
     public class EraProcessor(IUnitOfWork unitOfWork,
-        DeeplTranslationService translationService,
+        IDeeplTranslationService translationService,
         IProcessTranslations processTranslations,
-        ITranslationStore translationStore) : IProcessEra
+        ITranslationStore translationStore,
+        ITrackEvents trackEvents) : IProcessEra
     {
-        public (Era, int, string) Create(EraOperationParameterModel eraOperationParameterModel)
+        public (int statuscode, string message, int EraId) Insert(Era era)
         {
-            if (string.IsNullOrEmpty(eraOperationParameterModel.Era.EraName))
+            if (string.IsNullOrEmpty(era.EraName))
             {
-                return (eraOperationParameterModel.Era, 404, "Error_EraName_Missing");
+                trackEvents.TrackWarning("EraProcessor.Create: EraName is missing.", new Dictionary<string, object>
+                {
+                    { "Era", era}
+                });
+                return (404, "Error_EraName_Missing", 0);
             }
 
-            EraSearchParameterModel searchParameterModel = new() { EraName = [eraOperationParameterModel.Era.EraName] };
-            List<int> entityIdList = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter
+            EraSearchParameterModel searchParameterModel = new() 
             {
-                EntityType = [nameof(Toponymy)],
-                TranslatedText = [eraOperationParameterModel.Era.EraName]
-            }).Select(x => x.EntityId).Distinct()];
-            if(entityIdList.Count > 0)
+                EraID = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter
+                {
+                    EntityType = [nameof(Era)],
+                    TranslatedText = [era.EraName]
+                }).Select(x => x.EntityId).Distinct()]
+            };
+            if(searchParameterModel.EraID.Count > 0)
             {
-                searchParameterModel.EraID = entityIdList;
-            }
-            Era? existingEra = GetWithPredicates(searchParameterModel).FirstOrDefault();
-            if (existingEra != null)
-            {
-                return (existingEra, 303, "Error_Era_Exists");
+                trackEvents.TrackWarning("EraProcessor.Create: Era already exists.", new Dictionary<string, object>
+                {
+                    { "Era",era}
+                });
+                return (303, "Error_Era_Exists", era.EraID);
             }
             
             try
             {
-                Era newEra = new() { EraName = translationService.SetIntoFallbackLanguage(eraOperationParameterModel.Era.EraName) };
-                if (string.IsNullOrEmpty(eraOperationParameterModel.Era.EraShort))
-                {
-                    newEra.EraShort = eraOperationParameterModel.Era.EraShort;
-                }
-
-                newEra = unitOfWork.EraRepository.Insert(newEra);
+                TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+                Era newEra = unitOfWork.EraRepository.Insert(era);
                 unitOfWork.Save();
 
-                processTranslations.Create(
+                processTranslations.Insert(
                     new EntityTranslation
                     {
                         EntityType = nameof(Era),
                         EntityId = newEra.EraID,
-                        FieldName = nameof(newEra.EraName),
-                        TranslatedText = eraOperationParameterModel.Era.EraName,
+                        FieldName = nameof(era.EraName),
+                        TranslatedText = era.EraName,
                         Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
                     },
-                    eraOperationParameterModel.Era.EraName);
+                    era.EraName);
 
-                return (newEra, 201, "Success_Era_Created");
+                transactionScope.Complete();
+                return (201, "Success_Era_Created", newEra.EraID);
             }
             catch (Exception ex)
             {
-                return (eraOperationParameterModel.Era, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "EraProcessor.Create: Exception occurred while creating Era.", new Dictionary<string, object>
+                {
+                    { "Era", era}
+                });
+                return (500, "Error_Error_Ocurred", 0);
             }
         }
 
-        public (Era era, int statuscode, string message) Edit(EraOperationParameterModel eraOperationParameterModel)
+        public (int statuscode, string message, int EraId) Update(Era era)
         {
-            if (eraOperationParameterModel.Era.EraID <= 0)
+            if (era.EraID <= 0)
             {
-                return (eraOperationParameterModel.Era, 404, "Error_Era_IdMissing");
+                trackEvents.TrackWarning("EraProcessor.Edit: EraID is missing or invalid.", new Dictionary<string, object>
+                {
+                    { "Era", era}
+                });
+                return (404, "Error_Era_IdMissing", 0);
             }
-            if (string.IsNullOrEmpty(eraOperationParameterModel.Era.EraName))
+            if (string.IsNullOrEmpty(era.EraName))
             {
-                return (eraOperationParameterModel.Era, 404, "Error_EraName_Missing");
+                trackEvents.TrackWarning("EraProcessor.Edit: EraName is missing.", new Dictionary<string, object>
+                {
+                    { "Era", era}
+                });
+                return (404, "Error_EraName_Missing", 0);
             }
 
             Era? existingEra = (from e in unitOfWork.EraRepository.Get()
-                                select e).Where(x => x.EraID == eraOperationParameterModel.Era.EraID).FirstOrDefault();
+                                select e).Where(x => x.EraID == era.EraID).FirstOrDefault();
             if (existingEra == null)
             {
-                return (eraOperationParameterModel.Era, 404, "Error_Era_NotFound");
+                trackEvents.TrackWarning("EraProcessor.Edit: Era not found.", new Dictionary<string, object>
+                {
+                    { "Era", era}
+                });
+                return (404, "Error_Era_NotFound", 0);
             }
 
-            string eraNameEnglish = translationService.SetIntoFallbackLanguage(eraOperationParameterModel.Era.EraName);
-            if (existingEra.EraName != null &&
-                !existingEra.EraName.Equals(eraNameEnglish))
+            try
             {
-                existingEra.EraName = translationService.SetIntoFallbackLanguage(eraOperationParameterModel.Era.EraName);
+                using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+                bool isChanged = false;
+                if(existingEra.StartYear != era.StartYear)
+                {
+                    existingEra.StartYear = era.StartYear;
+                    isChanged = true;
+                }
+                if(existingEra.EndYear != era.EndYear)
+                {
+                    existingEra.EndYear = era.EndYear;
+                    isChanged = true;
+                }
+                if(existingEra.EraName != era.EraName)
+                {
+                    processTranslations.Update(
+                        new EntityTranslation
+                        {
+                            EntityType = nameof(Era),
+                            EntityId = existingEra.EraID,
+                            FieldName = nameof(era.EraName),
+                            TranslatedText = era.EraName,
+                            Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
+                        },
+                        era.EraName);
+                    isChanged = true;
+                }
+                if(existingEra.WikipediaUrl != era.WikipediaUrl)
+                {
+                    existingEra.WikipediaUrl = era.WikipediaUrl;
+                    isChanged = true;
+                }
+                if (isChanged)
+                {
+                    unitOfWork.Save();
+                }
+
+                transactionScope.Complete();
+                return (200, "Success_Era_Updated", existingEra.EraID);
             }
-            if(existingEra.EraShort != eraOperationParameterModel.Era.EraShort) 
-            { 
-                existingEra.EraShort = eraOperationParameterModel.Era.EraShort;
+            catch (Exception ex)
+            {
+                trackEvents.TrackException(ex, "EraProcessor.Edit: Exception occurred while editing Era.", new Dictionary<string, object>
+                {
+                    { "Era", era}
+                });
+                return (500, "Error_Error_Ocurred", 0);
             }
-            unitOfWork.Save();
-            return (existingEra, 200, "Success_Era_Updated");
         }
 
         public List<Era> GetWithPredicates(EraSearchParameterModel eraSearchParameter)

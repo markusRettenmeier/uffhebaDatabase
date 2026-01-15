@@ -52,7 +52,7 @@ namespace Sammlerplattform.Services
             // Überprüfen ob Ordner Inhalte hat bevor ZIP erstellt wird
             if (!Directory.EnumerateFileSystemEntries(downloadFolder).Any())
             {
-                throw new InvalidOperationException("Download folder is empty - no data to zip");
+                return new MemoryStream();
             }
 
             ZipFile.CreateFromDirectory(downloadFolder, zipFile);
@@ -101,23 +101,14 @@ namespace Sammlerplattform.Services
                     EndYear = operationParameterModel.CollectionItemEntity.EndYear,
                     IsApproximate = operationParameterModel.CollectionItemEntity.IsApproximate,
                     Comment = operationParameterModel.CollectionItemEntity.Comment,
-                    Condition = operationParameterModel.CollectionItemEntity.State?.StateName,
-                    Colors = operationParameterModel.CollectionItemEntity.CollectionItemNColorList?
-                        .Where(c => c.Color != null)
-                        .Select(c => c.Color.Name)
-                        .ToList(),
-                    Materials = operationParameterModel.CollectionItemEntity.CollectionItemNMaterialList?
-                        .Where(m => m.Material != null)
-                        .Select(m => m.Material.MaterialName)
-                        .ToList(),
+                    Condition = operationParameterModel.CollectionItemEntity.StatePreservation?.StatePreservationName,
                     Parties = operationParameterModel.CollectionItemEntity.CollectionItemNPartyList?
                         .ToDictionary(p => p.Relationship, p => p.Party.PartyName),
                     Places = operationParameterModel.CollectionItemEntity.CollectionItemNPlaceList?
                         .Select(pl => pl.Place.PlaceNToponymyList?.FirstOrDefault()?.Toponymy?.ToponymyName)
                         .Where(name => !string.IsNullOrEmpty(name))
                         .ToList(),
-                    ProcessOfManufacture = operationParameterModel.CollectionItemEntity.ProcessOfManufacture?.ProcessOfManufactureName,
-                    Concept = operationParameterModel.CollectionItemEntity.Concept?.ConceptName,
+                    Concept = operationParameterModel.CollectionItemEntity.Concept?.Name,
                     Era = operationParameterModel.CollectionItemEntity.Era?.EraName
                 }
             };
@@ -168,7 +159,6 @@ namespace Sammlerplattform.Services
             public List<string>? Materials { get; set; }
             public Dictionary<string, string>? Parties { get; set; }
             public List<string?>? Places { get; set; }
-            public string? ProcessOfManufacture { get; set; }
             public string? Concept { get; set; }
             public string? Era { get; set; }
         }

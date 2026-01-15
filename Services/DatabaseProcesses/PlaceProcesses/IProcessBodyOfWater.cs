@@ -1,29 +1,34 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase;
-using Sammlerplattform.Services.Translation;
 using System.Transactions;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
 {
     public interface IProcessBodyOfWater
     {
-        (int PlaceID, int Statuscode, string Message) Create(BodyOfWaterOperationParameterModel operationParameterModel);
-        (int PlaceID, int Statuscode, string Message) Edit(BodyOfWaterOperationParameterModel operationParameterModel);
+        (int Statuscode, string Message, int PlaceID) Create(BodyOfWaterOperationParameterModel operationParameterModel);
+        (int Statuscode, string Message, int PlaceID) Edit(BodyOfWaterOperationParameterModel operationParameterModel);
         void DeleteBodyOfWater(int bodyOfWaterID);
     }
     public class BodyOfWaterProcessor(IProcessPlace processPlace,
                                       IUnitOfWork unitOfWork, 
-                                      IProcessTranslations processTranslations) : IProcessBodyOfWater
+                                      IProcessTranslations processTranslations,
+                                      ITrackEvents trackEvents) : IProcessBodyOfWater
     {
-        public (int PlaceID, int Statuscode, string Message) Create(BodyOfWaterOperationParameterModel operationParameterModel)
+        public (int Statuscode, string Message, int PlaceID) Create(BodyOfWaterOperationParameterModel operationParameterModel)
         {
             if (operationParameterModel.PlaceNToponymyList == null ||
                 !operationParameterModel.PlaceNToponymyList.Any(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
-                return (0, 412, "Error_PlaceName_Missing");
+                trackEvents.TrackWarning("BodyOfWaterProcessor.Create: PlaceName is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "BodyOfWater", operationParameterModel.BodyOfWater}
+                });
+                return (412, "Error_PlaceName_Missing", 0);
             }
-            (bool flowControl, (int PlaceID, int Statuscode, string Message) value) = IsPlaceExistingProcessCreate(operationParameterModel);
+            (bool flowControl, (int Statuscode, string Message, int PlaceID) value) = IsPlaceExistingProcessCreate(operationParameterModel);
             if (!flowControl)
             {
                 return value;
@@ -39,41 +44,55 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                (Place Place, int Statuscode, string Message) newPlace = processPlace.Create(placeOperationParameter);
+                (int Statuscode, string Message, Place Place) newPlace = processPlace.Insert(placeOperationParameter);
 
                 operationParameterModel.BodyOfWater.PlaceID = newPlace.Place.PlaceID;
                 BodyOfWater newBodyOfWater = unitOfWork.BodyOfWaterRepository.Insert(operationParameterModel.BodyOfWater);
                 unitOfWork.Save();
 
                 transactionScope.Complete();
-                return (newBodyOfWater.PlaceID, 201, "Success_Place_Created");
+                return (201, "Success_Place_Created", newBodyOfWater.PlaceID);
             }
             catch (Exception ex)
             {
-                //logger.LogError("Fehler beim Hinzufügen der Gewässer: {ex}", ex);
-                return (0, 500, "Error_Error_Ocurred");
+
+                trackEvents.TrackException(ex, "BodyOfWaterProcessor.Create: Error occurred while creating BodyOfWater.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "PlaceNToponymyList", operationParameterModel.PlaceNToponymyList},
+                    { "Toponymy", operationParameterModel.PlaceNToponymyList.Select(x => x.Toponymy)},
+                    { "BodyOfWater", operationParameterModel.BodyOfWater}
+                });
+                return (500, "Error_Error_Ocurred", 0);
             }
         }
-        private (bool flowControl, (int PlaceID, int Statuscode, string Message) value) IsPlaceExistingProcessCreate(BodyOfWaterOperationParameterModel operationParameterModel)
+        private (bool flowControl, (int Statuscode, string Message, int PlaceID) value) IsPlaceExistingProcessCreate(BodyOfWaterOperationParameterModel operationParameterModel)
         {
-            PlaceSearchParameter placeSearchParameter = new()
+            PlaceSearchParameterModel placeSearchParameter = new()
             {
                 PlaceNToponymyList_Toponymy_ToponymyName = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)],
-                ToponymyTypeInt = [operationParameterModel.Place.ToponymyTypeInt]
+                ToponymyTypeInt = [operationParameterModel.Place.ToponymyTypeInt],
+                PlaceNToponymyList_Toponymy_ToponymyID = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
+                    {
+                        EntityType = [nameof(Toponymy)],
+                        TranslatedText = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)]
+                    }).Select(x => x.EntityId)]
             };
-            List<int> entityIdList = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
+            if (placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID.Count == 0)
             {
-                EntityType = [nameof(Toponymy)],
-                TranslatedText = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)]
-            }).Select(x => x.EntityId)];
-            if (entityIdList.Count > 0)
-            {
-                placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID = entityIdList;
+                placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID = [0];
             }
             Place? placeExists = processPlace.GetListWithPredicate(placeSearchParameter).FirstOrDefault();
             if (placeExists != null)
             {
-                return (flowControl: false, value: (placeExists.PlaceID, 409, "Error_Place_Exists"));
+                trackEvents.TrackWarning("BodyOfWaterProcessor.Create: Place already exists.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "PlaceNToponymyList", operationParameterModel.PlaceNToponymyList},
+                    { "Toponymy", operationParameterModel.PlaceNToponymyList.Select(x => x.Toponymy)},
+                    { "BodyOfWater", operationParameterModel.BodyOfWater}
+                });
+                return (flowControl: false, value: (409, "Error_Place_Exists", placeExists.PlaceID));
             }
 
             return (flowControl: true, value: default);
@@ -84,24 +103,41 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
             throw new NotImplementedException();
         }
 
-        public (int PlaceID, int Statuscode, string Message) Edit(BodyOfWaterOperationParameterModel operationParameterModel)
+        public (int Statuscode, string Message, int PlaceID) Edit(BodyOfWaterOperationParameterModel operationParameterModel)
         {
             if (operationParameterModel.Place.PlaceID == 0)
             {
-                return (new(), 412, "Error_PlaceID_Missing");
+                trackEvents.TrackWarning("BodyOfWaterProcessor.Edit: PlaceID is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "BodyOfWater", operationParameterModel.BodyOfWater}
+                });
+                return (412, "Error_PlaceID_Missing", new());
             }
             if (operationParameterModel.PlaceNToponymyList == null ||
                 !operationParameterModel.PlaceNToponymyList.Any(x => x.Toponymy != null && !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
-                return (operationParameterModel.Place.PlaceID, 412, "Error_PlaceName_Missing");
+                trackEvents.TrackWarning("BodyOfWaterProcessor.Edit: PlaceName is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "BodyOfWater", operationParameterModel.BodyOfWater}
+                });
+                return (412, "Error_PlaceName_Missing", operationParameterModel.Place.PlaceID);
             }
 
             BodyOfWater? existingBodyOfWater = processPlace
-                .GetListWithPredicate(new PlaceSearchParameter { PlaceID = [operationParameterModel.Place.PlaceID] })
+                .GetListWithPredicate(new PlaceSearchParameterModel { PlaceID = [operationParameterModel.Place.PlaceID] })
                 .FirstOrDefault()?.BodyOfWater;
             if (existingBodyOfWater == null)
             {
-                return (0, 404, "Error_Place_NotFound");
+                trackEvents.TrackWarning("BodyOfWaterProcessor.Edit: BodyOfWater not found.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "PlaceNToponymyList", operationParameterModel.PlaceNToponymyList},
+                    { "Toponymy", operationParameterModel.PlaceNToponymyList.Select(x => x.Toponymy)},
+                    { "BodyOfWater", operationParameterModel.BodyOfWater}
+                });
+                return (404, "Error_Place_NotFound", 0);
             }
 
             try
@@ -114,15 +150,21 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                _ = processPlace.Edit(placeOperationParameterModel);
+                _ = processPlace.Update(placeOperationParameterModel);
 
                 transactionScope.Complete();
-                return (existingBodyOfWater.PlaceID, 200, "Success_Place_Updated");
+                return (200, "Success_Place_Updated", existingBodyOfWater.PlaceID);
             }
             catch (Exception ex)
             {
-                //logger.LogError("Fehler beim Aktualisieren der Gewässer: {ex}", ex);
-                return (existingBodyOfWater.PlaceID, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "BodyOfWaterProcessor.Edit: Error occurred while editing BodyOfWater.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "PlaceNToponymyList", operationParameterModel.PlaceNToponymyList},
+                    { "Toponymy", operationParameterModel.PlaceNToponymyList.Select(x => x.Toponymy)},
+                    { "BodyOfWater", operationParameterModel.BodyOfWater}
+                });
+                return (500, "Error_Error_Ocurred", existingBodyOfWater.PlaceID);
             }
         }
     }

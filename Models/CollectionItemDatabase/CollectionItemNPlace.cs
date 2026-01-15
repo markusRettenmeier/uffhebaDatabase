@@ -16,15 +16,11 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         public int? CollectionItemEntityID { get; set; }
         [Display(Name = "CollectionItemEntity", ResourceType = typeof(SharedResources))]
         public CollectionItemEntity? CollectionItemEntity { get; set; }
-        [Display(Name = "CollectionItemPotentialID", ResourceType = typeof(SharedResources))]
-        public int? CollectionItemPotentialID { get; set; }
-        [Display(Name = "CollectionItemPotential", ResourceType = typeof(SharedResources))]
-        public CollectionItemPotential? CollectionItemPotential { get; set; }
         [Display(Name = "PlaceID", ResourceType = typeof(SharedResources))]
         public int PlaceID { get; set; }
         [Display(Name = "Place", ResourceType = typeof(SharedResources))]
         public Place Place { get; set; } = null!;
         [Display(Name = "Relationship", ResourceType = typeof(SharedResources))]
-        public string? Relationship { get; set; }
+        public required string Relationship { get; set; }
     }
 }

@@ -13,7 +13,7 @@ namespace Sammlerplattform.Models.PlaceDatabase.SettlementDatabase
 
         [Required]
         [StringLength(5)]
-        [Display(Name = "PostalcodeNumber", ResourceType = typeof(SharedResources))]
+        [Display(Name = "Postalcode", ResourceType = typeof(SharedResources))]
         public required string PostalcodeNumber { get; set; }
         [Display(Name = "SettlementNPostalcodeList", ResourceType = typeof(SharedResources))]
         public List<SettlementNPostalcode> SettlementNPostalcodeList { get; set; } = [];

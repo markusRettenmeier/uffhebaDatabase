@@ -1,45 +1,45 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BuildingDatabase;
-using Sammlerplattform.Resources;
+using Sammlerplattform.Services;
 using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
 
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
-    public class BuildingDatabaseController(IProcessPlace processPlace, IProcessBuilding processBuilding,
-            IStringLocalizer<SharedResources> stringLocalizer) : Controller
+    public class BuildingDatabaseController(IProcessPlace processPlace, IProcessBuilding processBuilding) : Controller
     {
-        public ActionResult Index(Status status, PlaceSearchParameter placeSearchParameter)
+        [HandleStatus]
+        public ActionResult Index(PlaceSearchParameterModel placeSearchParameter)
         {
-            HandleStatus(status);
-
             List<Place> placeList = [.. processPlace
                 .GetListWithPredicate(placeSearchParameter).Where(x => x.Building != null)];
             return View(placeList);
         }
 
-        public ActionResult Create(Status status)
+        [HandleStatus]
+        public ActionResult Create()
         {
-            HandleStatus(status);
-
             return View();
         }
         public IActionResult CreateSubmit(BuildingOperationParameterModel operationParameterModel)
         {
-            (int _, int statusCode, string statusMessage) = processBuilding.CreateBuilding(operationParameterModel);
-                return RedirectToAction(nameof(Index), new { statusMessage });                    
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+            }
+
+            (int statusCode, string statusMessage, int _) = processBuilding.Insert(operationParameterModel);
+            return RedirectToAction(nameof(Index), new { statusMessage, statusCode });                    
         }
 
-        public ActionResult Edit(Status status, int id)
+        [HandleStatus]
+        public ActionResult Edit(int id)
         {
-            HandleStatus(status);
-
             Place? existingPlace = processPlace
-                .GetListWithPredicate(new PlaceSearchParameter { PlaceID = [id] }).FirstOrDefault();
+                .GetListWithPredicate(new PlaceSearchParameterModel { PlaceID = [id] }).FirstOrDefault();
 
             return existingPlace == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Place_NotFound" })
@@ -53,17 +53,16 @@ namespace Sammlerplattform.Controllers
         }
         public IActionResult EditSubmit(BuildingOperationParameterModel model)
         {
-            (int placeID, int statusCode, string statusMessage) = processBuilding.EditBuilding(model);
-            return RedirectToAction(nameof(Edit), new { statusMessage, id = placeID });
-        }
-
-        private void HandleStatus(Status status)
-        {
-            if (!string.IsNullOrEmpty(status.Message))
+            if (!ModelState.IsValid)
             {
-                ViewData["StatusMessage"] = stringLocalizer[status.Message];
-                ViewData["StatusCode"] = status.Code;
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
             }
+
+            (int statusCode, string statusMessage, int id) = processBuilding.Update(model);
+            if (statusCode == 200)
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
+            else
+                return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
     }
 }

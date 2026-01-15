@@ -8,24 +8,30 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
 {
     public interface IProcessRegion
     {
-        (int PlaceID, int Statuscode, string Message) CreateRegion(RegionOperationParameterModel operationParameterModel);
-        (int PlaceID, int Statuscode, string Message) EditRegion(RegionOperationParameterModel operationParameterModel);
+        (int Statuscode, string Message, int PlaceID) Insert(RegionOperationParameterModel operationParameterModel);
+        (int Statuscode, string Message, int PlaceID) Update(RegionOperationParameterModel operationParameterModel);
         void DeleteRegion(int regionID);
     }
 
     public class RegionProcessor(IProcessPlace processPlace,
                                 IUnitOfWork unitOfWork,
-                                IProcessTranslations processTranslations) : IProcessRegion
+                                IProcessTranslations processTranslations,
+                                ITrackEvents trackEvents) : IProcessRegion
     {
-        public (int PlaceID, int Statuscode, string Message) CreateRegion(RegionOperationParameterModel operationParameterModel)
+        public (int Statuscode, string Message, int PlaceID) Insert(RegionOperationParameterModel operationParameterModel)
         {
             if (operationParameterModel.PlaceNToponymyList == null ||
                 !operationParameterModel.PlaceNToponymyList.Any(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
-                return (0, 412, "Error_PlaceName_Missing");
+                trackEvents.TrackWarning("RegionProcessor.CreateRegion: PlaceName is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "Region", operationParameterModel.Region}
+                });
+                return (412, "Error_PlaceName_Missing", 0);
             }
 
-            (bool flowControl, (int PlaceID, int Statuscode, string Message) value) = IsPlaceExistingProcessCreate(operationParameterModel);
+            (bool flowControl, (int Statuscode, string Message, int PlaceID) value) = IsPlaceExistingProcessCreate(operationParameterModel);
             if (!flowControl)
             {
                 return value;
@@ -41,41 +47,50 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                (Place Place, int Statuscode, string Message) newPlace = processPlace.Create(placeOperationParameter);
+                (int Statuscode, string Message, Place Place) newPlace = processPlace.Insert(placeOperationParameter);
 
                 operationParameterModel.Region.PlaceID = newPlace.Place.PlaceID;
                 Region newRegion = unitOfWork.RegionRepository.Insert(operationParameterModel.Region);
                 unitOfWork.Save();
 
                 transactionScope.Complete();
-                return (newRegion.PlaceID, 201, "Success_Place_Created");
+                return (201, "Success_Place_Created", newRegion.PlaceID);
             }
             catch (Exception ex)
             {
-                //logger.LogError("Fehler beim Hinzufügen der Gewässer: {ex}", ex);
-                return (0, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "RegionProcessor.CreateRegion: Error occurred while creating region.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "Region", operationParameterModel.Region}
+                });
+                return (500, "Error_Error_Ocurred", 0);
             }
         }
-        private (bool flowControl, (int PlaceID, int Statuscode, string Message) value) IsPlaceExistingProcessCreate(RegionOperationParameterModel operationParameterModel)
+        private (bool flowControl, (int Statuscode, string Message, int PlaceID) value) IsPlaceExistingProcessCreate(RegionOperationParameterModel operationParameterModel)
         {
-            PlaceSearchParameter placeSearchParameter = new()
+            PlaceSearchParameterModel placeSearchParameter = new()
             {
                 PlaceNToponymyList_Toponymy_ToponymyName = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)],
                 ToponymyTypeInt = [operationParameterModel.Place.ToponymyTypeInt],
+                PlaceNToponymyList_Toponymy_ToponymyID = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
+                    {
+                        EntityType = [nameof(Toponymy)],
+                        TranslatedText = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)]
+                    }).Select(x => x.EntityId)]
             };
-            List<int> entityIdList = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
+            if (placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID.Count == 0)
             {
-                EntityType = [nameof(Toponymy)],
-                TranslatedText = [.. operationParameterModel.PlaceNToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)).Select(p => p.Toponymy.ToponymyName)]
-            }).Select(x => x.EntityId)];
-            if (entityIdList.Count > 0)
-            {
-                placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID = entityIdList;
+                placeSearchParameter.PlaceNToponymyList_Toponymy_ToponymyID = [0];
             }
             Place? placeExists = processPlace.GetListWithPredicate(placeSearchParameter).FirstOrDefault();
             if (placeExists != null)
             {
-                return (flowControl: false, value: (placeExists.PlaceID, 409, "Error_Place_Exists"));
+                trackEvents.TrackWarning("RegionProcessor.IsPlaceExistingProcessCreate: Place already exists.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "Region", operationParameterModel.Region}
+                });
+                return (flowControl: false, value: (409, "Error_Place_Exists", placeExists.PlaceID));
             }
 
             return (flowControl: true, value: default);
@@ -87,22 +102,37 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
             throw new NotImplementedException();
         }
 
-        public (int PlaceID, int Statuscode, string Message) EditRegion(RegionOperationParameterModel operationParameterModel)
+        public (int Statuscode, string Message, int PlaceID) Update(RegionOperationParameterModel operationParameterModel)
         {
             if (operationParameterModel.Place.PlaceID == 0)
             {
-                return (new(), 412, "Error_PlaceID_Missing");
+                trackEvents.TrackWarning("RegionProcessor.EditRegion: PlaceID is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "Region", operationParameterModel.Region}
+                });
+                return (412, "Error_PlaceID_Missing", new());
             }
             if (operationParameterModel.PlaceNToponymyList == null ||
                 !operationParameterModel.PlaceNToponymyList.Any(x => x.Toponymy != null && !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
             {
-                return (operationParameterModel.Place.PlaceID, 412, "Error_PlaceName_Missing");
+                trackEvents.TrackWarning("RegionProcessor.EditRegion: PlaceName is missing.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "Region", operationParameterModel.Region}
+                });
+                return (412, "Error_PlaceName_Missing", operationParameterModel.Place.PlaceID);
             }
 
-            Region? existingRegion = processPlace.GetListWithPredicate(new PlaceSearchParameter { PlaceID = [operationParameterModel.Place.PlaceID] }).FirstOrDefault()?.Region;
+            Region? existingRegion = processPlace.GetListWithPredicate(new PlaceSearchParameterModel { PlaceID = [operationParameterModel.Place.PlaceID] }).FirstOrDefault()?.Region;
             if (existingRegion == null)
             {
-                return (0, 404, "Error_Place_NotFound");
+                trackEvents.TrackWarning("RegionProcessor.EditRegion: Region not found.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "Region", operationParameterModel.Region}
+                });
+                return (404, "Error_Place_NotFound", 0);
             }
 
             try
@@ -115,15 +145,19 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     PlaceNToponymyList = operationParameterModel.PlaceNToponymyList,
                     ChildPlaceList = operationParameterModel.ChildPlaceList
                 };
-                _ = processPlace.Edit(placeOperationParameterModel);
+                _ = processPlace.Update(placeOperationParameterModel);
 
                 transactionScope.Complete();
-                return (existingRegion.PlaceID, 200, "Success_Place_Updated");
+                return (200, "Success_Place_Updated", existingRegion.PlaceID);
             }
             catch (Exception ex)
             {
-                //logger.LogError("Fehler beim Aktualisieren der Gewässer: {ex}", ex);
-                return (existingRegion.PlaceID, 500, "Error_Error_Ocurred");
+                trackEvents.TrackException(ex, "RegionProcessor.EditRegion: Error occurred while editing region.", new Dictionary<string, object>
+                {
+                    { "Place", operationParameterModel.Place},
+                    { "Region", operationParameterModel.Region}
+                });
+                return (500, "Error_Error_Ocurred", existingRegion.PlaceID);
             }
         }
     }

@@ -1,0 +1,1481 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Success_ConfirmationEmail_Sent" xml:space="preserve">
+    <value>Un e-mail de confirmation vous a été envoyé.</value>
+  </data>
+  <data name="Error_User_Exists" xml:space="preserve">
+    <value>Un utilisateur avec cette adresse e-mail existe déjà.</value>
+  </data>
+  <data name="CollectionArea" xml:space="preserve">
+    <value>Zone de collecte</value>
+  </data>
+  <data name="CollectionAreaID" xml:space="preserve">
+    <value>ID de la zone de collecte</value>
+  </data>
+  <data name="CollectionAreaName" xml:space="preserve">
+    <value>Nom de la zone de collecte</value>
+  </data>
+  <data name="CollectionItemEntityList" xml:space="preserve">
+    <value>Objets de collection</value>
+  </data>
+  <data name="Compare" xml:space="preserve">
+    <value>{0} et {1} ne correspondent pas.</value>
+  </data>
+  <data name="ConceptList" xml:space="preserve">
+    <value>Termes</value>
+  </data>
+  <data name="Message_ConfirmPassword" xml:space="preserve">
+    <value>Confirmer le mot de passe</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Courriel</value>
+  </data>
+  <data name="Error_Email_NotConfirmed" xml:space="preserve">
+    <value>L'adresse e-mail n'a pas été confirmée.</value>
+  </data>
+  <data name="Error_Email_Missing" xml:space="preserve">
+    <value>L'émail manque.</value>
+  </data>
+  <data name="Error_EmailPassword_Necessary" xml:space="preserve">
+    <value>L'adresse e-mail et le mot de passe sont obligatoires.</value>
+  </data>
+  <data name="EmailAddress" xml:space="preserve">
+    <value>{0} n'est pas une adresse e-mail valide.</value>
+  </data>
+  <data name="Bool" xml:space="preserve">
+    <value>Vrai/Faux</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date de référence</value>
+  </data>
+  <data name="Decimal" xml:space="preserve">
+    <value>Décimal</value>
+  </data>
+  <data name="Number" xml:space="preserve">
+    <value>Chiffre</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>Texte</value>
+  </data>
+  <data name="Error_ConfirmationEmail_NotSend" xml:space="preserve">
+    <value>Une erreur s'est produite lors de l'envoi de l'e-mail de confirmation.</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="Error_Password_Empty" xml:space="preserve">
+    <value>Mot de passe vide.</value>
+  </data>
+  <data name="Error_Password_Incorrect" xml:space="preserve">
+    <value>Mot de passe incorrect.</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>Le champ {0} est obligatoire.</value>
+  </data>
+  <data name="IsRequiredConcept" xml:space="preserve">
+    <value>Est-ce un terme obligatoire ?</value>
+  </data>
+  <data name="Error_Email_NotFound" xml:space="preserve">
+    <value>Adresse e-mail indiquée introuvable.</value>
+  </data>
+  <data name="StatePreservationList" xml:space="preserve">
+    <value>États de conservation</value>
+  </data>
+  <data name="StringLength" xml:space="preserve">
+    <value>Le champ {0} ne doit pas dépasser {1} caractère.</value>
+  </data>
+  <data name="Success_Logout" xml:space="preserve">
+    <value>Désinscription réussie.</value>
+  </data>
+  <data name="Message_ThanksForConfirmation" xml:space="preserve">
+    <value>Merci beaucoup pour la confirmation par e-mail.</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>Nom d'utilisateur</value>
+  </data>
+  <data name="Message_Password_Reset" xml:space="preserve">
+    <value>Veuillez réinitialiser votre mot de passe en cliquant &amp;lt;a href='{0}'&amp;gt;ici&amp;lt;/a&amp;gt;.</value>
+  </data>
+  <data name="Error_Code_Missing" xml:space="preserve">
+    <value>Le code généré automatiquement est manquant.</value>
+  </data>
+  <data name="Error_User_NotFound" xml:space="preserve">
+    <value>Utilisateur introuvable.</value>
+  </data>
+  <data name="Error_Email_Change" xml:space="preserve">
+    <value>Erreur lors de la modification de l'adresse e-mail.</value>
+  </data>
+  <data name="Success_Email_Change" xml:space="preserve">
+    <value>Modification de l'adresse e-mail réussie.</value>
+  </data>
+  <data name="Message_ConfirmEmail" xml:space="preserve">
+    <value>Confirmez votre adresse e-mail</value>
+  </data>
+  <data name="Message_ConfirmAccount" xml:space="preserve">
+    <value>Veuillez confirmer votre compte en cliquant &amp;lt;a href='{0}'&amp;gt;ici&amp;lt;/a&amp;gt;</value>
+  </data>
+  <data name="Error_Place_NotFound" xml:space="preserve">
+    <value>Lieu introuvable.</value>
+  </data>
+  <data name="Error_CollectionArea_NotFound" xml:space="preserve">
+    <value>Zone de collecte introuvable.</value>
+  </data>
+  <data name="Error_ConceeptValue_NotFound" xml:space="preserve">
+    <value>Valeur du terme introuvable.</value>
+  </data>
+  <data name="Error_CollectionArea_IdMissing" xml:space="preserve">
+    <value>ID de zone de collecte manquant.</value>
+  </data>
+  <data name="Error_ConceptValue_IdMissing" xml:space="preserve">
+    <value>ID de valeur de terme manquant.</value>
+  </data>
+  <data name="Error_ConceptualRelation_NotFound" xml:space="preserve">
+    <value>Relation terminologique introuvable.</value>
+  </data>
+  <data name="Error_Era_NotFound" xml:space="preserve">
+    <value>Époque introuvable.</value>
+  </data>
+  <data name="Individual" xml:space="preserve">
+    <value>Individu</value>
+  </data>
+  <data name="Error_Party_NotFound" xml:space="preserve">
+    <value>Parti introuvable.</value>
+  </data>
+  <data name="Organization" xml:space="preserve">
+    <value>Organisation</value>
+  </data>
+  <data name="Postalcode" xml:space="preserve">
+    <value>Code postal</value>
+  </data>
+  <data name="Epithet" xml:space="preserve">
+    <value>Surnom</value>
+  </data>
+  <data name="Geography" xml:space="preserve">
+    <value>Géographie</value>
+  </data>
+  <data name="Part of" xml:space="preserve">
+    <value>Partie de</value>
+  </data>
+  <data name="Pseudonym" xml:space="preserve">
+    <value>Pseudonyme</value>
+  </data>
+  <data name="ProductionFacility" xml:space="preserve">
+    <value>Secteur</value>
+  </data>
+  <data name="to" xml:space="preserve">
+    <value>trop</value>
+  </data>
+  <data name="Success_Profile_Change" xml:space="preserve">
+    <value>Le profil a été modifié avec succès.</value>
+  </data>
+  <data name="Success_Account_Deleted" xml:space="preserve">
+    <value>Compte supprimé</value>
+  </data>
+  <data name="Success_Password_Change" xml:space="preserve">
+    <value>Mot de passe modifié avec succès.</value>
+  </data>
+  <data name="Error_Email_NotChanged" xml:space="preserve">
+    <value>Ton adresse e-mail n'a pas été modifiée.</value>
+  </data>
+  <data name="CollectionItemPictureID" xml:space="preserve">
+    <value>Image de collection ID</value>
+  </data>
+  <data name="Side_Front" xml:space="preserve">
+    <value>Face avant</value>
+  </data>
+  <data name="Perspective" xml:space="preserve">
+    <value>Perspective</value>
+  </data>
+  <data name="CollectionItemEntityID" xml:space="preserve">
+    <value>Pièce de collection ID</value>
+  </data>
+  <data name="CollectionItemEntity" xml:space="preserve">
+    <value>Objet de collection</value>
+  </data>
+  <data name="IFormFile" xml:space="preserve">
+    <value>Fichier</value>
+  </data>
+  <data name="Side_Back" xml:space="preserve">
+    <value>Face arrière</value>
+  </data>
+  <data name="Side_Left" xml:space="preserve">
+    <value>Côté gauche</value>
+  </data>
+  <data name="Side_Right" xml:space="preserve">
+    <value>Côté droit</value>
+  </data>
+  <data name="UniqueName" xml:space="preserve">
+    <value>Nom unique</value>
+  </data>
+  <data name="Fake" xml:space="preserve">
+    <value>Contrefaçon</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>Remarque</value>
+  </data>
+  <data name="StatePreservationID" xml:space="preserve">
+    <value>État de conservation ID</value>
+  </data>
+  <data name="StatePreservation" xml:space="preserve">
+    <value>État de conservation</value>
+  </data>
+  <data name="CollectionItemPictureList" xml:space="preserve">
+    <value>Images de collection</value>
+  </data>
+  <data name="Inscription" xml:space="preserve">
+    <value>Inscription</value>
+  </data>
+  <data name="CollectionItemNPartyList" xml:space="preserve">
+    <value>Parties liées</value>
+  </data>
+  <data name="CollectionItemNPlaceList" xml:space="preserve">
+    <value>Lieux reliés</value>
+  </data>
+  <data name="ConceptID" xml:space="preserve">
+    <value>TermID</value>
+  </data>
+  <data name="Concept" xml:space="preserve">
+    <value>Terme</value>
+  </data>
+  <data name="SerialNumber" xml:space="preserve">
+    <value>Numéro de série</value>
+  </data>
+  <data name="ExactYear" xml:space="preserve">
+    <value>Année exacte</value>
+  </data>
+  <data name="StartYear" xml:space="preserve">
+    <value>Année de lancement</value>
+  </data>
+  <data name="EndYear" xml:space="preserve">
+    <value>Année de clôture</value>
+  </data>
+  <data name="IsApproximate" xml:space="preserve">
+    <value>Est-ce apprécié ?</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>Zeit</value>
+  </data>
+  <data name="EraID" xml:space="preserve">
+    <value>Ère ID</value>
+  </data>
+  <data name="Era" xml:space="preserve">
+    <value>Ère</value>
+  </data>
+  <data name="Width" xml:space="preserve">
+    <value>Largeur</value>
+  </data>
+  <data name="Height" xml:space="preserve">
+    <value>Hauteur</value>
+  </data>
+  <data name="Length" xml:space="preserve">
+    <value>Longueur</value>
+  </data>
+  <data name="Diameter" xml:space="preserve">
+    <value>Diamètre</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>Poids</value>
+  </data>
+  <data name="PersonalIdentificationNumber" xml:space="preserve">
+    <value>Numéro d'identification personnel</value>
+  </data>
+  <data name="FilingLocation" xml:space="preserve">
+    <value>Lieu de stockage</value>
+  </data>
+  <data name="DeliveryPrice" xml:space="preserve">
+    <value>Prix d'achat</value>
+  </data>
+  <data name="DeliveryDate" xml:space="preserve">
+    <value>Date de référence</value>
+  </data>
+  <data name="DeliveryAdress" xml:space="preserve">
+    <value>Adresse de référence</value>
+  </data>
+  <data name="CollectionItemNPartyID" xml:space="preserve">
+    <value>ID de la partie liée</value>
+  </data>
+  <data name="PartyID" xml:space="preserve">
+    <value>Identifiant du parti</value>
+  </data>
+  <data name="Party" xml:space="preserve">
+    <value>Parti</value>
+  </data>
+  <data name="Relationship" xml:space="preserve">
+    <value>Relation</value>
+  </data>
+  <data name="CollectionItemNPlaceID" xml:space="preserve">
+    <value>ID de localité associée</value>
+  </data>
+  <data name="PlaceID" xml:space="preserve">
+    <value>Lieu ID</value>
+  </data>
+  <data name="Place" xml:space="preserve">
+    <value>Lieu</value>
+  </data>
+  <data name="ProductionSize" xml:space="preserve">
+    <value>Nombre d'unités produites</value>
+  </data>
+  <data name="ConceptName" xml:space="preserve">
+    <value>Terme</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="CollectionItemEntityID_Required" xml:space="preserve">
+    <value>Pièce de collection ID manquante.</value>
+  </data>
+  <data name="CollectionItemEmbedding" xml:space="preserve">
+    <value>Encastrement d'objets de collection</value>
+  </data>
+  <data name="UsingIdentityUsersID" xml:space="preserve">
+    <value>Identifiant utilisateur</value>
+  </data>
+  <data name="UsingIdentityUser" xml:space="preserve">
+    <value>Utilisateur</value>
+  </data>
+  <data name="IsPartOfASet" xml:space="preserve">
+    <value>Cela fait-il partie d'une série ?</value>
+  </data>
+  <data name="StatePreservationName" xml:space="preserve">
+    <value>Nom de l'état de conservation</value>
+  </data>
+  <data name="SortingOrder" xml:space="preserve">
+    <value>Ordre</value>
+  </data>
+  <data name="IsGeneralState" xml:space="preserve">
+    <value>S'agit-il d'une situation générale, c'est-à-dire non spécifique à une zone de collecte ?</value>
+  </data>
+  <data name="Success_Email_Confirmed" xml:space="preserve">
+    <value>E-mail confirmé avec succès.</value>
+  </data>
+  <data name="Error_UserName_Change" xml:space="preserve">
+    <value>Une erreur s'est produite lors de la modification du nom d'utilisateur.</value>
+  </data>
+  <data name="EraName" xml:space="preserve">
+    <value>Dénomination de l'ère</value>
+  </data>
+  <data name="IndividualID" xml:space="preserve">
+    <value>Identifiant individuel</value>
+  </data>
+  <data name="Signature" xml:space="preserve">
+    <value>Signature</value>
+  </data>
+  <data name="OrganizationType" xml:space="preserve">
+    <value>Type d'organisation</value>
+  </data>
+  <data name="ProductionFacilityID" xml:space="preserve">
+    <value>Identifiant du secteur</value>
+  </data>
+  <data name="Company" xml:space="preserve">
+    <value>Entreprise</value>
+  </data>
+  <data name="Institution" xml:space="preserve">
+    <value>Institution</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Autres</value>
+  </data>
+  <data name="ProductionFacilityName" xml:space="preserve">
+    <value>Nom commercial</value>
+  </data>
+  <data name="PartyName" xml:space="preserve">
+    <value>Nom du parti</value>
+  </data>
+  <data name="PartyType" xml:space="preserve">
+    <value>Type de parti</value>
+  </data>
+  <data name="PlaceList" xml:space="preserve">
+    <value>Site</value>
+  </data>
+  <data name="Building" xml:space="preserve">
+    <value>Bâtiment</value>
+  </data>
+  <data name="BuildingName" xml:space="preserve">
+    <value>Nom du bâtiment</value>
+  </data>
+  <data name="BuildingID" xml:space="preserve">
+    <value>Identifiant du bâtiment</value>
+  </data>
+  <data name="Region" xml:space="preserve">
+    <value>Local</value>
+  </data>
+  <data name="RegionName" xml:space="preserve">
+    <value>Nom de la local</value>
+  </data>
+  <data name="Relief" xml:space="preserve">
+    <value>Forme du terrain</value>
+  </data>
+  <data name="ReliefName" xml:space="preserve">
+    <value>Nom de la forme du terrain</value>
+  </data>
+  <data name="FieldID" xml:space="preserve">
+    <value>ID couloir</value>
+  </data>
+  <data name="ReliefID" xml:space="preserve">
+    <value>Forme du terrain ID</value>
+  </data>
+  <data name="PostalcodeID" xml:space="preserve">
+    <value>Code postal ID</value>
+  </data>
+  <data name="SettlementNPostalcodeList" xml:space="preserve">
+    <value>Codes postaux associés</value>
+  </data>
+  <data name="SettlementID" xml:space="preserve">
+    <value>Lotissement ID</value>
+  </data>
+  <data name="Byname" xml:space="preserve">
+    <value>Surnom touristique/officiel</value>
+  </data>
+  <data name="SettlementNPostalcodeID" xml:space="preserve">
+    <value>Code postal associé ID</value>
+  </data>
+  <data name="Settlement" xml:space="preserve">
+    <value>Lotissement</value>
+  </data>
+  <data name="IsCurrentPostalcode" xml:space="preserve">
+    <value>Est-ce le code postal actuel ?</value>
+  </data>
+  <data name="TransportRouteID" xml:space="preserve">
+    <value>Voie de circulation ID</value>
+  </data>
+  <data name="TransportRoute" xml:space="preserve">
+    <value>Voie de circulation</value>
+  </data>
+  <data name="TransportRouteName" xml:space="preserve">
+    <value>Nom de la voie de communication</value>
+  </data>
+  <data name="ToponymyType" xml:space="preserve">
+    <value>Termes toponymiques</value>
+  </data>
+  <data name="ParentPlaceID" xml:space="preserve">
+    <value>ID du lieu d'origine des parents</value>
+  </data>
+  <data name="ParentPlace" xml:space="preserve">
+    <value>Lieu d'origine</value>
+  </data>
+  <data name="ChildPlaceList" xml:space="preserve">
+    <value>Quartiers</value>
+  </data>
+  <data name="RelatedGeographyID" xml:space="preserve">
+    <value>Référence géographique ID</value>
+  </data>
+  <data name="RelatedGeography" xml:space="preserve">
+    <value>Référence géographique</value>
+  </data>
+  <data name="RelatedGeography_Max1" xml:space="preserve">
+    <value>Il ne peut y avoir qu'une seule référence géographique.</value>
+  </data>
+  <data name="RelatedGeography_Add" xml:space="preserve">
+    <value>Ajouter une référence géographique</value>
+  </data>
+  <data name="RelatedSettlement" xml:space="preserve">
+    <value>Lotissement relié</value>
+  </data>
+  <data name="BodyOfWater" xml:space="preserve">
+    <value>Cours d'eau</value>
+  </data>
+  <data name="BodyOfWaterName" xml:space="preserve">
+    <value>Nom du plan d'eau</value>
+  </data>
+  <data name="BodyOfWaterID" xml:space="preserve">
+    <value>Identifiant du cours d'eau</value>
+  </data>
+  <data name="Field" xml:space="preserve">
+    <value>Campagne</value>
+  </data>
+  <data name="FieldName" xml:space="preserve">
+    <value>Nom du champ</value>
+  </data>
+  <data name="RegionID" xml:space="preserve">
+    <value>Local ID</value>
+  </data>
+  <data name="PartyList" xml:space="preserve">
+    <value>Partis</value>
+  </data>
+  <data name="IsCurrentName" xml:space="preserve">
+    <value>Est-ce le nom actuel ?</value>
+  </data>
+  <data name="OldEmail" xml:space="preserve">
+    <value>Autres e-mails</value>
+  </data>
+  <data name="NewEmail" xml:space="preserve">
+    <value>Nouvel e-mail</value>
+  </data>
+  <data name="IsEmailConfirmed" xml:space="preserve">
+    <value>L'e-mail a-t-il été confirmé ?</value>
+  </data>
+  <data name="OldPassword" xml:space="preserve">
+    <value>Ancien mot de passe</value>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>Nouveau mot de passe</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Confirmez le nouveau mot de passe</value>
+  </data>
+  <data name="Error_CollectionArea_NameEmpty" xml:space="preserve">
+    <value>Le nom de la zone de collecte ne peut pas être vide.</value>
+  </data>
+  <data name="Error_CollectionArea_Exists" xml:space="preserve">
+    <value>La désignation de la zone de collecte existe déjà.</value>
+  </data>
+  <data name="Success_CollectionArea_Created" xml:space="preserve">
+    <value>Zone de collecte créée avec succès.</value>
+  </data>
+  <data name="Error_Error_Ocurred" xml:space="preserve">
+    <value>Une erreur s'est produite et a été enregistrée.</value>
+  </data>
+  <data name="Success_CollectionArea_Updated" xml:space="preserve">
+    <value>La zone de collecte a été modifiée avec succès.</value>
+  </data>
+  <data name="Error_CollectionItemEntity_IDMissing" xml:space="preserve">
+    <value>L'ID de l'entité de collection manque.</value>
+  </data>
+  <data name="Success_Embeding_Created" xml:space="preserve">
+    <value>Intégration créée avec succès.</value>
+  </data>
+  <data name="Success_Embedding_Updated" xml:space="preserve">
+    <value>Intégration modifiée avec succès.</value>
+  </data>
+  <data name="Success_Embedding_Deleted" xml:space="preserve">
+    <value>Intégration supprimée avec succès.</value>
+  </data>
+  <data name="Error_Embedding_Missing" xml:space="preserve">
+    <value>L'intégration est manquante.</value>
+  </data>
+  <data name="Error_UserID_Missing" xml:space="preserve">
+    <value>Identifiant utilisateur manquant.</value>
+  </data>
+  <data name="Success_CollectionItemEntity_Created" xml:space="preserve">
+    <value>L'objet de collection a été créé avec succès.</value>
+  </data>
+  <data name="Error_CollectionItemEntity_NotFound" xml:space="preserve">
+    <value>Entité de collection introuvable.</value>
+  </data>
+  <data name="Success_CollectionItemEntity_Changed" xml:space="preserve">
+    <value>L'objet de collection a été modifié avec succès.</value>
+  </data>
+  <data name="Success_CollectionItemEntity_Deleted" xml:space="preserve">
+    <value>L'objet de collection a été supprimé avec succès.</value>
+  </data>
+  <data name="Success_CollectionItemPicture_Synchronized" xml:space="preserve">
+    <value>L'image a été synchronisée avec succès.</value>
+  </data>
+  <data name="Error_StatePreservation_NotFound" xml:space="preserve">
+    <value>Condition introuvable.</value>
+  </data>
+  <data name="Success_StatePreservation_Updated" xml:space="preserve">
+    <value>Le statut a été modifié avec succès.</value>
+  </data>
+  <data name="Success_StatePreservation_Deleted" xml:space="preserve">
+    <value>L'état a été supprimé avec succès.</value>
+  </data>
+  <data name="Error_Concept_Exists" xml:space="preserve">
+    <value>Le terme existe déjà.</value>
+  </data>
+  <data name="Success_Concept_Created" xml:space="preserve">
+    <value>Le terme a été créé avec succès.</value>
+  </data>
+  <data name="Error_Concept_NotFound" xml:space="preserve">
+    <value>Terme introuvable.</value>
+  </data>
+  <data name="Error_Concept_IDMissing" xml:space="preserve">
+    <value>ID du terme manquant.</value>
+  </data>
+  <data name="Error_Concept_NameMissing" xml:space="preserve">
+    <value>Nom du terme manquant.</value>
+  </data>
+  <data name="Success_Concept_Deleted" xml:space="preserve">
+    <value>Le terme a été supprimé avec succès.</value>
+  </data>
+  <data name="Success_Concept_Updated" xml:space="preserve">
+    <value>Le terme a été modifié avec succès.</value>
+  </data>
+  <data name="Error_Party_Exists" xml:space="preserve">
+    <value>Le parti existe déjà.</value>
+  </data>
+  <data name="Success_Individual_Created" xml:space="preserve">
+    <value>L'individu a été créé avec succès.</value>
+  </data>
+  <data name="Error_PartyID_Missing" xml:space="preserve">
+    <value>Identifiant du parti manquant.</value>
+  </data>
+  <data name="Error_Individual_NotFound" xml:space="preserve">
+    <value>Individu introuvable.</value>
+  </data>
+  <data name="Success_Individual_Updated" xml:space="preserve">
+    <value>L'individu a été modifié avec succès.</value>
+  </data>
+  <data name="Success_Organization_Created" xml:space="preserve">
+    <value>L'organisation a été créée avec succès.</value>
+  </data>
+  <data name="Success_Organization_Updated" xml:space="preserve">
+    <value>L'organisation a été modifiée avec succès.</value>
+  </data>
+  <data name="Success_Party_Created" xml:space="preserve">
+    <value>Le parti a été créé avec succès.</value>
+  </data>
+  <data name="Success_Place_Updated" xml:space="preserve">
+    <value>Le lieu a été modifié avec succès.</value>
+  </data>
+  <data name="Success_Party_Updated" xml:space="preserve">
+    <value>Le parti a été modifié avec succès.</value>
+  </data>
+  <data name="Success_Place_Created" xml:space="preserve">
+    <value>Le lieu a été créé avec succès.</value>
+  </data>
+  <data name="Error_File_Empty" xml:space="preserve">
+    <value>Le fichier est vide.</value>
+  </data>
+  <data name="Success_CollectionItemPicture_Created" xml:space="preserve">
+    <value>L'image collector a été créée avec succès.</value>
+  </data>
+  <data name="Error_CollectionItemPicture_NotFound" xml:space="preserve">
+    <value>Image de collection introuvable.</value>
+  </data>
+  <data name="Success_CollectionItemPicture_Updated" xml:space="preserve">
+    <value>L'image a été modifiée avec succès.</value>
+  </data>
+  <data name="Success_CollectionItemPicture_Deleted" xml:space="preserve">
+    <value>L'image de collection a été supprimée avec succès.</value>
+  </data>
+  <data name="Success_PhysicalPicture_Saved" xml:space="preserve">
+    <value>Image physique enregistrée avec succès.</value>
+  </data>
+  <data name="Success_PhysicalPicture_Deleted" xml:space="preserve">
+    <value>Image physique supprimée avec succès.</value>
+  </data>
+  <data name="Error_PlaceName_Missing" xml:space="preserve">
+    <value>Nom de lieu manquant.</value>
+  </data>
+  <data name="Error_Place_Exists" xml:space="preserve">
+    <value>Le lieu existe déjà.</value>
+  </data>
+  <data name="Error_PlaceID_Missing" xml:space="preserve">
+    <value>ID du lieu manquant.</value>
+  </data>
+  <data name="Error_ParentPlace_ParentOfItsOwn" xml:space="preserve">
+    <value>Un lieu ne peut pas être parent de lui-même.</value>
+  </data>
+  <data name="Success_Place_Deleted" xml:space="preserve">
+    <value>Le lieu a été supprimé avec succès.</value>
+  </data>
+  <data name="Error_Era_NameMissing" xml:space="preserve">
+    <value>Le nom du produit est manquant.</value>
+  </data>
+  <data name="Error_Era_IdMissing" xml:space="preserve">
+    <value>L'ID d'époque est manquant.</value>
+  </data>
+  <data name="Error_Era_Exists" xml:space="preserve">
+    <value>Cette époque existe déjà.</value>
+  </data>
+  <data name="Success_Era_Created" xml:space="preserve">
+    <value>Ère créée avec succès.</value>
+  </data>
+  <data name="Success_Era_Updated" xml:space="preserve">
+    <value>Une ère qui a changé avec succès.</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>S'inscrire</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>S'inscrire</value>
+  </data>
+  <data name="Password_Forgotten" xml:space="preserve">
+    <value>Mot de passe oublié ?</value>
+  </data>
+  <data name="User_Register" xml:space="preserve">
+    <value>S'inscrire en tant que nouvel utilisateur</value>
+  </data>
+  <data name="EmailConfirmation_Resend" xml:space="preserve">
+    <value>Renvoyer la confirmation par e-mail.</value>
+  </data>
+  <data name="Password_Reset_ConfirmationSent" xml:space="preserve">
+    <value>Lien pour réinitialiser le mot de passe, envoyé à l'adresse e-mail indiquée.</value>
+  </data>
+  <data name="Password_Reset" xml:space="preserve">
+    <value>Réinitialiser le mot de passe.</value>
+  </data>
+  <data name="Register_Here" xml:space="preserve">
+    <value>Vous pouvez vous inscrire ici.</value>
+  </data>
+  <data name="Resend" xml:space="preserve">
+    <value>Renvoyer</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Réinitialisation</value>
+  </data>
+  <data name="PlaceName_Add" xml:space="preserve">
+    <value>Ajouter d'autres noms de lieux</value>
+  </data>
+  <data name="Postalcodes" xml:space="preserve">
+    <value>codes postaux</value>
+  </data>
+  <data name="FurtherSpecs" xml:space="preserve">
+    <value>Autres spécifications</value>
+  </data>
+  <data name="Place_Add" xml:space="preserve">
+    <value>Ajouter des lieux</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="ChildPlace" xml:space="preserve">
+    <value>Quartier</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Recherche</value>
+  </data>
+  <data name="Option_Select" xml:space="preserve">
+    <value>Sélectionner l'option</value>
+  </data>
+  <data name="Column_Add" xml:space="preserve">
+    <value>Ajouter une colonne</value>
+  </data>
+  <data name="StatePreservation_Administration" xml:space="preserve">
+    <value>Gérer les états de conservation</value>
+  </data>
+  <data name="ConceptRelation_Administration" xml:space="preserve">
+    <value>Gérer les relations entre les termes</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="Search_Started" xml:space="preserve">
+    <value>Recherche lancée</value>
+  </data>
+  <data name="Picture_Watermark" xml:space="preserve">
+    <value>Toutes les images sont automatiquement pourvues d'un filigrane.</value>
+  </data>
+  <data name="CollectionItemEntity_AttributesConcepts" xml:space="preserve">
+    <value>Caractéristiques supplémentaires et termes généraux</value>
+  </data>
+  <data name="Concept_Select" xml:space="preserve">
+    <value>Sélectionner un terme</value>
+  </data>
+  <data name="StatePreservation_NotAvailable" xml:space="preserve">
+    <value>Aucun état de conservation disponible</value>
+  </data>
+  <data name="Party_Add" xml:space="preserve">
+    <value>Ajouter un parti</value>
+  </data>
+  <data name="AdministrationData" xml:space="preserve">
+    <value>Données administratives</value>
+  </data>
+  <data name="Delete_Confirm" xml:space="preserve">
+    <value>Voulez-vous vraiment le supprimer ?</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Picture_Add" xml:space="preserve">
+    <value>Ajouter des images</value>
+  </data>
+  <data name="Place_Select" xml:space="preserve">
+    <value>Choisir un lieu</value>
+  </data>
+  <data name="CollectionArea_OwnAdministration" xml:space="preserve">
+    <value>Gérer votre propre domaine de collection {0}</value>
+  </data>
+  <data name="Relation_Add" xml:space="preserve">
+    <value>Ajouter une relation</value>
+  </data>
+  <data name="RelationType" xml:space="preserve">
+    <value>Type de relation</value>
+  </data>
+  <data name="SynonymFor" xml:space="preserve">
+    <value>Synonyme de</value>
+  </data>
+  <data name="SubTermOf" xml:space="preserve">
+    <value>Sous-catégorie de</value>
+  </data>
+  <data name="ShortFor" xml:space="preserve">
+    <value>Abréviation de</value>
+  </data>
+  <data name="BackToList" xml:space="preserve">
+    <value>Retour à la liste</value>
+  </data>
+  <data name="ConceptRelation_Add" xml:space="preserve">
+    <value>Ajouter une relation conceptuelle</value>
+  </data>
+  <data name="Imprint" xml:space="preserve">
+    <value>Mentions légales</value>
+  </data>
+  <data name="Individual_Edit" xml:space="preserve">
+    <value>Modifier un individu</value>
+  </data>
+  <data name="Frontpage" xml:space="preserve">
+    <value>Page d'accueil</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>Accepter</value>
+  </data>
+  <data name="Documentation" xml:space="preserve">
+    <value>Documentation</value>
+  </data>
+  <data name="Login/Register" xml:space="preserve">
+    <value>Connexion/Inscription</value>
+  </data>
+  <data name="PrivacyImprint" xml:space="preserve">
+    <value>Protection des données et mentions légales</value>
+  </data>
+  <data name="BodiesOfWater" xml:space="preserve">
+    <value>Cours d'eau</value>
+  </data>
+  <data name="BodyOfWater_Create" xml:space="preserve">
+    <value>Créer des plans d'eau</value>
+  </data>
+  <data name="BodyOfWater_Administration" xml:space="preserve">
+    <value>Gestion des eaux</value>
+  </data>
+  <data name="Buildings" xml:space="preserve">
+    <value>Bâtiments</value>
+  </data>
+  <data name="CollectionAreas" xml:space="preserve">
+    <value>Domaines de collecte</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="Dimensions_Adminstration" xml:space="preserve">
+    <value>Gérer les dimensions</value>
+  </data>
+  <data name="Eras" xml:space="preserve">
+    <value>Ères</value>
+  </data>
+  <data name="Fields" xml:space="preserve">
+    <value>Campagnes</value>
+  </data>
+  <data name="Individuals" xml:space="preserve">
+    <value>Individus</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Se déconnecter</value>
+  </data>
+  <data name="Organizations" xml:space="preserve">
+    <value>Organisations</value>
+  </data>
+  <data name="Profile" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="Regions" xml:space="preserve">
+    <value>Locaux</value>
+  </data>
+  <data name="Reliefs" xml:space="preserve">
+    <value>Le relief</value>
+  </data>
+  <data name="Settlements" xml:space="preserve">
+    <value>Lotissements</value>
+  </data>
+  <data name="StructureCollectionAreas" xml:space="preserve">
+    <value>Structure des zones de collecte</value>
+  </data>
+  <data name="TransportRoutes" xml:space="preserve">
+    <value>Voies de communication</value>
+  </data>
+  <data name="BodyOfWater_Edit" xml:space="preserve">
+    <value>Modifier les cours d'eau</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="Building_Administration" xml:space="preserve">
+    <value>Gestion des bâtiments</value>
+  </data>
+  <data name="Delete_NotAllowed" xml:space="preserve">
+    <value>Les inscriptions ne peuvent être supprimées qu'après consultation de l'administrateur, car une suppression peut avoir des conséquences négatives sur de nombreux objets de collection.</value>
+  </data>
+  <data name="PlaceName" xml:space="preserve">
+    <value>Nom de lieu</value>
+  </data>
+  <data name="Building_Create" xml:space="preserve">
+    <value>Construire des bâtiments</value>
+  </data>
+  <data name="Building_Edit" xml:space="preserve">
+    <value>Modifier un bâtiment</value>
+  </data>
+  <data name="CollectionArea_Create" xml:space="preserve">
+    <value>Créer une zone de collecte</value>
+  </data>
+  <data name="CollectionArea_Edit" xml:space="preserve">
+    <value>Modifier le nom de la zone de collecte</value>
+  </data>
+  <data name="CollectionArea_Structure" xml:space="preserve">
+    <value>Structure des zones de collecte</value>
+  </data>
+  <data name="CollectionItemEntity_Create" xml:space="preserve">
+    <value>Créer un objet de collection</value>
+  </data>
+  <data name="ManufacturingTime" xml:space="preserve">
+    <value>Temps de fabrication</value>
+  </data>
+  <data name="Party_Select" xml:space="preserve">
+    <value>Choisir un parti</value>
+  </data>
+  <data name="Measurements_Weight" xml:space="preserve">
+    <value>Dimensions et poids</value>
+  </data>
+  <data name="CollectionItemEntity_Delete" xml:space="preserve">
+    <value>Supprimer un objet de collection</value>
+  </data>
+  <data name="CollectionItemEntity_Edit" xml:space="preserve">
+    <value>Modifier un objet de collection</value>
+  </data>
+  <data name="Era_Select" xml:space="preserve">
+    <value>Sélectionner une époque</value>
+  </data>
+  <data name="CollectionItemEntity_Administration" xml:space="preserve">
+    <value>Gérer les objets de collection</value>
+  </data>
+  <data name="CollectionItemEntity_Download_All" xml:space="preserve">
+    <value>Télécharger toutes les pièces de collection au format YAML</value>
+  </data>
+  <data name="CollectionItemEntity_Download_One" xml:space="preserve">
+    <value>Télécharger au format YAML</value>
+  </data>
+  <data name="ConceptRelation_Create" xml:space="preserve">
+    <value>Créer une relation conceptuelle</value>
+  </data>
+  <data name="ConceptRelation_Connected" xml:space="preserve">
+    <value>Relations conceptuelles associées</value>
+  </data>
+  <data name="ConceptRelation_Delete" xml:space="preserve">
+    <value>Supprimer la relation entre les termes</value>
+  </data>
+  <data name="ConceptRelation_Edit" xml:space="preserve">
+    <value>Modifier la relation entre les termes</value>
+  </data>
+  <data name="Era_Create" xml:space="preserve">
+    <value>Créer une ère</value>
+  </data>
+  <data name="Era_Edit" xml:space="preserve">
+    <value>Changer d'époque</value>
+  </data>
+  <data name="Era_Administration" xml:space="preserve">
+    <value>Gestion des époques</value>
+  </data>
+  <data name="Field_Create" xml:space="preserve">
+    <value>Campagne créé</value>
+  </data>
+  <data name="Field_Edit" xml:space="preserve">
+    <value>Modifier le campagne</value>
+  </data>
+  <data name="Field_Administration" xml:space="preserve">
+    <value>Gérer les campagnes</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="Info_Prototype" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="Message_NothingFound" xml:space="preserve">
+    <value>&lt;h4&gt;Malheureusement, aucune correspondance n'a été trouvée.&lt;/h4&gt;
+&lt;h4&gt;Veuillez essayer avec un autre terme.&lt;/h4&gt;</value>
+  </data>
+  <data name="Search_TypeIn" xml:space="preserve">
+    <value>Entrer pour rechercher</value>
+  </data>
+  <data name="Individual_Create" xml:space="preserve">
+    <value>Créer un individu</value>
+  </data>
+  <data name="Individual_Administration" xml:space="preserve">
+    <value>Gestion individuelle</value>
+  </data>
+  <data name="Organization_Create" xml:space="preserve">
+    <value>Créer une organisation</value>
+  </data>
+  <data name="Organization_Select" xml:space="preserve">
+    <value>Sélectionner une organisation</value>
+  </data>
+  <data name="Organization_Edit" xml:space="preserve">
+    <value>Changer d'organisation</value>
+  </data>
+  <data name="Organization_Administration" xml:space="preserve">
+    <value>Administration des organisations</value>
+  </data>
+  <data name="Region_Create" xml:space="preserve">
+    <value>Créer une local</value>
+  </data>
+  <data name="Region_Edit" xml:space="preserve">
+    <value>Changer de local</value>
+  </data>
+  <data name="Region_Administration" xml:space="preserve">
+    <value>Gérer le local</value>
+  </data>
+  <data name="Relief_Create" xml:space="preserve">
+    <value>Créer un relief</value>
+  </data>
+  <data name="Relief_Edit" xml:space="preserve">
+    <value>Modifier le relief</value>
+  </data>
+  <data name="Relief_Administration" xml:space="preserve">
+    <value>Gestion du relief</value>
+  </data>
+  <data name="Postalcode_Add" xml:space="preserve">
+    <value>Ajouter le code postal</value>
+  </data>
+  <data name="Settlement_Edit" xml:space="preserve">
+    <value>Modifier le lotissement</value>
+  </data>
+  <data name="Settlement_Administration" xml:space="preserve">
+    <value>Gestion des lotissements</value>
+  </data>
+  <data name="StatePreservation_Create" xml:space="preserve">
+    <value>Créer un état de conservation</value>
+  </data>
+  <data name="StatePreservation_Delete" xml:space="preserve">
+    <value>Supprimer l'état de conservation</value>
+  </data>
+  <data name="StatePreservation_Edit" xml:space="preserve">
+    <value>Modifier l'état de conservation</value>
+  </data>
+  <data name="TransportRoute_Create" xml:space="preserve">
+    <value>Créer une voie de circulation</value>
+  </data>
+  <data name="TransportRoute_Edit" xml:space="preserve">
+    <value>Modifier l'itinéraire</value>
+  </data>
+  <data name="TransportRoute_Administration" xml:space="preserve">
+    <value>Gestion des voies de circulation</value>
+  </data>
+  <data name="EmailVerification_Send" xml:space="preserve">
+    <value>Envoyer un e-mail de confirmation</value>
+  </data>
+  <data name="Email_Change" xml:space="preserve">
+    <value>Modifier l'adresse e-mail</value>
+  </data>
+  <data name="Password_Change" xml:space="preserve">
+    <value>Modifier le mot de passe</value>
+  </data>
+  <data name="AccountDelete_Confirm" xml:space="preserve">
+    <value>Supprimer les données et fermer mon compte.</value>
+  </data>
+  <data name="AccountDelete_Notification" xml:space="preserve">
+    <value>La suppression de ces données entraînera la suppression de votre compte et de votre collection. Cette opération est irréversible.</value>
+  </data>
+  <data name="Account_Delete" xml:space="preserve">
+    <value>Supprimer le compte</value>
+  </data>
+  <data name="Download_Notification" xml:space="preserve">
+    <value>Avant de supprimer votre compte, téléchargez d'abord vos données.</value>
+  </data>
+  <data name="CollectionItem_DownloadAll" xml:space="preserve">
+    <value>Télécharger toutes les données relatives aux objets de collection</value>
+  </data>
+  <data name="PersonalData_Download" xml:space="preserve">
+    <value>Télécharger les détails du compte</value>
+  </data>
+  <data name="PersonalData_Notification" xml:space="preserve">
+    <value>Votre compte contient des données personnelles que vous nous avez fournies. Vous avez ici la possibilité de télécharger ou de supprimer ces données.</value>
+  </data>
+  <data name="UserName_Change" xml:space="preserve">
+    <value>Modifier le nom d'utilisateur</value>
+  </data>
+  <data name="Message_Greetings_String" xml:space="preserve">
+    <value>Mesdames, Messieurs,</value>
+  </data>
+  <data name="Message_Greetings_HTML" xml:space="preserve">
+    <value>Mesdames, Messieurs,&lt;br /&gt;</value>
+  </data>
+  <data name="Message_GeneralText_Html" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Détails</value>
+  </data>
+  <data name="NothingFound" xml:space="preserve">
+    <value>Aucune entrée correspondante pour le mot-clé recherché.</value>
+  </data>
+  <data name="Place_ParentAdd" xml:space="preserve">
+    <value>Ajouter à un lieu</value>
+  </data>
+  <data name="ParentPlace_Max1" xml:space="preserve">
+    <value>Il ne peut y avoir qu'un seul lieu d'origine.</value>
+  </data>
+  <data name="Place_ChildAdd" xml:space="preserve">
+    <value>Ajouter un quartier</value>
+  </data>
+  <data name="Concept_SynonymAdd" xml:space="preserve">
+    <value>Ajouter comme sous-terme</value>
+  </data>
+  <data name="Concept_ShortForAdd" xml:space="preserve">
+    <value>Ajouter comme abréviation</value>
+  </data>
+  <data name="Concept_SubTermAdd" xml:space="preserve">
+    <value>Ajouter comme synonyme</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
+  <data name="NumberRange_Change" xml:space="preserve">
+    <value>Modifier la plage de nombres</value>
+  </data>
+  <data name="Side_Top" xml:space="preserve">
+    <value>partie supérieure</value>
+  </data>
+  <data name="Side_Bottom" xml:space="preserve">
+    <value>Face inférieure</value>
+  </data>
+  <data name="InscriptionTranslated" xml:space="preserve">
+    <value>Inscription traduite</value>
+  </data>
+  <data name="Settlement_Create" xml:space="preserve">
+    <value>Créer un lotissement</value>
+  </data>
+  <data name="OrganizationID" xml:space="preserve">
+    <value>OrganisationsID</value>
+  </data>
+  <data name="ConceptValueID" xml:space="preserve">
+    <value>ID de valeur de terme</value>
+  </data>
+  <data name="IsGeneralConcept" xml:space="preserve">
+    <value>S'agit-il d'un terme général, c'est-à-dire non spécifique à un domaine particulier ?</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Oui</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Non</value>
+  </data>
+  <data name="Concept_CollectionAreaIndependent" xml:space="preserve">
+    <value>Termes indépendants du domaine de collecte</value>
+  </data>
+  <data name="ConceptRelation_Administration_General" xml:space="preserve">
+    <value>Gérer les termes généraux</value>
+  </data>
+  <data name="ConceptRelation_Administration_Specific" xml:space="preserve">
+    <value>Gestion des termes</value>
+  </data>
+  <data name="IsRootConcept" xml:space="preserve">
+    <value>Est-ce le concept fondamental ?</value>
+  </data>
+  <data name="RootConceptID" xml:space="preserve">
+    <value>Concept de base ID</value>
+  </data>
+  <data name="RootConcept" xml:space="preserve">
+    <value>Concept de base</value>
+  </data>
+  <data name="SubConceptList" xml:space="preserve">
+    <value>Sous-titres</value>
+  </data>
+  <data name="Dimensions" xml:space="preserve">
+    <value>Dimensions</value>
+  </data>
+  <data name="ConceptValueList" xml:space="preserve">
+    <value>Valeurs conceptuelles</value>
+  </data>
+  <data name="ConceptType" xml:space="preserve">
+    <value>Type de terme</value>
+  </data>
+  <data name="Keywords" xml:space="preserve">
+    <value>Mots clés</value>
+  </data>
+  <data name="Pictures" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="CollectionItemEntity_BasicAttributes" xml:space="preserve">
+    <value>Caractéristiques de base</value>
+  </data>
+  <data name="Identification" xml:space="preserve">
+    <value>Identification</value>
+  </data>
+  <data name="Concept_Add" xml:space="preserve">
+    <value>Ajouter un terme</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="CollectionItemEntity_AdditionalAttribute_Administration" xml:space="preserve">
+    <value>Gérer les caractéristiques supplémentaires</value>
+  </data>
+  <data name="Abbreviation" xml:space="preserve">
+    <value>Abréviation</value>
+  </data>
+  <data name="ConceptNameRequired" xml:space="preserve">
+    <value>Une définition du terme est nécessaire.</value>
+  </data>
+  <data name="CollectionSet_Select" xml:space="preserve">
+    <value>Sélectionner une série</value>
+  </data>
+  <data name="Set" xml:space="preserve">
+    <value>Série</value>
+  </data>
+  <data name="SetName" xml:space="preserve">
+    <value>Thème de la série</value>
+  </data>
+  <data name="SetId" xml:space="preserve">
+    <value>Série ID</value>
+  </data>
+  <data name="SetName_Requiered" xml:space="preserve">
+    <value>Le thème de la série doit être défini.</value>
+  </data>
+  <data name="Error_CollectionSet_NameMissing" xml:space="preserve">
+    <value>Le nom de la série de collecte est manquant.</value>
+  </data>
+  <data name="Error_CollectionSet_NotFound" xml:space="preserve">
+    <value>Série de collection introuvable.</value>
+  </data>
+  <data name="CollectionSet_Create" xml:space="preserve">
+    <value>Créer une série</value>
+  </data>
+  <data name="CollectionSet_Edit" xml:space="preserve">
+    <value>Modifier la série</value>
+  </data>
+  <data name="CollectionSet_Administration" xml:space="preserve">
+    <value>Gestion des séries</value>
+  </data>
+  <data name="CollectionSetId" xml:space="preserve">
+    <value>Série collective ID</value>
+  </data>
+  <data name="CollectionSetName" xml:space="preserve">
+    <value>Nom de la série de collecte</value>
+  </data>
+  <data name="CollectionSet" xml:space="preserve">
+    <value>Série collective</value>
+  </data>
+  <data name="Success_CollectionSet_Created" xml:space="preserve">
+    <value>Série de collecte créée avec succès</value>
+  </data>
+  <data name="Success_CollectionSet_Deleted" xml:space="preserve">
+    <value>Série de collecte supprimée avec succès.</value>
+  </data>
+  <data name="Success_CollectionSet_Updated" xml:space="preserve">
+    <value>Série de collecte modifiée avec succès.</value>
+  </data>
+  <data name="CollectionSetName_Required" xml:space="preserve">
+    <value>Nom de la série de collecte requis.</value>
+  </data>
+  <data name="Success_ConceptValue_Created" xml:space="preserve">
+    <value>Valeur de terme créée avec succès.</value>
+  </data>
+  <data name="Success_ConceptValue_Updated" xml:space="preserve">
+    <value>Valeur du terme supprimée avec succès.</value>
+  </data>
+  <data name="Success_ConceptValue_Deleteed" xml:space="preserve">
+    <value>Valeur du terme modifiée avec succès.</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Titre</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>Contenu</value>
+  </data>
+  <data name="TitleRequired" xml:space="preserve">
+    <value>Le titre est obligatoire.</value>
+  </data>
+  <data name="ContentRequired" xml:space="preserve">
+    <value>Le contenu est nécessaire.</value>
+  </data>
+  <data name="Error_Title_Empty" xml:space="preserve">
+    <value>Le titre est vide.</value>
+  </data>
+  <data name="Error_Content_Empty" xml:space="preserve">
+    <value>Contenu manquant.</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Created" xml:space="preserve">
+    <value>Proposition d'amélioration créée avec succès.</value>
+  </data>
+  <data name="Error_ImprovementSuggestion_NotFound" xml:space="preserve">
+    <value>Aucune suggestion d'amélioration n'a été trouvée.</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Updated" xml:space="preserve">
+    <value>Suggestion d'amélioration modifiée avec succès.</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Deleted" xml:space="preserve">
+    <value>Suggestion d'amélioration supprimée avec succès.</value>
+  </data>
+  <data name="ImprovementSuggestions" xml:space="preserve">
+    <value>Suggestions d'amélioration</value>
+  </data>
+  <data name="ImprovementSuggestions_Create" xml:space="preserve">
+    <value>Créer une suggestion d'amélioration</value>
+  </data>
+  <data name="ImprovementSuggestions_Administration" xml:space="preserve">
+    <value>Gérer les suggestions d'amélioration</value>
+  </data>
+  <data name="ImprovementSuggestions_Edit" xml:space="preserve">
+    <value>Modifier la suggestion d'amélioration</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>Créé le </value>
+  </data>
+  <data name="ImprovementSuggestions_Delete" xml:space="preserve">
+    <value>Supprimer une suggestion d'amélioration</value>
+  </data>
+  <data name="UpdatedAt" xml:space="preserve">
+    <value>Modifié le</value>
+  </data>
+  <data name="Error_InvalidModelState" xml:space="preserve">
+    <value>Entrées incorrectes.</value>
+  </data>
+  <data name="CollectionArea_Name_IsMissing" xml:space="preserve">
+    <value>Le nom de la zone de collecte est manquant.</value>
+  </data>
+  <data name="CollectionSet_Name_IsMissing" xml:space="preserve">
+    <value>Nom de la série manquant.</value>
+  </data>
+  <data name="StatePreservation_Name_Missing" xml:space="preserve">
+    <value>Le nom de l'état de conservation est manquant.</value>
+  </data>
+  <data name="Era_Name_Missing" xml:space="preserve">
+    <value>Il manque la désignation de l'époque.</value>
+  </data>
+  <data name="Error_Party_NameMissing" xml:space="preserve">
+    <value>Le nom du parti manque.</value>
+  </data>
+  <data name="Error_Email_OldMissing" xml:space="preserve">
+    <value>L'ancien émail manque.</value>
+  </data>
+  <data name="Error_Email_NewMissing" xml:space="preserve">
+    <value>Nouvel e-mail manquant.</value>
+  </data>
+  <data name="Error_Email_NotValid" xml:space="preserve">
+    <value>L'e-mail n'est pas correctement formaté.</value>
+  </data>
+  <data name="Password_Missing" xml:space="preserve">
+    <value>Mot de passe manquant.</value>
+  </data>
+  <data name="Password_New_Missing" xml:space="preserve">
+    <value>Le nouveau mot de passe est manquant.</value>
+  </data>
+  <data name="Password_Old_Missing" xml:space="preserve">
+    <value>Ancien mot de passe manquant.</value>
+  </data>
+  <data name="Error_StatePreservation_Exists" xml:space="preserve">
+    <value>La condition existe déjà.</value>
+  </data>
+  <data name="Success_StatePreservation_Created" xml:space="preserve">
+    <value>L'état a été créé avec succès.</value>
+  </data>
+  <data name="StatePreservation_Select" xml:space="preserve">
+    <value>Sélectionnez l'état de conservation</value>
+  </data>
+  <data name="WikipediaUrl" xml:space="preserve">
+    <value>URL Wikipédia</value>
+  </data>
+  <data name="Error_User_NameEmpty" xml:space="preserve">
+    <value>Le nom d'utilisateur est vide.</value>
+  </data>
+  <data name="SettlementNames" xml:space="preserve">
+    <value>Noms de localités</value>
+  </data>
+</root>

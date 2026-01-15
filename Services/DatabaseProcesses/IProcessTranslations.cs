@@ -3,6 +3,7 @@ using NuGet.Packaging;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Services.Translation;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Sammlerplattform.Services.DatabaseProcesses
 {
@@ -12,13 +13,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             string entityType,
             int entityId);
         List<EntityTranslation> GetWithPredicate(EntityTranslationSearchParameter searchParameter);
-        Dictionary<string, string> Create(EntityTranslation entityTranslation, string textToTranslate);
-        Dictionary<string, string> Edit(EntityTranslation entityTranslation, string textToTranslate);
-        void Delete(
-            string entityType,
-            int entityId,
-            string field,
-            string culture);
+        List<string> Insert(EntityTranslation entityTranslation, string textToTranslate);
+        List<string> Update(EntityTranslation entityTranslation, string textToTranslate);
+        void Delete(EntityTranslationSearchParameter searchParameter);
     }
     public class ProcessTranslations(IUnitOfWork unitOfWork, IDeeplTranslationService deeplTranslationService) : IProcessTranslations
     {
@@ -33,34 +30,41 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                 t => t.TranslatedText);
         }
 
-        public Dictionary<string, string> Create(EntityTranslation entityTranslation, string textToTranslate)
+        public List<string> Insert(EntityTranslation entityTranslation, string textToTranslate)
         {
             if(string.IsNullOrWhiteSpace(textToTranslate))
                 return [];
 
-            //Damit weniger traffic entsteht, wird der Originaltext auch als Übersetzung in der Originalsprache gespeichert
-            Dictionary<string, string> dictionaryWithTranslations = entityTranslation.Culture != null
-                ? new Dictionary<string, string> { { entityTranslation.Culture, textToTranslate } }
+            //Damit weniger Traffic entsteht, wird der Originaltext direkt als Originalsprache gespeichert
+            List<(string Culture, string TranslatedText, string? Abbreviation)> translationList = entityTranslation.Culture != null
+                ? new() { (entityTranslation.Culture, textToTranslate, entityTranslation.Abbreviation) }
                 : [];
-            dictionaryWithTranslations.AddRange(deeplTranslationService.TranslateTextDifferentCulturesAsync(textToTranslate, entityTranslation.Culture).Result);
+            // Alle anderen Sprachen werden via Deepl übersetzt
+            translationList.AddRange(deeplTranslationService.TranslateTextDifferentCulturesAsync(textToTranslate, entityTranslation.Culture ).Result);
 
-            foreach (var translation in dictionaryWithTranslations)
+            List<string> translatedTexts = [];
+            foreach (var (Culture, TranslatedText, Abbreviation) in translationList)
             {
                 var newEntityTranslation = new EntityTranslation
                 {
                     EntityType = entityTranslation.EntityType,
                     EntityId = entityTranslation.EntityId,
                     FieldName = entityTranslation.FieldName,
-                    Culture = translation.Key,
-                    TranslatedText = translation.Value
+                    Culture = Culture,
+                    TranslatedText = TranslatedText,
+                    Abbreviation = Abbreviation
                 };
                 unitOfWork.EntityTranslationRepository.Insert(newEntityTranslation);
+
+                translatedTexts.Add(TranslatedText);
+                if(!string.IsNullOrEmpty(Abbreviation))
+                    translatedTexts.Add(Abbreviation);
             }
             unitOfWork.Save();
 
-            return dictionaryWithTranslations;
+            return translatedTexts;
         }
-        public Dictionary<string, string> Edit(EntityTranslation entityTranslation, string textToTranslate)
+        public List<string> Update(EntityTranslation entityTranslation, string textToTranslate)
         {
             if (string.IsNullOrWhiteSpace(textToTranslate))
                 return [];
@@ -69,38 +73,66 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                 filter: et => et.EntityType == entityTranslation.EntityType &&
                               et.EntityId == entityTranslation.EntityId &&
                               et.FieldName == entityTranslation.FieldName)];
-            if(existingTranslations.Where(x => x.Culture == entityTranslation.Culture).FirstOrDefault()?.TranslatedText != textToTranslate)
+            if (existingTranslations.Count == 0)
+            { 
+                throw new Exception("No existing translations found to update.");
+            }
+
+            List<string> translatedTexts = [];
+            bool hasChanges = false;
+            if (existingTranslations.Where(x => x.Culture == entityTranslation.Culture).FirstOrDefault()?.TranslatedText != textToTranslate)
             {
-                Dictionary<string, string> dictionaryWithTranslations = entityTranslation.Culture != null
-                ? new Dictionary<string, string> { { entityTranslation.Culture, textToTranslate } }
-                : [];
-                dictionaryWithTranslations.AddRange(deeplTranslationService.TranslateTextDifferentCulturesAsync(textToTranslate, entityTranslation.Culture).Result);
-                //var dictionaryWithTranslations = deeplTranslationService.TranslateTextDifferentCulturesAsync(textToTranslate).Result;
+                List<(string Culture, string TranslatedText, string? Abbreviation)> translationList = entityTranslation.Culture != null
+                        ? new() { ( entityTranslation.Culture, textToTranslate, entityTranslation.Abbreviation ) }
+                        : [];
+                translationList.AddRange(deeplTranslationService.TranslateTextDifferentCulturesAsync(textToTranslate, entityTranslation.Culture).Result);
 
                 foreach (var existingTranslation in existingTranslations)
                 {
-                    existingTranslation.TranslatedText = dictionaryWithTranslations.ContainsKey(existingTranslation.Culture)
-                        ? dictionaryWithTranslations[existingTranslation.Culture]
-                        : existingTranslation.TranslatedText;
+                    existingTranslation.TranslatedText = translationList.FirstOrDefault(x => x.Culture == existingTranslation.Culture).TranslatedText;
+                    translatedTexts.Add(existingTranslation.TranslatedText);
                 }
+                if(existingTranslations.Count != translationList.Count)
+                {
+                    // Neue Übersetzungen hinzufügen, die noch nicht existieren
+                    var existingCultures = existingTranslations.Select(et => et.Culture).ToHashSet();
+                    var newTranslations = translationList
+                        .Where(t => !existingCultures.Contains(t.Culture))
+                        .Select(t => new EntityTranslation
+                        {
+                            EntityType = entityTranslation.EntityType,
+                            EntityId = entityTranslation.EntityId,
+                            FieldName = entityTranslation.FieldName,
+                            Culture = t.Culture,
+                            TranslatedText = t.TranslatedText,
+                            Abbreviation = t.Abbreviation
+                        }
+                        ).ToList();
+                    translatedTexts.AddRange(newTranslations.Select(nt => nt.TranslatedText));
+                    translatedTexts.AddRange(newTranslations.Where(nt => !string.IsNullOrEmpty(nt.Abbreviation)).Select(nt => nt.Abbreviation!));
+                    foreach (var newTranslation in newTranslations)
+                    {
+                        unitOfWork.EntityTranslationRepository.Insert(newTranslation);
+                    }
+                }
+                hasChanges = true;
+            }
+            if(existingTranslations.Where(x => x.Culture == entityTranslation.Culture).FirstOrDefault()?.Abbreviation != entityTranslation.Abbreviation)
+            {
+                existingTranslations.Where(x => x.Culture == entityTranslation.Culture).FirstOrDefault()!.Abbreviation = entityTranslation.Abbreviation;
+                translatedTexts.Add(entityTranslation.Abbreviation!);
+                hasChanges = true;    
+            }
+            if (hasChanges)
+            {
                 unitOfWork.Save();
             }
 
-            return existingTranslations.ToDictionary(
-                t => t.Culture,
-                t => t.TranslatedText);
+            return translatedTexts;
         }
-        public void Delete(
-            string entityType,
-            int entityId,
-            string field,
-            string culture)
+        public void Delete(EntityTranslationSearchParameter searchParameter)
         {
-            var translation = unitOfWork.EntityTranslationRepository.Get(
-                filter: et => et.EntityType == entityType &&
-                              et.EntityId == entityId &&
-                              et.FieldName == field &&
-                              et.Culture == culture).FirstOrDefault();
+            var translation = GetWithPredicate(searchParameter).FirstOrDefault();
             if (translation != null)
             {
                 unitOfWork.EntityTranslationRepository.Delete(translation);

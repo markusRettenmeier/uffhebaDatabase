@@ -12,7 +12,6 @@
             PartyViewModel partyViewModel = new()
             {
                 Name = party.PartyName,
-                Description = party.PartyDescription ?? string.Empty,
                 Pseudonym = party.Individual?.Pseudonym ?? string.Empty,
                 Signature = party.Individual?.Signature ?? string.Empty,
                 Places = string.Join(", ", places),
@@ -47,7 +46,6 @@
     public class PartyViewModel
     {
         public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
         public string Pseudonym { get; set; } = string.Empty;
         public string Signature { get; set; } = string.Empty;
         public string Places { get; set; } = string.Empty;

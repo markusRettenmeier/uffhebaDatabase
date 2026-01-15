@@ -1,4 +1,6 @@
-﻿const createTd = ({ text = '', id = null, scope = null }) => {
+﻿"use strict";
+
+const createTd = ({ text = '', id = null, scope = null }) => {
     const td = document.createElement('td');
     if (id) td.id = id;
     if (scope) td.setAttribute('scope', scope);
@@ -126,6 +128,7 @@ if (toggleParty) {
     toggleParty.addEventListener('click', () => {
         const partyName = document.querySelector('.inputPartySearch').value.trim();
         const partyType = document.getElementById('partyType').value;
+
         fetch('/api/collections/listParties', {
             method: "POST",
             headers: {
@@ -205,8 +208,8 @@ function buildPartySearchResultRow(element, idx) {
 
 function sendErrorMessage(xhr) {
     console.log("fetch-Error:" + xhr)
-    const createCitySpan = $("#createCitySpan");
-    createCitySpan.text(xhr).css('color', 'red');
+    const createErrorSpan = $("#createErrorSpan");
+    createErrorSpan.text(xhr).css('color', 'red');
 }
 
 async function getCollectionAreaList() {
@@ -220,7 +223,8 @@ const conceptToggle = document.querySelector(".conceptSearchSubmit");
 if (conceptToggle) {
     conceptToggle.addEventListener('click', () => {
         const name = document.getElementById('inputConceptSearch').value;
-        fetch('/api/collections/listConcepts?conceptName=' + encodeURIComponent(name))
+        const collectionAreaID = document.getElementById('InputCollectionAreaID').value;
+        fetch('/api/collections/listConcepts?conceptName=' + encodeURIComponent(name) + "&&collectionAreaID=" + encodeURIComponent(collectionAreaID))
             .then(res => {
                 if (!res.ok) throw new Error(res.statusText);
                 return res.json();
@@ -256,7 +260,7 @@ function buildConceptSearchResultRow(element, idx) {
 
     tr.appendChild(createTd({
         text: element.conceptID,
-        id: `conceptSearchResultConceptID_${idx}`,
+        id: `conceptSearchResultConceptValueID_${idx}`,
         scope: 'row'
     }));
 
@@ -267,8 +271,8 @@ function buildConceptSearchResultRow(element, idx) {
     }));
 
     tr.appendChild(createTd({
-        text: element.description,
-        id: `conceptSearchResultDescription_${idx}`,
+        text: element.furtherSpecs,
+        id: `conceptSearchResultFurtherSpecs_${idx}`,
         scope: 'row'
     }));
 
@@ -306,7 +310,7 @@ function buildConceptSearchResultRow(element, idx) {
         btn.type = 'button';
         btn.className = 'btn btn-primary';
         btn.textContent = i18n.get("Add");
-        btn.onclick = () => addConcept(idx,'');
+        btn.onclick = () => addConcept(idx);
         divAction.appendChild(btn);
     }
 
@@ -315,3 +319,27 @@ function buildConceptSearchResultRow(element, idx) {
 
     return tr;
 }
+
+document.querySelectorAll('.vote-btn').forEach(button => {
+    button.addEventListener('click', function () {
+        const topicId = this.dataset.topicid;
+        const voteType = this.dataset.type;
+
+        fetch('/api/collections/VoteTopic', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                topicId: topicId,
+                voteType: voteType
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+    });
+});

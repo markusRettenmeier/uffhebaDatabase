@@ -5,12 +5,12 @@ namespace Sammlerplattform.Models.UserSettings
 {
     public class ChangePasswordModel
     {
-        [Required]
+        [Required(ErrorMessageResourceName = "Password_Old_Missing", ErrorMessageResourceType = typeof(SharedResources))]
         [DataType(DataType.Password)]
         [Display(Name = "OldPassword", ResourceType = typeof(SharedResources))]
         public string? OldPassword { get; set; }
 
-        [Required]
+        [Required(ErrorMessageResourceName = "Password_Old_Missing", ErrorMessageResourceType = typeof(SharedResources))]
         [StringLength(100, MinimumLength = 12)]
         [DataType(DataType.Password)]
         [Display(Name = "NewPassword", ResourceType = typeof(SharedResources))]

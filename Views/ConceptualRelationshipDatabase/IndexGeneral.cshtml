@@ -1,0 +1,49 @@
+﻿@model IEnumerable<Sammlerplattform.Models.ConceptualRelationshipDatabase.Concept>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+@{
+    ViewData["Title"] = @Localizer["ConceptRelation_Administration_General"];
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+}
+
+<h3>@ViewData["Title"]</h3>
+<p>@Localizer["Delete_NotAllowed"]</p>
+<hr />
+
+<div class="btn-group" role="group" aria-label="">
+    <a type="button" href="/ConceptualRelationshipDatabase/Create" class="btn btn-success">@Localizer["Create"]</a>
+    <button id="tooltip-SucheOpen" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="under" title="Öffne Suchleiste" type="button" onclick="openNav()"><svg viewBox="0 0 1024 1024"><path class="path1" d="M848.471 928l-263.059-263.059c-48.941 36.706-110.118 55.059-177.412 55.059-171.294 0-312-140.706-312-312s140.706-312 312-312c171.294 0 312 140.706 312 312 0 67.294-24.471 128.471-55.059 177.412l263.059 263.059-79.529 79.529zM189.623 408.078c0 121.364 97.091 218.455 218.455 218.455s218.455-97.091 218.455-218.455c0-121.364-103.159-218.455-218.455-218.455-121.364 0-218.455 97.091-218.455 218.455z"></path></svg></button>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    <a asp-action="IndexSpecific" asp-route-id="@item.Id" asp-route-rootConceptId="@item.Id">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<form asp-controller="CollectionAreaDatabase" asp-action="Index">
+    <partial name="~/Views/ConceptualRelationshipDatabase/_SearchByColumn.cshtml" />
+</form>

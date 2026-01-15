@@ -6,26 +6,32 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
 {
     public interface IProcessCollectionItemPicture
     {
-        (int PictureId, int Statuscode, string Statusmessage) Insert(CollectionItemPicture collectionItemPicture, CollectionItemEntity collectionItemEntity);
+        (int Statuscode, string Statusmessage, int PictureId) Insert(CollectionItemPicture collectionItemPicture, CollectionItemEntity collectionItemEntity);
         (int Statuscode, string Statusmessage) Update(CollectionItemPicture collectionItemPicture, CollectionItemEntity collectionItemEntity);
         (int Statuscode, string Statusmessage) Delete(CollectionItemPicture collectionItemPicture);
 
     }
 
-    public class CollectionItemPictureProcessor(IUnitOfWork unitOfWork) : IProcessCollectionItemPicture
+    public class CollectionItemPictureProcessor(IUnitOfWork unitOfWork
+        , ITrackEvents trackEvents) : IProcessCollectionItemPicture
     {
-        public (int PictureId, int Statuscode, string Statusmessage) Insert(CollectionItemPicture collectionItemPicture, CollectionItemEntity collectionItemEntity)
+        public (int Statuscode, string Statusmessage, int PictureId) Insert(CollectionItemPicture collectionItemPicture, CollectionItemEntity collectionItemEntity)
         {
             if (collectionItemPicture.IFormFile == null)
             {
-                return (0, 302, "Error_File_Empty");
+                trackEvents.TrackWarning("CollectionItemPictureProcessor.Insert: File is missing.", new Dictionary<string, object>
+                {
+                    { "CollectionItemPicture", collectionItemPicture },
+                    { "CollectionItemEntity", collectionItemEntity }
+                });
+                return (302, "Error_File_Empty", 0);
             }
 
             collectionItemPicture.CollectionItemEntityID = collectionItemEntity.CollectionItemEntityID;
             CollectionItemPicture newCollectionItemPicture = unitOfWork.CollectionItemPictureRepository.Insert(collectionItemPicture);
             unitOfWork.Save();
 
-            return (newCollectionItemPicture.CollectionItemPictureID, 200, "Success_CollectionItemPicture_Created");
+            return (200, "Success_CollectionItemPicture_Created", newCollectionItemPicture.CollectionItemPictureID);
         }
 
         public (int Statuscode, string Statusmessage) Update(CollectionItemPicture collectionItemPicture, CollectionItemEntity collectionItemEntity)
@@ -34,6 +40,11 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
             CollectionItemPicture? existingCollectionItemPicture = unitOfWork.CollectionItemPictureRepository.GetByID(collectionItemPicture.CollectionItemPictureID);
             if (existingCollectionItemPicture == null)
             {
+                trackEvents.TrackWarning("CollectionItemPictureProcessor.Update: CollectionItemPicture not found.", new Dictionary<string, object>
+                {
+                    { "CollectionItemPicture", collectionItemPicture },
+                    { "CollectionItemEntity", collectionItemEntity }
+                });
                 return (302, "Error_CollectionItemPicture_NotFound");
             }
 
@@ -43,7 +54,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
                 unitOfWork.Save();
             }
 
-            return (200, "Success_CollectionItemPotential_Created");
+            return (200, "Success_CollectionItemPicture_Created");
         }
         public (int Statuscode, string Statusmessage) Delete(CollectionItemPicture collectionItemPicture)
         {
@@ -52,6 +63,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
 
             if (existingCollectionItemPicture == null)
             {
+                trackEvents.TrackWarning("CollectionItemPictureProcessor.Delete: CollectionItemPicture not found.", new Dictionary<string, object>
+                {
+                    { "CollectionItemPicture", collectionItemPicture }
+                });
                 return (404, "Error_CollectionItemPicture_NotFound");
             }
 

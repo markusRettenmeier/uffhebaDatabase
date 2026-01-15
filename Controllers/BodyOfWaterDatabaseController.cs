@@ -1,45 +1,51 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase;
-using Sammlerplattform.Resources;
+using Sammlerplattform.Services;
 using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
 
 namespace Sammlerplattform.Controllers
 {
     [Authorize]
     public class BodyOfWaterDatabaseController(IProcessPlace processPlace,
-        IProcessBodyOfWater processBodyOfWater,
-        IStringLocalizer<SharedResources> stringLocalizer) : Controller
+        IProcessBodyOfWater processBodyOfWater) : Controller
     {
-        public ActionResult Index(Status status, PlaceSearchParameter placeSearchParameter)
+        [HandleStatus]
+        public ActionResult Index(PlaceSearchParameterModel placeSearchParameter)
         {
-            HandleStatus(status);
+            //HandleStatus(status);
 
             List<Place> placeList = [.. processPlace.GetListWithPredicate(placeSearchParameter).Where(x => x.TransportRoute != null)];
             return View(placeList);
         }
 
-        public ActionResult Create(Status status)
+        [HandleStatus]
+        public ActionResult Create()
         {
-            HandleStatus(status);
+            //HandleStatus(status);
 
             return View();
         }
         public IActionResult CreateSubmit(BodyOfWaterOperationParameterModel model)
         {
-            (int _, int _, string statusMessage) = processBodyOfWater.Create(model);
-            return RedirectToAction(nameof(Index), new { statusMessage });
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+            }
+
+            (int statusCode, string statusMessage, int _) = processBodyOfWater.Create(model);
+            return RedirectToAction(nameof(Index), new { statusMessage, statusCode });
         }
 
-        public ActionResult Edit(Status status, int id)
+        [HandleStatus]
+        public ActionResult Edit(int id)
         {
-            HandleStatus(status);
+            //HandleStatus(status);
 
             Place? existingPlace = processPlace
-                .GetListWithPredicate(new PlaceSearchParameter { PlaceID = [id] }).FirstOrDefault();
+                .GetListWithPredicate(new PlaceSearchParameterModel { PlaceID = [id] }).FirstOrDefault();
 
             return existingPlace == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Place_NotFound" })
@@ -53,17 +59,25 @@ namespace Sammlerplattform.Controllers
         }
         public IActionResult EditSubmit(BodyOfWaterOperationParameterModel model)
         {
-            (int placeID, int _, string statusMessage) = processBodyOfWater.Edit(model);
-            return RedirectToAction(nameof(Edit), new { statusMessage, id = placeID });
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+            }
+            (int statusCode, string statusMessage, int id) = processBodyOfWater.Edit(model);
+            if (statusCode == 200)
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
+            else
+                return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
 
-        private void HandleStatus(Status status)
-        {
-            if (!string.IsNullOrEmpty(status.Message))
-            {
-                ViewData["StatusMessage"] = stringLocalizer[status.Message];
-                ViewData["StatusCode"] = status.Code;
-            }
-        }
+        //private void HandleStatus(Status status)
+        //{
+        //    if (!string.IsNullOrEmpty(status.StatusMessage))
+        //    {
+        //        string statusMessage = stringLocalizer[status.StatusMessage];
+        //        ViewData["StatusMessage"] = statusMessage; //Keine Direktzuweisung möglich, da ViewData nur Objekte annimmt
+        //        ViewData["StatusCode"] = status.StatusCode;
+        //    }
+        //}
     }
 }

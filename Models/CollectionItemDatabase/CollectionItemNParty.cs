@@ -15,10 +15,6 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         public int? CollectionItemEntityID { get; set; }
         [Display(Name = "CollectionItemEntity", ResourceType = typeof(SharedResources))]
         public CollectionItemEntity? CollectionItemEntity { get; set; }
-        [Display(Name = "CollectionItemPotentialID", ResourceType = typeof(SharedResources))]
-        public int? CollectionItemPotentialID { get; set; }
-        [Display(Name = "CollectionItemPotential", ResourceType = typeof(SharedResources))]
-        public CollectionItemPotential? CollectionItemPotential { get; set; }
         [Display(Name = "PartyID", ResourceType = typeof(SharedResources))]
         public int PartyID { get; set; }
         [Display(Name = "Party", ResourceType = typeof(SharedResources))]

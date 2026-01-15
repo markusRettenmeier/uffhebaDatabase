@@ -21,9 +21,11 @@ export const columns = [
     ["Organization_ProductionFacility_ProductionFacilityName", "text"],
     ["Organization_PlaceList_PlaceNToponymyList_Toponymy_ToponymyName", "text"],
 
-];
-export const columnsSimple = columns.filter(([name]) =>
-  [
+    ["ConceptID", "number"],
+    ["ConceptName", "text"],
+    ["RelationTypeInt", "number"],
+    ["CollectionAreaID", "number"],
 
-  ].includes(name)
-);
+    ["CollectionSetId", "number"],
+    ["CollectionSetName", "number"]
+];

@@ -9,7 +9,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
         (int Statuscode, string Statusmessage) Delete(int id);
     }
 
-    public partial class PhysicalPictureProcessor(IWebHostEnvironment hostEnvironment) : IProcessPicturePhysically
+    public partial class PhysicalPictureProcessor(IWebHostEnvironment hostEnvironment
+        , ITrackEvents trackEvents) : IProcessPicturePhysically
     {
         public (int Statuscode, string Statusmessage) Save(CollectionItemPicture collectionItemPicture, int id, bool update)
         {
@@ -32,6 +33,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
             }
             catch (Exception ex)
             {
+                trackEvents.TrackException(ex, "PhysicalPictureProcessor", new Dictionary<string, object> { { "ID", id } });
                 return (500, "Error_Error_Ocurred");
 
             }
@@ -50,6 +52,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
             }
             catch (Exception ex)
             {
+                trackEvents.TrackException(ex, "PhysicalPictureProcessor", new Dictionary<string, object> { { "ID", id } });
                 return (500, "Error_Error_Ocurred");
             }
         }
@@ -63,13 +66,13 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
 
         private void ImageResizeAndMoveToFolder(bool isfrontside, int id, MagickImage image)
         {
-            var pathesWebp = Pathes(id + ".webp");
-            var pathesPng = Pathes(id + ".png");
-            if (File.Exists(pathesWebp.pathNormal))
+            (string pathNormal, string pathSmall, string pathThumbnail) = Pathes(id + ".webp");
+            (string pathNormal, string pathSmall, string pathThumbnail) pathesPng = Pathes(id + ".png");
+            if (File.Exists(pathNormal))
             {
-                File.Delete(pathesWebp.pathNormal);
+                File.Delete(pathNormal);
             }
-            image.Write(pathesWebp.pathNormal, MagickFormat.WebP);
+            image.Write(pathNormal, MagickFormat.WebP);
             if (File.Exists(pathesPng.pathNormal))
             {
                 File.Delete(pathesPng.pathNormal);
@@ -88,11 +91,11 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
                     image.Scale(498, 708);
                     image.Crop(498, 322);
                 }
-                if (File.Exists(pathesWebp.pathSmall))
+                if (File.Exists(pathSmall))
                 {
-                    File.Delete(pathesWebp.pathSmall);
+                    File.Delete(pathSmall);
                 }
-                image.Write(pathesWebp.pathSmall, MagickFormat.WebP);
+                image.Write(pathSmall, MagickFormat.WebP);
                 if (File.Exists(pathesPng.pathSmall))
                 {
                     File.Delete(pathesPng.pathSmall);
@@ -104,11 +107,11 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
                 {
                     image.Thumbnail(240, 153);
                 }
-                if (File.Exists(pathesWebp.pathThumbnail))
+                if (File.Exists(pathThumbnail))
                 {
-                    File.Delete(pathesWebp.pathThumbnail);
+                    File.Delete(pathThumbnail);
                 }
-                image.Write(pathesWebp.pathThumbnail, MagickFormat.WebP);
+                image.Write(pathThumbnail, MagickFormat.WebP);
                 if (File.Exists(pathesPng.pathThumbnail))
                 {
                     File.Delete(pathesPng.pathThumbnail);

@@ -12,6 +12,7 @@ using Sammlerplattform.Models.UserSettings;
 using System.Text;
 using System.Text.Encodings.Web;
 using Sammlerplattform.Models;
+using Sammlerplattform.Services;
 
 namespace Sammlerplattform.Controllers
 {
@@ -43,11 +44,12 @@ namespace Sammlerplattform.Controllers
             _localizerHtml = htmlLocalizer;
         }
 
-        public async Task<ViewResult> Login(Status status)
+        [HandleStatus]
+        public async Task<ViewResult> Login()
         {
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-            HandleStatus(status);
+            //HandleStatus(status);
 
             return View();
         }
@@ -60,7 +62,7 @@ namespace Sammlerplattform.Controllers
             }
             if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
             {
-                return RedirectToAction(nameof(Login), new Status() { Message = "Error_EmailPassword_Necessary" } );
+                return RedirectToAction(nameof(Login), new Status() { StatusMessage = "Error_EmailPassword_Necessary" } );
             }
 
             UsingIdentityUser? existingUser = await _userManager.FindByEmailAsync(model.Email);
@@ -84,17 +86,22 @@ namespace Sammlerplattform.Controllers
                 }
 
                 string statusMessage = string.Join(" ", result.Errors.Select(e => e.Description));
-                return RedirectToAction(nameof(Login), new { statusMessage });
+                return RedirectToAction(nameof(Login), new { statusMessage, statusCode = 500 });
             }
 
             if (_userManager.Options.SignIn.RequireConfirmedAccount)
             {
                 bool success = await SendConfirmationEmailAsync(user);
                 string message = success
-                    ? _localizer["Success_ConfirmationEmail_Sent"]
-                    : _localizer["Error_ConfirmationEmail_NotSend"];
+                    ? "Success_ConfirmationEmail_Sent"
+                    : "Error_ConfirmationEmail_NotSend";
+                int statusCode;
+                if (success)
+                    statusCode = 200;
+                else
+                    statusCode = 500;
 
-                return RedirectToAction(nameof(Login), new { statusMessage = message });
+                return RedirectToAction(nameof(Login), new { statusMessage = message, statusCode });
             }
 
             await _signInManager.SignInAsync(user, isPersistent: false);
@@ -104,8 +111,8 @@ namespace Sammlerplattform.Controllers
         public async Task<IActionResult> LoginPost(LoginViewModel model)
         {
             //für Test
-            model.Password = "123456";
-            model.Email = "tester@web.de";
+            //model.Password = "123456";
+            //model.Email = "tester@web.de";
 
 
             if (model.Password == null || model.Email == null)
@@ -134,7 +141,7 @@ namespace Sammlerplattform.Controllers
                 bool emailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
                 if (emailConfirmed is false)
                 {
-                    return RedirectToAction(nameof(Login), new { errorMessage = "Error_Email_NotConfirmed" });
+                    return RedirectToAction(nameof(Login), new { statusMessage = "Error_Email_NotConfirmed" });
                 }
                 else
                 {
@@ -322,14 +329,15 @@ namespace Sammlerplattform.Controllers
             return true;
         }
 
-        private void HandleStatus(Status status)
-        {
-            if (!string.IsNullOrEmpty(status.Message))
-            {
-                ViewData["StatusMessage"] = _localizerHtml[status.Message];
-                ViewData["StatusCode"] = status.Code;
-            }
-        }
+        //private void HandleStatus(Status status)
+        //{
+        //    if (!string.IsNullOrEmpty(status.StatusMessage))
+        //    {
+        //        string statusMessage = _localizer[status.StatusMessage];
+        //        ViewData["StatusMessage"] = statusMessage; //Keine Direktzuweisung möglich, da ViewData nur Objekte annimmt
+        //        ViewData["StatusCode"] = status.StatusCode;
+        //    }
+        //}
     }
 }
 

@@ -9,12 +9,13 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
         Postalcode? GetPostalcode(string postalcodeNumber);
     }
 
-    public class PostalcodeProcessor(IUnitOfWork unitOfWork) : IProcessPostalcode
+    public class PostalcodeProcessor(IUnitOfWork unitOfWork, ITrackEvents trackEvents) : IProcessPostalcode
     {
         public Postalcode CreateOrGetPostalcode(string postalcodeNumber)
         {
             if (string.IsNullOrEmpty(postalcodeNumber))
             {
+                trackEvents.TrackWarning("PostalcodeProcessor.CreateOrGetPostalcode: PostalcodeNumber is null or empty.", []);
                 return new Postalcode() { PostalcodeNumber = postalcodeNumber }; ;
             }
             Postalcode? existingPostalcode = GetPostalcode(postalcodeNumber);

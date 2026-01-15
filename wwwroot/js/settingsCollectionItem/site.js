@@ -1,52 +1,79 @@
-﻿function SetProcessOfManufactureIntoTable(buttonId) {
-    let value = document.getElementById('processOfManufactureSearchResultprocessOfManufactureID_' + buttonId).textContent;
-    document.getElementById('CollectionItemEntity_ProcessOfManufactureID').value = value;
-    value = document.getElementById('processOfManufactureSearchResultMainprocess_' + buttonId).textContent;
-    document.getElementById('processOfManufactureMainprocess').innerText = value;
-    value = document.getElementById('processOfManufactureSearchResultProcessOfManufactureName_' + buttonId).textContent;
-    document.getElementById('processOfManufactureProcessOfManufactureName').innerText = value;
-    value = document.getElementById('processOfManufactureSearchResultTechnique_' + buttonId).textContent;
-    document.getElementById('processOfManufactureTechnique').innerText = value;
+﻿function addConcept(buttonId) {
+    const tbody = document.getElementById('appendBoolConceptHere');
+    const index = tbody.children.length;
 
-    document.getElementById(`clearOneRowProcessOfManufactureTableButton`).style.display = 'inline';
-    hideModal('processOfManufactureModal');
-}
-(function initRemoveProcessOfManufactureButtonHandler() {
-    const container = document.getElementById('processOfManufactureTable');
-    if (!container) return;
+    const conceptValueId = document.getElementById(`conceptSearchResultConceptValueID_${buttonId}`)?.textContent || '';
+    const nameValue = document.getElementById(`conceptSearchResultName_${buttonId}`)?.textContent || '';
+    const furtherSpecsValue = document.getElementById(`conceptSearchResultFurtherSpecs_${buttonId}`)?.textContent || '';
 
-    container.addEventListener('click', function (e) {
-        if (e.target && e.target.id == 'clearOneRowProcessOfManufactureTableButton') {
-            document.getElementById('CollectionItemEntity_ProcessOfManufactureID').value = ''
-            document.getElementById('processOfManufactureMainprocess').innerText = ''
-            document.getElementById('processOfManufactureProcessOfManufactureName').innerText = ''
-            document.getElementById('processOfManufactureTechnique').innerText = ''
-            document.getElementById(`clearOneRowProcessOfManufactureTableButton`).style.display = 'none';
-        }
-    });
-})();
+    const row = document.createElement("tr");
+    row.className = `conceptTableRow`;
 
-function addConcept(buttonId, relation) {
-    let value = document.getElementById(`conceptSearchResultConceptID_${buttonId}`).textContent;
-    document.getElementById('CollectionItemEntity_ConceptID').value = value;
-    value = document.getElementById(`conceptSearchResultName_${buttonId}`).textContent;
-    document.getElementById('ConceptName').innerText = value;
+    const tdName = document.createElement("td");
+    tdName.textContent = nameValue;
 
-    document.getElementById(`clearOneRowConcept`).style.display = 'inline';
+    const tdSpecs = document.createElement("td");
+    tdSpecs.textContent = furtherSpecsValue;
+
+    const tdActions = document.createElement("td");
+
+    let hiddenInput = document.createElement("input");
+    hiddenInput.type = "hidden";
+    hiddenInput.classList.add('form-control', 'conceptResultTableId');
+    hiddenInput.name = `ConceptValueList[${index}].ConceptValueID`;
+    hiddenInput.value = conceptValueId;
+    const inputConceptValue = document.createElement('input');
+    inputConceptValue.type = "hidden";
+    inputConceptValue.name = `ConceptValueList[${index}].ValueBool`;
+    inputConceptValue.required = true;
+    inputConceptValue.value = "on";
+    inputConceptValue.classList.add('form-control', 'conceptResultTableValueBool');
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.classList.add("btn", "btn-danger", "btn-sm", "removeConceptRow");
+    removeBtn.textContent = i18n.get("Remove");
+
+    tdActions.appendChild(hiddenInput);
+    tdActions.appendChild(inputConceptValue);
+    tdActions.appendChild(removeBtn);
+
+    row.appendChild(tdName);
+    row.appendChild(tdSpecs);
+    row.appendChild(tdActions);
+    tbody.appendChild(row);
+
     hideModal('ConceptModal');
 }
 (function initRemoveConceptButtonHandler() {
-    const container = document.getElementById('ConceptTable');
+    const container = document.getElementById('appendBoolConceptHere');
     if (!container) return;
 
     container.addEventListener('click', function (e) {
-        if (e.target && e.target.id == 'clearOneRowConcept') {
-            document.getElementById('CollectionItemEntity_ConceptID').value = ''
-            document.getElementById('ConceptName').innerText = ''
-            document.getElementById(`clearOneRowConcept`).style.display = 'none';
+        if (e.target && e.target.classList.contains('removeConceptRow')) {
+            const trTag = e.target.closest('.conceptTableRow');
+            if (trTag) {
+                trTag.remove();
+                reindexChildConcepts(container);
+            }
         }
     });
 })();
+function reindexChildConcepts(container) {
+    const entries = Array.from(container.querySelectorAll(".conceptTableRow"));
+
+    entries.forEach((entry, index) => {
+        const ConceptValueIdInput = entry.querySelector(".conceptResultTableId");
+        if (ConceptValueIdInput) {
+            ConceptValueIdInput.name = `ConceptValueList[${index}].ConceptValueID`;
+        }
+
+        const relationshipInput = entry.querySelector(".conceptResultTableValueBool");
+        if (relationshipInput) {
+            relationshipInput.name = `ConceptValueList[${index}].ValueBool`;
+        }
+    });
+}
 
 function addPlace(idx) {
     const tbody = document.getElementById('appendPlaceHere');
@@ -115,9 +142,9 @@ function reindexChildPlaces(container) {
     const entries = Array.from(container.querySelectorAll(".placeTableRow"));
 
     entries.forEach((entry, index) => {
-        const cityIdInput = entry.querySelector(".placeResultTableId");
-        if (cityIdInput) {
-            cityIdInput.name = `CollectionItemNPlaceList[${index}].CityID`;
+        const placeIdInput = entry.querySelector(".placeResultTableId");
+        if (placeIdInput) {
+            placeIdInput.name = `CollectionItemNPlaceList[${index}].PlaceID`;
         }
 
         const relationshipInput = entry.querySelector(".placeResultTableRelationship");
@@ -190,7 +217,6 @@ function addParty(idx) {
         }
     });
 })();
-
 function reindexPartyFields(container) {
     const entries = Array.from(container.querySelectorAll(".partyResultTableTr"));
 
@@ -221,192 +247,6 @@ $('#clearOneRowEraTable').on('click', function () {
     document.getElementById('eraName').innerText = ''
     $('#clearOneRowEraTable').hide()
 })
-
-function addColor() {
-    const container = document.getElementById("colorContainer");
-    const index = container.children.length;
-
-    const card = document.createElement("div");
-    card.className = "card cardColor m-2";
-    card.style.width = "18rem";
-
-    const cardBody = document.createElement("div");
-    cardBody.className = "card-body";
-
-    const select = document.createElement("select");
-    select.name = `CollectionItemNColorList[${index}].ColorID`;
-    select.id = "selectColor" + index;
-    select.className = "form-select selectColorID";
-
-    const colorList = JSON.parse(sessionStorage.getItem('colorList') || '[]');
-    const autocompleteSource = colorList.map(x => ({
-        name: x.colorName,
-        value: x.colorID
-    }));
-    const defaultOption = document.createElement("option");
-    defaultOption.selected = true;
-    defaultOption.value = "";
-    defaultOption.textContent = i18n.get("Color_Select");
-    select.appendChild(defaultOption);
-
-    autocompleteSource.forEach((element) => {
-        const option = document.createElement("option");
-        option.selected = false;
-        option.value = element.value;
-        option.textContent = element.name;
-        select.appendChild(option);
-    });
-
-    const mainColorDiv = document.createElement("div");
-    mainColorDiv.className = "form-check";
-
-    const mainColorCheckbox = document.createElement("input");
-    mainColorCheckbox.type = "checkbox";
-    mainColorCheckbox.className = "form-check-input checkboxPrimaryColor";
-    mainColorCheckbox.name = `CollectionItemNColorList[${index}].IsPrimaryColor`;
-    mainColorCheckbox.value = "true";
-    mainColorCheckbox.id = `mainColorCheckbox${index}`;
-    mainColorCheckbox.setAttribute("data-val", "true");
-
-    const mainColorLabel = document.createElement("label");
-    mainColorLabel.className = "form-check-label";
-    mainColorLabel.setAttribute("for", `mainColorCheckbox${index}`);
-    mainColorLabel.textContent = i18n.get("IsPrimaryColor");
-    mainColorDiv.appendChild(mainColorCheckbox);
-    mainColorDiv.appendChild(mainColorLabel);
-
-    const removeButton = document.createElement("button");
-    removeButton.type = "button";
-    removeButton.className = "btn btn-danger removeColor";
-    removeButton.textContent = i18n.get("Remove");
-
-    cardBody.appendChild(select);
-    cardBody.appendChild(mainColorDiv);
-    cardBody.appendChild(removeButton);
-    card.appendChild(cardBody);
-    container.appendChild(card);
-}
-(function initRemoveColorButtonHandler() {
-    const container = document.getElementById('colorContainer');
-    if (!container) return;
-
-    container.addEventListener('click', function (e) {
-        if (e.target && e.target.classList.contains('removeColor')) {
-            const trTag = e.target.closest('.cardColor');
-            if (trTag) {
-                trTag.remove();
-                reindexConceptRelationFields(container);
-            }
-        }
-    });
-})();
-function reindexConceptRelationFields(container) {
-    const entries = Array.from(container.querySelectorAll(".cardColor"));
-
-    entries.forEach((entry, index) => {
-        const manufactoryIdInput = entry.querySelector(".selectColorID");
-        if (manufactoryIdInput) {
-            manufactoryIdInput.name = `CollectionItemNColorList[${index}].ColorID`;
-        }
-        const primaryColorCheckbox = entry.querySelector(".checkboxPrimaryColor");
-        if (primaryColorCheckbox) {
-            primaryColorCheckbox.name = `CollectionItemNColorList[${index}].IsPrimaryColor`;
-        }
-    });
-}
-
-function addMaterial() {
-    const container = document.getElementById("materialContainer");
-    const index = container.children.length;
-
-    const card = document.createElement("div");
-    card.className = "card cardMaterial m-2";
-    card.style.width = "18rem";
-
-    const cardBody = document.createElement("div");
-    cardBody.className = "card-body";
-
-    const select = document.createElement("select");
-    select.name = `CollectionItemNMaterialList[${index}].MaterialID`;
-    select.id = "selectMaterial" + index;
-    select.className = "form-select selectMaterialID";
-
-    const materialList = JSON.parse(sessionStorage.getItem('materialList') || '[]');
-    const autocompleteSource = materialList.map(x => ({
-        name: x.name,
-        value: x.materialID
-    }));
-    const defaultOption = document.createElement("option");
-    defaultOption.selected = true;
-    defaultOption.value = "";
-    defaultOption.textContent = i18n.get("Material_Select");
-    select.appendChild(defaultOption);
-
-    autocompleteSource.forEach((element) => {
-        const option = document.createElement("option");
-        option.selected = false;
-        option.value = element.value;
-        option.textContent = element.name;
-        select.appendChild(option);
-    });
-
-    const mainMaterialDiv = document.createElement("div");
-    mainMaterialDiv.className = "form-check";
-
-    const mainMaterialCheckbox = document.createElement("input");
-    mainMaterialCheckbox.type = "checkbox";
-    mainMaterialCheckbox.className = "form-check-input checkboxPrimaryMaterial";
-    mainMaterialCheckbox.name = `CollectionItemNMaterialList[${index}].IsPrimaryMaterial`;
-    mainMaterialCheckbox.value = "true";
-    mainMaterialCheckbox.id = `mainMaterialCheckbox${index}`; // <<< wichtig!
-    mainMaterialCheckbox.setAttribute("data-val", "true");
-
-    const mainMaterialLabel = document.createElement("label");
-    mainMaterialLabel.className = "form-check-label";
-    mainMaterialLabel.setAttribute("for", `mainMaterialCheckbox${index}`);
-    mainMaterialLabel.textContent = i18n.get("IsPrimaryMaterial");
-    mainMaterialDiv.appendChild(mainMaterialCheckbox);
-    mainMaterialDiv.appendChild(mainMaterialLabel);
-
-    const removeButton = document.createElement("button");
-    removeButton.type = "button";
-    removeButton.className = "btn btn-danger removeMaterial";
-    removeButton.textContent = i18n.get("Remove");
-
-    cardBody.appendChild(select);
-    cardBody.appendChild(mainMaterialDiv);
-    cardBody.appendChild(removeButton);
-    card.appendChild(cardBody);
-    container.appendChild(card);
-}
-(function initRemoveMaterialButtonHandler() {
-    const container = document.getElementById('materialContainer');
-    if (!container) return;
-
-    container.addEventListener('click', function (e) {
-        if (e.target && e.target.classList.contains('removeMaterial')) {
-            const card = e.target.closest('.cardMaterial');
-            if (card) {
-                card.remove();
-                reindexMaterialFields(container);
-            }
-        }
-    });
-})();
-function reindexMaterialFields(container) {
-    const entries = Array.from(container.querySelectorAll(".cardMaterial"));
-
-    entries.forEach((entry, index) => {
-        const materialIdInput = entry.querySelector(".selectMaterialID");
-        if (materialIdInput) {
-            materialIdInput.name = `CollectionItemNMaterialList[${index}].MaterialID`;
-        }
-        const primaryColorCheckbox = entry.querySelector(".checkboxPrimaryMaterial");
-        if (primaryColorCheckbox) {
-            primaryColorCheckbox.name = `CollectionItemNMaterialList[${index}].IsPrimaryMaterial`;
-        }
-    });
-}
 
 function addInputFormFile(sourcePage) {
     const perspective = [i18n.get("Side_Front"), i18n.get("Side_Back"), i18n.get("Side_Left"), i18n.get("Side_Right"), i18n.get("Side_Top"), i18n.get("Side_Bottom")]
@@ -485,34 +325,12 @@ function removePicture(pictureCount) {
 
     removeFormFileInput(pictureCount)
 }
+function SetSetIntoTable(buttonId) {
+    let value = document.getElementById(`SetSearchResultSetID_${buttonId}`).value;
+    document.getElementById('CollectionItemEntity_SetID').innerText = value;
+    let value = document.getElementById(`SetSearchResultSetName_${buttonId}`).value;
+    document.getElementById('SetName').innerText = value;
 
-if (window.location.href.indexOf('Database') > -1) {
-    $(function () {
-        $(".chosen-select").chosen()
-        $(".chosen").chosen()
-    });
-}
-(function showPotentialTable() {
-    const checkbox = document.getElementById('IsPartOfASeries');
-    if (!checkbox) return;
-
-    checkbox.addEventListener('click', function (e) {
-        if (e.target && e.target.checked) {
-            const potentialTable = document.getElementById('PotentialTable');
-            if (potentialTable) {
-                potentialTable.style.display = 'block';
-            }
-        }
-    });
-})();
-function SetCollectionItemPotentialIntoTable(buttonId) {
-    let value = document.getElementById(`CollectionItemPotentialSearchResultPotentialID_${buttonId}`).value;
-    document.getElementById('CollectionItemPotentialID').innerText = value;
-
-    document.getElementById(`ClearOneRowCollectionItemPotentialTable`).style.display = 'inline';
-    hideModal('CollectionItemPotentialModal');
-}
-function clearOneRowProcessOfManufactureTable() {
-    document.getElementById('ProcessOfManufacture_ProcessOfManufactureID').value = '';
-    document.getElementById('ClearOneRowCollectionItemPotentialTable').style.display = 'none';
+    document.getElementById(`ClearOneRowSetTable`).style.display = 'inline';
+    hideModal('SetModal');
 }

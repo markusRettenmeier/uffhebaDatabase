@@ -1,6 +1,7 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
+using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
 using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
 using System.Transactions;
 
@@ -9,98 +10,109 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
     public interface IProcessParty
     {
         List<Party> GetListWithPredicate(PartySearchParameterModel partySearchParameterModel);
-        (Party Party, int Statuscode, string Message) CreateParty(PartyOperationParameterModel partyOperationParameterModel);
-        (Party Party, int Statuscode, string Message) EditParty(PartyOperationParameterModel partyOperationParameterModel);
-        (int Statuscode, string Message) DeleteParty(int partyID);
+        (int Statuscode, string Message, Party Party) Insert(PartyOperationParameterModel partyOperationParameterModel);
+        (int Statuscode, string Message, Party Party) Update(PartyOperationParameterModel partyOperationParameterModel);
+        (int Statuscode, string Message) Delete(int partyID);
     }
 
-    public class PartyProcessor(IUnitOfWork unitOfWork, IProcessPlace processPlace) : IProcessParty
+    public class PartyProcessor(IUnitOfWork unitOfWork
+        , IProcessPlace processPlace
+        , ITrackEvents trackEvents) : IProcessParty
     {
-        public (Party Party, int Statuscode, string Message) CreateParty(PartyOperationParameterModel partyOperationParameterModel)
+        public (int Statuscode, string Message, Party Party) Insert(PartyOperationParameterModel partyOperationParameterModel)
         {
             if (string.IsNullOrWhiteSpace(partyOperationParameterModel.Party.PartyName))
             {
-                return (new Party() { PartyName = string.Empty }, 412, "Error_PartyName_Missing");
-            }
-
-            try
-            {
-                using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
-
-                Party newParty = unitOfWork.PartyRepository.Insert(partyOperationParameterModel.Party);
-                unitOfWork.Save();
-
-                foreach (Place place in partyOperationParameterModel.PlaceList)
+                trackEvents.TrackWarning("PartyProcessor.CreateParty: PartyName is missing.", new Dictionary<string, object>
                 {
-                    ConnectPlaceToParty(newParty, place.PlaceID);
-                }
+                    { "Party", partyOperationParameterModel.Party },
+                    { "PlaceList", partyOperationParameterModel.PlaceList }
+                });
+                return (412, "Error_Party_NameMissing", new Party() { PartyName = string.Empty });
+            }
 
-                scope.Complete();
-                return (newParty, 201, "Success_Party_Created");
-            }
-            catch (Exception ex)
+            Party newParty = unitOfWork.PartyRepository.Insert(partyOperationParameterModel.Party);
+            unitOfWork.Save();
+
+            foreach (Place place in partyOperationParameterModel.PlaceList)
             {
-                //logger.LogError("Fehler beim Hinzufügen des Ortes: {ex}", ex);
-                return (new() { PartyName = string.Empty }, 500, "Error_Error_Ocurred");
+                ConnectPlaceToParty(newParty, place.PlaceID);
             }
+
+            return (201, "Success_Party_Created", newParty);
         }
 
-        public (int Statuscode, string Message) DeleteParty(int partyID)
+        public (int Statuscode, string Message) Delete(int partyID)
         {
+            trackEvents.TrackWarning("PartyProcessor.DeleteParty: Not implemented yet.", new Dictionary<string, object>
+            {
+                { "PartyID", partyID }
+            });
             throw new NotImplementedException();
         }
 
-        public (Party Party, int Statuscode, string Message) EditParty(PartyOperationParameterModel partyOperationParameterModel)
+        public (int Statuscode, string Message, Party Party) Update(PartyOperationParameterModel partyOperationParameterModel)
         {
             if (partyOperationParameterModel.Party == null || partyOperationParameterModel.Party.PartyID <= 0)
             {
-                return (new Party() { PartyName = string.Empty }, 412, "Error_PartyID_Missing");
+                trackEvents.TrackWarning("PartyProcessor.EditParty: PartyID is missing or invalid.", new Dictionary<string, object>
+                {
+                    { "PlaceList", partyOperationParameterModel.PlaceList }
+                });
+                return (412, "Error_PartyID_Missing", new Party() { PartyName = string.Empty });
             }
             if (string.IsNullOrWhiteSpace(partyOperationParameterModel.Party.PartyName))
             {
-                return (new Party() { PartyName = string.Empty }, 412, "Error_PartyName_Missing");
-            }
-
-            try
-            {
-                using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
-
-                Party? partyToEdit = GetListWithPredicate(
-                    new PartySearchParameterModel { PartyID = [partyOperationParameterModel.Party.PartyID] }
-                    ).FirstOrDefault();
-                if (partyToEdit == null)
+                trackEvents.TrackWarning("PartyProcessor.EditParty: PartyName is missing.", new Dictionary<string, object>
                 {
-                    return (new Party() { PartyName = string.Empty }, 404, "Error_Party_NotFound");
-                }
-
-                if (partyToEdit.PartyName != partyOperationParameterModel.Party.PartyName
-                    || partyToEdit.PartyDescription != partyOperationParameterModel.Party.PartyDescription)
-                {
-                    partyToEdit.PartyName = partyOperationParameterModel.Party.PartyName;
-                    partyToEdit.PartyDescription = partyOperationParameterModel.Party.PartyDescription;
-                    unitOfWork.Save();
-                }
-
-                SyncPlace(partyToEdit, partyOperationParameterModel.PlaceList);
-
-                scope.Complete();
-                return (partyToEdit, 200, "Success_Party_Updated");
+                    { "Party", partyOperationParameterModel.Party },
+                    { "PlaceList", partyOperationParameterModel.PlaceList }
+                });
+                return (412, "Error_Party_NameMissing", new Party() { PartyName = string.Empty });
             }
-            catch (Exception ex)
+
+            Party? existingParty = GetListWithPredicate(
+                new PartySearchParameterModel { PartyID = [partyOperationParameterModel.Party.PartyID] }
+                ).FirstOrDefault();
+            if (existingParty == null)
             {
-                //logger.LogError("Fehler beim Bearbeiten der Partei: {ex}", ex);
-                return (new() { PartyName = string.Empty }, 500, "Error_Error_Ocurred");
+                return (404, "Error_Party_NotFound", new Party() { PartyName = string.Empty });
             }
+
+            bool isChanged = false;
+            if (existingParty.PartyName != partyOperationParameterModel.Party.PartyName)
+            {
+                existingParty.PartyName = partyOperationParameterModel.Party.PartyName;
+                isChanged = true;
+            }
+            if (existingParty.WikipediaUrl != partyOperationParameterModel.Party.WikipediaUrl)
+            {
+                existingParty.WikipediaUrl = partyOperationParameterModel.Party.WikipediaUrl;
+                isChanged = true;
+            }
+            if (existingParty.PartyTypeInt != partyOperationParameterModel.Party.PartyTypeInt)
+            {
+                existingParty.PartyTypeInt = partyOperationParameterModel.Party.PartyTypeInt;
+                isChanged = true;
+            }
+            if (isChanged)
+            {
+                unitOfWork.Save();
+            }
+
+            SyncPlace(existingParty, partyOperationParameterModel.PlaceList);
+
+            return (200, "Success_Party_Updated", existingParty);
         }
 
         public List<Party> GetListWithPredicate(PartySearchParameterModel partySearchParameterModel)
         {
             IEnumerable<Party> partyIEnumerable = unitOfWork.PartyRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<Party>(partySearchParameterModel),
-                includeProperties: "Individual," +
-                "Organization.ProductionFacility," +
-                "PlaceList.PlaceNToponymyList.Toponymy," +
-                "PlaceList.Settlement.SettlementNPostalcodeList.Postalcode");
+                includeProperties: nameof(Party.Individual) + "," +
+                                nameof(Party.Organization.ProductionFacility) + "," +
+                                nameof(Party.PlaceList) + "." + nameof(Place.PlaceNToponymyList) + "." + nameof(PlaceNToponymy.Toponymy) + "," +
+                                nameof(Party.PlaceList) + "." + nameof(Place.Settlement.SettlementNPostalcodeList) + "." + nameof(SettlementNPostalcode.Postalcode));
 
             return [.. partyIEnumerable.OrderBy(x => x.PartyName)];
         }
@@ -113,7 +125,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
             }
 
             Place? place = processPlace.GetListWithPredicate(
-                new PlaceSearchParameter { PlaceID = [placeID] }
+                new PlaceSearchParameterModel { PlaceID = [placeID] }
                 ).FirstOrDefault();
             if (place == null)
             {
@@ -143,7 +155,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
                 return;
             }
             Place? place = processPlace.GetListWithPredicate(
-                new PlaceSearchParameter { PlaceID = [placeID] }
+                new PlaceSearchParameterModel { PlaceID = [placeID] }
                 ).FirstOrDefault();
             if (place == null)
             {

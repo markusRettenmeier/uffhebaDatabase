@@ -13,23 +13,21 @@ namespace Sammlerplattform.Models.EraDatabase
         [Display(Name = "EraID", ResourceType = typeof(SharedResources))]
         public int EraID { get; set; }
 
+        [NotMapped]
+        [Required(ErrorMessageResourceName = "Era_Name_Missing", ErrorMessageResourceType = typeof(SharedResources))]
         [Display(Name = "EraName", ResourceType = typeof(SharedResources))]
         [StringLength(50)]
         public required string EraName { get; set; }
-
-        [Display(Name = "EraShort", ResourceType = typeof(SharedResources))]
-        [StringLength(10)]
-        public string? EraShort { get; set; }
 
         [Display(Name = "StartYear", ResourceType = typeof(SharedResources))]
         public int? StartYear { get; set; }
 
         [Display(Name = "EndYear", ResourceType = typeof(SharedResources))]
         public int? EndYear { get; set; }
-        [Display(Name = "Description", ResourceType = typeof(SharedResources))]
-        public string? EraDescription { get; set; }
-        [Display(Name = "PlaceNToponymyList", ResourceType = typeof(SharedResources))]
-        public List<PlaceNToponymy> PlaceNToponymyList { get; set; } = [];
+
+        [Display(Name = "WikipediaUrl", ResourceType = typeof(SharedResources))]
+        public string? WikipediaUrl { get; set; }
+
         [Display(Name = "CollectionItemEntityList", ResourceType = typeof(SharedResources))]
         public List<CollectionItemEntity> CollectionItemEntityList { get; set; } = [];
 

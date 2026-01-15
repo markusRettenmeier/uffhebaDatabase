@@ -19,7 +19,6 @@ namespace Sammlerplattform.Models.PlaceDatabase
         [Key]
         [Display(Name = "PlaceID", ResourceType = typeof(SharedResources))]
         public int PlaceID { get; set; }
-        [Display(Name = "PlaceNToponymyList", ResourceType = typeof(SharedResources))]
         public List<PlaceNToponymy> PlaceNToponymyList { get; set; } = [];
 
         [Display(Name = "ToponymyType", ResourceType = typeof(SharedResources))]
@@ -32,11 +31,10 @@ namespace Sammlerplattform.Models.PlaceDatabase
             set => ToponymyTypeInt = (int)value;
         }
 
-        [Display(Name = "ParentPlaceID", ResourceType = typeof(SharedResources))]
+        [Display(Name = "WikipediaUrl", ResourceType = typeof(SharedResources))]
+        public string? WikipediaUrl { get; set; }
         public int? ParentPlaceID { get; set; }
-        [Display(Name = "ParentPlace", ResourceType = typeof(SharedResources))]
         public Place? ParentPlace { get; set; }
-        [Display(Name = "ChildPlaceList", ResourceType = typeof(SharedResources))]
         public List<Place> ChildPlaceList { get; set; } = [];
         [Display(Name = "RelatedSettlement", ResourceType = typeof(SharedResources))]
         public Settlement? RelatedSettlement { get; set; }

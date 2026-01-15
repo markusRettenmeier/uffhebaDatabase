@@ -95,36 +95,21 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             var vectors = new List<float[]>();
 
             AddTextEmbedding(vectors, item.CollectionArea.CollectionAreaName);
-            if(item.CollectionAttributeValueList != null)
+            if(item.ConceptValueList != null)
             {
-                foreach (var value in item.CollectionAttributeValueList)
+                foreach (var value in item.ConceptValueList)
                 {
-                    AddTextEmbedding(vectors, value.CollectionAttribute.CollectionAttributeName);
+                    AddTextEmbedding(vectors, value.Concept.Name);
                     AddTextEmbedding(vectors, value.ValueDisplay);
                 }
             }
-            AddTextEmbedding(vectors, item.State?.StateName);
+            AddTextEmbedding(vectors, item.StatePreservation?.StatePreservationName);
             AddTextEmbedding(vectors, item.UniqueName);
             AddTextEmbedding(vectors, item.Comment);
             AddTextEmbedding(vectors, item.Inscription);
             AddTextEmbedding(vectors, item.PersonalIdentificationNumber);
             AddTextEmbedding(vectors, item.SerialNumber);
             AddTextEmbedding(vectors, item.Time);
-
-            // Verknüpfte Entitäten - nutzen Sie Ihre IncludeProperties-Struktur
-            if (item.CollectionItemNMaterialList?.Count > 0)
-            {
-                var materialText = string.Join(", ", item.CollectionItemNMaterialList
-                    .Select(m => m.Material?.MaterialName ?? ""));
-                AddTextEmbedding(vectors, materialText);
-            }
-
-            if (item.CollectionItemNColorList?.Count > 0)
-            {
-                var colorText = string.Join(", ", item.CollectionItemNColorList
-                    .Select(c => c.Color?.Name ?? ""));
-                AddTextEmbedding(vectors, colorText);
-            }
 
             if (item.CollectionItemNPartyList?.Count > 0)
             {
@@ -152,11 +137,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 AddTextEmbedding(vectors, placeText);
             }
 
-            AddTextEmbedding(vectors, item.Concept?.ConceptName);
+            AddTextEmbedding(vectors, item.Concept?.Name);
             AddTextEmbedding(vectors, item.Era?.EraName);
-            AddTextEmbedding(vectors, item.ProcessOfManufacture?.Mainprocess);
-            AddTextEmbedding(vectors, item.ProcessOfManufacture?.ProcessOfManufactureName);
-            AddTextEmbedding(vectors, item.ProcessOfManufacture?.Technique);
 
             return vectors;
         }
@@ -176,7 +158,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             // Da SQL Server keine native Vektor-Cosine-Similarity hat:
             // 1. Alle Embeddings laden und im Memory berechnen
             var allEmbeddings = unitOfWork.CollectionItemEmbeddingRepository.Get(
-                includeProperties: "CollectionItemEntity"
+                includeProperties: nameof(CollectionItemEmbedding.CollectionItemEntity)
             ).ToList();
 
             var results = allEmbeddings

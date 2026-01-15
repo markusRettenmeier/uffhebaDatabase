@@ -10,47 +10,43 @@
 <h3>@ViewData["Title"]</h3>
 <hr />
 
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="ChangeEMailSubmit">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            @if (Model.IsEmailConfirmed)
-            {
-                <div class="form-group mb-3 input-group">
-                    <label asp-for="OldEmail" class="form-label"></label>
-                    <input asp-for="OldEmail" class="form-control" disabled />
-                    <div class="input-group-append">
-                        <span class="h-100 input-group-text text-success font-weight-bold">✓</span>
-                    </div>
+<form asp-action="ChangeEMailSubmit">
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    @if (Model.IsEmailConfirmed)
+    {
+        <div class="form-group mb-3 input-group">
+            <label asp-for="OldEmail" class="form-label"></label>
+            <div class="input-group">
+                <input asp-for="OldEmail" class="form-control" disabled />
+                <div class="input-group-append">
+                    <span class="h-100 input-group-text text-success font-weight-bold">✓</span>
                 </div>
-            }
-            else
-            {
-                <div class="form-group mb-3">
-                    <label asp-for="OldEmail" class="form-label"></label>
-                    <input asp-for="OldEmail" class="form-control" aria-required="true" disabled />
-                    <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-link">@Localizer["EmailVerification_Send"]</button>
-                </div>
-            }
-            <div class="form-group mb-3">
-                <label asp-for="NewEmail" class="form-label"></label>
-                <input asp-for="NewEmail" class="form-control" autocomplete="email" aria-required="true">
-                <span asp-validation-for="NewEmail" class="text-danger"></span>
             </div>
-            @if (Model.HasPassword)
-            {
-                <div class="form-group mb-3">
-                    <label class="form-label" asp-for="Password"></label>
-                    <input asp-for="Password" class="form-control" type="password" aria-required="true">
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-            }
-            <button type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["Edit"]</button>
-        </form>
+        </div>
+    }
+    else
+    {
+        <div class="form-group mb-3">
+            <label asp-for="OldEmail" class="form-label"></label>
+            <input asp-for="OldEmail" class="form-control" aria-required="true" disabled />
+            <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-link">@Localizer["EmailVerification_Send"]</button>
+        </div>
+    }
+    <div class="form-group mb-3">
+        <label asp-for="NewEmail" class="form-label"></label>
+        <input asp-for="NewEmail" class="form-control" autocomplete="email" aria-required="true">
+        <span asp-validation-for="NewEmail" class="text-danger"></span>
     </div>
-</div>
-        
-<a asp-action="Profile" asp-controller="UserSettings">@Localizer["BackToList"]</a>
+    @if (Model.HasPassword)
+    {
+        <div class="form-group mb-3">
+            <label class="form-label" asp-for="Password"></label>
+            <input asp-for="Password" class="form-control" type="password" aria-required="true">
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+    }
+    <button type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["Edit"]</button>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

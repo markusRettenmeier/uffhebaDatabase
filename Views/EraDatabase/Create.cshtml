@@ -4,43 +4,43 @@
 
 @{
     ViewData["Title"] = Localizer["Era_Create"];
-    Layout = "_LayoutSettings";
+    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
 }
 
 <div class="row">
     <div class="col-md-8">
         <h3>@ViewData["Title"]</h3>
         <hr />
-<form asp-action="CreateEra">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="EraName" class="control-label"></label>
-        <input asp-for="EraName" class="form-control" />
-        <span asp-validation-for="EraName" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="EraShort" class="control-label"></label>
-        <input asp-for="EraShort" class="form-control" />
-        <span asp-validation-for="EraShort" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="EraDescription" class="control-label"></label>
-        <textarea asp-for="EraDescription" class="form-control"></textarea>
-        <span asp-validation-for="EraDescription" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="StartYear" class="control-label"></label>
-        <textarea asp-for="StartYear" class="form-control"></textarea>
-        <span asp-validation-for="StartYear" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="EndYear" class="control-label"></label>
-        <textarea asp-for="EndYear" class="form-control"></textarea>
-        <span asp-validation-for="EndYear" class="text-danger"></span>
-    </div>
-    <div class="form-group mt-2">
-        <button class="btn btn-primary">@Localizer["Create"]</button>
-    </div>
+        <form asp-action="CreateEra">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="EraName" class="control-label"></label>
+                <input asp-for="EraName" class="form-control" />
+                <span asp-validation-for="EraName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartYear" class="control-label"></label>
+                <textarea asp-for="StartYear" class="form-control"></textarea>
+                <span asp-validation-for="StartYear" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndYear" class="control-label"></label>
+                <textarea asp-for="EndYear" class="form-control"></textarea>
+                <span asp-validation-for="EndYear" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="WikipediaUrl" class="control-label"></label>
+                <input asp-for="WikipediaUrl" class="form-control" />
+                <span asp-validation-for="WikipediaUrl" class="text-danger"></span>
+            </div>
+            <div class="mt-4 pt-3 border-top">
+                <button type="submit" class="btn btn-success btn-lg px-5">
+                    <i class="bi bi-check-circle"></i> @Localizer["Create"]
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+                    @Localizer["Cancel"]
+                </a>
+            </div>
         </form>
     </div>
 </div>

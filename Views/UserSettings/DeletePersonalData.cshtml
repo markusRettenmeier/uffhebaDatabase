@@ -10,13 +10,10 @@
 }
 
 <h3>@ViewData["Title"]</h3>
-@if ((await AuthorizationService.AuthorizeAsync(User, "SubscribedDiskspacePolicy")).Succeeded)
-{
-    <strong>@Localizer["Download_Notification"]</strong>
-    <a type="button" class="w-100 btn btn-lg btn-success" asp-action="DownloadPostcards" asp-controller="PostcardDatabase" asp-route-userId="@ViewData["userId"]" onclick="ActivateDeleteButton()">
-        @Localizer["PostcardsAll_Download"]</a>
-    <hr />
-}
+<strong>@Localizer["Download_Notification"]</strong>
+<a type="button" class="w-100 btn btn-lg btn-success" href="/CollectionItemDatabase/DownloadSubmit" onclick="ActivateDeleteButton()">
+    @Localizer["CollectionItem_DownloadAll"]</a>
+<hr />
 <div class="alert alert-warning" role="alert">
     <p>
         <strong>@Localizer["AccountDelete_Notification"]</strong>
@@ -33,8 +30,6 @@
     }
     <button class="w-100 btn btn-lg btn-danger deletePersonalData" disabled type="submit">@Localizer["AccountDelete_Confirm"]</button>
 </form>
-
-<a asp-action="Profile" asp-controller="UserSettings">@Localizer["BackToList"]</a>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

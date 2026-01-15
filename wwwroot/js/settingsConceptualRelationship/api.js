@@ -1,7 +1,7 @@
 ﻿async function getAndSetConceptualRelationshipGraph()
 {
-    const collectionArea = document.getElementById('CollectionAreaID').value;
-    fetch('/api/collections/conceptualRelationship?collectionAreaID=' + encodeURIComponent(collectionArea))
+    const rootconceptID = document.getElementById('RootConceptID').value;
+    fetch('/api/collections/conceptualRelationship?RootConceptID=' + encodeURIComponent(rootconceptID))
         .then(res => {
             if (!res.ok) throw new Error(res.statusText);
             return res.json();

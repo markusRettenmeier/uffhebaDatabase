@@ -1,6 +1,6 @@
 ﻿@using Sammlerplattform.Models.CollectionAreaDatabase
 @using Sammlerplattform.Models.CollectionItemDatabase
-@using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase
+@using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase
 @using Sammlerplattform.Models.PartyDatabase
 @using Sammlerplattform.Models.PlaceDatabase
 @using Sammlerplattform.Services
@@ -41,7 +41,7 @@
                             <p class="card-text">@Model.CollectionItemPictureList[i].Perspective</p>
                             @if (i > 0)
                             {
-                                <button type="button" class="btn btn-danger" onclick="removePicture(@i)">@Localizer["Remove"]</button>
+                                <button type="button" class="btn btn-danger" onclick="removePicture(@(i))">@Localizer["Remove"]</button>
                             }
                         </div>
                     </div>
@@ -84,13 +84,13 @@
                     <table class="table" id="ConceptTable">
                         <thead>
                             <tr>
-                                <th scope="col">@Html.DisplayNameFor(x => x.Concept.ConceptName)</th>
+                                <th scope="col">@Html.DisplayNameFor(x => x.Concept.Name)</th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td scope="col" id="ConceptName">@Html.DisplayFor(x => x.Concept.ConceptName)</td>
+                                <td scope="col" id="ConceptName">@Html.DisplayFor(x => x.Concept.Name)</td>
                                 <td scope="col">
                                     <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ConceptModal">
@@ -111,89 +111,33 @@
                     </table>
                     <div class="form-group form-check">
                         <label class="form-check-label">
-                            <input class="form-check-input" asp-for="IsPartOfASeries"> @Html.DisplayNameFor(model => model.IsPartOfASeries)
+                            <input class="form-check-input" asp-for="IsPartOfASet"> @Html.DisplayNameFor(model => model.IsPartOfASet)
                         </label>
-                    </div>
-                    <input type="hidden" asp-for="CollectionItemEntity.CollectionItemPotentialID">
-                    @if (Model.IsPartOfASeries)
-                    {
-                        <table class="table" id="PotentialTable">
-                            <thead>
-                                <tr>
-                                    <th scope="col">@Html.DisplayNameFor(x => x.CollectionItemPotential.CollectionItemPotentialID)</th>
-                                    <th scope="col"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td scope="col" id="CollectionItemPotentialID">@Html.DisplayFor(x => x.CollectionItemPotential.CollectionItemPotentialID)</td>
-                                    <td scope="col">
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CollectionItemPotentialModal">
-                                                @Localizer["CollectionItemPotential_Select"]
-                                            </button>
-                                            @if (Model.CollectionItemEntity.CollectionItemPotentialID != null)
-                                            {
-                                                <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger">@Localizer["Remove"]</button>
-                                            }
-                                            else
-                                            {
-                                                <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
-                                            }
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    }
-                    else
-                    {
-                        <table class="table" id="PotentialTable" style="display:none">
-                            <thead>
-                                <tr>
-                                    <th scope="col">@Html.DisplayNameFor(x => x.CollectionItemPotential.CollectionItemPotentialID)</th>
-                                    <th scope="col"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td scope="col" id="CollectionItemPotentialID"></td>
-                                    <td scope="col">
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#CollectionItemPotentialModal">
-                                                @Localizer["CollectionItemPotential_Select"]
-                                            </button>
-                                            <button type="button" id="ClearOneRowCollectionItemPotentialTable" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    }
+                    </div>                    
                     <div class="form-group form-check">
                         <label class="form-check-label">
                             <input class="form-check-input" asp-for="CollectionItemEntity.Fake"> @Html.DisplayNameFor(model => model.CollectionItemEntity.Fake)
                         </label>
                     </div>
                     <div class="form-group">
-                        <label asp-for="CollectionItemEntity.StateID" class="control-label"></label>
-                        <select asp-for="CollectionItemEntity.StateID" class="form-select">
-                            @if (Model.StateList == null || Model.StateList.Count == 0)
+                        <label asp-for="CollectionItemEntity.StatePreservationID" class="control-label"></label>
+                        <select asp-for="CollectionItemEntity.StatePreservationID" class="form-select">
+                            @if (Model.StatePreservationList == null || Model.StatePreservationList.Count == 0)
                             {
-                                <option value="">-- @Localizer["State_NotAvailable"] --</option>
+                                <option value="">-- @Localizer["StatePreservation_NotAvailable"] --</option>
                             }
                             else
                             {
-                                <option value="">@Localizer["State_Select"]</option>
-                                @foreach (var state in Model.StateList)
+                                <option value="">@Localizer["StatePreservation_Select"]</option>
+                                @foreach (var state in Model.StatePreservationList)
                                 {
-                                    if (state.StateID == Model.CollectionItemEntity.StateID)
+                                    if (state.StatePreservationID == Model.CollectionItemEntity.StatePreservationID)
                                     {
-                                        <option value="@state.StateID" selected>@state.StateName</option>
+                                        <option value="@state.StatePreservationID" selected>@state.StatePreservationName</option>
                                     }
                                     else
                                     {
-                                        <option value="@state.StateID">@state.StateName</option>
+                                        <option value="@state.StatePreservationID">@state.StatePreservationName</option>
                                     }
                                 }
                             }
@@ -204,147 +148,63 @@
                         <textarea asp-for="CollectionItemEntity.Inscription" class="form-control" rows="10" cols="5"></textarea>
                         <span asp-validation-for="CollectionItemEntity.Inscription" class="text-danger"></span>
                     </div>
-                    @* <div class="form-group">
-                        <label asp-for="KeywordList" class="control-label"></label>
-                        <select asp-for="CollectionItemNKeywordList" class="chosen-select" id="keywordSelect" multiple style="width: 350px;"></select>
-                    </div> *@
                     <div class="form-group">
                         <label asp-for="CollectionItemEntity.Comment" class="control-label"></label>
                         <textarea asp-for="CollectionItemEntity.Comment" class="form-control" rows="10" cols="5"></textarea>
                         <span asp-validation-for="CollectionItemEntity.Comment" class="text-danger"></span>
                     </div>
                     <hr />
-                    <label asp-for="ColorList" class="control-label"></label>
-                    <div id="colorContainer">
-                        @if (Model.CollectionItemNColorList.Count > 0)
-                        {
-                            @for (int i = 0; i < Model.CollectionItemNColorList.Count; i++)
-                            {
-                                <div class="card cardColor m-2" id="cardColor_@i" style="width: 18rem;">
-                                    <div class="card-body">
-                                        <select name="CollectionItemNColorList[@i].ColorID" class="form-select selectColorID">
-                                            <option value="">@Localizer["Color_Select"]</option>
-                                            @foreach (var color in Model.ColorList)
-                                            {
-                                                if (color.ColorID == Model.CollectionItemNColorList[i].ColorID)
-                                                {
-                                                    <option value="@color.ColorID" selected>@color.Name</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@color.ColorID">@color.Name</option>
-                                                }
-                                            }
-                                        </select>
-                                        <div class="form-check">
-                                            @if (Model.CollectionItemNColorList[i].IsPrimaryColor)
-                                            {
-                                                <input type="checkbox" data-val="true" value="true" class="form-check-input checkboxPrimaryColor" name="CollectionItemNColorList[@i].IsPrimaryColor" checked>
-                                            }
-                                            else
-                                            {
-                                                <input type="checkbox" data-val="true" value="true" class="form-check-input checkboxPrimaryColor" name="CollectionItemNColorList[@i].IsPrimaryColor">
-                                            }
-                                            <label class="form-check-label" for="mainColorCheckbox0">@Localizer["IsPrimaryColor"]</label>
-                                        </div><button type="button" class="btn btn-danger removeColor">@Localizer["Remove"]</button>
-                                    </div>
-                                </div>
-                            }
-                        }
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="addColor()">@Localizer["Color_Add"]</button>
-                    <hr />
-                    <label asp-for="MaterialList" class="control-label"></label>
-                    <div id="materialContainer">
-                        @if (Model.CollectionItemNMaterialList.Count > 0)
-                        {
-                            @for (int i = 0; i < Model.CollectionItemNMaterialList.Count; i++)
-                            {
-                                <div class="card cardMaterial m-2" id="cardMaterial_@i" style="width: 18rem;">
-                                    <div class="card-body">
-                                        <select name="CollectionItemNMaterialList[@i].MaterialID" class="form-select selectMaterialID">
-                                            <option value="">@Localizer["Material_Select"]</option>
-                                            @foreach (var material in Model.MaterialList)
-                                            {
-                                                if (material.MaterialID == Model.CollectionItemNMaterialList[i].MaterialID)
-                                                {
-                                                    <option value="@material.MaterialID" selected>@material.MaterialName</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@material.MaterialID">@material.MaterialName</option>
-                                                }
-                                            }
-                                        </select>
-                                        <div class="form-check">
-                                            @if (Model.CollectionItemNMaterialList[i].IsPrimaryMaterial)
-                                            {
-                                                <input type="checkbox" data-val="true" value="true" class="form-check-input checkboxPrimaryMaterial" name="CollectionItemNMaterialList[@i].IsPrimaryMaterial" checked>
-                                            }
-                                            else
-                                            {
-                                                <input type="checkbox" data-val="true" value="true" class="form-check-input checkboxPrimaryMaterial" name="CollectionItemNMaterialList[@i].IsPrimaryMaterial">
-                                            }
-                                            <label class="form-check-label" for="IsPrimaryMaterial">@Localizer["IsPrimaryMaterial"]</label>
-                                        </div><button type="button" class="btn btn-danger removeMaterial">@Localizer["Remove"]</button>
-                                    </div>
-                                </div>
-                            }
-                        }
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="addMaterial()">@Localizer["Material_Add"]</button>
-                    <hr />
-                    @if (Model.CollectionAttributeList != null)
+                    @if (Model.ConceptList != null)
                     {
-                        @for (int i = 0; i < Model.CollectionAttributeList.Count; i++)
+                        @for (int i = 0; i < Model.ConceptList.Count; i++)
                         {
-                            var attributeModel = Model.CollectionAttributeList[i];
-                            var itemValue = Model.CollectionAttributeValueList?.FirstOrDefault(v =>
-                            v.CollectionAttributeID == attributeModel.CollectionAttributeID);
+                            var conceptList = Model.ConceptList[i];
+                            var itemValue = Model.ConceptValueList?.FirstOrDefault(v =>
+                            v.ConceptID == conceptList.Id);
 
                             <div class="form-group">
-                                <label class="control-label">@attributeModel.CollectionAttributeName</label>
-                                <input type="hidden" name="CollectionAttributeValueList[@i].CollectionAttributeID"
-                                       value="@attributeModel.CollectionAttributeID" />
-                                <input type="hidden" name="CollectionAttributeValueList[@i].CollectionAttributeValueID"
-                                       value="@itemValue?.CollectionAttributeValueID" />
+                                <label class="control-label">@conceptList.Name</label>
+                                <input type="hidden" name="ConceptValueList[@i].ConceptValueID"
+                                       value="@conceptList.Id" />
+                                <input type="hidden" name="ConceptValueList[@i].ConceptValueID"
+                                       value="@itemValue?.ConceptValueID" />
 
-                                @if (attributeModel.CollectionAttributeType.ToString() == "Text")
+                                @if (conceptList.ConceptType.ToString() == "Text")
                                 {
                                     <input type="text"
-                                           name="CollectionAttributeValueList[@i].ValueString"
+                                           name="ConceptValueList[@i].ValueString"
                                            value="@itemValue?.ValueString"
                                            class="form-control" />
                                 }
-                                else if (attributeModel.CollectionAttributeType.ToString() == "Number")
+                                else if (conceptList.ConceptType.ToString() == "Number")
                                 {
                                     <input type="number"
                                            step="0.01"
-                                           name="CollectionAttributeValueList[@i].ValueInt"
+                                           name="ConceptValueList[@i].ValueInt"
                                            value="@itemValue?.ValueInt"
                                            class="form-control" />
                                 }
-                                else if (attributeModel.CollectionAttributeType.ToString() == "Date")
+                                else if (conceptList.ConceptType.ToString() == "Date")
                                 {
                                     <input type="date"
-                                           name="CollectionAttributeValueList[@i].ValueDate"
+                                           name="ConceptValueList[@i].ValueDate"
                                            value="@itemValue?.ValueDate?.ToString("yyyy-MM-dd")"
                                            class="form-control" />
                                 }
-                                else if (attributeModel.CollectionAttributeType.ToString() == "Decimal")
+                                else if (conceptList.ConceptType.ToString() == "Decimal")
                                 {
                                     <input type="number"
                                            step="0.01"
-                                           name="CollectionAttributeValueList[@i].ValueDecimal"
+                                           name="ConceptValueList[@i].ValueDecimal"
                                            value="@itemValue?.ValueDecimal"
                                            class="form-control" />
                                 }
-                                else if (attributeModel.CollectionAttributeType.ToString() == "Bool")
+                                else if (conceptList.ConceptType.ToString() == "Bool")
                                 {
                                     <input class="form-check-input"
                                            type="checkbox"
                                            data-val="true"
-                                           name="CollectionAttributeValueList[@i].ValueBool"
+                                           name="ConceptValueList[@i].ValueBool"
                                            value="true"
                                            checked="@itemValue?.ValueBool" />
                                 }
@@ -577,7 +437,6 @@
 <partial name="~/Views/EraDatabase/_ModalEra.cshtml" />
 <partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
 <partial name="~/Views/PartyDatabase/_ModalParty.cshtml" />
-<partial name="~/Views/CollectionItemDatabase/_ModalCollectionItemPotential.cshtml" />
 <partial name="~/Views/ConceptualRelationshipDatabase/_ModalConcept.cshtml" />
 @section Scripts {
     @{

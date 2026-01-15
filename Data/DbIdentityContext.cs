@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
-using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.CollectionSetDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.VectorSearch;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
+using Sammlerplattform.Models.ImprovementSuggestions;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
 using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
@@ -48,49 +50,15 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .WithMany(x => x.CollectionItemPictureList);
 
         _ = builder.Entity<CollectionItemEntity>()
-            .HasMany(x => x.CollectionItemNColorList)
-            .WithOne(x => x.CollectionItemEntity)
-            .HasForeignKey(x => x.CollectionItemEntityID);
-        _ = builder.Entity<Color>()
-            .HasMany(c => c.CollectionItemNColorList)
-            .WithOne(x => x.Color)
-            .HasForeignKey(x => x.ColorID);
-        _ = builder.Entity<CollectionItemNColor>()
-            .HasOne(x => x.CollectionItemEntity)
-            .WithMany(x => x.CollectionItemNColorList)
-            .IsRequired(true);
-        _ = builder.Entity<CollectionItemNColor>()
-            .HasOne(x => x.Color)
-            .WithMany(x => x.CollectionItemNColorList)
-            .IsRequired(true);
-
-        _ = builder.Entity<CollectionItemEntity>()
-            .HasMany(x => x.CollectionItemNMaterialList)
-            .WithOne(x => x.CollectionItemEntity)
-            .HasForeignKey(x => x.CollectionItemEntityID);
-        _ = builder.Entity<Material>()
-            .HasMany(c => c.CollectionItemNMaterialList)
-            .WithOne(x => x.Material)
-            .HasForeignKey(x => x.MaterialID);
-        _ = builder.Entity<CollectionItemNMaterial>()
-            .HasOne(x => x.CollectionItemEntity)
-            .WithMany(x => x.CollectionItemNMaterialList)
-            .IsRequired(true);
-        _ = builder.Entity<CollectionItemNMaterial>()
-            .HasOne(x => x.Material)
-            .WithMany(x => x.CollectionItemNMaterialList)
-            .IsRequired(true);
-
-        _ = builder.Entity<CollectionItemEntity>()
-            .HasOne(x => x.State)
+            .HasOne(x => x.StatePreservation)
             .WithMany(x => x.CollectionItemEntityList);
-        _ = builder.Entity<State>()
+        _ = builder.Entity<StatePreservation>()
             .HasMany(x => x.CollectionItemEntityList)
-            .WithOne(x => x.State)
-            .HasForeignKey(x => x.StateID);
-        _ = builder.Entity<State>()
+            .WithOne(x => x.StatePreservation)
+            .HasForeignKey(x => x.StatePreservationID);
+        _ = builder.Entity<StatePreservation>()
             .HasOne(x => x.CollectionArea)
-            .WithMany(x => x.StateList)
+            .WithMany(x => x.StatePreservationList)
             .HasForeignKey(x => x.CollectionAreaID);
 
         _ = builder.Entity<CollectionItemEntity>()
@@ -119,6 +87,12 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .HasOne(c => c.ParentPlace)
             .WithMany(c => c.ChildPlaceList)
             .HasForeignKey(c => c.ParentPlaceID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        _ = builder.Entity<Concept>()
+            .HasOne(c => c.RootConcept)
+            .WithMany(c => c.SubConceptList)
+            .HasForeignKey(c => c.RootConceptID)
             .OnDelete(DeleteBehavior.Restrict);
 
         _ = builder.Entity<Place>()
@@ -227,22 +201,11 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
         _ = builder.Entity<CollectionItemNParty>()
             .HasOne(x => x.Party)
             .WithMany(x => x.CollectionItemNPartyList);
-        _ = builder.Entity<CollectionItemNParty>()
-            .HasOne(x => x.CollectionItemPotential)
-            .WithMany(x => x.CollectionItemNPartyList);
-        _ = builder.Entity<CollectionItemPotential>()
-            .HasMany(x => x.CollectionItemNPartyList)
-            .WithOne(x => x.CollectionItemPotential)
-            .HasForeignKey(x => x.CollectionItemPotentialID);
 
         _ = builder.Entity<CollectionItemEntity>()
             .HasMany(x => x.CollectionItemNPlaceList)
             .WithOne(x => x.CollectionItemEntity)
             .HasForeignKey(x => x.CollectionItemEntityID);
-        _ = builder.Entity<CollectionItemPotential>()
-            .HasMany(x => x.CollectionItemNPlaceList)
-            .WithOne(x => x.CollectionItemPotential)
-            .HasForeignKey(x => x.CollectionItemPotentialID);
         _ = builder.Entity<Place>()
             .HasMany(c => c.CollectionItemNPlaceList)
             .WithOne(x => x.Place)
@@ -252,22 +215,10 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .WithMany(x => x.CollectionItemNPlaceList)
             .IsRequired(true);
         _ = builder.Entity<CollectionItemNPlace>()
-            .HasOne(x => x.CollectionItemPotential)
-            .WithMany(x => x.CollectionItemNPlaceList)
-            .IsRequired(true);
-        _ = builder.Entity<CollectionItemNPlace>()
             .HasOne(x => x.Place)
             .WithMany(x => x.CollectionItemNPlaceList)
             .IsRequired(true);
 
-        _ = builder.Entity<CollectionArea>()
-            .HasMany(c => c.CollectionAttributeList)
-            .WithOne(cf => cf.CollectionArea)
-            .HasForeignKey(cf => cf.CollectionAreaID);
-        _ = builder.Entity<CollectionAttribute>()
-            .HasOne(cf => cf.CollectionArea)
-            .WithMany(c => c.CollectionAttributeList)
-            .IsRequired(true);
         _ = builder.Entity<CollectionArea>()
             .HasMany(cf => cf.CollectionItemEntityList)
             .WithOne(pe => pe.CollectionArea)
@@ -277,30 +228,22 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .WithMany(c => c.CollectionItemEntityList)
             .IsRequired(true);
 
-        _ = builder.Entity<CollectionAttribute>()
-            .HasMany(cf => cf.CollectionAttributeValueList)
-            .WithOne(civ => civ.CollectionAttribute)
-            .HasForeignKey(civ => civ.CollectionAttributeID);
-        _ = builder.Entity<CollectionAttributeValue>()
-            .HasOne(civ => civ.CollectionAttribute)
-            .WithMany(cf => cf.CollectionAttributeValueList)
+        _ = builder.Entity<Concept>()
+            .HasMany(cf => cf.ConceptValueList)
+            .WithOne(civ => civ.Concept)
+            .HasForeignKey(civ => civ.ConceptID);
+        _ = builder.Entity<ConceptValue>()
+            .HasOne(civ => civ.Concept)
+            .WithMany(cf => cf.ConceptValueList)
             .IsRequired(true);
-        _ = builder.Entity<CollectionAttributeValue>()
+        _ = builder.Entity<ConceptValue>()
             .HasOne(civ => civ.CollectionItemEntity)
-            .WithMany(pe => pe.CollectionAttributeValueList)
+            .WithMany(pe => pe.ConceptValueList)
             .IsRequired(false);
         _ = builder.Entity<CollectionItemEntity>()
-            .HasMany(pe => pe.CollectionAttributeValueList)
+            .HasMany(pe => pe.ConceptValueList)
             .WithOne(civ => civ.CollectionItemEntity)
             .HasForeignKey(civ => civ.CollectionItemEntityID);
-        _ = builder.Entity<CollectionAttributeValue>()
-            .HasOne(civ => civ.CollectionItemPotential)
-            .WithMany(pp => pp.CollectionAttributeValueList)
-            .IsRequired(false);
-        _ = builder.Entity<CollectionItemPotential>()
-            .HasMany(pp => pp.CollectionAttributeValueList)
-            .WithOne(civ => civ.CollectionItemPotential)
-            .HasForeignKey(civ => civ.CollectionItemPotentialID);
 
         _ = builder.Entity<CollectionItemEntity>()
             .HasOne(cie => cie.UsingIdentityUser)
@@ -336,17 +279,39 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
         _ = builder.Entity<ConceptRelation>().ToTable("ConceptRelation", b => b.IsTemporal(false)) // echte Edge-Table
            .HasNoKey()                // wichtig, sonst will EF einen PK erzwingen
            .ToView(null);             // verhindert Mapping auf View/Tabelle
-
-        //_ = builder.Entity<ObjectLayer>()
-        //    .HasOne(ol => ol.CollectionItemEntity)
-        //    .WithOne(cie => cie.ObjectLayer)
-        //    .HasForeignKey(ol => ol.CollectionItemEntityID)
-        //    .IsRequired(true);
         _ = builder.Entity<CollectionItemEmbedding>()
             .HasOne(cie => cie.CollectionItemEntity)
             .WithOne(ce => ce.CollectionItemEmbedding)
             .IsRequired(true);
-    }
 
-//public DbSet<Sammlerplattform.Models.ProcessOfManufactureDatabase.ProcessOfManufacture> ProcessOfManufacture { get; set; } = default!;
+        _ = builder.Entity<CollectionSet>()
+            .HasMany(s => s.CollectionItemEntityList)
+            .WithOne(cie => cie.CollectionSet)
+            .HasForeignKey(cie => cie.CollectionSetId);
+        _ = builder.Entity<CollectionItemEntity>()
+            .HasOne(cie => cie.CollectionSet)
+            .WithMany(cs => cs.CollectionItemEntityList)
+            .IsRequired(false);
+
+        _ = builder.Entity<Topic>()
+            .HasMany(ft => ft.VoteList)
+            .WithOne(tv => tv.Topic)
+            .HasForeignKey(tv => tv.TopicId);
+        _ = builder.Entity<TopicVote>()
+            .HasOne(tv => tv.Topic)
+            .WithMany(ft => ft.VoteList)
+            .IsRequired(true);
+        _ = builder.Entity<TopicVote>()
+            .HasOne(tv => tv.User)
+            .WithMany(u => u.TopicVoteList)
+            .IsRequired(true);
+        _ = builder.Entity<UsingIdentityUser>()
+            .HasMany(u => u.TopicList)
+            .WithOne(t => t.Author)
+            .HasForeignKey(t => t.UserId);
+        _ = builder.Entity<Topic>()
+            .HasOne(t => t.Author)
+            .WithMany(u => u.TopicList)
+            .IsRequired(true);
+    }
 }

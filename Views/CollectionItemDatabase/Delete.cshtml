@@ -52,12 +52,6 @@
         @Html.DisplayFor(model => model.CollectionItemEntity.PersonalIdentificationNumber)
     </dd>
     <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.CollectionItemPotential)
-    </dt>
-    <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.CollectionItemPotential.CollectionItemPotentialID)
-    </dd>
-    <dt class="col-sm-4">
         @Html.DisplayNameFor(model => model.CollectionItemEntity.FilingLocation)
     </dt>
     <dd class="col-sm-10">
@@ -124,17 +118,11 @@
         @Html.DisplayFor(model => model.CollectionItemEntity.Comment)
     </dd>
     <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.CollectionItemPotential.ProductionSize)
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.StatePreservation!.StatePreservationName)
     </dt>
     <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.CollectionItemPotential.ProductionSize)
-    </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.CollectionItemEntity.State!.StateName)
-    </dt>
-    <dd class="col-sm-10">
-        @if(Model.CollectionItemEntity.State != null){
-            string stateName = Model.CollectionItemEntity.State.StateName;
+        @if(Model.CollectionItemEntity.StatePreservation != null){
+            string stateName = Model.CollectionItemEntity.StatePreservation.StatePreservationName;
             @stateName
         }        
     </dd>
@@ -180,39 +168,15 @@
     <dd class="col-sm-10">
         @Html.DisplayFor(model => model.CollectionItemEntity.CollectionArea.CollectionAreaName)
     </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.Concept)
-    </dt>
-    <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.Concept.ConceptName)
-    </dd>
-    @foreach(var itemValue in Model.CollectionAttributeValueList)
+    @foreach(var itemValue in Model.ConceptValueList)
     {
         <dt class="col-sm-4">
-            @itemValue.CollectionAttribute.CollectionAttributeName
+            @itemValue.Concept.Name
         </dt>
         <dd class="col-sm-10">
             @itemValue.ValueDisplay
         </dd>
     }
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.CollectionItemNColorList)
-    </dt>
-    <dd class="col-sm-10">
-        @foreach(var color in Model.CollectionItemNColorList)
-        {
-            @color.Color.Name <br />
-        }
-    </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.CollectionItemNMaterialList)
-    </dt>
-    <dd class="col-sm-10">
-        @foreach(var material in Model.CollectionItemNMaterialList)
-        {
-            @material.Material.MaterialName <br />
-        }
-    </dd>
     <dt class="col-sm-4">
         @Html.DisplayNameFor(model => model.CollectionItemNPartyList)
     </dt>

@@ -1,24 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Localization
-@using Sammlerplattform.Models.CollectionItemDatabase.StateDatabase
+@using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase
 @using Sammlerplattform.Models.PartyDatabase
 @using Sammlerplattform.Models.PlaceDatabase
 @model IEnumerable<Sammlerplattform.Models.CollectionItemDatabase.CollectionItemOperationParameterModel>
-@* @inject IViewLocalizer ViewLocalizer *@
-@* @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer *@
-@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> SharedLocalizer
-@* @using Sammlerplattform.Resources.Views.Home
-@inject IHtmlLocalizer<Frontpage> HomeLocalizer *@
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    ViewData["Title"] = SharedLocalizer["Frontpage"];
+    ViewData["Title"] = Localizer["Frontpage"];
     Layout = "_Layout";
-
-    var test = SharedLocalizer["Search_TypeIn"];
-    Console.WriteLine($"Key: {test.Name}, Value: {test.Value}, ResourceNotFound: {test.IsResourceNotFound}");
-    // var test1 = HomeLocalizer["Search_TypeIn"];
-    // Console.WriteLine($"Key: {test1.Name}, Value: {test1.Value}, ResourceNotFound: {test1.IsResourceNotFound}");    
-    // var test2 = ViewLocalizer["Search_TypeIn"];
-    // Console.WriteLine($"Key: {test2.Name}, Value: {test2.Value}, ResourceNotFound: {test2.IsResourceNotFound}");
     
     int count = 0;
     int? topK = ViewData["TopK"] as int?;
@@ -35,7 +24,7 @@
 </div>
 <form asp-for="Frontpage">
     <div class="position-relative mb-4">
-        <input name="SemanticSearchQuery" type="text" class="form-control search-input" placeholder="@SharedLocalizer["Search_TypeIn"]">
+        <input name="SemanticSearchQuery" type="text" class="form-control search-input" placeholder="@Localizer["Search_TypeIn"]">
         <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
     </div>
 </form>
@@ -51,18 +40,15 @@
                     string imageKlein = $"/images/Klein/{item.CollectionItemPictureList[i].CollectionItemPictureID}.png";
                     @if (i == 0)
                     {
-                        <a class="photo" data-fancybox="gallery_@item.CollectionItemPictureList[@i].CollectionItemPictureID" href="@imageNormal" data-caption="Nummer @item.CollectionItemPictureList[@i].CollectionItemPictureID">
+                        <a class="photo" data-fancybox="gallery_@item.CollectionItemEntity.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntity.CollectionItemEntityID">
                             <img src="@imageKlein" width="498" height="322" alt="" id="simplePic_@count" class="indexMobile-Picture">
                         </a>
                     }
                     else
                     {
-                        <a class="photo" data-fancybox="gallery_@item.CollectionItemPictureList[@i].CollectionItemPictureID" href="@imageNormal" data-caption="Nummer @item.CollectionItemPictureList[@i].CollectionItemPictureID"></a>
+                        <a class="photo" data-fancybox="gallery_@item.CollectionItemEntity.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntity.CollectionItemEntityID"></a>
                     }
                 }
-            </div>
-            <div class="col col-2" id="IndexSimpleCloseColumn_@count" style="display:none">
-                <button class="btn btn-primary indexSimpleButtons IndexSimpleCloseButtons" id="IndexSimpleCloseButton_@count">Bild</button>
             </div>
             <div class="col indexSimple2ndColumns" id="IndexSimple2ndColumn_@count">
                 <ul>
@@ -70,8 +56,8 @@
                         @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.UniqueName): @Html.DisplayFor(modelItem => item.CollectionItemEntity.UniqueName)
                     </li>
                     <li>
-                        @{var statenameValue = item.CollectionItemEntity.State != null ? item.CollectionItemEntity.State.StateName : "N/A";}
-                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.State!.StateName): @statenameValue
+                        @{var statenameValue = item.CollectionItemEntity.StatePreservation != null ? item.CollectionItemEntity.StatePreservation.StatePreservationName : "N/A";}
+                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.StatePreservation!.StatePreservationName): @statenameValue
                     </li>
                     <li>
                         @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Time): @Html.DisplayFor(modelItem => item.CollectionItemEntity.Time)
@@ -100,9 +86,9 @@
                     </li>
                 </ul>
             </div>
-            // <div id="IndexSimpleOpenColumn_@count" class="col col-2 IndexSimpleOpenColumn">
-            //     <button class="btn btn-primary indexSimpleButtons IndexSimpleOpenButtons" id="IndexSimpleOpenButtons_@count">@ViewLocalizer["Details"]</button>
-            // </div>
+            <div class="col col-2">
+                <a class="btn btn-primary" asp-action="Details" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID">@Localizer["Details"]</a>
+            </div>
             count++;
         }
     </div>
@@ -110,7 +96,7 @@
 
 @if (count == 0)
 {
-    @SharedLocalizer["Message_NothingFound"]
+    @Localizer["Message_NothingFound"]
 }
 @if (topK is not null && topK < maxRows)
 {

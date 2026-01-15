@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
-using Sammlerplattform.Resources;
 using Sammlerplattform.Models.UserSettings;
+using Sammlerplattform.Resources;
+using Sammlerplattform.Services;
 using System.Linq.Dynamic.Core;
+using System.Reflection;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -19,31 +21,22 @@ namespace Sammlerplattform.Controllers
     public class UserSettingsController(UserManager<UsingIdentityUser> userManager,
         SignInManager<UsingIdentityUser> signInManager,
         IEmailSender emailSender
-        , IStringLocalizer<SharedResources> stringLocalizer) : Controller
+        , IStringLocalizer<SharedResources> stringLocalizer
+        , ITrackEvents trackEvents) : Controller
     {
         private readonly UserManager<UsingIdentityUser> _userManager = userManager;
         private readonly SignInManager<UsingIdentityUser> _signInManager = signInManager;
 
-        public IActionResult Profile(string statusMessage, int statusCode)
+        [HandleStatus]
+        public IActionResult Profile()
         {
-            var translatedMessage = stringLocalizer[statusMessage];
-            if(translatedMessage.ResourceNotFound == false)
+            UsingIdentityUser? user = _userManager.GetUserAsync(User).Result;
+            if (user == null)
             {
-                ViewData["StatusMessage"] = stringLocalizer[statusMessage];
-            }
-            else
-            {
-                ViewData["StatusMessage"] = statusMessage;
-            }
-            ViewData["StatusCode"] = statusCode;
-
-            var userID = _userManager.GetUserId(User);
-            if (userID == null)
-            {
-                return RedirectToAction("Login", "Account", new { statusmessage = "Error_Place_NotFound" });
+                return RedirectToAction("Login", "Account", new { statusmessage = "Error_User_NotFound" });
             }
 
-            return View(User);
+            return View(user);
         }
 
         public async Task<IActionResult> ProfileChange(UsingIdentityUser usingIdentityUser)
@@ -53,24 +46,33 @@ namespace Sammlerplattform.Controllers
             {
                 return RedirectToAction("Login", "Account", new { statusmessage = "Error_Place_NotFound" });
             }
-
-            if (usingIdentityUser.UserName != user.UserName)
+            try
             {
-                IdentityResult usernameResult = new();
-                if (string.IsNullOrEmpty(user.UserName))
+                if (usingIdentityUser.UserName != user.UserName)
                 {
-                    usernameResult = await _userManager.SetUserNameAsync(user, usingIdentityUser.UserName);
-                }
-                else
-                {
-                    user.UserName = usingIdentityUser.UserName;
-                    usernameResult = await _userManager.UpdateAsync(user);
-                }
+                    IdentityResult usernameResult = new();
+                    if (string.IsNullOrEmpty(user.UserName))
+                    {
+                        usernameResult = await _userManager.SetUserNameAsync(user, usingIdentityUser.UserName);
+                    }
+                    else
+                    {
+                        user.UserName = usingIdentityUser.UserName;
+                        usernameResult = await _userManager.UpdateAsync(user);
+                    }
 
-                if (!usernameResult.Succeeded)
-                {
-                    return RedirectToAction(nameof(Profile), new { statusMessage = "Error_UserName_Change" });
+                    if (!usernameResult.Succeeded)
+                    {
+                        trackEvents.TrackWarning("ProfileChange: UserName change failed" + usernameResult.Errors, new Dictionary<string, object>
+                            {{"UsernameResult", usernameResult} }, user.Id);
+                        return RedirectToAction(nameof(Profile), new { statusMessage = "Error_UserName_Change" });
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                trackEvents.TrackException(ex, nameof(ProfileChange), null, user.Id);
+                return RedirectToAction(nameof(Profile), new { statusMessage = "Error_Error_Ocurred" });
             }
 
             await _signInManager.RefreshSignInAsync(user);
@@ -87,9 +89,9 @@ namespace Sammlerplattform.Controllers
             }
 
             Dictionary<string, string> personalData = [];
-            IEnumerable<System.Reflection.PropertyInfo> personalDataProps = typeof(UsingIdentityUser).GetProperties().Where(
+            IEnumerable<PropertyInfo> personalDataProps = typeof(UsingIdentityUser).GetProperties().Where(
                             prop => Attribute.IsDefined(prop, typeof(PersonalDataAttribute)));
-            foreach (System.Reflection.PropertyInfo? p in personalDataProps)
+            foreach (PropertyInfo? p in personalDataProps)
             {
                 personalData.Add(p.Name, p.GetValue(user)?.ToString() ?? "null");
             }
@@ -138,8 +140,6 @@ namespace Sammlerplattform.Controllers
 
             try
             {
-                using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
-
                 IdentityResult result = await _userManager.DeleteAsync(user);
                 if (!result.Succeeded)
                 {
@@ -155,11 +155,11 @@ namespace Sammlerplattform.Controllers
                         stringLocalizer["SuccessAccountWasDeleted"],
                         stringLocalizer["SuccessAccountWasDeleted"]);
                 }
-                scope.Complete();
             }
             catch (Exception ex)
             {
-                statusMessage = "UnexpectedError" + ex.Message + ex.InnerException;
+                statusMessage = "Error_Error_Ocurred";
+                trackEvents.TrackException(ex, nameof(DeletePersonalDataSubmit), null);
             }
 
             return RedirectToAction("Frontpage", "Home", new { statusMessage });
@@ -173,11 +173,8 @@ namespace Sammlerplattform.Controllers
                 return RedirectToAction("Login", "Account", new { statusmessage = "Error_User_NotFound" });
             }
 
-            ViewData["StatusMessage"] = stringLocalizer[statusMessage];
-
             return View();
         }
-
         public async Task<IActionResult> ChangePasswordSubmit(ChangePasswordModel changePasswordModel)
         {
             string statusMessage = string.Empty;
@@ -188,23 +185,32 @@ namespace Sammlerplattform.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
-            if (changePasswordModel.OldPassword != null && changePasswordModel.NewPassword != null)
+            try
             {
-                IdentityResult changePasswordResult = await _userManager.ChangePasswordAsync(user, changePasswordModel.OldPassword, changePasswordModel.NewPassword);
-                if (!changePasswordResult.Succeeded)
+                if (changePasswordModel.OldPassword != null && changePasswordModel.NewPassword != null)
                 {
-                    foreach (IdentityError error in changePasswordResult.Errors)
+                    IdentityResult changePasswordResult = await _userManager.ChangePasswordAsync(user, changePasswordModel.OldPassword, changePasswordModel.NewPassword);
+                    if (!changePasswordResult.Succeeded)
                     {
-                        ModelState.AddModelError(string.Empty, error.Description);
-                        statusMessage += error.Description;
+                        foreach (IdentityError error in changePasswordResult.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                            statusMessage += error.Description;
+                        }
+                        return RedirectToAction(nameof(ChangePassword), new { statusMessage });
                     }
-                    return RedirectToAction(nameof(ChangePassword), new { statusMessage });
                 }
+            }
+            catch (Exception ex)
+            {
+                trackEvents.TrackException(ex, nameof(ChangePasswordSubmit), null, user.Id);
+                return RedirectToAction(nameof(ChangePassword), new { statusMessage = "Error_Error_Ocurred" });
             }
             await _signInManager.RefreshSignInAsync(user);
 
             return RedirectToAction(nameof(ChangePassword), new { statusMessage = "Success_Password_Change" });
         }
+
         public async Task<IActionResult> ChangeEMail(string statusMessage)
         {
             UsingIdentityUser? user = await _userManager.GetUserAsync(User);
@@ -225,10 +231,8 @@ namespace Sammlerplattform.Controllers
                 HasPassword = await _userManager.HasPasswordAsync(user)
             };
 
-            ViewData["StatusMessage"] = stringLocalizer[statusMessage];
             return View(changeEMailModel);
         }
-
         public async Task<IActionResult> ChangeEMailSubmit(ChangeEMailModel changeEMailModel)
         {
             UsingIdentityUser? user = await _userManager.GetUserAsync(User);

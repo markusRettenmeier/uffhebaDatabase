@@ -130,25 +130,10 @@
     <value>Collection area ID</value>
   </data>
   <data name="CollectionAreaName" xml:space="preserve">
-    <value>Colleciton area</value>
-  </data>
-  <data name="CollectionAttributeID" xml:space="preserve">
-    <value>Attribute ID</value>
-  </data>
-  <data name="CollectionAttributeList" xml:space="preserve">
-    <value>Attributes</value>
-  </data>
-  <data name="CollectionAttributeName" xml:space="preserve">
-    <value>Attribute name</value>
-  </data>
-  <data name="CollectionAttributeType" xml:space="preserve">
-    <value>Attribute type</value>
-  </data>
-  <data name="CollectionAttributeValueList" xml:space="preserve">
-    <value>Attribute values</value>
+    <value>Collection area</value>
   </data>
   <data name="CollectionItemEntityList" xml:space="preserve">
-    <value>Entities</value>
+    <value>Collection items</value>
   </data>
   <data name="Compare" xml:space="preserve">
     <value>{0} and {1} are not the same.</value>
@@ -169,7 +154,7 @@
     <value>Email is missing.</value>
   </data>
   <data name="Error_EmailPassword_Necessary" xml:space="preserve">
-    <value>Email or Password is necessary.</value>
+    <value>Email or Password are necessary.</value>
   </data>
   <data name="EmailAddress" xml:space="preserve">
     <value>The {0} field is not a valid e-mail address.</value>
@@ -204,14 +189,14 @@
   <data name="Required" xml:space="preserve">
     <value>The {0} field is required.</value>
   </data>
-  <data name="RequiredAttribute" xml:space="preserve">
-    <value>Required attribute</value>
+  <data name="IsRequiredConcept" xml:space="preserve">
+    <value>Is it a required concept?</value>
   </data>
   <data name="Error_Email_NotFound" xml:space="preserve">
     <value>Specified email address not found.</value>
   </data>
-  <data name="StateList" xml:space="preserve">
-    <value>States</value>
+  <data name="StatePreservationList" xml:space="preserve">
+    <value>States of preservation</value>
   </data>
   <data name="StringLength" xml:space="preserve">
     <value>The field {0} must be a string with a maximum length of {1}.</value>
@@ -252,23 +237,14 @@
   <data name="Error_CollectionArea_NotFound" xml:space="preserve">
     <value>Collection area not found.</value>
   </data>
+  <data name="Error_ConceeptValue_NotFound" xml:space="preserve">
+    <value>Concept value not found.</value>
+  </data>
   <data name="Error_CollectionArea_IdMissing" xml:space="preserve">
     <value>Collection area ID is missing.</value>
   </data>
-  <data name="Error_CollectionAreaID_Missing" xml:space="preserve">
-    <value>Collection area ID is missing.</value>
-  </data>
-  <data name="Error_CollectionAttribute_Missing" xml:space="preserve">
-    <value>Attribute is missing.</value>
-  </data>
-  <data name="Error_CollectionAttribute_NameMisssing" xml:space="preserve">
-    <value>Attribute name is missing.</value>
-  </data>
-  <data name="Error_CollectionAttribute_NotFound" xml:space="preserve">
-    <value>Attribute not found.</value>
-  </data>
-  <data name="Error_CollectionAttribute_NameDouble" xml:space="preserve">
-    <value>Attribute with same name already exists.</value>
+  <data name="Error_ConceptValue_IdMissing" xml:space="preserve">
+    <value>Concept value ID is missing.</value>
   </data>
   <data name="Error_ConceptualRelation_NotFound" xml:space="preserve">
     <value>Conceptual relation not found.</value>
@@ -328,10 +304,10 @@
     <value>Perspective</value>
   </data>
   <data name="CollectionItemEntityID" xml:space="preserve">
-    <value>CollectionItemEntityID</value>
+    <value>Collection item ID</value>
   </data>
   <data name="CollectionItemEntity" xml:space="preserve">
-    <value>Collection item entity</value>
+    <value>Collection item</value>
   </data>
   <data name="IFormFile" xml:space="preserve">
     <value>File</value>
@@ -345,15 +321,6 @@
   <data name="Side_Right" xml:space="preserve">
     <value>Right side</value>
   </data>
-  <data name="CollectionAttribute" xml:space="preserve">
-    <value>Attribute is missing</value>
-  </data>
-  <data name="CollectionItemPotentialID" xml:space="preserve">
-    <value>Collection item potential ID</value>
-  </data>
-  <data name="CollectionItemPotential" xml:space="preserve">
-    <value>Collection item potential</value>
-  </data>
   <data name="UniqueName" xml:space="preserve">
     <value>Unique name</value>
   </data>
@@ -363,29 +330,17 @@
   <data name="Comment" xml:space="preserve">
     <value>Note</value>
   </data>
-  <data name="StateID" xml:space="preserve">
-    <value>StateID</value>
+  <data name="StatePreservationID" xml:space="preserve">
+    <value>State of preservation ID</value>
   </data>
-  <data name="State" xml:space="preserve">
-    <value>State</value>
+  <data name="StatePreservation" xml:space="preserve">
+    <value>State of preservation</value>
   </data>
   <data name="CollectionItemPictureList" xml:space="preserve">
     <value>Collection item pictures</value>
   </data>
-  <data name="CollectionItemNColorList" xml:space="preserve">
-    <value>Used colors</value>
-  </data>
   <data name="Inscription" xml:space="preserve">
     <value>Inscription</value>
-  </data>
-  <data name="ProcessOfManufactureID" xml:space="preserve">
-    <value>Process of manufacture ID</value>
-  </data>
-  <data name="ProcessOfManufacture" xml:space="preserve">
-    <value>Process of manufacture</value>
-  </data>
-  <data name="CollectionItemNMaterialList" xml:space="preserve">
-    <value>Used materials</value>
   </data>
   <data name="CollectionItemNPartyList" xml:space="preserve">
     <value>Connected parties</value>
@@ -453,30 +408,6 @@
   <data name="DeliveryAdress" xml:space="preserve">
     <value>Delivery address</value>
   </data>
-  <data name="CollectionItemNColorID" xml:space="preserve">
-    <value>Used color ID</value>
-  </data>
-  <data name="ColorID" xml:space="preserve">
-    <value>Color ID</value>
-  </data>
-  <data name="Color" xml:space="preserve">
-    <value>Color</value>
-  </data>
-  <data name="IsPrimaryColor" xml:space="preserve">
-    <value>Is it the primary color?</value>
-  </data>
-  <data name="CollectionItemNMaterialID" xml:space="preserve">
-    <value>Used materialID</value>
-  </data>
-  <data name="MaterialID" xml:space="preserve">
-    <value>Material ID</value>
-  </data>
-  <data name="Material" xml:space="preserve">
-    <value>Material</value>
-  </data>
-  <data name="IsPrimaryMaterial" xml:space="preserve">
-    <value>Is it the primary material</value>
-  </data>
   <data name="CollectionItemNPartyID" xml:space="preserve">
     <value>Verbundene Partei ID</value>
   </data>
@@ -511,7 +442,7 @@
     <value>Name</value>
   </data>
   <data name="CollectionItemEntityID_Required" xml:space="preserve">
-    <value>CollectionItemEntityID_Required</value>
+    <value>Collection item ID is required.</value>
   </data>
   <data name="CollectionItemEmbedding" xml:space="preserve">
     <value>Collection item embedding</value>
@@ -522,17 +453,11 @@
   <data name="UsingIdentityUser" xml:space="preserve">
     <value>User</value>
   </data>
-  <data name="IsPartOfASeries" xml:space="preserve">
-    <value>Is it part of a series?</value>
+  <data name="IsPartOfASet" xml:space="preserve">
+    <value>Is it part of a set?</value>
   </data>
-  <data name="ColorList" xml:space="preserve">
-    <value>Colors</value>
-  </data>
-  <data name="MaterialList" xml:space="preserve">
-    <value>Materials</value>
-  </data>
-  <data name="StateName" xml:space="preserve">
-    <value>State</value>
+  <data name="StatePreservationName" xml:space="preserve">
+    <value>Name of state of preservation</value>
   </data>
   <data name="SortingOrder" xml:space="preserve">
     <value>Sorting order</value>
@@ -548,12 +473,6 @@
   </data>
   <data name="EraName" xml:space="preserve">
     <value>Era name</value>
-  </data>
-  <data name="EraShort" xml:space="preserve">
-    <value>Era short</value>
-  </data>
-  <data name="PlaceNToponymyList" xml:space="preserve">
-    <value>Connected Toponymies</value>
   </data>
   <data name="IndividualID" xml:space="preserve">
     <value>Individual ID</value>
@@ -579,9 +498,6 @@
   <data name="ProductionFacilityName" xml:space="preserve">
     <value>Production facility</value>
   </data>
-  <data name="OrganizationList" xml:space="preserve">
-    <value>Organizations</value>
-  </data>
   <data name="PartyName" xml:space="preserve">
     <value>Party name</value>
   </data>
@@ -594,13 +510,22 @@
   <data name="Building" xml:space="preserve">
     <value>Building</value>
   </data>
+  <data name="BuildingName" xml:space="preserve">
+    <value>Name of building</value>
+  </data>
   <data name="BuildingID" xml:space="preserve">
     <value>Building ID</value>
   </data>
   <data name="Region" xml:space="preserve">
     <value>Region</value>
   </data>
+  <data name="RegionName" xml:space="preserve">
+    <value>Name of region</value>
+  </data>
   <data name="Relief" xml:space="preserve">
+    <value>Relief</value>
+  </data>
+  <data name="ReliefName" xml:space="preserve">
     <value>Relief</value>
   </data>
   <data name="FieldID" xml:space="preserve">
@@ -611,9 +536,6 @@
   </data>
   <data name="PostalcodeID" xml:space="preserve">
     <value>Postalcode ID</value>
-  </data>
-  <data name="PostalcodeNumber" xml:space="preserve">
-    <value>Postal code</value>
   </data>
   <data name="SettlementNPostalcodeList" xml:space="preserve">
     <value>Connected postal codes</value>
@@ -638,6 +560,9 @@
   </data>
   <data name="TransportRoute" xml:space="preserve">
     <value>Transport route</value>
+  </data>
+  <data name="TransportRouteName" xml:space="preserve">
+    <value>Name of transport route</value>
   </data>
   <data name="ToponymyType" xml:space="preserve">
     <value>Toponymic typology</value>
@@ -669,11 +594,17 @@
   <data name="BodyOfWater" xml:space="preserve">
     <value>Body of water</value>
   </data>
+  <data name="BodyOfWaterName" xml:space="preserve">
+    <value>Name of the body of water</value>
+  </data>
   <data name="BodyOfWaterID" xml:space="preserve">
     <value>Body of water ID</value>
   </data>
   <data name="Field" xml:space="preserve">
     <value>Field</value>
+  </data>
+  <data name="FieldName" xml:space="preserve">
+    <value>Name of field</value>
   </data>
   <data name="RegionID" xml:space="preserve">
     <value>Region ID</value>
@@ -681,26 +612,8 @@
   <data name="PartyList" xml:space="preserve">
     <value>Parties</value>
   </data>
-  <data name="PlaceNToponymyID" xml:space="preserve">
-    <value>Connected toponymy ID</value>
-  </data>
-  <data name="ToponymyID" xml:space="preserve">
-    <value>Toponymy ID</value>
-  </data>
   <data name="IsCurrentName" xml:space="preserve">
     <value>Is it the current name?</value>
-  </data>
-  <data name="ToponymyName" xml:space="preserve">
-    <value>Place name</value>
-  </data>
-  <data name="Mainprocess" xml:space="preserve">
-    <value>Main process</value>
-  </data>
-  <data name="ProcessOfManufactureName" xml:space="preserve">
-    <value>Production process name</value>
-  </data>
-  <data name="Technique" xml:space="preserve">
-    <value>Technique</value>
   </data>
   <data name="OldEmail" xml:space="preserve">
     <value>Old email</value>
@@ -736,28 +649,7 @@
     <value>Collection area was updated successfully.</value>
   </data>
   <data name="Error_CollectionItemEntity_IDMissing" xml:space="preserve">
-    <value>Collection item entity ID is missing.</value>
-  </data>
-  <data name="Success_CollectionAttributeValue_Created" xml:space="preserve">
-    <value>Collection attribute value was created.</value>
-  </data>
-  <data name="Success_CollectionAttribute_Created" xml:space="preserve">
-    <value>Attribute was created successfully.</value>
-  </data>
-  <data name="Success_CollectionAttribute_Updated" xml:space="preserve">
-    <value>Attribute was updated successfully.</value>
-  </data>
-  <data name="Error_CollectionAttributeValue_NotFound" xml:space="preserve">
-    <value>Collection attribute value was not found.</value>
-  </data>
-  <data name="Success_CollectionAttributeValue_Updated" xml:space="preserve">
-    <value>Collection attribute value was updated successfully.</value>
-  </data>
-  <data name="Error_CollectionAttributeValue_IDMissing" xml:space="preserve">
-    <value>Collection attribute value ID is missing.</value>
-  </data>
-  <data name="Success_CollectionAttributeValue_Deleted" xml:space="preserve">
-    <value>Collection attribute value was deleted successfully.</value>
+    <value>Collection item ID is missing.</value>
   </data>
   <data name="Success_Embeding_Created" xml:space="preserve">
     <value>Embedding created successfully.</value>
@@ -775,39 +667,27 @@
     <value>UserID is missing.</value>
   </data>
   <data name="Success_CollectionItemEntity_Created" xml:space="preserve">
-    <value>Collection item entity was created successfully.</value>
+    <value>Collection item was created successfully.</value>
   </data>
   <data name="Error_CollectionItemEntity_NotFound" xml:space="preserve">
-    <value>Collection item entity was not found.</value>
+    <value>Collection item was not found.</value>
   </data>
   <data name="Success_CollectionItemEntity_Changed" xml:space="preserve">
-    <value>Collection item entity was  changed successfully.</value>
+    <value>Collection item was  changed successfully.</value>
   </data>
   <data name="Success_CollectionItemEntity_Deleted" xml:space="preserve">
-    <value>Collection item entity was deleted successfully.</value>
+    <value>Collection item was deleted successfully.</value>
   </data>
   <data name="Success_CollectionItemPicture_Synchronized" xml:space="preserve">
     <value>Picture was synchronized successfully.</value>
   </data>
-  <data name="Success_CollectionAttributeValue_Synchronized" xml:space="preserve">
-    <value>Attribute value was synchronized successfully.</value>
-  </data>
-  <data name="Success_CollectionItemPotential_Created" xml:space="preserve">
-    <value>Collection item potential was created succssfully.</value>
-  </data>
-  <data name="Success_CollectionItemPotential_Deleted" xml:space="preserve">
-    <value>Collection item potential was deleted succssfully.</value>
-  </data>
-  <data name="Success_State_Created" xml:space="preserve">
-    <value>State was created successfully.</value>
-  </data>
-  <data name="Error_State_NotFound" xml:space="preserve">
+  <data name="Error_StatePreservation_NotFound" xml:space="preserve">
     <value>State not found.</value>
   </data>
-  <data name="Success_State_Updated" xml:space="preserve">
+  <data name="Success_StatePreservation_Updated" xml:space="preserve">
     <value>State was updated successfully.</value>
   </data>
-  <data name="Success_State_Deleted" xml:space="preserve">
+  <data name="Success_StatePreservation_Deleted" xml:space="preserve">
     <value>State was deleted successfully.</value>
   </data>
   <data name="Error_Concept_Exists" xml:space="preserve">
@@ -830,9 +710,6 @@
   </data>
   <data name="Success_Concept_Updated" xml:space="preserve">
     <value>Concept was updated successfully</value>
-  </data>
-  <data name="Error_PartyName_Missing" xml:space="preserve">
-    <value>Party name is missing.</value>
   </data>
   <data name="Error_Party_Exists" xml:space="preserve">
     <value>Party already exists.</value>
@@ -890,21 +767,6 @@
   </data>
   <data name="Error_PlaceName_Missing" xml:space="preserve">
     <value>Place name is missing.</value>
-  </data>
-  <data name="Error_ProcessOfManufacture_Exists" xml:space="preserve">
-    <value>Process pf manufacture already exists.</value>
-  </data>
-  <data name="Error_ProcessOfManufacture_NotFound" xml:space="preserve">
-    <value>Process pf manufacture not found.</value>
-  </data>
-  <data name="Error_ProcessOfManufacture_NameMissing" xml:space="preserve">
-    <value>Process pf manufacture name is missing.</value>
-  </data>
-  <data name="Error_ProcessOfManufacture_IDMissing" xml:space="preserve">
-    <value>Process pf manufacture id is missing.</value>
-  </data>
-  <data name="Error_ProcessOfManufacture_MainProcessMissing" xml:space="preserve">
-    <value>Min process is missing.</value>
   </data>
   <data name="Error_Place_Exists" xml:space="preserve">
     <value>Place already exists.</value>
@@ -990,17 +852,11 @@
   <data name="Column_Add" xml:space="preserve">
     <value>Add column</value>
   </data>
-  <data name="State_Administration" xml:space="preserve">
-    <value>Administer states</value>
+  <data name="StatePreservation_Administration" xml:space="preserve">
+    <value>Administer states  of preservation</value>
   </data>
   <data name="ConceptRelation_Administration" xml:space="preserve">
     <value>Administer concept relations</value>
-  </data>
-  <data name="CollecitonAttribute_Edit" xml:space="preserve">
-    <value>Edit Attribute</value>
-  </data>
-  <data name="CollectionItemPotential_Choose" xml:space="preserve">
-    <value>Choose the collection item potential</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
@@ -1011,26 +867,14 @@
   <data name="Picture_Watermark" xml:space="preserve">
     <value>All images are automatically watermarked.</value>
   </data>
-  <data name="CollectionItemEntity_Details" xml:space="preserve">
-    <value>Collection item details</value>
+  <data name="CollectionItemEntity_AttributesConcepts" xml:space="preserve">
+    <value>Collection item additional attributes and general concepts</value>
   </data>
   <data name="Concept_Select" xml:space="preserve">
     <value>Select concept</value>
   </data>
-  <data name="State_NotAvailable" xml:space="preserve">
+  <data name="StatePreservation_NotAvailable" xml:space="preserve">
     <value>No states available</value>
-  </data>
-  <data name="Color_Add" xml:space="preserve">
-    <value>Add more colors</value>
-  </data>
-  <data name="Material_Add" xml:space="preserve">
-    <value>Add more materials</value>
-  </data>
-  <data name="Era_Choose" xml:space="preserve">
-    <value>Choose era</value>
-  </data>
-  <data name="ProcessOfManufacture_Select" xml:space="preserve">
-    <value>Select process of manufacture</value>
   </data>
   <data name="Party_Add" xml:space="preserve">
     <value>Add party</value>
@@ -1039,7 +883,7 @@
     <value>Administration datas</value>
   </data>
   <data name="Delete_Confirm" xml:space="preserve">
-    <value>Are you sure you want to delete this collection item?</value>
+    <value>Are you sure you want to delete it?</value>
   </data>
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
@@ -1047,20 +891,11 @@
   <data name="Picture_Add" xml:space="preserve">
     <value>Add pictures</value>
   </data>
-  <data name="Color_Select" xml:space="preserve">
-    <value>Select color</value>
-  </data>
   <data name="Place_Select" xml:space="preserve">
     <value>Select place</value>
   </data>
-  <data name="State_Select" xml:space="preserve">
-    <value>Select state</value>
-  </data>
-  <data name="Material_Select" xml:space="preserve">
-    <value>Select material</value>
-  </data>
   <data name="CollectionArea_OwnAdministration" xml:space="preserve">
-    <value>Administer own {0}</value>
+    <value>Administer own collection area {0}</value>
   </data>
   <data name="Relation_Add" xml:space="preserve">
     <value>Addd relation</value>
@@ -1092,14 +927,8 @@
   <data name="Frontpage" xml:space="preserve">
     <value>Frontpage</value>
   </data>
-  <data name="Toponymy" xml:space="preserve">
-    <value>Toponymy</value>
-  </data>
   <data name="Accept" xml:space="preserve">
     <value>Accept</value>
-  </data>
-  <data name="CookieConsent_Text" xml:space="preserve">
-    <value>This website does not process any personal data. All errors and searches on the front page are tracked independently of the user. All cookies are used solely to ensure the functionality of this website.</value>
   </data>
   <data name="Documentation" xml:space="preserve">
     <value>Documentation</value>
@@ -1128,7 +957,7 @@
   <data name="Create" xml:space="preserve">
     <value>Create</value>
   </data>
-  <data name="Dimensions_Adiminstration" xml:space="preserve">
+  <data name="Dimensions_Adminstration" xml:space="preserve">
     <value>Administer dimensions</value>
   </data>
   <data name="Eras" xml:space="preserve">
@@ -1189,25 +1018,13 @@
     <value>Create collection area</value>
   </data>
   <data name="CollectionArea_Edit" xml:space="preserve">
-    <value>Edit collection area</value>
+    <value>Edit collection area name</value>
   </data>
   <data name="CollectionArea_Structure" xml:space="preserve">
     <value>Collection area structure</value>
   </data>
-  <data name="CollectionAttribute_Administration" xml:space="preserve">
-    <value>Administer additional attributes</value>
-  </data>
-  <data name="CollectionAttribute_Create" xml:space="preserve">
-    <value>Create attribute</value>
-  </data>
-  <data name="CollectionAttribute_Select" xml:space="preserve">
-    <value>Select attribute</value>
-  </data>
   <data name="CollectionItemEntity_Create" xml:space="preserve">
     <value>Create collection item</value>
-  </data>
-  <data name="Concept_Choose" xml:space="preserve">
-    <value>Choose concept</value>
   </data>
   <data name="ManufacturingTime" xml:space="preserve">
     <value>Manufacturing time</value>
@@ -1215,8 +1032,8 @@
   <data name="Party_Select" xml:space="preserve">
     <value>Select party</value>
   </data>
-  <data name="WeightDimensions" xml:space="preserve">
-    <value>Weight and dimensions</value>
+  <data name="Measurements_Weight" xml:space="preserve">
+    <value>Measurement &amp; weight</value>
   </data>
   <data name="CollectionItemEntity_Delete" xml:space="preserve">
     <value>Delete collection item</value>
@@ -1321,26 +1138,17 @@
   <data name="Settlement_Administration" xml:space="preserve">
     <value>Administer settlement</value>
   </data>
-  <data name="State_Create" xml:space="preserve">
-    <value>Create state</value>
+  <data name="StatePreservation_Create" xml:space="preserve">
+    <value>Create state of preservation</value>
   </data>
-  <data name="State_Delete" xml:space="preserve">
-    <value>Delete state</value>
+  <data name="StatePreservation_Delete" xml:space="preserve">
+    <value>Delete state of preservation</value>
   </data>
-  <data name="State_Edit" xml:space="preserve">
-    <value>Edit state</value>
+  <data name="StatePreservation_Edit" xml:space="preserve">
+    <value>Edit state  of preservation</value>
   </data>
   <data name="TransportRoute_Create" xml:space="preserve">
     <value>Create  transport route</value>
-  </data>
-  <data name="ProcessOfManufacture_Create" xml:space="preserve">
-    <value>Create process of manufacture</value>
-  </data>
-  <data name="ProcessOfManufacture_Edit" xml:space="preserve">
-    <value>Edit process of manufacture</value>
-  </data>
-  <data name="ProcessOfManufacture_Administration" xml:space="preserve">
-    <value>Administer process of manufacture</value>
   </data>
   <data name="TransportRoute_Edit" xml:space="preserve">
     <value>Edit transport route</value>
@@ -1369,8 +1177,8 @@
   <data name="Download_Notification" xml:space="preserve">
     <value>Before deleting your account, please download your entries first.</value>
   </data>
-  <data name="PostcardsAll_Download" xml:space="preserve">
-    <value>Download all postcards</value>
+  <data name="CollectionItem_DownloadAll" xml:space="preserve">
+    <value>Download all datas to the collection items</value>
   </data>
   <data name="PersonalData_Download" xml:space="preserve">
     <value>Download personal datas</value>
@@ -1393,12 +1201,6 @@
   <data name="Message_GeneralText_Html" xml:space="preserve">
     <value>This is an automatically generated email. If you have any questions, please contact service@uffheba.software. Best regards</value>
   </data>
-  <data name="Success_ProcessOfManufacture_Created" xml:space="preserve">
-    <value>Process of manufacture created successfully.</value>
-  </data>
-  <data name="Success_ProcessOfManufacture_Updated" xml:space="preserve">
-    <value>Process of manufacture updated successfully.</value>
-  </data>
   <data name="Details" xml:space="preserve">
     <value>Details</value>
   </data>
@@ -1406,13 +1208,13 @@
     <value>No entries found for the search term.</value>
   </data>
   <data name="Place_ParentAdd" xml:space="preserve">
-    <value>Add parent place</value>
+    <value>Add to a place</value>
   </data>
   <data name="ParentPlace_Max1" xml:space="preserve">
     <value>There may only be one parent place.</value>
   </data>
   <data name="Place_ChildAdd" xml:space="preserve">
-    <value>Add child place</value>
+    <value>Add District</value>
   </data>
   <data name="Concept_SynonymAdd" xml:space="preserve">
     <value>Add as a sub term</value>
@@ -1444,13 +1246,238 @@
   <data name="OrganizationID" xml:space="preserve">
     <value>OrganizationID</value>
   </data>
-  <data name="CollectionAttributeValueID" xml:space="preserve">
-    <value>Attribute value ID</value>
-  </data>
-  <data name="MaterialName" xml:space="preserve">
-    <value>Material name</value>
+  <data name="ConceptValueID" xml:space="preserve">
+    <value>Concept value ID</value>
   </data>
   <data name="IsGeneralConcept" xml:space="preserve">
     <value>IS it a general concept, so not collection area specific</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Concept_CollectionAreaIndependent" xml:space="preserve">
+    <value>Collection area independent concepts</value>
+  </data>
+  <data name="ConceptRelation_Administration_General" xml:space="preserve">
+    <value>Administer general concepts</value>
+  </data>
+  <data name="ConceptRelation_Administration_Specific" xml:space="preserve">
+    <value>Administer attributes</value>
+  </data>
+  <data name="IsRootConcept" xml:space="preserve">
+    <value>Is it the root concept?</value>
+  </data>
+  <data name="RootConceptID" xml:space="preserve">
+    <value>Root concept ID</value>
+  </data>
+  <data name="RootConcept" xml:space="preserve">
+    <value>Root concept</value>
+  </data>
+  <data name="SubConceptList" xml:space="preserve">
+    <value>Sub concepts</value>
+  </data>
+  <data name="Dimensions" xml:space="preserve">
+    <value>Dimensions</value>
+  </data>
+  <data name="ConceptValueList" xml:space="preserve">
+    <value>Concept values</value>
+  </data>
+  <data name="ConceptType" xml:space="preserve">
+    <value>Concept type</value>
+  </data>
+  <data name="Keywords" xml:space="preserve">
+    <value>Keywords</value>
+  </data>
+  <data name="Pictures" xml:space="preserve">
+    <value>Pictures</value>
+  </data>
+  <data name="CollectionItemEntity_BasicAttributes" xml:space="preserve">
+    <value>Basic attributes</value>
+  </data>
+  <data name="Identification" xml:space="preserve">
+    <value>Identification</value>
+  </data>
+  <data name="Concept_Add" xml:space="preserve">
+    <value>Add concept</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CollectionItemEntity_AdditionalAttribute_Administration" xml:space="preserve">
+    <value>Administer additional attributes</value>
+  </data>
+  <data name="Abbreviation" xml:space="preserve">
+    <value>Abbreviation</value>
+  </data>
+  <data name="ConceptNameRequired" xml:space="preserve">
+    <value>Concept name is required.</value>
+  </data>
+  <data name="CollectionSet_Select" xml:space="preserve">
+    <value>Select set</value>
+  </data>
+  <data name="Set" xml:space="preserve">
+    <value>Set</value>
+  </data>
+  <data name="SetName" xml:space="preserve">
+    <value>Set name</value>
+  </data>
+  <data name="SetId" xml:space="preserve">
+    <value>Set id</value>
+  </data>
+  <data name="SetName_Requiered" xml:space="preserve">
+    <value>Set name is rrequired.</value>
+  </data>
+  <data name="Error_CollectionSet_NameMissing" xml:space="preserve">
+    <value>Collection set name is missing.</value>
+  </data>
+  <data name="Error_CollectionSet_NotFound" xml:space="preserve">
+    <value>Collection set not found.</value>
+  </data>
+  <data name="CollectionSet_Create" xml:space="preserve">
+    <value>Create set</value>
+  </data>
+  <data name="CollectionSet_Edit" xml:space="preserve">
+    <value>Edit set</value>
+  </data>
+  <data name="CollectionSet_Administration" xml:space="preserve">
+    <value>Administer set</value>
+  </data>
+  <data name="CollectionSetId" xml:space="preserve">
+    <value>Set id</value>
+  </data>
+  <data name="CollectionSetName" xml:space="preserve">
+    <value>Collection set name</value>
+  </data>
+  <data name="CollectionSet" xml:space="preserve">
+    <value>Collection set</value>
+  </data>
+  <data name="Success_CollectionSet_Created" xml:space="preserve">
+    <value>Collection set created successfully.</value>
+  </data>
+  <data name="Success_CollectionSet_Deleted" xml:space="preserve">
+    <value>Collection set deleted successfully.</value>
+  </data>
+  <data name="Success_CollectionSet_Updated" xml:space="preserve">
+    <value>Collection set updated successfully.</value>
+  </data>
+  <data name="CollectionSetName_Required" xml:space="preserve">
+    <value>Collection set name is requiered.</value>
+  </data>
+  <data name="Success_ConceptValue_Created" xml:space="preserve">
+    <value>Concept value created successfully.</value>
+  </data>
+  <data name="Success_ConceptValue_Updated" xml:space="preserve">
+    <value>Concept value deleted successfully.</value>
+  </data>
+  <data name="Success_ConceptValue_Deleteed" xml:space="preserve">
+    <value>Concept value updated successfully.</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="TitleRequired" xml:space="preserve">
+    <value>Title is required.</value>
+  </data>
+  <data name="ContentRequired" xml:space="preserve">
+    <value>Content is required.</value>
+  </data>
+  <data name="Error_Title_Empty" xml:space="preserve">
+    <value>Title is empty.</value>
+  </data>
+  <data name="Error_Content_Empty" xml:space="preserve">
+    <value>Content is empty.</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Created" xml:space="preserve">
+    <value>Improvement suggestion created successfully.</value>
+  </data>
+  <data name="Error_ImprovementSuggestion_NotFound" xml:space="preserve">
+    <value>Improvement suggestion was not found.</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Updated" xml:space="preserve">
+    <value>Improvement suggestion updated successfully.</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Deleted" xml:space="preserve">
+    <value>Improvement suggestion deleted successfully.</value>
+  </data>
+  <data name="ImprovementSuggestions" xml:space="preserve">
+    <value>Improvement suggestions</value>
+  </data>
+  <data name="ImprovementSuggestions_Create" xml:space="preserve">
+    <value>Create improvement suggestion</value>
+  </data>
+  <data name="ImprovementSuggestions_Administration" xml:space="preserve">
+    <value>Administer improvement suggestions</value>
+  </data>
+  <data name="ImprovementSuggestions_Edit" xml:space="preserve">
+    <value>Edit improvement suggestion</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>Created at </value>
+  </data>
+  <data name="ImprovementSuggestions_Delete" xml:space="preserve">
+    <value>Delete improvement suggestion</value>
+  </data>
+  <data name="UpdatedAt" xml:space="preserve">
+    <value>Updated at</value>
+  </data>
+  <data name="Error_InvalidModelState" xml:space="preserve">
+    <value>Wrong inputs.</value>
+  </data>
+  <data name="CollectionArea_Name_IsMissing" xml:space="preserve">
+    <value>Collection area name is missing.</value>
+  </data>
+  <data name="CollectionSet_Name_IsMissing" xml:space="preserve">
+    <value>Collection set name is missing.</value>
+  </data>
+  <data name="StatePreservation_Name_Missing" xml:space="preserve">
+    <value>State name is missing.</value>
+  </data>
+  <data name="Era_Name_Missing" xml:space="preserve">
+    <value>Era name is missing.</value>
+  </data>
+  <data name="Error_Party_NameMissing" xml:space="preserve">
+    <value>Party name is missing.</value>
+  </data>
+  <data name="Error_Email_OldMissing" xml:space="preserve">
+    <value>Old email is missing.</value>
+  </data>
+  <data name="Error_Email_NewMissing" xml:space="preserve">
+    <value>New email is missing.</value>
+  </data>
+  <data name="Error_Email_NotValid" xml:space="preserve">
+    <value>Email is not valid.</value>
+  </data>
+  <data name="Password_Missing" xml:space="preserve">
+    <value>Password is missing.</value>
+  </data>
+  <data name="Password_New_Missing" xml:space="preserve">
+    <value>New password is missing.</value>
+  </data>
+  <data name="Password_Old_Missing" xml:space="preserve">
+    <value>Altes password is missing.</value>
+  </data>
+  <data name="Error_StatePreservation_Exists" xml:space="preserve">
+    <value>State already exists.</value>
+  </data>
+  <data name="Success_StatePreservation_Created" xml:space="preserve">
+    <value>State was created successfully.</value>
+  </data>
+  <data name="StatePreservation_Select" xml:space="preserve">
+    <value>Select state</value>
+  </data>
+  <data name="WikipediaUrl" xml:space="preserve">
+    <value>Wikipedia URL</value>
+  </data>
+  <data name="Error_User_NameEmpty" xml:space="preserve">
+    <value>User name is empty.</value>
+  </data>
+  <data name="SettlementNames" xml:space="preserve">
+    <value>Settlement names</value>
   </data>
 </root>

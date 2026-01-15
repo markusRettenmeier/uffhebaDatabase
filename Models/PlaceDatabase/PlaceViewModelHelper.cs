@@ -63,17 +63,11 @@ namespace Sammlerplattform.Models.PlaceDatabase
 
     public class PlaceViewModel
     {
-        [Display(Name = "PlaceID", ResourceType = typeof(SharedResources))]
         public int PlaceID { get; set; }
-        [Display(Name = "Toponymy", ResourceType = typeof(SharedResources))]
         public string Toponymy { get; set; } = string.Empty;
-        [Display(Name = "ParentPlace", ResourceType = typeof(SharedResources))]
         public string ParentPlaceName { get; set; } = string.Empty;
-        [Display(Name = "ChildPlaceList", ResourceType = typeof(SharedResources))]
         public string ChildPlaces { get; set; } = string.Empty;
-        [Display(Name = "Postalcodes", ResourceType = typeof(SharedResources))]
         public string Postalcodes { get; set; } = string.Empty;
-        [Display(Name = "Postalcodes", ResourceType = typeof(SharedResources))]
         public string RelatedGeographyName { get; set; } = string.Empty;
         public string Byname { get; set; } = string.Empty;
         public string FurtherSpecs { get; set; } = string.Empty;
