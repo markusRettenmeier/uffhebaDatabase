@@ -2,31 +2,23 @@
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
 using System.Transactions;
+using static Sammlerplattform.Controllers.RestController;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
 {
     public interface IProcessIndividual
     {
-        (int Statuscode, string StatusMessage, int PartyID) Insert(IndividualOperationParameterModel individualOperationParameterModel);
-        (int Statuscode, string StatusMessage, int PartyID) Update(IndividualOperationParameterModel individualOperationParameterModel);
+        (int Statuscode, string StatusMessage, int PartyID) Insert(IndividualCreateDTO createDTO);
+        (int Statuscode, string StatusMessage, int PartyID) Update(IndividualEditDTO editDTO);
+        (int Statuscode, string StatusMessage) Delete(int partyID);
     }
     public class IndividualProcessor(IProcessParty processParty
         , IUnitOfWork unitOfWork
-        , ITrackEvents trackEvents) : IProcessIndividual
+        , ITrackEventsCSV trackEvents) : IProcessIndividual
     {
-        public (int Statuscode, string StatusMessage, int PartyID) Insert(IndividualOperationParameterModel individualOperationParameterModel)
+        public (int Statuscode, string StatusMessage, int PartyID) Insert(IndividualCreateDTO createDTO)
         {
-            if (string.IsNullOrWhiteSpace(individualOperationParameterModel.Party.PartyName))
-            {
-                trackEvents.TrackWarning("IndividualProcessor.Create: PartyName is missing.", new Dictionary<string, object>
-                {
-                    { "Party", individualOperationParameterModel.Party},
-                    { "Individual", individualOperationParameterModel.Individual }
-                });
-                return (412, "Error_Party_NameMissing", 0);
-            }
-
-            (bool flowControl, (int Statuscode, string StatusMessage, int PartyID) value) = IsPlaceExistingProcessCreate(individualOperationParameterModel);
+            (bool flowControl, (int Statuscode, string StatusMessage, int PartyID) value) = IsPartyExistingProcessCreate(createDTO);
             if (!flowControl)
             {
                 return value;
@@ -38,13 +30,18 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
 
                 PartyOperationParameterModel partyOperationParameterModel = new()
                 {
-                    Party = individualOperationParameterModel.Party,
-                    PlaceList = individualOperationParameterModel.PlaceList
+                    Party = new Party { PartyName = createDTO.Name, PartyTypeInt = createDTO.PartyTypeInt, WikipediaUrl = createDTO.WikipediaUrl },
+                    //ConnectedPlaceIDList = [.. createDTO.ConnectedPlaceList.Select(p => p.PlaceID)]
                 };
                 Party newParty = processParty.Insert(partyOperationParameterModel).Party;
 
-                individualOperationParameterModel.Individual.PartyID = newParty.PartyID;
-                Individual newIndividual = unitOfWork.IndividualRepository.Insert(individualOperationParameterModel.Individual);
+                Individual individual = new()
+                {
+                    Pseudonym = createDTO.Pseudonym,
+                    Signature = createDTO.Signature,
+                    PartyID = newParty.PartyID
+                };
+                Individual newIndividual = unitOfWork.IndividualRepository.Insert(individual);
                 unitOfWork.Save();
 
                 scope.Complete();
@@ -54,31 +51,29 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
             {
                 trackEvents.TrackException(ex, "IndividualProcessor.Create: Exception occurred.", new Dictionary<string, object>
                 {
-                    { "Party", individualOperationParameterModel.Party},
-                    { "Individual", individualOperationParameterModel.Individual }
+                    {"IndividualCreateDTO", createDTO }
                 });
                 return (500, "Error_Error_Ocurred", 0);
             }
         }
 
-        private (bool flowControl, (int Statuscode, string StatusMessage, int PartyID) value) IsPlaceExistingProcessCreate(IndividualOperationParameterModel individualOperationParameterModel)
+        private (bool flowControl, (int Statuscode, string StatusMessage, int PartyID) value) IsPartyExistingProcessCreate(IndividualCreateDTO createDTO)
         {
-            PartySearchParameterModel partySearchParameterModel = new()
+            PartySearchParameterModel searchParamters = new()
             {
-                PartyName = [individualOperationParameterModel.Party.PartyName],
-                PartyTypeInt = [individualOperationParameterModel.Party.PartyTypeInt]
+                PartyName = [createDTO.Name],
+                PartyTypeInt = [createDTO.PartyTypeInt]
             };
-            if (individualOperationParameterModel.Individual.Pseudonym != null)
-                partySearchParameterModel.Individual_Pseudonym = [individualOperationParameterModel.Individual.Pseudonym];
-            if (individualOperationParameterModel.Individual.Signature != null)
-                partySearchParameterModel.Individual_Signature = [individualOperationParameterModel.Individual.Signature];
-            Party? existingParty = processParty.GetListWithPredicate(partySearchParameterModel).FirstOrDefault();
+            if (createDTO.Pseudonym != null)
+                searchParamters.Individual_Pseudonym = [createDTO.Pseudonym];
+            if (createDTO.Signature != null)
+                searchParamters.Individual_Signature = [createDTO.Signature];
+            Party? existingParty = processParty.GetListWithPredicate(searchParamters).FirstOrDefault();
             if (existingParty != null)
             {
-                trackEvents.TrackWarning("IndividualProcessor.Create: Individual already exists.", new Dictionary<string, object>
+                trackEvents.TrackError("IndividualProcessor.Create: Individual already exists.", new Dictionary<string, object>
                 {
-                    { "Party", individualOperationParameterModel.Party},
-                    { "Individual", individualOperationParameterModel.Individual }
+                    {"IndividualCreateDTO", createDTO }
                 });
                 return (flowControl: false, value: (409, "Error_Party_Exists", 0));
             }
@@ -86,36 +81,16 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
             return (flowControl: true, value: default);
         }
 
-        public (int Statuscode, string StatusMessage, int PartyID) Update(IndividualOperationParameterModel individualOperationParameterModel)
+        public (int Statuscode, string StatusMessage, int PartyID) Update(IndividualEditDTO editDTO)
         {
-            if (individualOperationParameterModel.Party.PartyID <= 0)
-            {
-                trackEvents.TrackWarning("IndividualProcessor.Edit: PartyID is missing or invalid.", new Dictionary<string, object>
-                {
-                    { "Party", individualOperationParameterModel.Party },
-                    { "Individual", individualOperationParameterModel.Individual }
-                });
-                return (412, "Error_PartyID_Missing", 0);
-            }
-            if (string.IsNullOrWhiteSpace(individualOperationParameterModel.Party.PartyName))
-            {
-                trackEvents.TrackWarning("IndividualProcessor.Edit: PartyName is missing.", new Dictionary<string, object>
-                {
-                    { "Party", individualOperationParameterModel.Party },
-                    { "Individual", individualOperationParameterModel.Individual }
-                });
-                return (412, "Error_Party_NameMissing", 0);
-            }
-
-            Individual? individualToEdit = processParty.GetListWithPredicate(
-                new PartySearchParameterModel { PartyID = [individualOperationParameterModel.Party.PartyID] }
-                ).FirstOrDefault()?.Individual;
+            Individual? individualToEdit = processParty
+                .GetListWithPredicate(new PartySearchParameterModel { PartyID = [editDTO.PartyID] })
+                .FirstOrDefault()?.Individual;
             if (individualToEdit == null)
             {
-                trackEvents.TrackWarning("IndividualProcessor.Edit: Individual not found.", new Dictionary<string, object>
+                trackEvents.TrackError("IndividualProcessor.Edit: Individual not found.", new Dictionary<string, object>
                 {
-                    { "Party", individualOperationParameterModel.Party },
-                    { "Individual", individualOperationParameterModel.Individual }
+                    { "IndividualEditDTO", editDTO  }
                 });
                 return (404, "Error_Individual_NotFound", 0);
             }
@@ -124,20 +99,26 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-                if (individualToEdit.Pseudonym != individualOperationParameterModel.Individual.Pseudonym
-                    || individualToEdit.Signature != individualOperationParameterModel.Individual.Signature)
+                if (individualToEdit.Pseudonym != editDTO.Pseudonym
+                    || individualToEdit.Signature != editDTO.Signature)
                 {
-                    individualToEdit.Pseudonym = individualOperationParameterModel.Individual.Pseudonym;
-                    individualToEdit.Signature = individualOperationParameterModel.Individual.Signature;
+                    individualToEdit.Pseudonym = editDTO.Pseudonym;
+                    individualToEdit.Signature = editDTO.Signature;
                     unitOfWork.Save();
                 }
 
-                PartyOperationParameterModel partyOperationParameterModel = new()
+                PartyOperationParameterModel partyOperationParameter = new()
                 {
-                    Party = individualOperationParameterModel.Party,
-                    PlaceList = individualOperationParameterModel.PlaceList
+                    Party = new Party
+                    {
+                        PartyID = editDTO.PartyID,
+                        PartyName = editDTO.Name,
+                        PartyTypeInt = editDTO.PartyTypeInt,
+                        WikipediaUrl = editDTO.WikipediaUrl
+                    },
+                    //ConnectedPlaceIDList = [.. editDTO.ConnectedPlaceList.Select(p => p.PlaceID)]
                 };
-                Party editedParty = processParty.Update(partyOperationParameterModel).Party;
+                Party editedParty = processParty.Update(partyOperationParameter).Party;
 
                 scope.Complete();
                 return (200, "Success_Individual_Updated", editedParty.PartyID);
@@ -146,10 +127,56 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
             {
                 trackEvents.TrackException(ex, "IndividualProcessor.Edit: Exception occurred.", new Dictionary<string, object>
                 {
-                    { "Party", individualOperationParameterModel.Party },
-                    { "Individual", individualOperationParameterModel.Individual }
+                    { "IndividualEditDTO", editDTO  }
                 });
                 return (500, "Error_Error_Ocurred", 0);
+            }
+        }
+
+        public (int Statuscode, string StatusMessage) Delete(int id)
+        {
+            Party? party = processParty
+                .GetListWithPredicate(new PartySearchParameterModel { PartyID = [id] })
+                .FirstOrDefault();
+            if (party == null || party.Individual == null)
+            {
+                trackEvents.TrackError("IndividualProcessor.Delete: Individual not found.", new Dictionary<string, object>
+                {
+                    { "PartyID", id  }
+                });
+                return (404, "Error_Individual_NotFound");
+            }
+
+            try
+            {
+                TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+                unitOfWork.IndividualRepository.Delete(party.Individual);
+                unitOfWork.Save();
+
+                (int statuscode, string message) = processParty.Delete(party);
+                if(statuscode != 200)
+                {
+                    trackEvents.TrackError("IndividualProcessor.Delete: Error occurred in party deletion.", new Dictionary<string, object>
+                    {
+                        { "PartyID", id  },
+                        { "ProcessPartyStatuscode", statuscode },
+                        { "ProcessPartyMessage", message }
+                    });
+                    scope.Dispose();
+                    return (statuscode, message);
+                }
+
+                scope.Complete();
+                return (200, "Success_Individual_Deleted");
+            }
+            catch (Exception ex)
+            {
+                trackEvents.TrackException(ex, "IndividualProcessor.Delete: Exception occurred.", new Dictionary<string, object>
+                {
+                    { "PartyID", id  }
+                });
+                return (500, "Error_Error_Ocurred");
             }
         }
     }

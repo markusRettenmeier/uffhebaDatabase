@@ -11,7 +11,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
     {
         (int StatusCode, string StatusMessage, int SetID) Insert(CollectionSet set);
         (int StatusCode, string StatusMessage, int SetID) Update(CollectionSet set);
-        (int StatusCode, string StatusMessage) Delete(CollectionSet set);
+        (int StatusCode, string StatusMessage) Delete(int id);
         List<CollectionSet> GetWithPredicates(CollectionSetSearchParameterModel searchParameter);
     }
 
@@ -19,13 +19,13 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         IProcessTranslations processTranslations,
         ITranslationStore translationStore,
         IDeeplTranslationService translationService,
-        ITrackEvents trackEvents) : IProcessCollectionSet
+        ITrackEventsCSV trackEvents) : IProcessCollectionSet
     {
         public (int StatusCode, string StatusMessage, int SetID) Insert(CollectionSet set)
         {
             if (string.IsNullOrEmpty(set.CollectionSetName))
             {
-                trackEvents.TrackWarning("CollectionSetProcessor/Insert: CollectionSetName is missing.",new Dictionary<string, object>
+                trackEvents.TrackError("CollectionSetProcessor/Insert: CollectionSetName is missing.",new Dictionary<string, object>
                 {
                     {"CollectionSet", set }
                 });
@@ -63,8 +63,18 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             }
         }
 
-        public (int StatusCode, string StatusMessage) Delete(CollectionSet set)
+        public (int StatusCode, string StatusMessage) Delete(int id)
         {
+            CollectionSet? set = GetWithPredicates(new CollectionSetSearchParameterModel { CollectionSetId = [id] }).FirstOrDefault();
+            if (set == null)
+            {
+                return (400, "Error_CollectionSet_NotFound");
+            }
+            if (set.CollectionItemEntityList != null && set.CollectionItemEntityList.Count > 0)
+            {
+                return (400, "Error_CollectionSet_HasItems");
+            }
+
             try
             {
                 unitOfWork.SetRepository.Delete(set);

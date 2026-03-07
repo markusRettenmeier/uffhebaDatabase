@@ -1,0 +1,58 @@
+﻿@model Sammlerplattform.Models.PlaceDatabase.Place
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Delete"];
+    Layout = "~/Views/Shared/_LayoutSettingsPlace.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+<h2>@Localizer["Delete_Confirm"]</h2>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PlaceID)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PlaceID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Localizer["Name"]
+        </dt>
+        <dd class = "col-sm-10">
+            @foreach(var toponymy in Model.PlaceNToponymyList)
+            {
+                if (toponymy.IsCurrentName)
+                {
+                    @Html.DisplayFor(model => toponymy.Toponymy.ToponymyName)
+                }
+            }
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FurtherSpecs)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FurtherSpecs)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.WikipediaUrl)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.WikipediaUrl)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input asp-for="PlaceID" type="hidden" />
+        <div class="mt-4 pt-3 border-top">
+            <button type="submit" class="btn btn-danger btn-lg px-5">
+                <i class="bi bi-check-circle"></i> @Localizer["Delete"]
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+                @Localizer["Cancel"]
+            </a>
+        </div>
+    </form>
+</div>

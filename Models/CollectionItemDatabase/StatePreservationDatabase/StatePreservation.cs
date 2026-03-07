@@ -16,14 +16,8 @@ namespace Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDataba
         [Display(Name = "StatePreservationName", ResourceType = typeof(SharedResources))]
         [Required(ErrorMessageResourceName = "StatePreservation_Name_Missing", ErrorMessageResourceType = typeof(SharedResources))]
         public required string StatePreservationName { get; set; }
-
-        [Display(Name = "CollectionItemEntityList", ResourceType = typeof(SharedResources))]
         public List<CollectionItemEntity> CollectionItemEntityList { get; set; } = [];
-
-        [Display(Name = "CollectionItemEntityList", ResourceType = typeof(SharedResources))]
         public int? CollectionAreaID { get; set; }
-
-        [Display(Name = "CollectionItemEntityList", ResourceType = typeof(SharedResources))]
         public CollectionArea? CollectionArea { get; set; }
 
         [Display(Name = "SortingOrder", ResourceType = typeof(SharedResources))]

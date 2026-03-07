@@ -1,3 +1,7 @@
 ﻿User-agent: *
-disallow: /Settings/
-disallow: /Account/
+disallow: /*Database
+disallow: /ImprovementSuggestions
+disallow: /Passkey
+disallow: /UserSettings
+disallow: /TranslationsJS
+disallow: /Rest

@@ -7,23 +7,14 @@
 
 @{
     ViewData["Title"] = Localizer["Frontpage"];
-    Layout = "_Layout";
     
     int count = 0;
     int? topK = ViewData["TopK"] as int?;
     int? maxRows = ViewData["maxRows"] as int?;
     int? lastAmountRows = ViewData["lastAmountRows"] as int?;
 }
-
-<div class="mx-auto p-2" style="display: block; width: 800px">
-    <div class="badge text-bg-info text-wrap">
-        <p>Dies ist ein Prototyp in der Beta-Phase. Es gibt nur einen Nutzer. Alle Daten werden später gelöscht.</p>
-        <p>Bei Änderungsvorschlägen, rund um Lesbarkeit, Aubau, Handhabung usw. steht ein Forum bereit.</p>
-        <p>Nähere Informationen zur Benutzung der Verwaltung finden Sie in der Dokumentation.</p>
-    </div>
-</div>
 <form asp-for="Frontpage">
-    <div class="position-relative mb-4">
+    <div class="position-relative mb-4 mt-4">
         <input name="SemanticSearchQuery" type="text" class="form-control search-input" placeholder="@Localizer["Search_TypeIn"]">
         <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
     </div>
@@ -79,7 +70,7 @@
                             @foreach (var place in item.CollectionItemNPlaceList)
                             {
                                 var vm = PlaceViewModelHelper.FromDomainModel(place.Place);
-                                var content = vm.Toponymy + ", " + place.Relationship + ", " + vm.FurtherSpecs;
+                                var content = vm.Toponymy + ", " + place.Relationship;
                                 <li>@Html.Raw(content)</li>
                             }
                         </ul>

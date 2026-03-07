@@ -1,10 +1,7 @@
 ﻿using Sammlerplattform.Data;
-using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
-using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
-using Sammlerplattform.Models.Translations;
+using Sammlerplattform.Models.PlaceDatabase.Toponymy;
 using Sammlerplattform.Services.Translation;
-using System.Data.Entity.Spatial;
 using System.Globalization;
 using System.Transactions;
 
@@ -13,96 +10,123 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
     public interface IProcessPlace
     {
         List<Place> GetListWithPredicate(PlaceSearchParameterModel placeSearchParameter);
-        (int Statuscode, string Message, Place Place) Insert(PlaceOperationParameterModel operationParameter);
-        (int Statuscode, string Message, Place Place) Update(PlaceOperationParameterModel operationParameter);
+        (int Statuscode, string Message, int PlaceID) Insert(PlaceCreateDTO createDTO);
+        (int Statuscode, string Message, int PlaceID) Update(PlaceEditDTO operationParameter);
         (int Statuscode, string Message) Delete(int placeID);
     }
 
-    public class PlaceProcessor(IUnitOfWork unitOfWork,
-        IProcessToponymy processToponymy
-        , IDeeplTranslationService translationService
-        , IProcessTranslations processTranslations
-        , ITranslationStore translationStore
-        , ITrackEvents trackEvents) : IProcessPlace
+    public class PlaceProcessor(IUnitOfWork unitOfWork
+        , IProcessToponymy processToponymy
+        , ITrackEventsCSV trackEvents) : IProcessPlace
     {
-        public (int Statuscode, string Message, Place Place) Insert(PlaceOperationParameterModel operationParameter)
+        public (int Statuscode, string Message, int PlaceID) Insert(PlaceCreateDTO createDTO)
         {
-            if (operationParameter.PlaceNToponymyList == null ||
-                    !operationParameter.PlaceNToponymyList.Any(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
-            {
-                trackEvents.TrackWarning("PlaceProcessor.Create: PlaceName is missing.", new Dictionary<string, object>
-                {
-                    { "Place", operationParameter.Place}
-                });
-                return (412, "Error_PlaceName_Missing", new());
-            }
-
-            if (operationParameter.Place.ParentPlaceID > 0 && operationParameter.Place.ParentPlaceID == operationParameter.Place.PlaceID)
-            {
-                trackEvents.TrackWarning("PlaceProcessor.Create: ParentPlaceID is the same as PlaceID.", new Dictionary<string, object>
-                {
-                    { "Place", operationParameter.Place},
-                    { "PlaceNToponymyList", operationParameter.PlaceNToponymyList}
-                });
-                return (412, "Error_ParentPlace_ParentOfItsOwn", new());
-            }
+            //(bool flowControl, (int Statuscode, string Message, int PlaceID) value) = IsPlaceExistingProcessCreate(createDTO);
+            //if (!flowControl)
+            //{
+            //    return value;
+            //}
 
             try
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-                Place newPlace = unitOfWork.PlaceRepository.Insert(operationParameter.Place);
+                Place newPlace = new()
+                {
+                    FurtherSpecs = createDTO.FurtherSpecs,
+                    WikipediaUrl = createDTO.WikipediaUrl
+                };
+                newPlace  = unitOfWork.PlaceRepository.Insert(newPlace);
                 unitOfWork.Save();
 
-                foreach (PlaceNToponymy placeNToponymy in operationParameter.PlaceNToponymyList)
+                foreach (ToponymyCreateDTO toponymyCreateDTO in createDTO.ToponymyList)
                 {
-                    ConnectToponymy(newPlace, placeNToponymy);
+                    ConnectToponymy(newPlace, toponymyCreateDTO);
                 }
-                foreach (Place childPlace in operationParameter.ChildPlaceList)
+                foreach (ConnectedPlace connectedPlace in createDTO.ConnectedPlaceList)
                 {
-                    newPlace.ChildPlaceList.Add(childPlace);
-                    unitOfWork.Save();
+                    ConnectPlaceToPlace(newPlace, connectedPlace.PlaceID);
                 }
 
                 scope.Complete();
-                return (201, "Success_Place_Created", newPlace);
+                return (201, "Success_Place_Created", newPlace.PlaceID);
             }
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "PlaceProcessor.Create: Error occurred while creating Place.", new Dictionary<string, object>
                 {
-                    { "Place", operationParameter.Place},
-                    { "PlaceNToponymyList", operationParameter.PlaceNToponymyList },
-                    { "Toponymy", operationParameter.PlaceNToponymyList.Select(x => x.Toponymy)},
-                    { "ChildPlaceList", operationParameter.ChildPlaceList}
+                    { "Place", createDTO},
+                    { "ToponymyList", createDTO.ToponymyList }
                 });
                 return (500, "Error_Error_Ocurred", new());
             }
         }
+        //private (bool flowControl, (int Statuscode, string Message, int PlaceID) value) IsPlaceExistingProcessCreate(PlaceCreateDTO createDTO)
+        //{
+        //    PlaceSearchParameterModel placeSearchParameter = new()
+        //    {
+        //        PlaceNToponymyList_ToponymyID = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
+        //            {
+        //                EntityType = [nameof(Toponymy)],
+        //                TranslatedText = [.. createDTO.ToponymyList.Select(p => p.Toponymy)]
+        //            }).Select(x => x.EntityId)]
+        //    };
+        //    if (placeSearchParameter.PlaceNToponymyList_ToponymyID.Count == 0)
+        //    {
+        //        return (flowControl: true, value: default);
+        //    }
+        //    Place? placeExists = GetListWithPredicate(placeSearchParameter).FirstOrDefault();
+        //    if (placeExists != null)
+        //    {
+        //        return (flowControl: false, value: (409, "Error_Place_Exists", placeExists.PlaceID));
+        //    }
+
+        //    return (flowControl: true, value: default);
+        //}
 
         public (int Statuscode, string Message) Delete(int placeID)
         {
-            if (placeID <= 0)
+            Place? placeToDelete = GetListWithPredicate(new PlaceSearchParameterModel { PlaceID = [placeID] }).FirstOrDefault();
+            if (placeToDelete == null)
             {
-                trackEvents.TrackWarning("PlaceProcessor.Delete: PlaceID is missing.", new Dictionary<string, object>
-                {
-                    { "PlaceID", placeID}
-                });
-                return (400, "Error_PlaceID_Missing");
+                trackEvents.TrackError("PlaceProcessor.Delete: Place not found.", new Dictionary<string, object>
+                    {
+                        { "PlaceID", placeID}
+                    });
+                return (404, "Error_Place_NotFound");
+            }
+            if(placeToDelete.CollectionItemNPlaceList != null && placeToDelete.CollectionItemNPlaceList.Count > 0)
+            {
+                trackEvents.TrackError("PlaceProcessor.Delete: Place is connected to collection items.", new Dictionary<string, object>
+                    {
+                        { "PlaceID", placeID}
+                    });
+                return (400, "Error_Place_ConnectedToCollectionItems");
+            }
+            //if(placeToDelete.PartyList != null && placeToDelete.PartyList.Count > 0)
+            //{
+            //    trackEvents.TrackError("PlaceProcessor.Delete: Place is connected to parties.", new Dictionary<string, object>
+            //        {
+            //            { "PlaceID", placeID}
+            //        });
+            //    return (400, "Error_Place_ConnectedToParties");
+            //}
+            if(placeToDelete.ConnectedPlaces != null && placeToDelete.ConnectedPlaces.ToList().Count > 0)
+            {
+                trackEvents.TrackError("PlaceProcessor.Delete: Place is connected to other places.", new Dictionary<string, object>
+                    {
+                        { "PlaceID", placeID}
+                    });
+                return (400, "Error_Place_ConnectedToOtherPlaces");
             }
 
             try
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
-
-                Place? placeToDelete = unitOfWork.PlaceRepository.GetByID(placeID);
-                if (placeToDelete == null)
+                for (int i = placeToDelete.PlaceNToponymyList.Count; i > 0; i --)
                 {
-                    trackEvents.TrackWarning("PlaceProcessor.Delete: Place not found.", new Dictionary<string, object>
-                    {
-                        { "PlaceID", placeID}
-                    });
-                    return (404, "Error_Place_NotFound");
+                    int index = i - 1;
+                    DisconnectToponymy(placeToDelete, placeToDelete.PlaceNToponymyList[index].ToponymyID);
                 }
 
                 unitOfWork.PlaceRepository.Delete(placeToDelete);
@@ -121,144 +145,101 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
             }
         }
 
-        public (int Statuscode, string Message, Place Place) Update(PlaceOperationParameterModel operationParameter)
+        public (int Statuscode, string Message, int PlaceID) Update(PlaceEditDTO editDTO)
         {
-            if (operationParameter.PlaceNToponymyList == null || !operationParameter.PlaceNToponymyList.Any(x => !string.IsNullOrWhiteSpace(x.Toponymy.ToponymyName)))
+            PlaceSearchParameterModel placeSearchParameter = new()
             {
-                trackEvents.TrackWarning("PlaceProcessor.Edit: PlaceName is missing.", new Dictionary<string, object>
-                {
-                    { "Place", operationParameter.Place}
-                });
-                return (412, "Error_PlaceName_Missing", new());
-            }
-
-            PlaceSearchParameterModel placeSearchParameter = new();
-            placeSearchParameter.PlaceID.Add(operationParameter.Place.PlaceID);
+                PlaceID = [editDTO.PlaceID]
+            };
             Place? existingPlace = GetListWithPredicate(placeSearchParameter).FirstOrDefault();
             if (existingPlace == null)
             {
-                trackEvents.TrackWarning("PlaceProcessor.Edit: Place not found.", new Dictionary<string, object>
+                trackEvents.TrackError("PlaceProcessor.Edit: Place not found.", new Dictionary<string, object>
                 {
-                    { "Place", operationParameter.Place},
-                    { "PlaceNToponymyList", operationParameter.PlaceNToponymyList}
+                    { "Place", editDTO},
+                    { "ToponymyList", editDTO.ToponymyList}
                 });
                 return (404, "Error_Place_NotFound", new());
             }
-
-            bool isChanged = false;
-            if (existingPlace.ParentPlaceID != operationParameter.Place.ParentPlaceID && operationParameter.Place.ParentPlaceID > 0)
+            try
             {
-                if (operationParameter.Place.ParentPlaceID > 0 && operationParameter.Place.ParentPlaceID == operationParameter.Place.PlaceID)
+                using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+                bool isChanged = false;
+                if (existingPlace.FurtherSpecs != editDTO.FurtherSpecs)
                 {
-                    return (412, "Error_ParentPlace_ParentOfItsOwn", new());
+                    existingPlace.FurtherSpecs = editDTO.FurtherSpecs;
+                    isChanged = true;
                 }
-                existingPlace.ParentPlaceID = operationParameter.Place.ParentPlaceID;
-            }
-            if (existingPlace.ToponymyTypeInt != operationParameter.Place.ToponymyTypeInt)
-            {
-                existingPlace.ToponymyTypeInt = operationParameter.Place.ToponymyTypeInt;
-                isChanged = true;
-            }
-            if (existingPlace.WikipediaUrl != operationParameter.Place.WikipediaUrl)
-            {
-                existingPlace.WikipediaUrl = operationParameter.Place.WikipediaUrl;
-                isChanged = true;
-            }
-            if (isChanged)
-            {
-                unitOfWork.Save();
-            }
-            SyncChildPlaces(existingPlace, operationParameter.ChildPlaceList);
-            SyncToponymy(existingPlace, operationParameter.PlaceNToponymyList);
+                if (existingPlace.WikipediaUrl != editDTO.WikipediaUrl)
+                {
+                    existingPlace.WikipediaUrl = editDTO.WikipediaUrl;
+                    isChanged = true;
+                }
+                if (isChanged)
+                {
+                    unitOfWork.Save();
+                }
+                SyncToponymy(existingPlace, editDTO.ToponymyList);
+                SyncConnectedPlaces(existingPlace, editDTO.ConnectedPlaceList);
 
-            return (200, "Success_Party_Updated", existingPlace);
+                scope.Complete();
+                return (200, "Success_Place_Updated", existingPlace.PlaceID);
+            }
+            catch (Exception ex) {
+                trackEvents.TrackException(ex, "PlaceProcessor.Edit: Error occurred while updating Place.", new Dictionary<string, object>
+                {
+                    { "Place", editDTO},
+                    { "ToponymyList", editDTO.ToponymyList}
+                });
+                return (500, "Error_Error_Ocurred", new());
+            }
         }
+
         public List<Place> GetListWithPredicate(PlaceSearchParameterModel placeSearchParameter)
         {
             IEnumerable<Place> placeIEnumerable = unitOfWork.PlaceRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<Place>(placeSearchParameter),
                 includeProperties: GetPlaceIncludeProperties());
 
-            List<Place> placeList = [.. placeIEnumerable];
-            foreach (Place place in placeList)
-            {
-                foreach (PlaceNToponymy placeNToponymy in place.PlaceNToponymyList)
-                {
-                    placeNToponymy.Toponymy.ToponymyName = translationStore.GetTranslation(
-                        nameof(Toponymy),
-                        placeNToponymy.Toponymy.ToponymyID,
-                        nameof(Toponymy.ToponymyName),
-                        placeNToponymy.Toponymy.ToponymyName)
-                        ?? placeNToponymy.Toponymy.ToponymyName;
-                }
-            }
-
-            return [.. placeList.OrderBy(p => p.PlaceNToponymyList
+            return [.. placeIEnumerable.OrderBy(p => p.PlaceNToponymyList
                 .Where(t => t.IsCurrentName)
                 .Select(t => t.Toponymy.ToponymyName)
                 .FirstOrDefault())];
         }
         private static string GetPlaceIncludeProperties()
         {
-            return $"{nameof(Place.PlaceNToponymyList)}.{nameof(PlaceNToponymy.Toponymy)}," +
-                   $"{nameof(Place.ParentPlace)}.{nameof(Place.PlaceNToponymyList)}.{nameof(PlaceNToponymy.Toponymy)}," +
-                   $"{nameof(Place.ParentPlace)}.{nameof(Place.Settlement)}.{nameof(Settlement.SettlementNPostalcodeList)}.{nameof(SettlementNPostalcode.Postalcode)}," +
-                   $"{nameof(Place.ChildPlaceList)}.{nameof(Place.PlaceNToponymyList)}.{nameof(PlaceNToponymy.Toponymy)}," +
-                   $"{nameof(Place.ChildPlaceList)}.{nameof(Place.Settlement)}.{nameof(Settlement.SettlementNPostalcodeList)}.{nameof(SettlementNPostalcode.Postalcode)}," +
-                   $"{nameof(Place.Settlement)}.{nameof(Settlement.SettlementNPostalcodeList)}.{nameof(SettlementNPostalcode.Postalcode)}," +
-                   $"{nameof(Place.Settlement)}.{nameof(Settlement.RelatedGeography)}.{nameof(Place.PlaceNToponymyList)}.{nameof(PlaceNToponymy.Toponymy)}," +
-                   $"{nameof(Place.RelatedSettlement)}," +
-                   $"{nameof(Place.BodyOfWater)}," +
-                   $"{nameof(Place.Building)}," +
-                   $"{nameof(Place.Field)}," +
-                   $"{nameof(Place.Region)}," +
-                   $"{nameof(Place.Relief)}," +
-                   $"{nameof(Place.TransportRoute)}";
+            return
+                $"{nameof(Place.PlaceNToponymyList)}.{nameof(PlaceNToponymy.Toponymy)}," +
+                $"{nameof(Place.ConnectionsAsFirst)}.{nameof(PlaceNPlace.Place2)}.{nameof(Place.PlaceNToponymyList)}.{nameof(PlaceNToponymy.Toponymy)}," +
+                $"{nameof(Place.ConnectionsAsSecond)}.{nameof(PlaceNPlace.Place1)}.{nameof(Place.PlaceNToponymyList)}.{nameof(PlaceNToponymy.Toponymy)}," +
+                $"{nameof(Place.CollectionItemNPlaceList)}";
         }
 
-        private void ConnectToponymy(Place place, PlaceNToponymy placeNToponymy)
+        private void ConnectToponymy(Place place, ToponymyCreateDTO toponymyCreateDTO)
         {
-            if (string.IsNullOrWhiteSpace(placeNToponymy.Toponymy.ToponymyName))
-            {
-                return;
-            }
-
-            Toponymy newToponymy = new() { ToponymyName = ""};
-            newToponymy = processToponymy.CreateOrEditToponymy(newToponymy);
-
             PlaceNToponymy newPlaceNToponymy = new()
             {
                 PlaceID = place.PlaceID,
-                ToponymyID = newToponymy.ToponymyID,
-                IsCurrentName = placeNToponymy.IsCurrentName
+                IsCurrentName = toponymyCreateDTO.IsCurrentName,
+                ToponymyID = processToponymy.Insert(toponymyCreateDTO.Name)
             };
             _ = unitOfWork.PlaceNToponomyRepository.Insert(newPlaceNToponymy);
             unitOfWork.Save();
-
-            processTranslations.Insert(
-                new EntityTranslation
-                {
-                    EntityType = nameof(Toponymy),
-                    EntityId = newToponymy.ToponymyID,
-                    FieldName = nameof(Toponymy.ToponymyName),
-                    TranslatedText = placeNToponymy.Toponymy.ToponymyName,
-                    Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
-                },
-                placeNToponymy.Toponymy.ToponymyName);
         }
-        private void SyncToponymy(Place place, List<PlaceNToponymy> newConnections)
+        private void SyncToponymy(Place place, List<PlaceNToponymyEditDTO> newConnections)
         {
             List<PlaceNToponymy> currentConnections = place.PlaceNToponymyList;
 
             for (int i = 0; i < currentConnections.Count; i++)
             {
-                PlaceNToponymy? updatedConnection = newConnections.FirstOrDefault(x => x.Toponymy != null && x.Toponymy.ToponymyName == currentConnections[i].Toponymy.ToponymyName);
+                //PlaceNToponymy? updatedConnection = newConnections.FirstOrDefault(x => x.Toponymy != null && x.Toponymy.ToponymyName == currentConnections[i].Toponymy.ToponymyName);
+                PlaceNToponymyEditDTO? updatedConnection = newConnections.FirstOrDefault(x => x.Name == currentConnections[i].Toponymy.ToponymyName);
                 if (updatedConnection == null)
                 {
                     DisconnectToponymy(place, currentConnections[i].ToponymyID);
                 }
-                else if (updatedConnection != null && (
-                    updatedConnection.IsCurrentName != currentConnections[i].IsCurrentName))
+                else if (updatedConnection.IsCurrentName != currentConnections[i].IsCurrentName)
                 {
                     //Wenn sich Ortsname ändert, dann soll Eintrag gelöscht werden
                     UpdatePlaceNToponymy(place, currentConnections[i], updatedConnection.IsCurrentName);
@@ -266,12 +247,18 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                 // else: Beziehung ist gleich, keine Änderung notwendig
             }
 
-            foreach (PlaceNToponymy newItem in newConnections.Where(x => x.Toponymy != null))
+            //foreach (PlaceNToponymy newItem in newConnections.Where(x => x.Toponymy != null))
+            foreach (PlaceNToponymyEditDTO newItem in newConnections)
             {
-                bool exists = currentConnections.Any(x => x.Toponymy.ToponymyName == newItem.Toponymy.ToponymyName);
+                bool exists = currentConnections.Any(x => x.Toponymy.ToponymyName == newItem.Name);
                 if (!exists)
                 {
-                    ConnectToponymy(place, newItem);
+                    ToponymyCreateDTO toponymyCreateDTO = new()
+                    {
+                        Name = newItem.Name,
+                        IsCurrentName = newItem.IsCurrentName
+                    };
+                    ConnectToponymy(place, toponymyCreateDTO);
                 }
             }
         }
@@ -287,47 +274,100 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
         }
         private void DisconnectToponymy(Place place, int toponymyID)
         {
-            if (place.PlaceID == 0 || toponymyID == 0)
+            //PlaceNToponymy? placeNToponymy = unitOfWork.PlaceNToponomyRepository.Get(
+            //    filter: c => c.PlaceID == place.PlaceID && c.ToponymyID == toponymyID).FirstOrDefault();
+            var placeNToponymyList = unitOfWork.PlaceNToponomyRepository.Get(
+                filter: c => c.ToponymyID == toponymyID);
+            if (placeNToponymyList == null)
             {
                 return;
+            }
+            var placeNToponymy = placeNToponymyList.FirstOrDefault(x => x.PlaceID == place.PlaceID);
+            if(placeNToponymy != null)
+            {
+                unitOfWork.PlaceNToponomyRepository.Delete(placeNToponymy);
+                unitOfWork.Save();
             }
 
-            PlaceNToponymy? placeNToponymy = unitOfWork.PlaceNToponomyRepository.Get(
-                filter: c => c.PlaceID == place.PlaceID && c.ToponymyID == toponymyID).FirstOrDefault();
-            if (placeNToponymy == null)
-            {
-                return;
-            }
-            unitOfWork.PlaceNToponomyRepository.Delete(placeNToponymy);
-            unitOfWork.Save();
+            if (placeNToponymyList.Count() <= 1)
+                processToponymy.Delete(toponymyID);
         }
 
-        private void SyncChildPlaces(Place place, List<Place> newConnections)
+        private void ConnectPlaceToPlace(Place parentPlace, int otherPlaceId)
         {
-            List<Place> currentConnections = place.ChildPlaceList;
+            if (parentPlace.PlaceID == otherPlaceId)
+                return;
 
-            for (int i = 0; i < currentConnections.Count; i++)
+            var place2 = unitOfWork.PlaceRepository.GetByID(otherPlaceId);
+            if (place2 is null)
+                return;
+
+            int id1 = parentPlace.PlaceID;
+            int id2 = otherPlaceId;
+
+            // Symmetrie erzwingen
+            if (id1 > id2)
+                (id1, id2) = (id2, id1);
+
+            bool alreadyExists = unitOfWork.PlaceNPlaceRepository
+                .Get(p => p.PlaceID1 == id1 && p.PlaceID2 == id2)
+                .Any();
+
+            if (alreadyExists)
+                return;
+
+            var connection = new PlaceNPlace
             {
-                Place? updatedConnection = newConnections.FirstOrDefault(x => x.PlaceID == currentConnections[i].PlaceID);
-                if (updatedConnection == null)
+                PlaceID1 = id1,
+                PlaceID2 = id2
+            };
+
+            unitOfWork.PlaceNPlaceRepository.Insert(connection);
+            unitOfWork.Save();
+        }
+        //private List<string> SyncConnectedPlaces(Place place, List<PlaceNPlace> newConnections)
+        private List<string> SyncConnectedPlaces(Place place, List<ConnectedPlace> newConnections)
+        {
+            List<Place> currentConnections = [.. place.ConnectedPlaces];
+
+            foreach (Place? current in currentConnections)
+            {
+                //PlaceNPlace? updated = newConnections.FirstOrDefault(x => x.PlaceID2 == current.PlaceID2);
+                ConnectedPlace? updated = newConnections.FirstOrDefault(x => x.PlaceID == current.PlaceID);
+
+                if (updated == null)
                 {
-                    unitOfWork.PlaceRepository.RemoveMemberFromCollection(place, p => p.ChildPlaceList, currentConnections[i]);
-                    unitOfWork.Save();
+                    DisconnectPlaceConnection(place, current.PlaceID);
                 }
             }
 
-            foreach (Place newItem in newConnections)
+            List<string> translationList = [];
+            //foreach (PlaceNPlace newItem in newConnections)
+            foreach (ConnectedPlace newItem in newConnections)
             {
                 bool exists = currentConnections.Any(x => x.PlaceID == newItem.PlaceID);
                 if (!exists)
                 {
                     if (newItem.PlaceID == place.PlaceID)
                     {
-                        continue; // Ein Ort kann nicht Elternteil von sich selbst sein.
+                        continue; // Ein Ort kann nicht mit sich selbst verbunden sein
                     }
-                    unitOfWork.PlaceRepository.AddMemberToCollection(place, p => p.ChildPlaceList, newItem);
-                    unitOfWork.Save();
+                    ConnectPlaceToPlace(place, newItem.PlaceID);
                 }
+            }
+
+            return translationList;
+        }
+        private void DisconnectPlaceConnection(Place place, int placeID)
+        {
+            PlaceNPlace? placeNPlace = (from pnp in unitOfWork.PlaceNPlaceRepository.Get(includeProperties: "Place")
+                                        where pnp.PlaceID1 == place.PlaceID && pnp.PlaceID2 == placeID
+                                        select pnp).FirstOrDefault();
+
+            if (placeNPlace != null)
+            {
+                unitOfWork.PlaceNPlaceRepository.Delete(placeNPlace);
+                unitOfWork.Save();
             }
         }
     }

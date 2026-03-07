@@ -8,7 +8,7 @@
 }
 
 <h3>@ViewData["Title"]</h3>
-<p>@Localizer["Delete_NotAllowed"]</p>
+<p>@Localizer["Info_Delete_NotAllowed"]</p>
 <hr />
 <div class="btn-group" role="group" aria-label="">
     <a type="button" href="/CollectionAreaDatabase/Create" class="btn btn-success">@Localizer["Create"]</a>
@@ -32,7 +32,6 @@
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.CollectionAreaID">@Localizer["CollectionArea_Edit"]</a> |
-                    <a asp-action="IndexSpecific" asp-controller="ConceptualRelationshipDatabase" asp-route-CollectionAreaID="@item.CollectionAreaID">@Localizer["CollectionItemEntity_AdditionalAttribute_Administration"]</a> |
                     <a asp-action="Index" asp-controller="StateDatabase" asp-route-CollectionArea_CollectionAreaID="@item.CollectionAreaID">@Localizer["StatePreservation_Administration"]</a>
                 </td>
             </tr>

@@ -1,12 +1,9 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@inject IAuthorizationService AuthorizationService
-@using Microsoft.AspNetCore.Mvc.Localization
+﻿@using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
     ViewData["Title"] = Localizer["Account_Delete"];
     Layout = "_LayoutSettings";
-    bool? RequirePassword = ViewData["RequirePassword"] as bool?;
 }
 
 <h3>@ViewData["Title"]</h3>
@@ -19,19 +16,8 @@
         <strong>@Localizer["AccountDelete_Notification"]</strong>
     </p>
 </div>
-<form asp-action="DeletePersonalDataSubmit">
-    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-    @if (RequirePassword != null && (bool)RequirePassword)
-    {
-        <div class="form-group mb-3">
-            <label class="form-label">@Localizer["Password"]</label>
-            <input name="Password" class="form-control" type="password" aria-required="true">
-        </div>
-    }
-    <button class="w-100 btn btn-lg btn-danger deletePersonalData" disabled type="submit">@Localizer["AccountDelete_Confirm"]</button>
-</form>
+<button class="w-100 btn btn-lg btn-danger" type="button" onclick="verifyForDeletePersonalDataSubmit()">@Localizer["AccountDelete_Confirm"]</button>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-

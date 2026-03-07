@@ -6,8 +6,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Startseiten der Sammlerplattform mit detailllierter Pflege und Suche von Eigenschaften rund um Post- und Ansichtskarten" />
-    <meta name="keywords" content="Ansichtskarten, Postkarten, Sammlung, Verwaltung, detaillierte Suche, datenbankgetrieben" />
+    <meta name="description" content="@Localizer["Meta_Description"]" />
     <title>@ViewData["Title"] - SammlerDB</title>
     <link rel="stylesheet" href="~/lib/fancybox/fancybox.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -26,8 +25,10 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            @* <a class="nav-link" asp-controller="Account" asp-action="LoginPost">Zur Verwaltung</a> *@
-                            <a class="nav-link" id="login" asp-controller="Account" asp-action="Login">@Localizer["Login/Register"]</a>
+                            <a class="nav-link" asp-controller="Passkey" asp-action="Login">@Localizer["Login"]</a> 
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Passkey" asp-action="Register">@Localizer["Register"]</a>
                         </li>
                     </ul>
                 </div>
@@ -47,11 +48,12 @@
 
     <script src="~/lib/jquery/jQuery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/TranslationService.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/lib/fancybox/fancybox.umd.js"></script>
-    <script src="~/js/fancybox-init.js" asp-append-version="true"></script>
-    <script src="~/js/searchByColumn/SearchByColumn.min.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/fancybox-init.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/passkey/login.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/passkey/register.js" asp-append-version="true">
+        </script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

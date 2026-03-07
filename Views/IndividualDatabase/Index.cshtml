@@ -9,7 +9,7 @@
 }
 
 <h3>@ViewData["Title"]</h3>
-<p>@Localizer["Delete_NotAllowed"]</p>
+<p>@Localizer["Info_Delete_NotAllowed"]</p>
 <hr />
 
 <div class="btn-group" role="group" aria-label="">
@@ -29,9 +29,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Individual!.Signature)
             </th>
-            <th>
+           @*  <th>
                 @Html.DisplayNameFor(model => model.PlaceList)
-            </th>            
+            </th>  *@           
             <th></th>
         </tr>
     </thead>
@@ -43,7 +43,7 @@
                 <td>@Html.Raw(vm.Name)</td>
                 <td>@Html.Raw(vm.Pseudonym)</td>
                 <td>@Html.Raw(vm.Signature)</td>
-                <td>@Html.Raw(vm.Places)</td>
+                @* <td>@Html.Raw(vm.Places)</td> *@
                 <td>
                     <a asp-action="Edit" asp-asp-controller="IndividualDatabase" asp-route-id="@item.PartyID">@Localizer["Edit"]</a>
                 </td>

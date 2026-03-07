@@ -1,4 +1,4 @@
-﻿@model IndividualOperationParameterModel
+﻿@model IndividualEditDTO
 @using Sammlerplattform.Models.PartyDatabase.IndividualDatabase
 @using Sammlerplattform.Models.PlaceDatabase
 @using Microsoft.AspNetCore.Mvc.Localization
@@ -6,50 +6,51 @@
 
 @{
     ViewData["Title"] = Localizer["Individual_Edit"];
-    Layout = "~/Views/Shared/_LayoutSettingsParty.cshtml";
+    Layout = "~/Views/Shared/_LayoutSettingsPlace.cshtml";
+    
+    List<Place>? connectedPlaceList = ViewData["ConnectedPlaces"] as List<Place>;
+
 }
 
-<h3>ViewData["Title"]</h3>
+<h3>@ViewData["Title"]</h3>
 <hr />
-<form asp-action="EditSubmit" >
+<form asp-action="Edit" >
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="Party.PartyID">
-    <input type="hidden" asp-for="Party.PartyTypeInt">
+    <input type="hidden" asp-for="PartyID">
+    <input type="hidden" asp-for="PartyTypeInt">
     <div class="form-group">
-        <label asp-for="Party.PartyName" class="control-label"></label>
-        <input asp-for="Party.PartyName" class="form-control" />
-        <span asp-validation-for="Party.PartyName" class="text-danger"></span>
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Individual.Pseudonym" class="control-label"></label>
-        <input asp-for="Individual.Pseudonym" class="form-control" />
-        <span asp-validation-for="Individual.Pseudonym" class="text-danger"></span>
+        <label asp-for="Pseudonym" class="control-label"></label>
+        <input asp-for="Pseudonym" class="form-control" />
+        <span asp-validation-for="Pseudonym" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Individual.Signature" class="control-label"></label>
-        <input asp-for="Individual.Signature" class="form-control" />
-        <span asp-validation-for="Individual.Signature" class="text-danger"></span>
+        <label asp-for="Signature" class="control-label"></label>
+        <input asp-for="Signature" class="form-control" />
+        <span asp-validation-for="Signature" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <table class="table">
             <thead>
                 <tr>
                     <th scope="col">@Localizer["PlaceName"]</th>
-                    <th scope="col">@Localizer["FurtherSpecs"]</th>
                     <th scope="col"></th>
                 </tr>
             </thead>
             <tbody id="appendPlaceHere">                        
-                @if (Model.PlaceList.Count > 0)
+                @if (connectedPlaceList != null)
                 {
-                    for (int i = 0; i < Model.PlaceList.Count; i++)
+                    for (int i = 0; i < connectedPlaceList.Count; i++)
                     {
-                        var vm = PlaceViewModelHelper.FromDomainModel(Model.PlaceList[i]);
+                        var vm = PlaceViewModelHelper.FromDomainModel(connectedPlaceList[i]);
                         <tr class="placeTableRow">
                             <td>@Html.Raw(vm.Toponymy)</td>
-                            <td>@Html.Raw(vm.FurtherSpecs)</td>
                             <td>
-                                <input type="hidden" name="PlaceList[@i].PlaceID" value="@Model.PlaceList[i].PlaceID">
+                                <input type="hidden" name="PlaceList[@i].PlaceID" value="@vm.PlaceID">
                                 <button type="button" class="btn btn-danger btn-sm removePlaceRow">@Localizer["Remove"]</button>
                             </td>
                         </tr>
@@ -62,9 +63,9 @@
         </button>
     </div>
     <div class="form-group mb-3">
-        <label asp-for="Party.WikipediaUrl" class="control-label"></label>
-        <input asp-for="Party.WikipediaUrl" class="form-control" />
-        <span asp-validation-for="Party.WikipediaUrl" class="text-danger"></span>
+        <label asp-for="WikipediaUrl" class="control-label"></label>
+        <input asp-for="WikipediaUrl" class="form-control" />
+        <span asp-validation-for="WikipediaUrl" class="text-danger"></span>
     </div>
     <div class="mt-4 pt-3 border-top">
         <button type="submit" class="btn btn-success btn-lg px-5">

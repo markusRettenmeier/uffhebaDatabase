@@ -1,6 +1,5 @@
 ﻿using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
-using Sammlerplattform.Models.Download;
 using Sammlerplattform.Models.UserSettings;
 using System.IO.Compression;
 using YamlDotNet.Serialization;
@@ -12,9 +11,9 @@ namespace Sammlerplattform.Services
         public static async Task<MemoryStream> CreateZipFile(List<CollectionItemOperationParameterModel> modelList, UsingIdentityUser user, IWebHostEnvironment hostEnvironment)
         {
             string sourceDir = Path.Combine(hostEnvironment.WebRootPath, Path.Combine("images", "Original"));
-            string downloadFolder = Path.Combine(hostEnvironment.WebRootPath, "Download_" + user.UserName);
+            string downloadFolder = Path.Combine(hostEnvironment.WebRootPath, "Download_" + user.DisplayName);
             _ = Directory.CreateDirectory(downloadFolder);
-            string zipFile = Path.Combine(hostEnvironment.WebRootPath, "Download_" + user.UserName + ".zip");
+            string zipFile = Path.Combine(hostEnvironment.WebRootPath, "Download_" + user.DisplayName + ".zip");
 
             foreach (CollectionItemOperationParameterModel operationParameterModel in modelList)
             {
@@ -108,7 +107,6 @@ namespace Sammlerplattform.Services
                         .Select(pl => pl.Place.PlaceNToponymyList?.FirstOrDefault()?.Toponymy?.ToponymyName)
                         .Where(name => !string.IsNullOrEmpty(name))
                         .ToList(),
-                    Concept = operationParameterModel.CollectionItemEntity.Concept?.Name,
                     Era = operationParameterModel.CollectionItemEntity.Era?.EraName
                 }
             };

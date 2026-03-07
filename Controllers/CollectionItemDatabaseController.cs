@@ -6,6 +6,7 @@ using Sammlerplattform.Models;
 using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.OwnershipProofPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Resources;
@@ -15,18 +16,18 @@ using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
 
 namespace Sammlerplattform.Controllers
 {
+    //[Authorize]
     public class CollectionItemDatabaseController(IProcessCollectionItemEntity processCollectionItem,
         IProcessCollectionArea processCollectionArea,
         IProcessStatePreservation processState,
         UserManager<UsingIdentityUser> userManager,
-        IWebHostEnvironment hostEnvironment,
-        IStringLocalizer<SharedResources> stringLocalizer) : Controller
+        IWebHostEnvironment hostEnvironment) : Controller
     {
-        [Authorize]
-        public ActionResult Index(Status status, CollectionItemSearchParameterModel model)
+        [HandleStatus]
+        //public ActionResult Index(Status status, CollectionItemSearchParameterModel model)
+        public ActionResult Index(CollectionItemSearchParameterModel model)
         {
-            HandleStatus(status);
-
+            //HandleStatus(status);
             ViewData["CollectionArea"] = processCollectionArea.GetListWithPredicate(new CollectionAreaSearchParameterModel() { CollectionAreaID = model.CollectionAreaID }).FirstOrDefault();
 
             string userId = userManager.GetUserId(User) ?? throw new NullReferenceException();
@@ -35,42 +36,47 @@ namespace Sammlerplattform.Controllers
             return View(processCollectionItem.GetWithPredicates(model));
         }
 
-        public ActionResult Create(Status status, int collectionAreaID)
+        [HttpGet]
+        [HandleStatus]
+        public ActionResult Create(int collectionAreaID)
         {
-            HandleStatus(status);
             ViewData["CollectionAreaID"] = collectionAreaID;
 
             CollectionItemOperationParameterModel model = new()
             {
                 CollectionItemEntity = new()
                 {
-                    UsingIdentityUsersID = string.Empty, // wird in CreateSubmit gesetzt
+                    UsingIdentityUsersID = string.Empty, // wird in Create gesetzt
                     CollectionAreaID = collectionAreaID
                 },
                 CollectionItemPictureList = [new CollectionItemPicture()], // MINDESTENS EIN ELEMENT HINZUFÜGEN, weil CollectionItemPictureList[0] in Create
+                OwnershipProofPictureList = [new OwnershipProofPicture()], // MINDESTENS EIN ELEMENT HINZUFÜGEN, weil OwnershipProofPictureList[0] in Create
                 ConceptValueList = [],
                 StatePreservationList = processState.GetWithPredicates(new StatePreservationSearchParameterModel() { CollectionArea_CollectionAreaID = [collectionAreaID] })
             };
 
             return View(model);
         }
-        public IActionResult CreateSubmit(CollectionItemOperationParameterModel collectionItemOperationParameter)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CollectionItemOperationParameterModel collectionItemOperationParameter)
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+                return View(collectionItemOperationParameter);
             }
 
             collectionItemOperationParameter.CollectionItemEntity.UsingIdentityUsersID = userManager.GetUserId(User) ?? throw new NullReferenceException();
+            collectionItemOperationParameter.CollectionItemEntity.UsingIdentityUser = await userManager.GetUserAsync(User) ?? throw new NullReferenceException();
             (int statusCode, string statusMessage) = processCollectionItem.Insert(collectionItemOperationParameter);
 
             return RedirectToAction(nameof(Index), new { statusCode, statusMessage, collectionItemOperationParameter.CollectionItemEntity.CollectionAreaID });
         }
 
-        public ActionResult Edit(Status status, int entityId)
+        [HttpGet]
+        [HandleStatus]
+        public ActionResult Edit(int entityId)
         {
-            HandleStatus(status);
-
             CollectionItemOperationParameterModel? existingCollectionItem = processCollectionItem
                 .GetWithPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [entityId] })
                 .FirstOrDefault();
@@ -83,21 +89,22 @@ namespace Sammlerplattform.Controllers
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_CollectionItemEntity_NotFound" })
                 : View(existingCollectionItem);
         }
-        public ActionResult EditSubmit(CollectionItemOperationParameterModel collectionItemOperationParameter)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(CollectionItemOperationParameterModel collectionItemOperationParameter)
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+                return View(collectionItemOperationParameter);
             }
 
             (int statusCode, string statusMessage) = processCollectionItem.Update(collectionItemOperationParameter);
             return RedirectToAction(nameof(Index), new { statusCode, statusMessage, collectionItemOperationParameter.CollectionItemEntity.CollectionAreaID });
         }
 
-        public ActionResult Delete(Status status, int entityId)
+        [HttpGet]
+        public ActionResult Delete(int entityId)
         {
-            HandleStatus(status);
-
             CollectionItemOperationParameterModel? existingCollectionItem = processCollectionItem
                 .GetWithPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [entityId] })
                 .FirstOrDefault();
@@ -106,11 +113,13 @@ namespace Sammlerplattform.Controllers
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_CollectionItemEntity_NotFound" })
                 : View(existingCollectionItem);
         }
-        public IActionResult DeleteSubmit(CollectionItemOperationParameterModel collectionItemOperation)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(CollectionItemOperationParameterModel collectionItemOperation)
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+                return View(collectionItemOperation);
             }
 
             (int statusCode, string statusMessage) = processCollectionItem.Delete(collectionItemOperation);
@@ -133,21 +142,20 @@ namespace Sammlerplattform.Controllers
             }
             collectionItemSearch.UsingIdentityUsersID.Add(user.Id);
 
-            // Hier liegt das Problem - Sie müssen sicherstellen, dass jedes CollectionItem einzeln verarbeitet wird
             List<CollectionItemOperationParameterModel> modelList = [.. processCollectionItem.GetWithPredicates(collectionItemSearch)];
 
             MemoryStream memory = await YamlProcessor.CreateZipFile(modelList, user, hostEnvironment);
 
-            return File(memory, "application/zip", "Download_" + user.UserName + ".zip");
+            return File(memory, "application/zip", "Download_" + user.DisplayName + ".zip");
         }
 
-        private void HandleStatus(Status status)
-        {
-            if (!string.IsNullOrEmpty(status.StatusMessage))
-            {
-                ViewData["StatusMessage"] = stringLocalizer[status.StatusMessage];
-                ViewData["StatusCode"] = status.StatusCode;
-            }
-        }
+        //private void HandleStatus(Status status)
+        //{
+        //    if (!string.IsNullOrEmpty(status.StatusMessage))
+        //    {
+        //        ViewData["StatusMessage"] = stringLocalizer[status.StatusMessage];
+        //        ViewData["StatusCode"] = status.StatusCode;
+        //    }
+        //}
     }
 }

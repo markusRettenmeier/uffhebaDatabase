@@ -1,23 +1,49 @@
+using Fido2NetLib;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Services;
-using Sammlerplattform.Services.EMail;
-using Sammlerplattform.Services.ML.VectorSearch;
 using Sammlerplattform.Services.DatabaseProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.PartyProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.PasskeyProcessees;
 using Sammlerplattform.Services.DatabaseProcesses.PictureProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
-using System.Text.Json.Serialization;
+using Sammlerplattform.Services.EMail;
+using Sammlerplattform.Services.ML.VectorSearch;
+using Sammlerplattform.Services.Passkey;
 using Sammlerplattform.Services.Translation;
+using System.Text.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
 
-builder.Services.AddMvc()
+// Bei Development HTTPS nicht erzwingen
+if (builder.Environment.IsDevelopment())
+{
+    services.AddHttpsRedirection(options =>
+    {
+        options.HttpsPort = 5001;
+        options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+    });
+}
+else
+{
+    // In Produktion HTTPS erzwingen
+    services.AddHttpsRedirection(options =>
+    {
+        options.HttpsPort = 443;
+        options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
+    });
+}
+
+services.AddMvc()
     .AddViewLocalization()
     .AddDataAnnotationsLocalization()
     .AddJsonOptions(options =>
@@ -25,17 +51,17 @@ builder.Services.AddMvc()
         // Cycles cause of self referencing tables
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
-builder.Services.AddHttpClient();
-builder.Services.AddResponseCaching();
-builder.Services.AddHttpContextAccessor();
+services.AddHttpClient();
+services.AddResponseCaching();
+services.AddHttpContextAccessor();
 
-builder.Services.Configure<CookiePolicyOptions>(options =>
+services.Configure<CookiePolicyOptions>(options =>
 {
     options.CheckConsentNeeded = context => true;
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
-builder.Services.Configure<RequestLocalizationOptions>(options =>
+services.Configure<RequestLocalizationOptions>(options =>
 {
     string[] supportedCultures = ["de", "fr", "es"];
     options.SetDefaultCulture(supportedCultures[0])
@@ -43,65 +69,102 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
            .AddSupportedUICultures(supportedCultures);
 });
 
-builder.Services.AddDbContext<DbIdentityContext>(options =>
+services.AddDbContext<DbIdentityContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DbIdentityContextConnection")));
 
-builder.Services.AddDefaultIdentity<UsingIdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<DbIdentityContext>();
-builder.Services.Configure<IdentityOptions>(options =>
+services.AddDataProtection()
+    .SetApplicationName("Sammlerplattform")
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "Sammlerplattform",
+        "DataProtection-Keys"
+    )));
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("RequireRecentPasskey", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.AddRequirements(new RecentPasskeyRequirement(300)); // 5 Minuten
+    });
+
+
+services.AddDistributedMemoryCache();
+services.AddSession(options =>
 {
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequiredLength = 12;
-
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    options.Lockout.AllowedForNewUsers = true;
-
-    options.User.AllowedUserNameCharacters =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-    options.User.RequireUniqueEmail = false;
+    options.Cookie.Name = ".Sammlerplattform.Session";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.IdleTimeout = TimeSpan.FromMinutes(10);
+});
+services.Configure<Fido2Configuration>(builder.Configuration.GetSection("Fido2"));
+services.AddSingleton(provider =>
+{
+    var config = provider.GetRequiredService<IOptions<Fido2Configuration>>().Value;
+    return new Fido2(new Fido2Configuration()
+    {
+        ServerDomain = config.ServerDomain,
+        ServerName = config.ServerName,
+        Origins = config.Origins,
+        TimestampDriftTolerance = config.TimestampDriftTolerance
+    });
 });
 
-builder.Services.AddSession();
-builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
+services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
 
-builder.Services.AddScoped<IProcessPostalcode, PostalcodeProcessor>();
-builder.Services.AddScoped<IProcessEra, EraProcessor>();
-builder.Services.AddScoped<IProcessCollectionItemEntity, CollectionItemEntityProcessor>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IProcessCollectionItemPicture, CollectionItemPictureProcessor>();
-builder.Services.AddScoped<IProcessPlace, PlaceProcessor>();
-builder.Services.AddScoped<IProcessToponymy, ToponymyProcessor>();
-builder.Services.AddScoped<IProcessSettlement, SettlementProcessor>();
-builder.Services.AddScoped<IProcessBodyOfWater, BodyOfWaterProcessor>();
-builder.Services.AddScoped<IProcessBuilding, BuildingProcessor>();
-builder.Services.AddScoped<IProcessField, FieldProcessor>();
-builder.Services.AddScoped<IProcessRegion, RegionProcessor>();
-builder.Services.AddScoped<IProcessRelief, ReliefProcessor>();
-builder.Services.AddScoped<IProcessTransportRoute, TransportRouteProcessor>();
-builder.Services.AddScoped<IProcessParty, PartyProcessor>();
-builder.Services.AddScoped<IProcessIndividual, IndividualProcessor>();
-builder.Services.AddScoped<IProcessOrganization, OrganizationProcessor>();
-builder.Services.AddScoped<IProcessCollectionArea, CollectionAreaProcessor>();
-builder.Services.AddScoped<IProcessConceptValue, ConceptValueProcessor>();
-builder.Services.AddScoped<IProcessConcept, ConceptualRelationshipProcessor>();
-builder.Services.AddScoped<IProcessConceptRelation, ConceptRelationProcessor>();
-builder.Services.AddScoped<IProcessCollectionSet, CollectionSetProcessor>();
-builder.Services.AddScoped<IProcessStatePreservation, StatePreservationProcessor>();
-builder.Services.AddScoped<IProcessPicturePhysically, PhysicalPictureProcessor>();
-builder.Services.AddSingleton<IEmbeddingService, SimpleEmbeddingService>();
-builder.Services.AddScoped<IProcessCollectionItemEmbedding, CollectionItemEmbeddingProcessor>();
-builder.Services.AddScoped<IDeeplTranslationService, DeeplTranslationService>();
-builder.Services.AddScoped<IProcessTranslations, ProcessTranslations>();
-builder.Services.AddScoped<ITranslationStore, TranslationStore>();
-builder.Services.AddScoped<ITrackEvents, EventTracker>();
-builder.Services.AddScoped<IProcessImprovementSuggestions, ImprovementSuggestionsProcessor>();
+services.AddScoped<IProcessEra, EraProcessor>();
+services.AddScoped<IProcessCollectionItemEntity, CollectionItemEntityProcessor>();
+services.AddScoped<IUnitOfWork, UnitOfWork>();
+services.AddScoped<IProcessCollectionItemPicture, CollectionItemPictureProcessor>();
+services.AddScoped<IProcessOwnershipProofPicture, OwnershipProofPictureProcessor>();
+services.AddScoped<IProcessPlace, PlaceProcessor>();
+services.AddScoped<IProcessToponymy, ToponymyProcessor>();
+services.AddScoped<IProcessParty, PartyProcessor>();
+services.AddScoped<IProcessIndividual, IndividualProcessor>();
+services.AddScoped<IProcessOrganization, OrganizationProcessor>();
+services.AddScoped<IProcessIndustry, IndustryProcessor>();  
+services.AddScoped<IProcessCollectionArea, CollectionAreaProcessor>();
+services.AddScoped<IProcessConceptValue, ConceptValueProcessor>();
+services.AddScoped<IProcessConcept, ConceptualRelationshipProcessor>();
+services.AddScoped<IProcessConceptRelation, ConceptRelationProcessor>();
+services.AddScoped<IProcessCollectionSet, CollectionSetProcessor>();
+services.AddScoped<IProcessStatePreservation, StatePreservationProcessor>();
+services.AddScoped<IProcessPicturePhysically, PhysicalPictureProcessor>();
+services.AddSingleton<IEmbeddingService, SimpleEmbeddingService>();
+services.AddScoped<IProcessCollectionItemEmbedding, CollectionItemEmbeddingProcessor>();
+services.AddScoped<IDeeplTranslationService, DeeplTranslationService>();
+services.AddScoped<IProcessTranslations, ProcessTranslations>();
+services.AddScoped<ITranslationStore, TranslationStore>();
+services.AddScoped<ITrackEventsCSV, EventTracker>();
+services.AddScoped<IProcessImprovementSuggestions, ImprovementSuggestionsProcessor>(); 
+services.AddScoped<IProcessFidoCredential, FidoCredentialProcessor>(); 
+services.AddSingleton<IAuthorizationHandler, RecentPasskeyHandler>();
 
-builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
+services.AddIdentity<UsingIdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<DbIdentityContext>()
+    .AddDefaultTokenProviders();
+
+// Configure cookie behavior after AddIdentity so AddIdentity doesn't overwrite these settings
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // Redirect unauthenticated users to the passkey login page
+    options.LoginPath = "/Passkey/Login";
+    options.Events.OnRedirectToLogin = context =>
+    {
+        var returnUrl = context.Request.Path + context.Request.QueryString;
+        context.Response.Redirect($"/Passkey/Login?ReturnUrl={Uri.EscapeDataString(returnUrl)}");
+        return Task.CompletedTask;
+    };
+
+    // Redirect users who are authenticated but forbidden to a passkey page with status info
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        context.Response.Redirect("/Passkey/Login?StatusCode=403&StatusMessage=Error_Access_Forbidden");
+        return Task.CompletedTask;
+    };
+});
+
+services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
 WebApplication app = builder.Build();
 

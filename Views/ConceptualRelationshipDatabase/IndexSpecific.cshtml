@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Sammlerplattform.Models.ConceptualRelationshipDatabase.Concept>
+﻿@model IEnumerable<Sammlerplattform.Models.ConceptualRelationshipDatabase.ConceptViewModel>
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
@@ -7,10 +7,10 @@
     Layout = "~/Views/Shared/_LayoutSettingsConceptualRelationship.cshtml";
 }
 
-<h3>@Model.First(x => x.IsRootConcept).Name: @ViewData["Title"]</h3>
-<p>@Localizer["Delete_NotAllowed"]</p>
+<h3>@ViewData["Title"] @Model.First(x => x.IsRootConcept).Name</h3>
+<p>@Localizer["Info_Delete_NotAllowed"]</p>
 <hr />
-<a type="button" href="/ConceptualRelationshipDatabase/Create?rootConceptID=@Model.First(x => x.IsRootConcept).Id;collectionAreaID=@Model.First(x => x.IsRootConcept).CollectionAreaID" class="btn btn-success">@Localizer["Create"]</a>
+<a type="button" href="/ConceptualRelationshipDatabase/Create?ConceptViewModel.RootConceptID=@Model.First(x => x.IsRootConcept).Id&ConceptViewModel.CollectionAreaID=@Model.First(x => x.IsRootConcept).CollectionAreaID&ConceptViewModel.ConceptTypeInt=0" class="btn btn-success">@Localizer["Create"]</a>
 
 <div class="container py-4 text-center">
     <div class="row gx-5">
@@ -26,7 +26,13 @@
                     <thead>
                         <tr>
                             <th>
-                                @Html.DisplayNameFor(model => model.First(x => x.IsRootConcept).Name)
+                                @Localizer["ConceptName"]
+                            </th>
+                            <th>
+                                @Localizer["Abbreviation"]
+                            </th>
+                            <th>
+                                @Localizer["ConceptType"]
                             </th>
                             <th></th>
                         </tr>
@@ -37,6 +43,12 @@
                             <tr>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Abbreviation)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ConceptType)
                                 </td>
                                 <td>
                                     <a asp-action="Edit" asp-route-id="@item.Id">@Localizer["Edit"]</a>

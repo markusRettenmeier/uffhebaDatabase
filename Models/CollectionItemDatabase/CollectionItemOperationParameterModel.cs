@@ -1,5 +1,6 @@
 ﻿using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionSetDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.OwnershipProofPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.EraDatabase;
@@ -23,28 +24,16 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
                    CollectionSet.CollectionSetId > 0;
         }
 
-        [Display(Name = "CollectionItemPictureList", ResourceType = typeof(SharedResources))]
         public List<CollectionItemPicture> CollectionItemPictureList { get; set; } = [];
-
-        [Display(Name = "StatePreservationList", ResourceType = typeof(SharedResources))]
+        public List<OwnershipProofPicture> OwnershipProofPictureList { get; set; } = [];
         public List<StatePreservation> StatePreservationList { get; set; } = [];
-
-        [Display(Name = "CollectionItemNPartyList", ResourceType = typeof(SharedResources))]
         public List<CollectionItemNParty> CollectionItemNPartyList { get; set; } = [];
-
-        [Display(Name = "CollectionItemNPlaceList", ResourceType = typeof(SharedResources))]
         public List<CollectionItemNPlace> CollectionItemNPlaceList { get; set; } = [];
-
-        [Display(Name = "ConceptValueList", ResourceType = typeof(SharedResources))]
         public List<ConceptValue> ConceptValueList { get; set; } = [];
 
-        [Display(Name = "ConceptList", ResourceType = typeof(SharedResources))]
-        public List<Concept> ConceptList { get; set; } = [];
+        public List<ConceptViewModel> CvmList { get; set; } = [];
 
         [Display(Name = "Era", ResourceType = typeof(SharedResources))]
         public Era Era { get; set; } = new() { EraName = string.Empty };
-
-        [Display(Name = "Concept", ResourceType = typeof(SharedResources))]
-        public Concept Concept { get; set; } = new() { Name = string.Empty };
     }
 }

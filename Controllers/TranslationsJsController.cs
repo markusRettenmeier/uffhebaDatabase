@@ -15,13 +15,14 @@ namespace Sammlerplattform.Controllers
 
             var keys = new[]
             {
-                "Details", "NothingFound", "Place_ParentAdd", "Place_ChildAdd", "RelatedGeography_Add", "Place_Add",
-                "Concept_SynonymAdd", "Concept_SubTermAdd", "Concept_ShortForAdd", "Add", "Option_Select", "Field",
-                "Region", "Relief", "Settlement", "TransportRoute", "BodyOfWater", "Building", "Individual", "Organization",
-                "Company", "Institution", "Other", "NumberRange_Change", "Remove", "Color_Select", "IsPrimaryColor",
+                "Details", "NothingFound", "RelatedGeography_Add", "Place_Add", "CookieConsent_Text ",
+                "Concept_SynonymAdd", "Concept_SubTermAdd", "Add", "Option_Select", 
+                "Individual", "Organization", "Concept_ParentConceptAdd", "SubTermOf",
+                "Company", "Institution", "Other", "NumberRange_Change", "Remove",
                 "IsPrimaryMaterial", "Material_Select", "Side_Front", "Side_Back", "Side_Left", "Side_Right", "Side_Top", 
-                "Side_Bottom", "to", "Postalcode", "IsCurrentPostalcode", "Toponymy", "IsCurrentName", "ToponymyName",
-                "ParentPlace", "ChildPlace"
+                "Side_Bottom", "to", "Toponymy", "IsCurrentName", "ToponymyName", "EnterToponymy",
+                "OwnershipProof_Type_BillOfSale", "OwnershipProof_Type_Certificate", "OwnershipProof_Type_Other",
+                "Error_DisplayName_Missing", "Error_DisplayName_StringLength", "Error_Email_NotValid"
             };
 
             foreach (var key in keys)

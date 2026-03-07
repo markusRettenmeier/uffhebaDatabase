@@ -17,6 +17,7 @@ namespace Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDa
 
         [Display(Name = "Perspective", ResourceType = typeof(SharedResources))]
         public int? PerspectiveInt { get; set; }
+
         [NotMapped]
         [Display(Name = "Perspective", ResourceType = typeof(SharedResources))]
         public PerspectiveType Perspective
@@ -26,6 +27,7 @@ namespace Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDa
 
         [Display(Name = "CollectionItemEntityID", ResourceType = typeof(SharedResources))]
         public int CollectionItemEntityID { get; set; }
+
         [Display(Name = "CollectionItemEntity", ResourceType = typeof(SharedResources))]
         public CollectionItemEntity CollectionItemEntity { get; set; } = null!;
 

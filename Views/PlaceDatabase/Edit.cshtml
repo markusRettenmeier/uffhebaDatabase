@@ -1,0 +1,102 @@
+﻿@model PlaceEditDTO
+@using Sammlerplattform.Models.PlaceDatabase
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+@{
+    ViewData["Title"] = @Localizer["Place_Edit"];
+    Layout = "~/Views/Shared/_LayoutSettingsPlace.cshtml";
+
+    List<Place>? connectedPlaceList = ViewData["ConnectedPlaces"] as List<Place>;
+}
+
+<h1>@ViewData["Title"]</h1>
+<hr />
+<form asp-action="Edit" asp-controller="PlaceDatabase">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input asp-for="PlaceID" type="hidden">
+    <h2>@Localizer["PlaceName"]</h2>
+    <p>@Localizer["Info_PlaceName_NotChangeable"]</p>
+    <div id="toponymyContainer" class="mb-3">
+        @for (int i = 0; i < Model.ToponymyList.Count; i++)
+        {
+            <div class="input-group inputDivToponymy mb-2">
+                <div class="form-group">
+                    <input class="form-control inputToponymy" asp-for="ToponymyList[@i].Name" readonly>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input checkboxCurrentName" asp-for="ToponymyList[i].IsCurrentName" id="currentName_@i">
+                    <label class="form-check-label ms-1" for="currentName_@i">@Localizer["IsCurrentName"]</label>
+                </div>
+                <input type="hidden" asp-for="ToponymyList[@i].PlaceNToponymyID" />
+                <button type="button" class="btn btn-danger removeToponmy">@Localizer["Remove"]</button>
+            </div>
+        }
+    </div>
+    <button type="button" class="btn btn-primary" onclick="addToponymy()">@Localizer["PlaceName_Add"]</button>
+    <hr />
+    <h6>@Localizer["ConnectedPlaces"]</h6>
+    <div class="mb-3">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">@Localizer["Name"]</th>
+                    <th scope="col">@Localizer["FurtherSpecs"]</th>
+                    <th scope="col">@Localizer["Relationship"]</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody id="appendPlaceHere">
+                @if (connectedPlaceList != null)
+                {
+                    @for (int i = 0; i < connectedPlaceList.Count; i++)
+                    {
+                        var vm = PlaceViewModelHelper.FromDomainModel(connectedPlaceList[i]);
+                        <tr>
+                            <td>
+                                @Html.Raw(vm.Toponymy)
+                            </td>
+                            <td>
+                                @Html.Raw(vm.FurtherSpecs)
+                            </td>
+                            <td>
+                                <input class="form-control" type="hidden" name="ConnectedPlaceList[@i].PlaceID" value="@vm.PlaceID"/>
+                                <button type="button" class="btn btn-danger removeRelation">@Localizer["Remove"]</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
+            @Localizer["Relation_Add"]
+        </button>
+    </div>
+    <hr />
+    <div class="form-group mb-3">
+        <label asp-for="FurtherSpecs" class="control-label"></label>
+        <input asp-for="FurtherSpecs" class="form-control" />
+        <span asp-validation-for="FurtherSpecs" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-3">
+        <label asp-for="WikipediaUrl" class="control-label"></label>
+        <input asp-for="WikipediaUrl" class="form-control" />
+        <span asp-validation-for="WikipediaUrl" class="text-danger"></span>
+    </div>
+    <div class="mt-4 pt-3 border-top">
+        <button type="submit" class="btn btn-success btn-lg px-5">
+            <i class="bi bi-check-circle"></i> @Localizer["Edit"]
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+            @Localizer["Cancel"]
+        </a>
+    </div>
+</form>
+
+<partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

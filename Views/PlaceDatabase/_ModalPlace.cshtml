@@ -14,11 +14,6 @@
                     <div class="col-sm-4 col-sm-offset-4">
                         <div class="input-group">
                             <input type="text" class="form-control inputPlaceSearch" placeholder="@Localizer["Place"]" aria-label="@Localizer["Place"]" />
-                            <div>
-                                <select class="form-select" id="toponymyType" asp-items="Html.GetEnumSelectList<ToponymyType>()">
-                                    <option value="" selected>@Localizer["Place_Select"]</option>
-                                </select>
-                            </div>
                             <button class="btn btn-primary placeSearchSubmit" type="button">@Localizer["Search"]</button>
                         </div>
                     </div>
@@ -28,7 +23,7 @@
                         <tr>
                             <th scope="col">@Localizer["PlaceID"]</th>
                             <th scope="col">@Localizer["Toponymy"]</th>
-                            <th scope="col">@Localizer["ToponymyType"]</th>
+                            <th scope="col">@Localizer["ConnectedPlaces"]</th>
                             <th scope="col">@Localizer["FurtherSpecs"]</th>
                             <th scope="col"></th>
                         </tr>

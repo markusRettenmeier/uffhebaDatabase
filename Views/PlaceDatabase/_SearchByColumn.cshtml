@@ -20,11 +20,8 @@
                 <button id="removeColumn_0" type="button" class="btn btn-outline-danger removeColumn" style="display:none">-</button>
                 <select name="columnName" id="columnName_0" class="form-select columnDropDown">
                     <option value="" selected>@Localizer["Option_Select"]</option>
-                    <option value="PlaceNToponymyList_Toponymy_ToponymyName">@Localizer["ToponymyName"]</option>
-                    <option value="ToponymyTypeInt">@Localizer["ToponymyType"]</option>
-                    @if ((string?)ViewData["Place"] == "Settlement") {
-                        <option value="Settlement_SettlementNPostalcodeList_Postalcode_PostalcodeNumber">PLZ</option>
-                    }
+                    <option value="PlaceNToponymyList_Toponymy_ToponymyName">@Localizer["PlaceName"]</option>
+                    <option value="FurtherSpecs">@Localizer["FurtherSpecs"]</option>
                 </select>
             </div>
             <div class="col inputArea" id="inputArea_0">

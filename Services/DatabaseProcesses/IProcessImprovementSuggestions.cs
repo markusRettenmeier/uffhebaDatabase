@@ -6,68 +6,20 @@ namespace Sammlerplattform.Services.DatabaseProcesses
     public interface IProcessImprovementSuggestions
     {
         List<Topic> GetWithPredicate(TopicSearchParameterModel searchParameterModel, int count = 20);
-        int GetTopicVoteCountAsync(int topicId);
         (int statusCode, string StatusMessage, int ForumTopicId) Insert(string title, string content, string authorId);
         (int statusCode, string StatusMessage, int ForumTopicId) Update(int topicId, string title, string content);
         (int statusCode, string StatusMessage) Delete(int topicId);
-        //bool VoteTopic(int topicId, int userId, VoteType voteType);
     }
 
     public class ImprovementSuggestionsProcessor(IUnitOfWork unitOfWork
-        , ITrackEvents trackEvents) : IProcessImprovementSuggestions
+        , ITrackEventsCSV trackEvents) : IProcessImprovementSuggestions
     {
-        //public bool VoteTopic(int topicId, string userId, VoteType voteType)
-        //{
-        //    TopicVote? existingVote = unitOfWork.TopicVoteRepository.Get(
-        //        filter: tv => tv.TopicId == topicId && tv.UserId == userId).FirstOrDefault();
-        //    try
-        //    {
-        //        if (existingVote != null)
-        //        {
-        //            if (existingVote.VoteType == voteType)
-        //            {
-        //                // User is trying to vote the same way again, remove the vote
-        //                unitOfWork.TopicVoteRepository.Delete(existingVote);
-        //            }
-        //            else
-        //            {
-        //                // Update the existing vote
-        //                existingVote.VoteType = voteType;
-        //                existingVote.VotedAt = DateTime.UtcNow;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            // Create a new vote
-        //            TopicVote newVote = new()
-        //            {
-        //                TopicId = topicId,
-        //                UserId = userId,
-        //                VoteType = voteType,
-        //                VotedAt = DateTime.UtcNow
-        //            };
-        //            unitOfWork.TopicVoteRepository.Insert(newVote);
-        //        }
-        //        unitOfWork.Save();
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        trackEvents.TrackError(ex, "ImprovementSuggestionsProcessor.VoteTopic");
-        //        return false;
-        //    }
-        //}
         public List<Topic> GetWithPredicate(TopicSearchParameterModel searchParameterModel, int count = 20)
         {
             IEnumerable<Topic> topics = unitOfWork.ForumTopicRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<Topic>(searchParameterModel), includeProperties: "Author,VoteList");
 
             return [.. topics];
-        }
-        public int GetTopicVoteCountAsync(int topicId)
-        {
-            // Implementation here
-            throw new NotImplementedException();
         }
 
         public (int statusCode, string StatusMessage, int ForumTopicId) Insert(string title, string content, string authorId)

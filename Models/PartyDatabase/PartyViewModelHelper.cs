@@ -4,40 +4,35 @@
     {
         public static PartyViewModel FromDomainModel(Party party)
         {
-            string places = party.PlaceList != null ?
-                        string.Join(", ", party.PlaceList.Select(p => p.PlaceNToponymyList.Where(t => t.IsCurrentName).Select(t => t.Toponymy.ToponymyName).FirstOrDefault())) : "Keine Orte zugewiesen";
-            string productionFacility = party.Organization?.ProductionFacility != null ?
-                        party.Organization.ProductionFacility.ProductionFacilityName : string.Empty;
+            //string places = party.PlaceList != null ?
+            //            string.Join(", ", party.PlaceList.Select(p => p.PlaceNToponymyList.Where(t => t.IsCurrentName).Select(t => t.Toponymy.ToponymyName).FirstOrDefault())) : "Keine Orte zugewiesen";
+            string industry = party.Organization?.Industry != null ?
+                        party.Organization.Industry.IndustryName : string.Empty;
 
             PartyViewModel partyViewModel = new()
             {
                 Name = party.PartyName,
                 Pseudonym = party.Individual?.Pseudonym ?? string.Empty,
                 Signature = party.Individual?.Signature ?? string.Empty,
-                Places = string.Join(", ", places),
-                OrganizationType = party.Organization?.OrganizationTypeEnum.ToString() ?? string.Empty,
-                ProductionFacility = productionFacility
+                //Places = string.Join(", ", places),
+                Industry = industry
             };
 
             if (!string.IsNullOrEmpty(partyViewModel.Pseudonym))
             {
-                partyViewModel.FurtherSpecs = "Pseudonym: " + partyViewModel.Pseudonym + ", ";
+                partyViewModel.FurtherSpecs = partyViewModel.Pseudonym + ", ";
             }
             if (!string.IsNullOrEmpty(partyViewModel.Signature))
             {
-                partyViewModel.FurtherSpecs = "Signatur: " + partyViewModel.Signature + ", ";
+                partyViewModel.FurtherSpecs = partyViewModel.Signature + ", ";
             }
-            if (!string.IsNullOrEmpty(partyViewModel.Places))
+            //if (!string.IsNullOrEmpty(partyViewModel.Places))
+            //{
+            //    partyViewModel.FurtherSpecs = partyViewModel.Places + ", ";
+            //}
+            if (!string.IsNullOrEmpty(partyViewModel.Industry))
             {
-                partyViewModel.FurtherSpecs = "Orte: " + partyViewModel.Places + ", ";
-            }
-            if (!string.IsNullOrEmpty(partyViewModel.OrganizationType))
-            {
-                partyViewModel.FurtherSpecs = "Organisationstyp: " + partyViewModel.OrganizationType + ", ";
-            }
-            if (!string.IsNullOrEmpty(partyViewModel.ProductionFacility))
-            {
-                partyViewModel.FurtherSpecs = "Branche: " + partyViewModel.ProductionFacility + ", ";
+                partyViewModel.FurtherSpecs = partyViewModel.Industry + ", ";
             }
 
             return partyViewModel;
@@ -49,8 +44,7 @@
         public string Pseudonym { get; set; } = string.Empty;
         public string Signature { get; set; } = string.Empty;
         public string Places { get; set; } = string.Empty;
-        public string OrganizationType { get; set; } = string.Empty;
-        public string ProductionFacility { get; set; } = string.Empty;
+        public string Industry { get; set; } = string.Empty;
         public string FurtherSpecs { get; set; } = string.Empty;
     }
 }

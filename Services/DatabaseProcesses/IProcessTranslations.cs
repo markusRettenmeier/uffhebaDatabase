@@ -1,9 +1,6 @@
-﻿using LinqKit;
-using NuGet.Packaging;
-using Sammlerplattform.Data;
+﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Services.Translation;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Sammlerplattform.Services.DatabaseProcesses
 {
@@ -17,7 +14,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses
         List<string> Update(EntityTranslation entityTranslation, string textToTranslate);
         void Delete(EntityTranslationSearchParameter searchParameter);
     }
-    public class ProcessTranslations(IUnitOfWork unitOfWork, IDeeplTranslationService deeplTranslationService) : IProcessTranslations
+    public class ProcessTranslations(IUnitOfWork unitOfWork
+        , IDeeplTranslationService deeplTranslationService) : IProcessTranslations
     {
         public Dictionary<string, string> GetTranslationDictionary(
             string entityType,

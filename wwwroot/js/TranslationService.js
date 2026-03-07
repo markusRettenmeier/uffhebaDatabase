@@ -1,104 +1,96 @@
-﻿class TranslationService {
+export class TranslationService {
+    #translations = {};
+    #currentCulture;
+    #storageKey;
+    #cacheDuration = 24 * 60 * 60 * 1000;
+    #languageNames = {
+        'de': 'Deutsch',
+        'de-DE': 'Deutsch (Deutschland)',
+        'de-AT': 'Deutsch (Österreich)',
+        'de-CH': 'Deutsch (Schweiz)',
+        'en': 'Englisch',
+        'en-US': 'Englisch (USA)',
+        'en-GB': 'Englisch (Großbritannien)',
+    };
     constructor() {
-        this.translations = {};
-        this.currentCulture = this.getCurrentCulture();
-        this.storageKey = `translations_${this.currentCulture}`;
-        this.cacheDuration = 24 * 60 * 60 * 1000; // 24 Stunden
+        this.#currentCulture = this.#getCurrentCulture();
+        this.#storageKey = `translations_${this.#currentCulture}`;
     }
-
-    getCurrentCulture() {
-        // Kultur vom Meta-Tag oder HTML lang-Attribut
+    #getCurrentCulture() {
         const metaCulture = document.querySelector('meta[name="culture"]')?.content;
         const htmlLang = document.documentElement.lang;
-        return metaCulture || htmlLang || 'de-DE';
+        const browserLanguage = navigator.language;
+        return metaCulture ?? htmlLang ?? browserLanguage ?? 'de-DE';
     }
-
-    // Local Storage mit Verfallsdatum
-    cacheTranslations() {
+    #cacheTranslations() {
         const cacheData = {
-            data: this.translations,
+            data: this.#translations,
             timestamp: Date.now(),
-            culture: this.currentCulture
+            culture: this.#currentCulture
         };
-        localStorage.setItem(this.storageKey, JSON.stringify(cacheData));
+        localStorage.setItem(this.#storageKey, JSON.stringify(cacheData));
     }
-
-    getCachedTranslations() {
+    #getCachedTranslations() {
         try {
-            const cached = localStorage.getItem(this.storageKey);
-            if (!cached) return null;
-
+            const cached = localStorage.getItem(this.#storageKey);
+            if (!cached)
+                return null;
             const cacheData = JSON.parse(cached);
-
-            // Prüfen ob Cache abgelaufen oder falsche Kultur
-            const isExpired = Date.now() - cacheData.timestamp > this.cacheDuration;
-            const isWrongCulture = cacheData.culture !== this.currentCulture;
-
+            const isExpired = Date.now() - cacheData.timestamp > this.#cacheDuration;
+            const isWrongCulture = cacheData.culture !== this.#currentCulture;
             if (isExpired || isWrongCulture) {
-                localStorage.removeItem(this.storageKey);
+                localStorage.removeItem(this.#storageKey);
                 return null;
             }
-
             return cacheData.data;
-        } catch (error) {
-            console.warn('Failed to parse cached translations:', error);
-            localStorage.removeItem(this.storageKey);
+        }
+        catch {
+            localStorage.removeItem(this.#storageKey);
             return null;
         }
     }
-
     async loadTranslations() {
-        // 1. Aus Cache laden falls verfügbar
-        const cached = this.getCachedTranslations();
+        const cached = this.#getCachedTranslations();
         if (cached) {
-            this.translations = cached;
-            console.log('Translations loaded from cache');
+            this.#translations = cached;
             return;
         }
-
         try {
-            const response = await fetch(`/api/TranslationsJs?culture=${this.currentCulture}`);
-            if (!response.ok) {
+            const response = await fetch(`/api/TranslationsJs?culture=${encodeURIComponent(this.#currentCulture)}`);
+            if (!response.ok)
                 throw new Error(`HTTP ${response.status}`);
-            }
-
-            this.translations = await response.json();
-            this.cacheTranslations();
-            console.log('Translations loaded from API and cached');
-        } catch (error) {
-            console.error('Failed to load translations:', error);
-            // Fallback: Leeres Dictionary
-            this.translations = {};
+            const data = await response.json();
+            this.#translations = data;
+            this.#cacheTranslations();
+        }
+        catch {
+            this.#translations = {};
         }
     }
-
     get(key, defaultValue = null) {
-        return this.translations[key] || defaultValue || key;
+        return this.#translations[key] ?? defaultValue ?? key;
     }
-
     format(key, ...args) {
         let translation = this.get(key);
-        return translation.replace(/{(\d+)}/g, (match, index) => {
-            return typeof args[index] !== 'undefined' ? args[index] : match;
+        if (args.length === 0)
+            return translation;
+        return translation.replaceAll(/{(\d+)}/g, (match, index) => {
+            const argIndex = Number.parseInt(index, 10);
+            return args[argIndex]?.toString() ?? match;
         });
     }
-
-    // Cache explizit löschen (z.B. bei Sprachwechsel)
     clearCache() {
-        localStorage.removeItem(this.storageKey);
-        console.log('Translation cache cleared');
+        localStorage.removeItem(this.#storageKey);
     }
-
-    // Cache für alle Sprachen löschen
     clearAllCaches() {
-        Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('translations_')) {
-                localStorage.removeItem(key);
-            }
-        });
-        console.log('All translation caches cleared');
+        const keys = Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i));
+        const translationKeys = keys.filter((key) => key?.startsWith('translations_') ?? false);
+        translationKeys.forEach(key => localStorage.removeItem(key));
     }
 }
-
 // Globale Instanz
-const i18n = new TranslationService();
+export const i18n = new TranslationService();
+// Global verfügbar machen
+if (typeof window !== 'undefined') {
+    window.i18n = i18n;
+}

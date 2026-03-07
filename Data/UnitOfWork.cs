@@ -2,6 +2,7 @@
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionSetDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.OwnershipProofPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.VectorSearch;
 //using Sammlerplattform.Models.CollectionItemDatabase.ObjectLayerDatabase;
@@ -11,336 +12,271 @@ using Sammlerplattform.Models.ImprovementSuggestions;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
 using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
+using Sammlerplattform.Models.Passkey;
 using Sammlerplattform.Models.PlaceDatabase;
-using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase;
-using Sammlerplattform.Models.PlaceDatabase.BuildingDatabase;
-using Sammlerplattform.Models.PlaceDatabase.FieldDatabase;
-using Sammlerplattform.Models.PlaceDatabase.RegionDatabase;
-using Sammlerplattform.Models.PlaceDatabase.ReliefDatabase;
-using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
-using Sammlerplattform.Models.PlaceDatabase.TransportRouteDatabase;
+using Sammlerplattform.Models.PlaceDatabase.Toponymy;
 using Sammlerplattform.Models.Translations;
 
 namespace Sammlerplattform.Data
 {
     public interface IUnitOfWork : IDisposable
     {
-        GenericRepository<Postalcode> PostalcodeRepository { get; }
-        GenericRepository<Era> EraRepository { get; }
-        GenericRepository<ProductionFacility> ProductionFacilityRepository { get; }
-        GenericRepository<CollectionItemPicture> CollectionItemPictureRepository { get; }
-        GenericRepository<StatePreservation> StateRepository { get; }
-        GenericRepository<Place> PlaceRepository { get; }
-        GenericRepository<Toponymy> ToponymyRepository { get; }
-        GenericRepository<PlaceNToponymy> PlaceNToponomyRepository { get; }
-        GenericRepository<Settlement> SettlementRepository { get; }
-        GenericRepository<SettlementNPostalcode> SettlementNPostalcodeRepository { get; }
-        GenericRepository<BodyOfWater> BodyOfWaterRepository { get; }
-        GenericRepository<Building> BuildingRepository { get; }
-        GenericRepository<Field> FieldRepository { get; }
-        GenericRepository<Region> RegionRepository { get; }
-        GenericRepository<Relief> ReliefRepository { get; }
-        GenericRepository<TransportRoute> TransportRouteRepository { get; }
-        GenericRepository<Party> PartyRepository { get; }
-        GenericRepository<Individual> IndividualRepository { get; }
-        GenericRepository<Organization> OrganizationRepository { get; }
-        GenericRepository<CollectionItemNPlace> CollectionItemNPlaceRepository { get; }
-        GenericRepository<CollectionItemNParty> CollectionItemNPartyRepository { get; }
-        GenericRepository<CollectionItemEntity> CollectionItemEntityRepository { get; }
-        GenericRepository<CollectionArea> CollectionAreaRepository { get; }
-        GenericRepository<ConceptValue> ConceptValueRepository { get; }
-        GenericRepository<Concept> ConceptRepository { get; }
-        GenericRepository<ConceptRelation> ConceptRelationRepository { get; }
-        GenericRepository<CollectionItemEmbedding> CollectionItemEmbeddingRepository { get; }
-        GenericRepository<EntityTranslation> EntityTranslationRepository { get; }
-        GenericRepository<CollectionSet> SetRepository { get; }
-        GenericRepository<Topic> ForumTopicRepository { get; }
-        GenericRepository<TopicVote> TopicVoteRepository { get; }
+        RelationalBaseRepository<Era> EraRepository { get; }
+        RelationalBaseRepository<Industry> IndustryRepository { get; }
+        RelationalBaseRepository<CollectionItemPicture> CollectionItemPictureRepository { get; }
+        RelationalBaseRepository<OwnershipProofPicture> OwnershipProofPictureRepository { get; }
+        RelationalBaseRepository<StatePreservation> StateRepository { get; }
+        RelationalBaseRepository<Place> PlaceRepository { get; }
+        RelationalBaseRepository<Toponymy> ToponymyRepository { get; }
+        RelationalBaseRepository<PlaceNToponymy> PlaceNToponomyRepository { get; }  
+        RelationalBaseRepository<PlaceNPlace> PlaceNPlaceRepository { get; }
+        RelationalBaseRepository<Party> PartyRepository { get; }
+        RelationalBaseRepository<Individual> IndividualRepository { get; }
+        RelationalBaseRepository<Organization> OrganizationRepository { get; }
+        RelationalBaseRepository<CollectionItemNPlace> CollectionItemNPlaceRepository { get; }
+        RelationalBaseRepository<CollectionItemNParty> CollectionItemNPartyRepository { get; }
+        RelationalBaseRepository<CollectionItemEntity> CollectionItemEntityRepository { get; }
+        RelationalBaseRepository<CollectionArea> CollectionAreaRepository { get; }
+        RelationalBaseRepository<ConceptValue> ConceptValueRepository { get; }
+        RelationalBaseRepository<Concept> ConceptRepository { get; }
+        RelationalBaseRepository<ConceptRelationViewModel> ConceptRelationRepository { get; }
+        RelationalBaseRepository<CollectionItemEmbedding> CollectionItemEmbeddingRepository { get; }
+        RelationalBaseRepository<EntityTranslation> EntityTranslationRepository { get; }
+        RelationalBaseRepository<CollectionSet> SetRepository { get; }
+        RelationalBaseRepository<Topic> ForumTopicRepository { get; }
+        RelationalBaseRepository<TopicVote> TopicVoteRepository { get; }
+        RelationalBaseRepository<FidoCredential> FidoCredentialRepository { get; }
 
         void Save();
     }
 
     public class UnitOfWork(DbIdentityContext context) : IDisposable, IUnitOfWork
     {
-        private GenericRepository<Postalcode>? postalcodeRepository;
-        private GenericRepository<Era>? eraRepository;
-        private GenericRepository<ProductionFacility>? productionFacilityRepository;
-        private GenericRepository<CollectionItemPicture>? collectionItemPictureRepository;
-        private GenericRepository<StatePreservation>? stateRepository;
-        private GenericRepository<Place>? placeRepository;
-        private GenericRepository<Toponymy>? toponymyRepository;
-        private GenericRepository<PlaceNToponymy>? placeNToponymyRepository;
-        private GenericRepository<Settlement>? settlementRepository;
-        private GenericRepository<SettlementNPostalcode>? settlementNPostalcodeRepository;
-        private GenericRepository<BodyOfWater>? bodyOfWaterRepository;
-        private GenericRepository<Building>? buildingRepository;
-        private GenericRepository<Field>? fieldRepository;
-        private GenericRepository<Region>? regionRepository;
-        private GenericRepository<Relief>? reliefRepository;
-        private GenericRepository<TransportRoute>? transportRouteRepository;
-        private GenericRepository<Party>? partyRepository;
-        private GenericRepository<Individual>? individualRepository;
-        private GenericRepository<Organization>? organizationRepository;
-        private GenericRepository<CollectionItemNPlace>? collectionItemNPlaceRepository;
-        private GenericRepository<CollectionItemNParty>? collectionItemNPartyRepository;
-        private GenericRepository<CollectionItemEntity>? collectionItemEntityRepository;
-        private GenericRepository<CollectionArea>? collectionAreaRepository;
-        private GenericRepository<ConceptValue>? conceptValueRepository;
-        private GenericRepository<Concept>? conceptRepository;
-        private GenericRepository<ConceptRelation>? conceptRelationRepository;
-        private GenericRepository<CollectionItemEmbedding>? collectionItemEmbeddingRepository;
-        private GenericRepository<EntityTranslation>? entityTranslationRepository;
-        private GenericRepository<CollectionSet>? setRepository;
-        private GenericRepository<Topic>? forumTopicRepository;
-        private GenericRepository<TopicVote>? topicVoteRepository;
-        public GenericRepository<CollectionItemEmbedding> CollectionItemEmbeddingRepository
+        private RelationalBaseRepository<Era>? eraRepository;
+        private RelationalBaseRepository<Industry>? industryRepository;
+        private RelationalBaseRepository<CollectionItemPicture>? collectionItemPictureRepository;
+        private RelationalBaseRepository<OwnershipProofPicture>? ownershipProofPictureRepository;
+        private RelationalBaseRepository<StatePreservation>? stateRepository;
+        private RelationalBaseRepository<Place>? placeRepository;
+        private RelationalBaseRepository<Toponymy>? toponymyRepository;
+        private RelationalBaseRepository<PlaceNToponymy>? placeNToponymyRepository;    
+        private RelationalBaseRepository<PlaceNPlace>? placeNPlaceRepository;
+        private RelationalBaseRepository<Party>? partyRepository;
+        private RelationalBaseRepository<Individual>? individualRepository;
+        private RelationalBaseRepository<Organization>? organizationRepository;
+        private RelationalBaseRepository<CollectionItemNPlace>? collectionItemNPlaceRepository;
+        private RelationalBaseRepository<CollectionItemNParty>? collectionItemNPartyRepository;
+        private RelationalBaseRepository<CollectionItemEntity>? collectionItemEntityRepository;
+        private RelationalBaseRepository<CollectionArea>? collectionAreaRepository;
+        private RelationalBaseRepository<ConceptValue>? conceptValueRepository;
+        private RelationalBaseRepository<Concept>? conceptRepository;
+        private RelationalBaseRepository<ConceptRelationViewModel>? conceptRelationRepository;
+        private RelationalBaseRepository<CollectionItemEmbedding>? collectionItemEmbeddingRepository;
+        private RelationalBaseRepository<EntityTranslation>? entityTranslationRepository;
+        private RelationalBaseRepository<CollectionSet>? setRepository;
+        private RelationalBaseRepository<Topic>? forumTopicRepository;
+        private RelationalBaseRepository<TopicVote>? topicVoteRepository;
+        private RelationalBaseRepository<FidoCredential>? fidoCredentialRepository;
+
+        public RelationalBaseRepository<CollectionItemEmbedding> CollectionItemEmbeddingRepository
         {
             get
             {
-                collectionItemEmbeddingRepository ??= new GenericRepository<CollectionItemEmbedding>(context);
+                collectionItemEmbeddingRepository ??= new RelationalBaseRepository<CollectionItemEmbedding>(context);
                 return collectionItemEmbeddingRepository;
             }
         }
-
-        public GenericRepository<Postalcode> PostalcodeRepository
+        public RelationalBaseRepository<Era> EraRepository
         {
             get
             {
-                postalcodeRepository = new GenericRepository<Postalcode>(context);
-                return postalcodeRepository;
-            }
-        }
-        public GenericRepository<Era> EraRepository
-        {
-            get
-            {
-                eraRepository ??= new GenericRepository<Era>(context);
+                eraRepository ??= new RelationalBaseRepository<Era>(context);
                 return eraRepository;
             }
         }
-        public GenericRepository<ProductionFacility> ProductionFacilityRepository
+        public RelationalBaseRepository<Industry> IndustryRepository
         {
             get
             {
-                productionFacilityRepository ??= new GenericRepository<ProductionFacility>(context);
-                return productionFacilityRepository;
+                industryRepository ??= new RelationalBaseRepository<Industry>(context);
+                return industryRepository;
             }
         }
-        public GenericRepository<CollectionItemPicture> CollectionItemPictureRepository
+        public RelationalBaseRepository<CollectionItemPicture> CollectionItemPictureRepository
         {
             get
             {
-                collectionItemPictureRepository ??= new GenericRepository<CollectionItemPicture>(context);
+                collectionItemPictureRepository ??= new RelationalBaseRepository<CollectionItemPicture>(context);
                 return collectionItemPictureRepository;
             }
         }
-        public GenericRepository<StatePreservation> StateRepository
+        public RelationalBaseRepository<OwnershipProofPicture> OwnershipProofPictureRepository
         {
             get
             {
-                stateRepository ??= new GenericRepository<StatePreservation>(context);
+                ownershipProofPictureRepository ??= new RelationalBaseRepository<OwnershipProofPicture>(context);
+                return ownershipProofPictureRepository;
+            }
+        }
+        public RelationalBaseRepository<StatePreservation> StateRepository
+        {
+            get
+            {
+                stateRepository ??= new RelationalBaseRepository<StatePreservation>(context);
                 return stateRepository;
             }
         }
-        public GenericRepository<Place> PlaceRepository
+        public RelationalBaseRepository<Place> PlaceRepository
         {
             get
             {
-                placeRepository ??= new GenericRepository<Place>(context);
+                placeRepository ??= new RelationalBaseRepository<Place>(context);
                 return placeRepository;
             }
         }
-        public GenericRepository<Settlement> SettlementRepository
+        public RelationalBaseRepository<PlaceNPlace> PlaceNPlaceRepository
         {
             get
             {
-                settlementRepository ??= new GenericRepository<Settlement>(context);
-                return settlementRepository;
+                placeNPlaceRepository ??= new RelationalBaseRepository<PlaceNPlace>(context);
+                return placeNPlaceRepository;
             }
         }
-        public GenericRepository<Toponymy> ToponymyRepository
+        public RelationalBaseRepository<Toponymy> ToponymyRepository
         {
             get
             {
-                toponymyRepository ??= new GenericRepository<Toponymy>(context);
+                toponymyRepository ??= new RelationalBaseRepository<Toponymy>(context);
                 return toponymyRepository;
             }
         }
-        public GenericRepository<PlaceNToponymy> PlaceNToponomyRepository
+        public RelationalBaseRepository<PlaceNToponymy> PlaceNToponomyRepository
         {
             get
             {
-                placeNToponymyRepository ??= new GenericRepository<PlaceNToponymy>(context);
+                placeNToponymyRepository ??= new RelationalBaseRepository<PlaceNToponymy>(context);
                 return placeNToponymyRepository;
             }
         }
-        public GenericRepository<SettlementNPostalcode> SettlementNPostalcodeRepository
+        public RelationalBaseRepository<Party> PartyRepository
         {
             get
             {
-                settlementNPostalcodeRepository ??= new GenericRepository<SettlementNPostalcode>(context);
-                return settlementNPostalcodeRepository;
-            }
-        }
-        public GenericRepository<BodyOfWater> BodyOfWaterRepository
-        {
-            get
-            {
-                bodyOfWaterRepository ??= new GenericRepository<BodyOfWater>(context);
-                return bodyOfWaterRepository;
-            }
-        }
-        public GenericRepository<Building> BuildingRepository
-        {
-            get
-            {
-                buildingRepository ??= new GenericRepository<Building>(context);
-                return buildingRepository;
-            }
-        }
-        public GenericRepository<Field> FieldRepository
-        {
-            get
-            {
-                fieldRepository ??= new GenericRepository<Field>(context);
-                return fieldRepository;
-            }
-        }
-        public GenericRepository<Region> RegionRepository
-        {
-            get
-            {
-                regionRepository ??= new GenericRepository<Region>(context);
-                return regionRepository;
-            }
-        }
-        public GenericRepository<Relief> ReliefRepository
-        {
-            get
-            {
-                reliefRepository ??= new GenericRepository<Relief>(context);
-                return reliefRepository;
-            }
-        }
-        public GenericRepository<TransportRoute> TransportRouteRepository
-        {
-            get
-            {
-                transportRouteRepository ??= new GenericRepository<TransportRoute>(context);
-                return transportRouteRepository;
-            }
-        }
-        public GenericRepository<Party> PartyRepository
-        {
-            get
-            {
-                partyRepository ??= new GenericRepository<Party>(context);
+                partyRepository ??= new RelationalBaseRepository<Party>(context);
                 return partyRepository;
             }
         }
-        public GenericRepository<Individual> IndividualRepository
+        public RelationalBaseRepository<Individual> IndividualRepository
         {
             get
             {
-                individualRepository ??= new GenericRepository<Individual>(context);
+                individualRepository ??= new RelationalBaseRepository<Individual>(context);
                 return individualRepository;
             }
         }
-        public GenericRepository<Organization> OrganizationRepository
+        public RelationalBaseRepository<Organization> OrganizationRepository
         {
             get
             {
-                organizationRepository ??= new GenericRepository<Organization>(context);
+                organizationRepository ??= new RelationalBaseRepository<Organization>(context);
                 return organizationRepository;
             }
         }
-        public GenericRepository<CollectionItemNPlace> CollectionItemNPlaceRepository
+        public RelationalBaseRepository<CollectionItemNPlace> CollectionItemNPlaceRepository
         {
             get
             {
-                collectionItemNPlaceRepository ??= new GenericRepository<CollectionItemNPlace>(context);
+                collectionItemNPlaceRepository ??= new RelationalBaseRepository<CollectionItemNPlace>(context);
                 return collectionItemNPlaceRepository;
             }
         }
-        public GenericRepository<CollectionItemNParty> CollectionItemNPartyRepository
+        public RelationalBaseRepository<CollectionItemNParty> CollectionItemNPartyRepository
         {
             get
             {
-                collectionItemNPartyRepository ??= new GenericRepository<CollectionItemNParty>(context);
+                collectionItemNPartyRepository ??= new RelationalBaseRepository<CollectionItemNParty>(context);
                 return collectionItemNPartyRepository;
             }
         }
-        public GenericRepository<CollectionItemEntity> CollectionItemEntityRepository
+        public RelationalBaseRepository<CollectionItemEntity> CollectionItemEntityRepository
         {
             get
             {
-                collectionItemEntityRepository ??= new GenericRepository<CollectionItemEntity>(context);
+                collectionItemEntityRepository ??= new RelationalBaseRepository<CollectionItemEntity>(context);
                 return collectionItemEntityRepository;
             }
         }
-        public GenericRepository<CollectionArea> CollectionAreaRepository
+        public RelationalBaseRepository<CollectionArea> CollectionAreaRepository
         {
             get
             {
-                collectionAreaRepository ??= new GenericRepository<CollectionArea>(context);
+                collectionAreaRepository ??= new RelationalBaseRepository<CollectionArea>(context);
                 return collectionAreaRepository;
             }
         }
-        public GenericRepository<ConceptValue> ConceptValueRepository
+        public RelationalBaseRepository<ConceptValue> ConceptValueRepository
         {
             get
             {
-                conceptValueRepository ??= new GenericRepository<ConceptValue>(context);
+                conceptValueRepository ??= new RelationalBaseRepository<ConceptValue>(context);
                 return conceptValueRepository;
             }
         }
-        public GenericRepository<Concept> ConceptRepository
+        public RelationalBaseRepository<Concept> ConceptRepository
         {
             get
             {
-                conceptRepository ??= new GenericRepository<Concept>(context);
+                conceptRepository ??= new RelationalBaseRepository<Concept>(context);
                 return conceptRepository;
             }
         }
-        public GenericRepository<ConceptRelation> ConceptRelationRepository
+        public RelationalBaseRepository<ConceptRelationViewModel> ConceptRelationRepository
         {
             get
             {
-                conceptRelationRepository ??= new GenericRepository<ConceptRelation>(context);
+                conceptRelationRepository ??= new RelationalBaseRepository<ConceptRelationViewModel>(context);
                 return conceptRelationRepository;
             }
         }
-        public GenericRepository<EntityTranslation> EntityTranslationRepository
+        public RelationalBaseRepository<EntityTranslation> EntityTranslationRepository
         {
             get
             {
-                entityTranslationRepository ??= new GenericRepository<EntityTranslation>(context);
+                entityTranslationRepository ??= new RelationalBaseRepository<EntityTranslation>(context);
                 return entityTranslationRepository;
             }
         }
 
-        public GenericRepository<CollectionSet> SetRepository
+        public RelationalBaseRepository<CollectionSet> SetRepository
         {
             get
             {
-                setRepository ??= new GenericRepository<CollectionSet>(context);
+                setRepository ??= new RelationalBaseRepository<CollectionSet>(context);
                 return setRepository;
             }
         }
-        public GenericRepository<Topic> ForumTopicRepository
+        public RelationalBaseRepository<Topic> ForumTopicRepository
         {
             get
             {
-                forumTopicRepository ??= new GenericRepository<Topic>(context);
+                forumTopicRepository ??= new RelationalBaseRepository<Topic>(context);
                 return forumTopicRepository;
             }
         }
-        public GenericRepository<TopicVote> TopicVoteRepository
+        public RelationalBaseRepository<TopicVote> TopicVoteRepository
         {
             get
             {
-                topicVoteRepository ??= new GenericRepository<TopicVote>(context);
+                topicVoteRepository ??= new RelationalBaseRepository<TopicVote>(context);
                 return topicVoteRepository;
+            }
+        }
+        public RelationalBaseRepository<FidoCredential> FidoCredentialRepository
+        {
+            get
+            {
+                fidoCredentialRepository ??= new RelationalBaseRepository<FidoCredential>(context);
+                return fidoCredentialRepository;
             }
         }
 

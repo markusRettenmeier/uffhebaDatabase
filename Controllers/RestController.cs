@@ -18,6 +18,8 @@ using Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses;
 using Sammlerplattform.Models.ImprovementSuggestions;
 using Microsoft.AspNetCore.Identity;
 using Sammlerplattform.Models.UserSettings;
+using Sammlerplattform.Models.PlaceDatabase.Toponymy;
+
 namespace Sammlerplattform.Controllers
 {
     [Route("api/collections")]
@@ -33,109 +35,41 @@ namespace Sammlerplattform.Controllers
         IProcessTranslations processTranslations,
         ITranslationStore translationStore,
         IDeeplTranslationService translationService,
-        UserManager<UsingIdentityUser> userManager
-        ) : Controller
+        UserManager<UsingIdentityUser> userManager) : Controller
     {
-
         [HttpPost("listPlaces")]
         public IActionResult ListPlaces([FromBody] PlaceSearchDTO placeSearchDTO)
         {
             PlaceSearchParameterModel model = new();
-            if (placeSearchDTO != null)
+            List<PlaceDTO> placeDTOList = [];
+            
+            if (!string.IsNullOrEmpty(placeSearchDTO.Toponym))
             {
-                if (placeSearchDTO.Toponym != null)
+                model.PlaceNToponymyList_Toponymy_ToponymyName = [placeSearchDTO.Toponym];
+            }            
+
+            foreach (Place place in processPlace.GetListWithPredicate(model))
+            {
+                var vm = PlaceViewModelHelper.FromDomainModel(place);
+                placeDTOList.Add(new PlaceDTO
                 {
-                    List<int> entityIds = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter { EntityType = [nameof(Place)], TranslatedText = [placeSearchDTO.Toponym] }).Select(x => x.EntityId)];
-                    if (entityIds.Count > 0)
-                    {
-                        model.PlaceID.AddRange(entityIds);
-                    }
-                }
-                if (!string.IsNullOrEmpty(placeSearchDTO.Toponym))
-                {
-                    model.PlaceNToponymyList_Toponymy_ToponymyName = [placeSearchDTO.Toponym];
-                }
-                if (placeSearchDTO.ToponymyType != null)
-                {
-                    model.ToponymyTypeInt = [(int)placeSearchDTO.ToponymyType];
-                }
+                    PlaceID = place.PlaceID,
+                    ToponymyDisplay = vm.Toponymy,
+                    FurtherSpecs = vm.FurtherSpecs
+                });
             }
-            List<Place> placeList = processPlace.GetListWithPredicate(model);
-
-            List<PlaceDTO> placeDTOList = [.. placeList.Select(x =>
-            {
-                List<string> oeconymParts = x.PlaceNToponymyList?
-                    .Select(t =>
-                    {
-                        string name = t.Toponymy?.ToponymyName ?? "";
-                        return t.IsCurrentName
-                            ? $"<strong>{name}</strong>"
-                            : name;
-                    })
-                    .Where(s => !string.IsNullOrWhiteSpace(s))
-                    .ToList() ?? [];
-
-                string oeconymDisplay = string.Join(", ", oeconymParts);
-
-                // 2. FurtherSpecs: PLZ, Beiname, Geografie
-                List<string> specs = [];
-
-                if (x.Settlement != null)
-                {
-                    List<string> currentPostalcodeList = [.. x.Settlement.SettlementNPostalcodeList
-                        .Where(y => y.IsCurrentPostalcode)
-                        .Select(y => y.Postalcode.PostalcodeNumber)];
-
-                    if (currentPostalcodeList.Count != 0)
-                    {
-                        specs.Add(stringLocalizer["Postalcode"] + ": " + string.Join(", ", currentPostalcodeList));
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(x.Settlement.Byname))
-                    {
-                        specs.Add(stringLocalizer["Epithet"] + ": " + x.Settlement.Byname);
-                    }
-
-                    if (x.Settlement.RelatedGeography != null)
-                    {
-                        specs.Add(stringLocalizer["Geography"] + ": " + x.Settlement.RelatedGeography.PlaceNToponymyList
-                            .FirstOrDefault(x => x.IsCurrentName)?.Toponymy.ToponymyName);
-                    }
-                }
-
-                if (x.ParentPlace != null)
-                {
-                    string? parentName = x.ParentPlace.PlaceNToponymyList?
-                        .FirstOrDefault(t => t.IsCurrentName)?.Toponymy?.ToponymyName;
-
-                    if (!string.IsNullOrWhiteSpace(parentName))
-                    {
-                        specs.Add(stringLocalizer["Part of"] + ": " + parentName);
-                    }
-                }
-
-                return new PlaceDTO
-                {
-                    PlaceID = x.PlaceID,
-                    OeconymDisplay = oeconymDisplay,
-                    ToponymyType = x.ToponymyTypeEnum.GetDisplayName(),
-                    FurtherSpecs = string.Join("; ", specs)
-                };
-            })];
 
             return Ok(placeDTOList);
         }
         public class PlaceSearchDTO
         {
             public string? Toponym { get; set; }
-            public int? ToponymyType { get; set; }
         }
         public class PlaceDTO
         {
             public int PlaceID { get; set; }
-            public string OeconymDisplay { get; set; } = "";
-            public string? ToponymyType { get; set; }
-            public string FurtherSpecs { get; set; } = "";
+            public string ToponymyDisplay { get; set; } = string.Empty;
+            public string FurtherSpecs { get; set; } = string.Empty;
         }
 
         [HttpPost("listParties")]
@@ -179,12 +113,11 @@ namespace Sammlerplattform.Controllers
                 }
                 if (x.Organization != null)
                 {
-                    string? productionFacility = x.Organization.ProductionFacility?.ProductionFacilityName;
-                    if (!string.IsNullOrWhiteSpace(productionFacility)) 
+                    string? industry = x.Organization.Industry?.IndustryName;
+                    if (!string.IsNullOrWhiteSpace(industry)) 
                     { 
-                        specs.Add(stringLocalizer["ProductionFacility"] + ": " + productionFacility); 
-                    } 
-                    specs.Add("Organisationstyp: " + x.Organization.OrganizationTypeEnum.GetDisplayName());
+                        specs.Add(stringLocalizer["Industry"] + ": " + industry); 
+                    }
                 }
 
                 return new PartyDTO
@@ -241,27 +174,20 @@ namespace Sammlerplattform.Controllers
             public string? EraName { get; set; }
         }
 
-        [HttpGet("listProductionFacilities")]
-        public IActionResult ListProductionFacilities()
+        [HttpGet("listIndustries")]
+        public IActionResult ListIndustries()
         {
-            List<ProducitonFacilityDTO> productionFacilities = [.. unitOfWork.ProductionFacilityRepository.Get()
-                .OrderBy(pf => pf.ProductionFacilityName)
-                .Select(pf => new ProducitonFacilityDTO
+            List<IndustryDTO> industryList = [.. unitOfWork.IndustryRepository.Get()
+                .OrderBy(pf => pf.IndustryName)
+                .Select(pf => new IndustryDTO
                 {
-                    ID = pf.ProductionFacilityID,
-                    Name = pf.ProductionFacilityName
+                    Name = pf.IndustryName
                 })];
 
-            return Ok(productionFacilities);
+            return Ok(industryList);
         }
-        public class ProducitonFacilityDTO
+        public class IndustryDTO
         {
-            public int ID { get; set; }
-            public string? Name { get; set; }
-        }
-        public class KeywordDTO
-        {
-            public int KeywordID { get; set; }
             public string? Name { get; set; }
         }
 
@@ -293,26 +219,23 @@ namespace Sammlerplattform.Controllers
             List<NodeDTO> nodes = [.. unitOfWork.ConceptRepository.Get(filter: x => x.Id == rootConceptId || x.RootConceptID == rootConceptId)
                 .Select(c =>
                 {
-                    c.Name = translationStore.GetTranslation(
-                        nameof(Concept),
-                        c.Id,
-                        nameof(Concept.Name),
-                        translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                        ?? c.Name;
-
                     return new NodeDTO
                     {
                         ID = c.Id,
-                        Label = c.Name
+                        Label = translationStore.GetTranslation(
+                            nameof(Concept),
+                            c.Id,
+                            nameof(ConceptViewModel.Name),
+                            translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
                     };
                 })];
 
-            List<EdgeDTO> edges = [.. processConceptRelation.GetByConceptID(rootConceptId)
+            List<EdgeDTO> edges = [.. processConceptRelation.GetByRootConceptID(rootConceptId)
                 .Select(x => new EdgeDTO
                 {
                     From = x.FromConceptID,
                     To = x.ToConceptID,
-                    Label = x.RelationType.ToString(),
+                    Label = x.RelationType.GetDisplayName(),
                     Arrows = x.IsDirected ? stringLocalizer["to"] : ""
                 })];
 
@@ -338,45 +261,46 @@ namespace Sammlerplattform.Controllers
         }
 
         [HttpGet("listConcepts")]
-        public ActionResult ListConcepts(string? conceptName, int? collectionAreaID)
+        public ActionResult ListConcepts(string? conceptName, int collectionAreaId)
         {
             ConceptualRelationshipSearchParameterModel searchParameter = new()
             {
-                ConceptTypeInt = [4] // Bool
+                ConceptTypeInt = [0] // Bool
             };
             if (!string.IsNullOrEmpty(conceptName))
             {
                 List<int> entityIds = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter { EntityType = [nameof(Concept)], TranslatedText = [conceptName] }).Select(x => x.EntityId)];
                 searchParameter.Id = entityIds;
-                searchParameter.Name = [conceptName];
-            };
-            if(collectionAreaID!= null && collectionAreaID > 0)
-            {
-                searchParameter.CollectionAreaID = [(int)collectionAreaID];
             }
-            List<ConceptualRelationshipOperationParameterModel> conceptialRelations = processConcept.GetWithPredicates(searchParameter);
+            if (collectionAreaId > 0)
+            {
+                searchParameter.CollectionAreaID = [collectionAreaId];
+            }
+            List<ConceptualRelationshipOperationParameterModel> conceptialRelations = processConcept.Get(searchParameter);
 
-            List<ConceptDTO> conceptDtoList = [.. conceptialRelations
+            List<ConceptDTO> conceptDtoList = [.. processConcept.Get(searchParameter)
                 .Select(x =>  
                 {
                     List<string> specs = [];
-                    if(x.Concept.GetRootConceptId() != x.Concept.Id)
+                    if(x.ConceptViewModel.GetRootConceptId() != x.ConceptViewModel.Id)
                     {
-                        specs.Add(stringLocalizer["RootConcept"] + ": " + x.Concept.RootConcept?.Name);
+                        specs.Add(stringLocalizer["RootConcept"] + ": " + processConcept
+                            .Get(new ConceptualRelationshipSearchParameterModel {Id = [x.ConceptViewModel.GetRootConceptId()]})
+                            .FirstOrDefault()?.ConceptViewModel.Name);
                     }
-                    if(x.Concept.SubConceptList.Count > 0)
+                    if(x.ConceptViewModel.SubConceptList.Count > 0)
                     {
-                        specs.Add(stringLocalizer["SubConcepts"] + ": " + string.Join(", ", x.Concept.SubConceptList.Select(sc => sc.Name)));
+                        specs.Add(stringLocalizer["SubConcepts"] + ": " + string.Join(", ", x.ConceptViewModel.SubConceptList.Select(sc => sc.Name)));
                     }
-                    if(x.Concept.Description != null)
+                    if(x.ConceptViewModel.Description != null)
                     {
-                        specs.Add(stringLocalizer["Description"] + ": " + x.Concept.Description);
+                        specs.Add(stringLocalizer["Description"] + ": " + x.ConceptViewModel.Description);
                     }
 
                     return new ConceptDTO
                     {
-                        ConceptID = x.Concept.Id,
-                        ConceptName = x.Concept.Name,
+                        ConceptID = x.ConceptViewModel.Id,
+                        ConceptName = x.ConceptViewModel.Name,
                         FurtherSpecs = string.Join("; ", specs)
                     };
                 })];

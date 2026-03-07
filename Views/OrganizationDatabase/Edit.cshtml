@@ -11,7 +11,7 @@
 
 <h3>@ViewData["Title"]</h3>
 <hr />
-<form asp-action="EditSubmit" asp-controller="OrganizationDatabase">
+<form asp-action="Edit" asp-controller="OrganizationDatabase">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <input asp-for="Party.PartyID" type="hidden">
@@ -22,25 +22,16 @@
         <input asp-for="Party.PartyName" class="form-control" />
         <span asp-validation-for="Party.PartyName" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="Organization.OrganizationTypeInt" class="control-label"></label>
-        <select asp-for="Organization.OrganizationTypeEnum"
-                asp-items="Html.GetEnumSelectList<OrganizationType>()"
-                class="form-select">
-            <option value="">@Localizer["Organization_Select"]</option>
-        </select>
-    </div>
-    <div class="form-group" id="productionFacilityDiv">
-        <label asp-for="Organization.ProductionFacility" class="control-label"></label>
-        <input type="hidden" asp-for="Organization.ProductionFacilityID" id="hiddenProductionFacilityID">
-        <select asp-for="Organization.ProductionFacilityID" id="inputProductionFacilityID" class="form-select" aria-label="Production Facility"></select>
-    </div>
-    <div class="mb-3">
+    @* <div class="form-group" id="productionFacilityDiv">
+        <label asp-for="Organization.Industry" class="control-label"></label>
+        <input type="hidden" asp-for="Organization.IndustryID" id="hiddenProductionFacilityID">
+        <select asp-for="Organization.IndustryID" id="inputProductionFacilityID" class="form-select" aria-label="Production Facility"></select>
+    </div> *@
+    @* <div class="mb-3">
         <table class="table">
             <thead>
                 <tr>
                     <th scope="col">@Localizer["PlaceName"]</th>
-                    <th scope="col">@Localizer["FurtherSpecs"]</th>
                     <th scope="col"></th>
                 </tr>
             </thead>
@@ -52,7 +43,6 @@
                         var vm = PlaceViewModelHelper.FromDomainModel(Model.PlaceList[i]);
                         <tr class="placeTableRow">
                             <td>@Html.Raw(vm.Toponymy)</td>
-                            <td>@Html.Raw(vm.FurtherSpecs)</td>
                             <td>
                                 <input type="hidden" name="PlaceList[@i].PlaceID" value="@Model.PlaceList[i].PlaceID">
                                 <button type="button" class="btn btn-danger btn-sm removePlaceRow">@Localizer["Remove"]</button>
@@ -65,7 +55,7 @@
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
             @Localizer["Place_Add"]
         </button>
-    </div>
+    </div> *@
     <div class="form-group mb-3">
         <label asp-for="Party.WikipediaUrl" class="control-label"></label>
         <input asp-for="Party.WikipediaUrl" class="form-control" />

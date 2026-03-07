@@ -1,23 +1,27 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
+using Sammlerplattform.Models.Translations;
+using Sammlerplattform.Services.Translation;
+using System.Globalization;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses
 {
     public interface IProcessConceptRelation
     {
-        int Insert(ConceptRelation conceptRelation);
-        int Update(ConceptRelation conceptRelation);
-        int Delete(ConceptRelation conceptRelation);
-        List<ConceptRelation> GetByConceptID(int conceptID);
-        List<ConceptRelation> GetByRootConceptID(int rootConceptID);
-        List<ConceptRelation> GetByCollectionAreaID(int collectionAreaID);
+        int Insert(ConceptRelationViewModel conceptRelation);
+        int Update(ConceptRelationViewModel conceptRelation);
+        int Delete(ConceptRelationViewModel conceptRelation);
+        List<ConceptRelationViewModel> GetByRootConceptID(int conceptID);
+        List<ConceptRelationViewModel> GetByConceptID(int conceptID);
 
     }
 
-    public class ConceptRelationProcessor(DbIdentityContext dbIdentityContext, IUnitOfWork unitOfWork) : IProcessConceptRelation
+    public class ConceptRelationProcessor(DbIdentityContext dbIdentityContext,
+        IProcessTranslations processTranslation,
+        IDeeplTranslationService deeplTranslationService) : IProcessConceptRelation
     {
-        public int Delete(ConceptRelation conceptRelation)
+        public int Delete(ConceptRelationViewModel conceptRelation)
         {
             string sql = @"
                         DELETE r
@@ -34,92 +38,65 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
             return returncode;
         }
 
-        public List<ConceptRelation> GetByCollectionAreaID(int collectionAreaID)
+        public List<ConceptRelationViewModel> GetByConceptID(int conceptID)
         {
             return GetConceptRelations(
-                @"SELECT 
-                    c1.Id AS FromId,
-                    c2.Id AS ToId,
-                    r.RelationTypeInt AS RelationshipInt,
-                    r.IsDirected
-                FROM Concept c1, ConceptRelation r, Concept c2
-                WHERE c1.CollectionAreaID = @p0
-                  AND MATCH (c1-(r)->c2)",
-                collectionAreaID
-            );
-        }
-
-        public List<ConceptRelation> GetByConceptID(int conceptID)
-        {
-            return GetConceptRelations(
-                @"SELECT 
-                    c1.Id AS FromId,
-                    c2.Id AS ToId,
-                    r.RelationTypeInt AS RelationshipInt,
-                    r.IsDirected
-                FROM Concept c1, ConceptRelation r, Concept c2
-                WHERE c1.Id = @p0
-                  AND MATCH (c1-(r)->c2)",
+                $@"
+                SELECT c1.Id AS FromConceptID, 
+                c2.Id AS ToConceptID, 
+                r.RelationTypeInt, 
+                r.IsDirected 
+                FROM Concept c1, ConceptRelation r, Concept c2 
+                WHERE MATCH (c1-(r)->c2)
+                AND c1.Id = @p0",
                 conceptID
             );
         }
 
-        public List<ConceptRelation> GetByRootConceptID(int rootConceptID)
+        public List<ConceptRelationViewModel> GetByRootConceptID(int rootConceptID)
         {
             return GetConceptRelations(
-                @"SELECT 
-                    c1.Id AS FromId,
-                    c2.Id AS ToId,
-                    r.RelationTypeInt AS RelationshipInt,
-                    r.IsDirected
-                FROM Concept c1, ConceptRelation r, Concept c2
-                WHERE (c1.Id = @p0
-                  OR c1.RootConceptID = @p0)
-                  AND MATCH (c1-(r)->c2)",
+                $@"
+                SELECT c1.Id AS FromConceptID, 
+                c2.Id AS ToConceptID, 
+                r.RelationTypeInt, 
+                r.IsDirected 
+                FROM Concept c1, ConceptRelation r, Concept c2 
+                WHERE MATCH (c1-(r)->c2)
+                AND c1.RootConceptID = @p0",
                 rootConceptID
             );
         }
 
-        private List<ConceptRelation> GetConceptRelations(string sqlQuery, int parameter)
+        private List<ConceptRelationViewModel> GetConceptRelations(string sqlQuery, int parameter)
         {
-            List<ConceptRelationshipQueryResult> conceptRelations = [.. dbIdentityContext.ConceptRelationshipQueryResult.FromSqlRaw(sqlQuery, parameter)];
+            List<ConceptRelationViewModel> conceptRelationList = [.. dbIdentityContext.ConceptRelation.FromSqlRaw(sqlQuery, parameter)];
 
-            List<int> toConceptIds = [.. conceptRelations.Select(x => x.ToId).Distinct()];
-
-            // Batch-Loading für bessere Performance
-            Dictionary<int, Concept> concepts = unitOfWork.ConceptRepository
-                .Get(filter: c => toConceptIds.Contains(c.Id))
-                .ToDictionary(c => c.Id);
-
-            List<ConceptRelation> result = [];
-
-            foreach (ConceptRelationshipQueryResult? x in conceptRelations)
+            foreach (var conceptRelation in conceptRelationList)
             {
-                if (!concepts.TryGetValue(x.ToId, out Concept? toConcept))
+                ConceptViewModel conceptView = new()
                 {
-                    throw new InvalidOperationException($"Concept mit ID {x.ToId} nicht gefunden");
-                }
-
-                result.Add(new ConceptRelation
-                {
-                    RelationTypeInt = x.RelationshipInt,
-                    FromConceptID = x.FromId,
-                    ToConceptID = x.ToId,
-                    ToConcept = toConcept,
-                    IsDirected = x.IsDirected
-                });
+                    Name = processTranslation.GetWithPredicate(new EntityTranslationSearchParameter
+                    {
+                        EntityType = [nameof(Concept)],
+                        FieldName = [nameof(ConceptViewModel.Name)],
+                        EntityId = [conceptRelation.ToConceptID],
+                        Culture = [deeplTranslationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)]
+                    }).Select(x => x.TranslatedText).FirstOrDefault() ?? ""
+                };
+                conceptRelation.ToConcept = conceptView;
             }
 
-            return result;
+            return conceptRelationList;
         }
 
-        public int Insert(ConceptRelation conceptRelation)
+        public int Insert(ConceptRelationViewModel conceptRelation)
         {
             string sql = @"
                 INSERT INTO ConceptRelation (RelationTypeInt, $from_id, $to_id, IsDirected)
                 VALUES (@p0,
-                (SELECT $node_id FROM Concept WHERE ConceptID = @p1),
-                (SELECT $node_id FROM Concept WHERE ConceptID = @p2),
+                (SELECT $node_id FROM Concept WHERE Id = @p1),
+                (SELECT $node_id FROM Concept WHERE Id = @p2),
                 @p3)";
 
             int returncode = dbIdentityContext.Database.ExecuteSqlRaw(sql, conceptRelation.RelationTypeInt, conceptRelation.FromConceptID, conceptRelation.ToConceptID, conceptRelation.IsDirected);
@@ -127,14 +104,14 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
             return returncode;
         }
 
-        public int Update(ConceptRelation conceptRelation)
+        public int Update(ConceptRelationViewModel conceptRelation)
         {
             string sql = @"
                 UPDATE ConceptRelation r
                 SET RelationTypeInt = @p2, IsDirected = @p3
                 WHERE MATCH ((c1)-[r]->(c2))
-                  AND c1.ConceptID = @p0
-                  AND c2.ConceptID = @p1";
+                  AND c1.Id = @p0
+                  AND c2.Id = @p1";
             int returncode = dbIdentityContext.Database.ExecuteSqlRaw(sql,
                 conceptRelation.FromConceptID,
                 conceptRelation.ToConceptID,

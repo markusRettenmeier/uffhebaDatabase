@@ -23,7 +23,7 @@
 
 <h3>@ViewData["Title"]: @displayName</h3>
 <hr />
-<form asp-action="EditSubmit" enctype="multipart/form-data">
+<form asp-action="Edit" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="CollectionItemEntity.CollectionAreaID" />
     <input type="hidden" asp-for="CollectionItemEntity.CollectionItemEntityID" />
@@ -64,13 +64,13 @@
             }
         }
     </div>
-    <button type="button" class="btn btn-primary" onclick="addInputFormFile('Create')">@Localizer["Picture_Add"]</button>
+    <button type="button" class="btn btn-primary" onclick="addFormFileCollectionItem('Create')">@Localizer["Picture_Add"]</button>
 
     <div class="accordion pt-2" id="accordionCollectionItem">
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingCollectionItem">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCollectionItem" aria-expanded="false" aria-controls="collapseCollectionItem">
-                    @Localizer["CollectionItemEntity_Details"]
+                    @Localizer["Pictures_CollectionItem"]
                 </button>
             </h2>
             <div id="collapseCollectionItem" class="accordion-collapse collapse show" aria-labelledby="headingCollectionItem" data-bs-parent="#accordionCollectionItem">
@@ -79,36 +79,7 @@
                         <label asp-for="CollectionItemEntity.UniqueName" class="control-label"></label>
                         <input asp-for="CollectionItemEntity.UniqueName" class="form-control" />
                         <span asp-validation-for="CollectionItemEntity.UniqueName" class="text-danger"></span>
-                    </div>                    
-                    <input type="hidden" asp-for="CollectionItemEntity.ConceptID">
-                    <table class="table" id="ConceptTable">
-                        <thead>
-                            <tr>
-                                <th scope="col">@Html.DisplayNameFor(x => x.Concept.Name)</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td scope="col" id="ConceptName">@Html.DisplayFor(x => x.Concept.Name)</td>
-                                <td scope="col">
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ConceptModal">
-                                            @Localizer["Concept_Select"]"]
-                                        </button>
-                                        @if (Model.CollectionItemEntity.ConceptID != null)
-                                        {
-                                            <button type="button" id="clearOneRowConcept" class="btn btn-outline-danger">@Localizer["Remove"]</button>
-                                        }
-                                        else
-                                        {
-                                            <button type="button" id="clearOneRowConcept" class="btn btn-outline-danger" style="display: none">@Localizer["Remove"]</button>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    </div>
                     <div class="form-group form-check">
                         <label class="form-check-label">
                             <input class="form-check-input" asp-for="IsPartOfASet"> @Html.DisplayNameFor(model => model.IsPartOfASet)
@@ -154,11 +125,11 @@
                         <span asp-validation-for="CollectionItemEntity.Comment" class="text-danger"></span>
                     </div>
                     <hr />
-                    @if (Model.ConceptList != null)
+                    @if (Model.ConceptValueList != null)
                     {
-                        @for (int i = 0; i < Model.ConceptList.Count; i++)
+                        @for (int i = 0; i < Model.CvmList.Count; i++)
                         {
-                            var conceptList = Model.ConceptList[i];
+                            var conceptList = Model.CvmList[i];
                             var itemValue = Model.ConceptValueList?.FirstOrDefault(v =>
                             v.ConceptID == conceptList.Id);
 
@@ -311,7 +282,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingParty">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseParty" aria-expanded="false" aria-controls="collapseParty">
-                    @Localizer["PartyList"]
+                    @Localizer["Parties"]
                 </button>
             </h2>
             <div id="collapseParty" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#accordionParty">
@@ -355,7 +326,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingPlace">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlace" aria-expanded="false" aria-controls="collapsePlace">
-                    @Localizer["PlaceList"]
+                    @Localizer["Places"]
                 </button>
             </h2>
             <div id="collapsePlace" class="accordion-collapse collapse" aria-labelledby="headingPlace" data-bs-parent="#accordionPlace">
@@ -364,7 +335,6 @@
                         <thead>
                             <tr>
                                 <th scope="col">@Localizer["Place"]</th>
-                                <th scope="col">@Localizer["FurtherSpecs"]</th>
                                 <th scope="col">@Localizer["Relationship"]</th>
                                 <th scope="col"></th>
                             </tr>
@@ -375,9 +345,8 @@
                                 for (int i = 0; i < Model.CollectionItemNPlaceList.Count; i++)
                                 {
                                     var vm = PlaceViewModelHelper.FromDomainModel(Model.CollectionItemNPlaceList[i].Place);
-                                    <tr data-type="child" class="placeTableRow">
+                                    <tr class="placeTableRow">
                                         <td>@Html.Raw(vm.Toponymy)</td>
-                                        <td>@Html.Raw(vm.FurtherSpecs)</td>
                                         <td><input name="CollectionItemNPlaceList[@i].Relationship" required="" class="form-control placeResultTableRelationship" value="@Model.CollectionItemNPlaceList[i].Relationship" /></td>
                                         <td>
                                             <input type="hidden" name="CollectionItemNPlaceList[@i].PlaceID" value="@Model.CollectionItemNPlaceList[i].PlaceID">

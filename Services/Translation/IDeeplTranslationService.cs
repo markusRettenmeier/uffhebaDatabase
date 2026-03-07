@@ -1,5 +1,4 @@
 ﻿using DeepL;
-using System.Globalization;
 
 namespace Sammlerplattform.Services.Translation
 {
@@ -9,7 +8,7 @@ namespace Sammlerplattform.Services.Translation
         string NetCultureToDeeplLanguage(string netCulture);
     }
 
-    public class DeeplTranslationService(IConfiguration configuration, ITrackEvents trackEvents) : IDeeplTranslationService
+    public class DeeplTranslationService(IConfiguration configuration, ITrackEventsCSV trackEvents) : IDeeplTranslationService
     {
         private readonly string _apiKey = configuration["DeepL:ApiKey"] ?? throw new Exception("DeepL API key not configured");
 
@@ -20,17 +19,10 @@ namespace Sammlerplattform.Services.Translation
             string[] supportedCultures = [LanguageCode.German, LanguageCode.EnglishAmerican, LanguageCode.French, LanguageCode.Spanish];
             foreach (var targetLang in supportedCultures.Where(x => !string.IsNullOrEmpty(exceptOfCulture) && !x.Equals(exceptOfCulture)))
             {
-                var result = await client.TranslateTextAsync(text, null, LanguageCode.German);
+                var result = await client.TranslateTextAsync(text, null, targetLang);
                 translations.Add((targetLang, result.Text, null)); // Abbreviations are not delivered by DeepL
             }
             return translations;
-        }
-        private async Task<string> TranslateFallbackEnglish(string text)
-        {
-            var client = new DeepLClient(_apiKey);
-            var result = await client.TranslateTextAsync(text, null, LanguageCode.EnglishAmerican);
-
-            return result.Text;
         }
         public string NetCultureToDeeplLanguage(string netCulture)
         {

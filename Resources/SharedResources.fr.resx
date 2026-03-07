@@ -117,12 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Success_ConfirmationEmail_Sent" xml:space="preserve">
-    <value>Un e-mail de confirmation vous a été envoyé.</value>
-  </data>
-  <data name="Error_User_Exists" xml:space="preserve">
-    <value>Un utilisateur avec cette adresse e-mail existe déjà.</value>
-  </data>
   <data name="CollectionArea" xml:space="preserve">
     <value>Zone de collecte</value>
   </data>
@@ -132,32 +126,11 @@
   <data name="CollectionAreaName" xml:space="preserve">
     <value>Nom de la zone de collecte</value>
   </data>
-  <data name="CollectionItemEntityList" xml:space="preserve">
-    <value>Objets de collection</value>
-  </data>
   <data name="Compare" xml:space="preserve">
     <value>{0} et {1} ne correspondent pas.</value>
   </data>
-  <data name="ConceptList" xml:space="preserve">
-    <value>Termes</value>
-  </data>
-  <data name="Message_ConfirmPassword" xml:space="preserve">
-    <value>Confirmer le mot de passe</value>
-  </data>
   <data name="Email" xml:space="preserve">
     <value>Courriel</value>
-  </data>
-  <data name="Error_Email_NotConfirmed" xml:space="preserve">
-    <value>L'adresse e-mail n'a pas été confirmée.</value>
-  </data>
-  <data name="Error_Email_Missing" xml:space="preserve">
-    <value>L'émail manque.</value>
-  </data>
-  <data name="Error_EmailPassword_Necessary" xml:space="preserve">
-    <value>L'adresse e-mail et le mot de passe sont obligatoires.</value>
-  </data>
-  <data name="EmailAddress" xml:space="preserve">
-    <value>{0} n'est pas une adresse e-mail valide.</value>
   </data>
   <data name="Bool" xml:space="preserve">
     <value>Vrai/Faux</value>
@@ -174,29 +147,11 @@
   <data name="Text" xml:space="preserve">
     <value>Texte</value>
   </data>
-  <data name="Error_ConfirmationEmail_NotSend" xml:space="preserve">
-    <value>Une erreur s'est produite lors de l'envoi de l'e-mail de confirmation.</value>
-  </data>
-  <data name="Password" xml:space="preserve">
-    <value>Mot de passe</value>
-  </data>
-  <data name="Error_Password_Empty" xml:space="preserve">
-    <value>Mot de passe vide.</value>
-  </data>
-  <data name="Error_Password_Incorrect" xml:space="preserve">
-    <value>Mot de passe incorrect.</value>
-  </data>
   <data name="Required" xml:space="preserve">
     <value>Le champ {0} est obligatoire.</value>
   </data>
   <data name="IsRequiredConcept" xml:space="preserve">
     <value>Est-ce un terme obligatoire ?</value>
-  </data>
-  <data name="Error_Email_NotFound" xml:space="preserve">
-    <value>Adresse e-mail indiquée introuvable.</value>
-  </data>
-  <data name="StatePreservationList" xml:space="preserve">
-    <value>États de conservation</value>
   </data>
   <data name="StringLength" xml:space="preserve">
     <value>Le champ {0} ne doit pas dépasser {1} caractère.</value>
@@ -204,29 +159,11 @@
   <data name="Success_Logout" xml:space="preserve">
     <value>Désinscription réussie.</value>
   </data>
-  <data name="Message_ThanksForConfirmation" xml:space="preserve">
-    <value>Merci beaucoup pour la confirmation par e-mail.</value>
-  </data>
-  <data name="UserName" xml:space="preserve">
-    <value>Nom d'utilisateur</value>
-  </data>
-  <data name="Message_Password_Reset" xml:space="preserve">
-    <value>Veuillez réinitialiser votre mot de passe en cliquant &amp;lt;a href='{0}'&amp;gt;ici&amp;lt;/a&amp;gt;.</value>
-  </data>
   <data name="Error_Code_Missing" xml:space="preserve">
     <value>Le code généré automatiquement est manquant.</value>
   </data>
   <data name="Error_User_NotFound" xml:space="preserve">
     <value>Utilisateur introuvable.</value>
-  </data>
-  <data name="Error_Email_Change" xml:space="preserve">
-    <value>Erreur lors de la modification de l'adresse e-mail.</value>
-  </data>
-  <data name="Success_Email_Change" xml:space="preserve">
-    <value>Modification de l'adresse e-mail réussie.</value>
-  </data>
-  <data name="Message_ConfirmEmail" xml:space="preserve">
-    <value>Confirmez votre adresse e-mail</value>
   </data>
   <data name="Message_ConfirmAccount" xml:space="preserve">
     <value>Veuillez confirmer votre compte en cliquant &amp;lt;a href='{0}'&amp;gt;ici&amp;lt;/a&amp;gt;</value>
@@ -261,14 +198,8 @@
   <data name="Organization" xml:space="preserve">
     <value>Organisation</value>
   </data>
-  <data name="Postalcode" xml:space="preserve">
-    <value>Code postal</value>
-  </data>
   <data name="Epithet" xml:space="preserve">
     <value>Surnom</value>
-  </data>
-  <data name="Geography" xml:space="preserve">
-    <value>Géographie</value>
   </data>
   <data name="Part of" xml:space="preserve">
     <value>Partie de</value>
@@ -276,7 +207,7 @@
   <data name="Pseudonym" xml:space="preserve">
     <value>Pseudonyme</value>
   </data>
-  <data name="ProductionFacility" xml:space="preserve">
+  <data name="Industry" xml:space="preserve">
     <value>Secteur</value>
   </data>
   <data name="to" xml:space="preserve">
@@ -287,12 +218,6 @@
   </data>
   <data name="Success_Account_Deleted" xml:space="preserve">
     <value>Compte supprimé</value>
-  </data>
-  <data name="Success_Password_Change" xml:space="preserve">
-    <value>Mot de passe modifié avec succès.</value>
-  </data>
-  <data name="Error_Email_NotChanged" xml:space="preserve">
-    <value>Ton adresse e-mail n'a pas été modifiée.</value>
   </data>
   <data name="CollectionItemPictureID" xml:space="preserve">
     <value>Image de collection ID</value>
@@ -336,23 +261,17 @@
   <data name="StatePreservation" xml:space="preserve">
     <value>État de conservation</value>
   </data>
-  <data name="CollectionItemPictureList" xml:space="preserve">
-    <value>Images de collection</value>
-  </data>
   <data name="Inscription" xml:space="preserve">
     <value>Inscription</value>
-  </data>
-  <data name="CollectionItemNPartyList" xml:space="preserve">
-    <value>Parties liées</value>
-  </data>
-  <data name="CollectionItemNPlaceList" xml:space="preserve">
-    <value>Lieux reliés</value>
   </data>
   <data name="ConceptID" xml:space="preserve">
     <value>TermID</value>
   </data>
   <data name="Concept" xml:space="preserve">
     <value>Terme</value>
+  </data>
+  <data name="Concepts" xml:space="preserve">
+    <value>Termes</value>
   </data>
   <data name="SerialNumber" xml:space="preserve">
     <value>Numéro de série</value>
@@ -465,12 +384,6 @@
   <data name="IsGeneralState" xml:space="preserve">
     <value>S'agit-il d'une situation générale, c'est-à-dire non spécifique à une zone de collecte ?</value>
   </data>
-  <data name="Success_Email_Confirmed" xml:space="preserve">
-    <value>E-mail confirmé avec succès.</value>
-  </data>
-  <data name="Error_UserName_Change" xml:space="preserve">
-    <value>Une erreur s'est produite lors de la modification du nom d'utilisateur.</value>
-  </data>
   <data name="EraName" xml:space="preserve">
     <value>Dénomination de l'ère</value>
   </data>
@@ -483,7 +396,7 @@
   <data name="OrganizationType" xml:space="preserve">
     <value>Type d'organisation</value>
   </data>
-  <data name="ProductionFacilityID" xml:space="preserve">
+  <data name="IndustryID" xml:space="preserve">
     <value>Identifiant du secteur</value>
   </data>
   <data name="Company" xml:space="preserve">
@@ -495,7 +408,7 @@
   <data name="Other" xml:space="preserve">
     <value>Autres</value>
   </data>
-  <data name="ProductionFacilityName" xml:space="preserve">
+  <data name="IndustryName" xml:space="preserve">
     <value>Nom commercial</value>
   </data>
   <data name="PartyName" xml:space="preserve">
@@ -504,77 +417,11 @@
   <data name="PartyType" xml:space="preserve">
     <value>Type de parti</value>
   </data>
-  <data name="PlaceList" xml:space="preserve">
-    <value>Site</value>
-  </data>
-  <data name="Building" xml:space="preserve">
-    <value>Bâtiment</value>
-  </data>
-  <data name="BuildingName" xml:space="preserve">
-    <value>Nom du bâtiment</value>
-  </data>
-  <data name="BuildingID" xml:space="preserve">
-    <value>Identifiant du bâtiment</value>
-  </data>
-  <data name="Region" xml:space="preserve">
-    <value>Local</value>
-  </data>
-  <data name="RegionName" xml:space="preserve">
-    <value>Nom de la local</value>
-  </data>
-  <data name="Relief" xml:space="preserve">
-    <value>Forme du terrain</value>
-  </data>
-  <data name="ReliefName" xml:space="preserve">
-    <value>Nom de la forme du terrain</value>
-  </data>
-  <data name="FieldID" xml:space="preserve">
-    <value>ID couloir</value>
-  </data>
-  <data name="ReliefID" xml:space="preserve">
-    <value>Forme du terrain ID</value>
-  </data>
-  <data name="PostalcodeID" xml:space="preserve">
-    <value>Code postal ID</value>
-  </data>
-  <data name="SettlementNPostalcodeList" xml:space="preserve">
-    <value>Codes postaux associés</value>
-  </data>
-  <data name="SettlementID" xml:space="preserve">
-    <value>Lotissement ID</value>
-  </data>
-  <data name="Byname" xml:space="preserve">
-    <value>Surnom touristique/officiel</value>
-  </data>
-  <data name="SettlementNPostalcodeID" xml:space="preserve">
-    <value>Code postal associé ID</value>
-  </data>
-  <data name="Settlement" xml:space="preserve">
-    <value>Lotissement</value>
+  <data name="Places" xml:space="preserve">
+    <value>Lieux</value>
   </data>
   <data name="IsCurrentPostalcode" xml:space="preserve">
     <value>Est-ce le code postal actuel ?</value>
-  </data>
-  <data name="TransportRouteID" xml:space="preserve">
-    <value>Voie de circulation ID</value>
-  </data>
-  <data name="TransportRoute" xml:space="preserve">
-    <value>Voie de circulation</value>
-  </data>
-  <data name="TransportRouteName" xml:space="preserve">
-    <value>Nom de la voie de communication</value>
-  </data>
-  <data name="ToponymyType" xml:space="preserve">
-    <value>Termes toponymiques</value>
-  </data>
-  <data name="ParentPlaceID" xml:space="preserve">
-    <value>ID du lieu d'origine des parents</value>
-  </data>
-  <data name="ParentPlace" xml:space="preserve">
-    <value>Lieu d'origine</value>
-  </data>
-  <data name="ChildPlaceList" xml:space="preserve">
-    <value>Quartiers</value>
   </data>
   <data name="RelatedGeographyID" xml:space="preserve">
     <value>Référence géographique ID</value>
@@ -582,56 +429,17 @@
   <data name="RelatedGeography" xml:space="preserve">
     <value>Référence géographique</value>
   </data>
-  <data name="RelatedGeography_Max1" xml:space="preserve">
-    <value>Il ne peut y avoir qu'une seule référence géographique.</value>
-  </data>
   <data name="RelatedGeography_Add" xml:space="preserve">
     <value>Ajouter une référence géographique</value>
   </data>
   <data name="RelatedSettlement" xml:space="preserve">
     <value>Lotissement relié</value>
   </data>
-  <data name="BodyOfWater" xml:space="preserve">
-    <value>Cours d'eau</value>
-  </data>
-  <data name="BodyOfWaterName" xml:space="preserve">
-    <value>Nom du plan d'eau</value>
-  </data>
-  <data name="BodyOfWaterID" xml:space="preserve">
-    <value>Identifiant du cours d'eau</value>
-  </data>
-  <data name="Field" xml:space="preserve">
-    <value>Campagne</value>
-  </data>
-  <data name="FieldName" xml:space="preserve">
-    <value>Nom du champ</value>
-  </data>
-  <data name="RegionID" xml:space="preserve">
-    <value>Local ID</value>
-  </data>
-  <data name="PartyList" xml:space="preserve">
+  <data name="Parties" xml:space="preserve">
     <value>Partis</value>
   </data>
   <data name="IsCurrentName" xml:space="preserve">
     <value>Est-ce le nom actuel ?</value>
-  </data>
-  <data name="OldEmail" xml:space="preserve">
-    <value>Autres e-mails</value>
-  </data>
-  <data name="NewEmail" xml:space="preserve">
-    <value>Nouvel e-mail</value>
-  </data>
-  <data name="IsEmailConfirmed" xml:space="preserve">
-    <value>L'e-mail a-t-il été confirmé ?</value>
-  </data>
-  <data name="OldPassword" xml:space="preserve">
-    <value>Ancien mot de passe</value>
-  </data>
-  <data name="NewPassword" xml:space="preserve">
-    <value>Nouveau mot de passe</value>
-  </data>
-  <data name="ConfirmPassword" xml:space="preserve">
-    <value>Confirmez le nouveau mot de passe</value>
   </data>
   <data name="Error_CollectionArea_NameEmpty" xml:space="preserve">
     <value>Le nom de la zone de collecte ne peut pas être vide.</value>
@@ -643,7 +451,7 @@
     <value>Zone de collecte créée avec succès.</value>
   </data>
   <data name="Error_Error_Ocurred" xml:space="preserve">
-    <value>Une erreur s'est produite et a été enregistrée.</value>
+    <value>Une erreur technique s'est produite et a été enregistrée. Nous la corrigerons dès que possible.</value>
   </data>
   <data name="Success_CollectionArea_Updated" xml:space="preserve">
     <value>La zone de collecte a été modifiée avec succès.</value>
@@ -783,7 +591,10 @@
   <data name="Error_Era_NameMissing" xml:space="preserve">
     <value>Le nom du produit est manquant.</value>
   </data>
-  <data name="Error_Era_IdMissing" xml:space="preserve">
+  <data name="Error_OrganizationTypeInt_Missing" xml:space="preserve">
+    <value>L'ID d'époque est manquant.</value>
+  </data>
+  <data name="Error_Era_IdMissing1" xml:space="preserve">
     <value>L'ID d'époque est manquant.</value>
   </data>
   <data name="Error_Era_Exists" xml:space="preserve">
@@ -801,20 +612,8 @@
   <data name="Login" xml:space="preserve">
     <value>S'inscrire</value>
   </data>
-  <data name="Password_Forgotten" xml:space="preserve">
-    <value>Mot de passe oublié ?</value>
-  </data>
   <data name="User_Register" xml:space="preserve">
     <value>S'inscrire en tant que nouvel utilisateur</value>
-  </data>
-  <data name="EmailConfirmation_Resend" xml:space="preserve">
-    <value>Renvoyer la confirmation par e-mail.</value>
-  </data>
-  <data name="Password_Reset_ConfirmationSent" xml:space="preserve">
-    <value>Lien pour réinitialiser le mot de passe, envoyé à l'adresse e-mail indiquée.</value>
-  </data>
-  <data name="Password_Reset" xml:space="preserve">
-    <value>Réinitialiser le mot de passe.</value>
   </data>
   <data name="Register_Here" xml:space="preserve">
     <value>Vous pouvez vous inscrire ici.</value>
@@ -828,20 +627,14 @@
   <data name="PlaceName_Add" xml:space="preserve">
     <value>Ajouter d'autres noms de lieux</value>
   </data>
-  <data name="Postalcodes" xml:space="preserve">
-    <value>codes postaux</value>
-  </data>
   <data name="FurtherSpecs" xml:space="preserve">
     <value>Autres spécifications</value>
   </data>
   <data name="Place_Add" xml:space="preserve">
-    <value>Ajouter des lieux</value>
+    <value>Ajouter de lieu</value>
   </data>
   <data name="Remove" xml:space="preserve">
     <value>Supprimer</value>
-  </data>
-  <data name="ChildPlace" xml:space="preserve">
-    <value>Quartier</value>
   </data>
   <data name="Search" xml:space="preserve">
     <value>Recherche</value>
@@ -909,9 +702,6 @@
   <data name="SubTermOf" xml:space="preserve">
     <value>Sous-catégorie de</value>
   </data>
-  <data name="ShortFor" xml:space="preserve">
-    <value>Abréviation de</value>
-  </data>
   <data name="BackToList" xml:space="preserve">
     <value>Retour à la liste</value>
   </data>
@@ -939,18 +729,6 @@
   <data name="PrivacyImprint" xml:space="preserve">
     <value>Protection des données et mentions légales</value>
   </data>
-  <data name="BodiesOfWater" xml:space="preserve">
-    <value>Cours d'eau</value>
-  </data>
-  <data name="BodyOfWater_Create" xml:space="preserve">
-    <value>Créer des plans d'eau</value>
-  </data>
-  <data name="BodyOfWater_Administration" xml:space="preserve">
-    <value>Gestion des eaux</value>
-  </data>
-  <data name="Buildings" xml:space="preserve">
-    <value>Bâtiments</value>
-  </data>
   <data name="CollectionAreas" xml:space="preserve">
     <value>Domaines de collecte</value>
   </data>
@@ -962,9 +740,6 @@
   </data>
   <data name="Eras" xml:space="preserve">
     <value>Ères</value>
-  </data>
-  <data name="Fields" xml:space="preserve">
-    <value>Campagnes</value>
   </data>
   <data name="Individuals" xml:space="preserve">
     <value>Individus</value>
@@ -978,41 +753,17 @@
   <data name="Profile" xml:space="preserve">
     <value>Perfil</value>
   </data>
-  <data name="Regions" xml:space="preserve">
-    <value>Locaux</value>
-  </data>
-  <data name="Reliefs" xml:space="preserve">
-    <value>Le relief</value>
-  </data>
-  <data name="Settlements" xml:space="preserve">
-    <value>Lotissements</value>
-  </data>
   <data name="StructureCollectionAreas" xml:space="preserve">
     <value>Structure des zones de collecte</value>
-  </data>
-  <data name="TransportRoutes" xml:space="preserve">
-    <value>Voies de communication</value>
-  </data>
-  <data name="BodyOfWater_Edit" xml:space="preserve">
-    <value>Modifier les cours d'eau</value>
   </data>
   <data name="Edit" xml:space="preserve">
     <value>Modifier</value>
   </data>
-  <data name="Building_Administration" xml:space="preserve">
-    <value>Gestion des bâtiments</value>
-  </data>
-  <data name="Delete_NotAllowed" xml:space="preserve">
-    <value>Les inscriptions ne peuvent être supprimées qu'après consultation de l'administrateur, car une suppression peut avoir des conséquences négatives sur de nombreux objets de collection.</value>
+  <data name="Info_Delete_NotAllowed" xml:space="preserve">
+    <value>Les entrées ne peuvent être supprimées qu'après consultation de l'administrateur ou s'il n'existe aucune référence à d'autres entrées. En effet, une suppression peut avoir des répercussions négatives sur de nombreux objets de collection.</value>
   </data>
   <data name="PlaceName" xml:space="preserve">
     <value>Nom de lieu</value>
-  </data>
-  <data name="Building_Create" xml:space="preserve">
-    <value>Construire des bâtiments</value>
-  </data>
-  <data name="Building_Edit" xml:space="preserve">
-    <value>Modifier un bâtiment</value>
   </data>
   <data name="CollectionArea_Create" xml:space="preserve">
     <value>Créer une zone de collecte</value>
@@ -1074,19 +825,6 @@
   <data name="Era_Administration" xml:space="preserve">
     <value>Gestion des époques</value>
   </data>
-  <data name="Field_Create" xml:space="preserve">
-    <value>Campagne créé</value>
-  </data>
-  <data name="Field_Edit" xml:space="preserve">
-    <value>Modifier le campagne</value>
-  </data>
-  <data name="Field_Administration" xml:space="preserve">
-    <value>Gérer les campagnes</value>
-  </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="Info_Prototype" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
-  </data>
   <data name="Message_NothingFound" xml:space="preserve">
     <value>&lt;h4&gt;Malheureusement, aucune correspondance n'a été trouvée.&lt;/h4&gt;
 &lt;h4&gt;Veuillez essayer avec un autre terme.&lt;/h4&gt;</value>
@@ -1112,33 +850,6 @@
   <data name="Organization_Administration" xml:space="preserve">
     <value>Administration des organisations</value>
   </data>
-  <data name="Region_Create" xml:space="preserve">
-    <value>Créer une local</value>
-  </data>
-  <data name="Region_Edit" xml:space="preserve">
-    <value>Changer de local</value>
-  </data>
-  <data name="Region_Administration" xml:space="preserve">
-    <value>Gérer le local</value>
-  </data>
-  <data name="Relief_Create" xml:space="preserve">
-    <value>Créer un relief</value>
-  </data>
-  <data name="Relief_Edit" xml:space="preserve">
-    <value>Modifier le relief</value>
-  </data>
-  <data name="Relief_Administration" xml:space="preserve">
-    <value>Gestion du relief</value>
-  </data>
-  <data name="Postalcode_Add" xml:space="preserve">
-    <value>Ajouter le code postal</value>
-  </data>
-  <data name="Settlement_Edit" xml:space="preserve">
-    <value>Modifier le lotissement</value>
-  </data>
-  <data name="Settlement_Administration" xml:space="preserve">
-    <value>Gestion des lotissements</value>
-  </data>
   <data name="StatePreservation_Create" xml:space="preserve">
     <value>Créer un état de conservation</value>
   </data>
@@ -1147,24 +858,6 @@
   </data>
   <data name="StatePreservation_Edit" xml:space="preserve">
     <value>Modifier l'état de conservation</value>
-  </data>
-  <data name="TransportRoute_Create" xml:space="preserve">
-    <value>Créer une voie de circulation</value>
-  </data>
-  <data name="TransportRoute_Edit" xml:space="preserve">
-    <value>Modifier l'itinéraire</value>
-  </data>
-  <data name="TransportRoute_Administration" xml:space="preserve">
-    <value>Gestion des voies de circulation</value>
-  </data>
-  <data name="EmailVerification_Send" xml:space="preserve">
-    <value>Envoyer un e-mail de confirmation</value>
-  </data>
-  <data name="Email_Change" xml:space="preserve">
-    <value>Modifier l'adresse e-mail</value>
-  </data>
-  <data name="Password_Change" xml:space="preserve">
-    <value>Modifier le mot de passe</value>
   </data>
   <data name="AccountDelete_Confirm" xml:space="preserve">
     <value>Supprimer les données et fermer mon compte.</value>
@@ -1187,15 +880,13 @@
   <data name="PersonalData_Notification" xml:space="preserve">
     <value>Votre compte contient des données personnelles que vous nous avez fournies. Vous avez ici la possibilité de télécharger ou de supprimer ces données.</value>
   </data>
-  <data name="UserName_Change" xml:space="preserve">
-    <value>Modifier le nom d'utilisateur</value>
-  </data>
   <data name="Message_Greetings_String" xml:space="preserve">
     <value>Mesdames, Messieurs,</value>
   </data>
   <data name="Message_Greetings_HTML" xml:space="preserve">
     <value>Mesdames, Messieurs,&lt;br /&gt;</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="Message_GeneralText_Html" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
   </data>
@@ -1205,23 +896,11 @@
   <data name="NothingFound" xml:space="preserve">
     <value>Aucune entrée correspondante pour le mot-clé recherché.</value>
   </data>
-  <data name="Place_ParentAdd" xml:space="preserve">
-    <value>Ajouter à un lieu</value>
-  </data>
-  <data name="ParentPlace_Max1" xml:space="preserve">
-    <value>Il ne peut y avoir qu'un seul lieu d'origine.</value>
-  </data>
-  <data name="Place_ChildAdd" xml:space="preserve">
-    <value>Ajouter un quartier</value>
-  </data>
   <data name="Concept_SynonymAdd" xml:space="preserve">
-    <value>Ajouter comme sous-terme</value>
-  </data>
-  <data name="Concept_ShortForAdd" xml:space="preserve">
-    <value>Ajouter comme abréviation</value>
-  </data>
-  <data name="Concept_SubTermAdd" xml:space="preserve">
     <value>Ajouter comme synonyme</value>
+  </data>
+  <data name="Concept_ParentConceptAdd" xml:space="preserve">
+    <value>Ajouter comme terme générique</value>
   </data>
   <data name="Add" xml:space="preserve">
     <value>Ajouter</value>
@@ -1238,9 +917,6 @@
   <data name="InscriptionTranslated" xml:space="preserve">
     <value>Inscription traduite</value>
   </data>
-  <data name="Settlement_Create" xml:space="preserve">
-    <value>Créer un lotissement</value>
-  </data>
   <data name="OrganizationID" xml:space="preserve">
     <value>OrganisationsID</value>
   </data>
@@ -1256,14 +932,8 @@
   <data name="No" xml:space="preserve">
     <value>Non</value>
   </data>
-  <data name="Concept_CollectionAreaIndependent" xml:space="preserve">
-    <value>Termes indépendants du domaine de collecte</value>
-  </data>
-  <data name="ConceptRelation_Administration_General" xml:space="preserve">
-    <value>Gérer les termes généraux</value>
-  </data>
   <data name="ConceptRelation_Administration_Specific" xml:space="preserve">
-    <value>Gestion des termes</value>
+    <value>Gestion des termes pour </value>
   </data>
   <data name="IsRootConcept" xml:space="preserve">
     <value>Est-ce le concept fondamental ?</value>
@@ -1274,14 +944,8 @@
   <data name="RootConcept" xml:space="preserve">
     <value>Concept de base</value>
   </data>
-  <data name="SubConceptList" xml:space="preserve">
-    <value>Sous-titres</value>
-  </data>
   <data name="Dimensions" xml:space="preserve">
     <value>Dimensions</value>
-  </data>
-  <data name="ConceptValueList" xml:space="preserve">
-    <value>Valeurs conceptuelles</value>
   </data>
   <data name="ConceptType" xml:space="preserve">
     <value>Type de terme</value>
@@ -1289,8 +953,8 @@
   <data name="Keywords" xml:space="preserve">
     <value>Mots clés</value>
   </data>
-  <data name="Pictures" xml:space="preserve">
-    <value>Images</value>
+  <data name="Pictures_CollectionItem" xml:space="preserve">
+    <value>Images de collection</value>
   </data>
   <data name="CollectionItemEntity_BasicAttributes" xml:space="preserve">
     <value>Caractéristiques de base</value>
@@ -1304,13 +968,10 @@
   <data name="Cancel" xml:space="preserve">
     <value>Annuler</value>
   </data>
-  <data name="CollectionItemEntity_AdditionalAttribute_Administration" xml:space="preserve">
-    <value>Gérer les caractéristiques supplémentaires</value>
-  </data>
   <data name="Abbreviation" xml:space="preserve">
     <value>Abréviation</value>
   </data>
-  <data name="ConceptNameRequired" xml:space="preserve">
+  <data name="Error_Concept_NameRequired" xml:space="preserve">
     <value>Une définition du terme est nécessaire.</value>
   </data>
   <data name="CollectionSet_Select" xml:space="preserve">
@@ -1424,7 +1085,7 @@
   <data name="UpdatedAt" xml:space="preserve">
     <value>Modifié le</value>
   </data>
-  <data name="Error_InvalidModelState" xml:space="preserve">
+  <data name="Error_ModelState_Invalid" xml:space="preserve">
     <value>Entrées incorrectes.</value>
   </data>
   <data name="CollectionArea_Name_IsMissing" xml:space="preserve">
@@ -1436,29 +1097,14 @@
   <data name="StatePreservation_Name_Missing" xml:space="preserve">
     <value>Le nom de l'état de conservation est manquant.</value>
   </data>
-  <data name="Era_Name_Missing" xml:space="preserve">
-    <value>Il manque la désignation de l'époque.</value>
-  </data>
   <data name="Error_Party_NameMissing" xml:space="preserve">
     <value>Le nom du parti manque.</value>
   </data>
-  <data name="Error_Email_OldMissing" xml:space="preserve">
-    <value>L'ancien émail manque.</value>
-  </data>
-  <data name="Error_Email_NewMissing" xml:space="preserve">
-    <value>Nouvel e-mail manquant.</value>
+  <data name="Error_PartyTypeInt_Missing" xml:space="preserve">
+    <value>Type de parti manquant.</value>
   </data>
   <data name="Error_Email_NotValid" xml:space="preserve">
     <value>L'e-mail n'est pas correctement formaté.</value>
-  </data>
-  <data name="Password_Missing" xml:space="preserve">
-    <value>Mot de passe manquant.</value>
-  </data>
-  <data name="Password_New_Missing" xml:space="preserve">
-    <value>Le nouveau mot de passe est manquant.</value>
-  </data>
-  <data name="Password_Old_Missing" xml:space="preserve">
-    <value>Ancien mot de passe manquant.</value>
   </data>
   <data name="Error_StatePreservation_Exists" xml:space="preserve">
     <value>La condition existe déjà.</value>
@@ -1475,7 +1121,117 @@
   <data name="Error_User_NameEmpty" xml:space="preserve">
     <value>Le nom d'utilisateur est vide.</value>
   </data>
-  <data name="SettlementNames" xml:space="preserve">
-    <value>Noms de localités</value>
+  <data name="ConnectedPlaces" xml:space="preserve">
+    <value>Lieux reliés</value>
+  </data>
+  <data name="Place_Administration" xml:space="preserve">
+    <value>Gérer les lieux</value>
+  </data>
+  <data name="Place_Create" xml:space="preserve">
+    <value>Créer un lieu</value>
+  </data>
+  <data name="Place_Edit" xml:space="preserve">
+    <value>Changer de lieu</value>
+  </data>
+  <data name="Others" xml:space="preserve">
+    <value>Autres</value>
+  </data>
+  <data name="SpecificView" xml:space="preserve">
+    <value>Afficher le terme avec tous ses sous-termes</value>
+  </data>
+  <data name="BelongsTo" xml:space="preserve">
+    <value>Appartient à</value>
+  </data>
+  <data name="ConceptRelation_Administration_General" xml:space="preserve">
+    <value>Gérer les termes génériques</value>
+  </data>
+  <data name="Pictures_OwnershipProof" xml:space="preserve">
+    <value>Photos des titres de propriété</value>
+  </data>
+  <data name="Pictures_OwnershipProof_Description" xml:space="preserve">
+    <value>Par exemple, reçu, justificatif, certificat.</value>
+  </data>
+  <data name="IsPublic" xml:space="preserve">
+    <value>Est-ce destiné au grand public ?</value>
+  </data>
+  <data name="OwnershipProof_Type_BillOfSale" xml:space="preserve">
+    <value>Ticket de caisse</value>
+  </data>
+  <data name="OwnershipProof_Type_Certificate" xml:space="preserve">
+    <value>Certificat</value>
+  </data>
+  <data name="Error_OwnershipProofPicture_NotFound" xml:space="preserve">
+    <value>La preuve de propriété n'a pas été trouvée.</value>
+  </data>
+  <data name="Success_OwnershipProofPicture_Deleted" xml:space="preserve">
+    <value>La photo de la preuve de propriété a été supprimée avec succès.</value>
+  </data>
+  <data name="Success_OwnershipProofPicture_Created" xml:space="preserve">
+    <value>L'image de preuve de propriété a été créée avec succès.</value>
+  </data>
+  <data name="Success_OwnershipProofPicture_Updated" xml:space="preserve">
+    <value>L'image de la preuve de propriété a été mise à jour avec succès.</value>
+  </data>
+  <data name="OwnershipProof_Type_Other" xml:space="preserve">
+    <value>Autres preuves</value>
+  </data>
+  <data name="CookieConsent_Text" xml:space="preserve">
+    <value>Nous utilisons des cookies uniquement pour permettre aux utilisateurs d'accéder au site.</value>
+  </data>
+  <data name="Error_CredentialId_Missing" xml:space="preserve">
+    <value>CredentialId manquant.</value>
+  </data>
+  <data name="Error_PublicKey_Missing" xml:space="preserve">
+    <value>Clé publique manquante.</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>Nom d'affichage</value>
+  </data>
+  <data name="Login_Passkey" xml:space="preserve">
+    <value>Se connecter avec Passkey</value>
+  </data>
+  <data name="Error_DisplayName_Missing" xml:space="preserve">
+    <value>Nom de l'annonce manquant.</value>
+  </data>
+  <data name="Register_Passkey" xml:space="preserve">
+    <value>S'inscrire avec Passkey.</value>
+  </data>
+  <data name="Error_Session_Expired" xml:space="preserve">
+    <value>Session expirée. Veuillez recommencer l'enregistrement.</value>
+  </data>
+  <data name="Error_DisplayName_StringLength" xml:space="preserve">
+    <value>Le nom affiché doit comporter entre 2 et 100 caractères.</value>
+  </data>
+  <data name="Passkey_Login" xml:space="preserve">
+    <value>Connexion avec mot de passe</value>
+  </data>
+  <data name="Passkey_Information" xml:space="preserve">
+    <value>&lt;h6&gt;&lt;i class="bi bi-info-circle me-2"&gt;Qu'est-ce qu'une clé d'accès ?&lt;/i&gt;&lt;/h6&gt;
+&lt;p class="mb-1"&gt;Une clé d'accès est une alternative sûre et pratique aux mots de passe.&lt;/p&gt;
+&lt;ul class="mb-0"&gt;
+    &lt;li&gt;Pas besoin de mémoriser un mot de passe&lt;/li&gt; &lt;li&gt;Aucun e-mail nécessaire&lt;/li&gt;
+    &lt;li&gt;Sécurisé contre le phishing&lt;/li&gt;
+&lt;li&gt;Les passkeys déjà enregistrées sur cet appareil sont automatiquement reconnues&lt;/li&gt;
+    &lt;li&gt;Synchronisé entre vos appareils&lt;/li&gt;
+    &lt;li&gt;Prise en charge par : iPhone (Touch ID/Face ID), Android, Windows Hello&lt;/li&gt;
+&lt;/ul&gt;</value>
+  </data>
+  <data name="Email_Optional" xml:space="preserve">
+    <value>E-mail (facultatif)</value>
+  </data>
+  <data name="OnlyforNotifications" xml:space="preserve">
+    <value>Uniquement pour les notifications</value>
+  </data>
+  <data name="Error_Access_Forbidden" xml:space="preserve">
+    <value>Accès refusé</value>
+  </data>
+  <data name="Meta_Description" xml:space="preserve">
+    <value>Des objets de collection intéressants et uniques : gérez les vôtres et découvrez ceux d'autres collectionneurs.</value>
+  </data>
+  <data name="EnterToponymy" xml:space="preserve">
+    <value>Entrer le nom du lieu</value>
+  </data>
+  <data name="Info_PlaceName_NotChangeable" xml:space="preserve">
+    <value>Le nom du lieu peut uniquement être supprimé ou ajouté.</value>
   </data>
 </root>

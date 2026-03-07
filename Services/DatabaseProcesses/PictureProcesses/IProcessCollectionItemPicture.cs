@@ -13,13 +13,13 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
     }
 
     public class CollectionItemPictureProcessor(IUnitOfWork unitOfWork
-        , ITrackEvents trackEvents) : IProcessCollectionItemPicture
+        , ITrackEventsCSV trackEvents) : IProcessCollectionItemPicture
     {
         public (int Statuscode, string Statusmessage, int PictureId) Insert(CollectionItemPicture collectionItemPicture, CollectionItemEntity collectionItemEntity)
         {
             if (collectionItemPicture.IFormFile == null)
             {
-                trackEvents.TrackWarning("CollectionItemPictureProcessor.Insert: File is missing.", new Dictionary<string, object>
+                trackEvents.TrackError("CollectionItemPictureProcessor.Insert: File is missing.", new Dictionary<string, object>
                 {
                     { "CollectionItemPicture", collectionItemPicture },
                     { "CollectionItemEntity", collectionItemEntity }
@@ -40,7 +40,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
             CollectionItemPicture? existingCollectionItemPicture = unitOfWork.CollectionItemPictureRepository.GetByID(collectionItemPicture.CollectionItemPictureID);
             if (existingCollectionItemPicture == null)
             {
-                trackEvents.TrackWarning("CollectionItemPictureProcessor.Update: CollectionItemPicture not found.", new Dictionary<string, object>
+                trackEvents.TrackError("CollectionItemPictureProcessor.Update: CollectionItemPicture not found.", new Dictionary<string, object>
                 {
                     { "CollectionItemPicture", collectionItemPicture },
                     { "CollectionItemEntity", collectionItemEntity }
@@ -63,7 +63,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
 
             if (existingCollectionItemPicture == null)
             {
-                trackEvents.TrackWarning("CollectionItemPictureProcessor.Delete: CollectionItemPicture not found.", new Dictionary<string, object>
+                trackEvents.TrackError("CollectionItemPictureProcessor.Delete: CollectionItemPicture not found.", new Dictionary<string, object>
                 {
                     { "CollectionItemPicture", collectionItemPicture }
                 });

@@ -38,12 +38,10 @@ namespace Sammlerplattform.Models.PartyDatabase
 
         [Display(Name = "Organization", ResourceType = typeof(SharedResources))]
         public Organization? Organization { get; set; }
-
-        [Display(Name = "CollectionItemNPartyList", ResourceType = typeof(SharedResources))]
         public List<CollectionItemNParty> CollectionItemNPartyList { get; set; } = [];
 
-        [Display(Name = "PlaceList", ResourceType = typeof(SharedResources))]
-        public List<Place> PlaceList { get; set; } = [];
+        //[Display(Name = "Places", ResourceType = typeof(SharedResources))]
+        //public List<Place> PlaceList { get; set; } = [];
     }
 
     public enum PartyType

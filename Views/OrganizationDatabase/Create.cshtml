@@ -1,4 +1,4 @@
-﻿@model OrganizationOperationParameterModel
+﻿@model OrganizationCreateDTO
 @using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
@@ -10,25 +10,17 @@
 
 <h4>@ViewData["Title"]</h4>
 <hr />
-<form asp-action="CreateSubmit" asp-controller="OrganizationDatabase">
+<form asp-action="Create" asp-controller="OrganizationDatabase">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input asp-for="Party.PartyTypeInt" type="hidden" value="0" />
+    <input asp-for="PartyTypeInt" type="hidden" value="0" />
     <div class="form-group">
-        <label asp-for="Party.PartyName" class="control-label"></label>
-        <input asp-for="Party.PartyName" class="form-control" />
-        <span asp-validation-for="Party.PartyName" class="text-danger"></span>
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Organization.OrganizationTypeInt" class="control-label"></label>
-        <select asp-for="Organization.OrganizationTypeEnum"
-                asp-items="Html.GetEnumSelectList<OrganizationType>()"
-                class="form-select">
-            <option value="" selected>@Localizer["Organization_Select"]</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label asp-for="Organization.ProductionFacility" class="control-label"></label>
-        <select asp-for="Organization.ProductionFacilityID" id="inputProductionFacilityID" class="form-select" aria-label="Production Facility"></select>
+        <label asp-for="Industry" class="control-label"></label>
+        <input asp-for="Industry" class="form-control" id="industryInput">
     </div>
     <div class="mb-3">
         <table class="table">
@@ -47,9 +39,9 @@
         </button>
     </div>
     <div class="form-group mb-3">
-        <label asp-for="Party.WikipediaUrl" class="control-label"></label>
-        <input asp-for="Party.WikipediaUrl" class="form-control" />
-        <span asp-validation-for="Party.WikipediaUrl" class="text-danger"></span>
+        <label asp-for="WikipediaUrl" class="control-label"></label>
+        <input asp-for="WikipediaUrl" class="form-control" />
+        <span asp-validation-for="WikipediaUrl" class="text-danger"></span>
     </div>
 
     <div class="mt-4 pt-3 border-top">

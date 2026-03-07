@@ -8,27 +8,19 @@
 
 <h3>@ViewData["Title"]</h3>
 <hr />
-
-<label asp-for="Email" class="form-label"></label>
-<div class="input-group mb-2">
-    <a type="button" asp-action="ChangeEMail" class="btn btn-primary">@Localizer["Email_Change"]</a>
-    <input asp-for="Email" class="form-control" disabled />
-</div>
-
-<label class="form-label">Password</label>
-<div class="input-group mb-3">
-    <a type="button" asp-action="ChangePassword" class="btn btn-primary">@Localizer["Password_Change"]</a>
-    <input type="password" value="Password" class="form-control" disabled />
-</div>
-
 <form asp-action="ProfileChange">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <label asp-for="UserName" class="form-label"></label>
-    <div class="input-group mb-2">
-        <button class="btn btn-primary">@Localizer["UserName_Change"]</button>
-        <input asp-for="UserName" class="form-control">
+    <div class="form-group mb-2">
+        <label asp-for="DisplayName" class="form-label"></label>
+        <input asp-for="DisplayName" class="form-control">
+        <span asp-validation-for="DisplayName" class="text-danger"></span>
     </div>
-    <span asp-validation-for="UserName" class="text-danger"></span>
+    <div class="form-group">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <button class="btn btn-primary mt-3">@Localizer["Edit"]</button>
 </form>
 
 <hr />

@@ -9,7 +9,7 @@
 }
 
 <h1>@ViewData["Title"]</h1>
-<p>@Localizer["Delete_NotAllowed"]</p>
+<p>@Localizer["Info_Delete_NotAllowed"]</p>
 <hr />
 
 <div class="btn-group" role="group" aria-label="">
@@ -24,14 +24,11 @@
                 @Html.DisplayNameFor(model => model.PartyName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Organization!.OrganizationTypeEnum)
+                @Html.DisplayNameFor(model => model.Organization!.Industry)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Organization!.ProductionFacility)
-            </th>
-            <th>
+            @* <th>
                 @Html.DisplayNameFor(model => model.PlaceList)
-            </th>
+            </th> *@
             <th></th>
         </tr>
     </thead>
@@ -41,9 +38,8 @@
             var vm = PartyViewModelHelper.FromDomainModel(item);
             <tr>
                 <td>@Html.Raw(vm.Name)</td>
-                <td>@Html.Raw(vm.OrganizationType)</td>
-                <td>@Html.Raw(vm.ProductionFacility)</td>
-                <td>@Html.Raw(vm.Places)</td>
+                <td>@Html.Raw(vm.Industry)</td>
+                @* <td>@Html.Raw(vm.Places)</td> *@
                 <td>
                     <a asp-action="Edit" asp-asp-controller="OrganizationDatabase" asp-route-id="@item.PartyID">@Localizer["Edit"]</a>
                 </td>

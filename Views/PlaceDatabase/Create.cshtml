@@ -1,0 +1,77 @@
+﻿@model PlaceCreateDTO
+@using Sammlerplattform.Models.PlaceDatabase
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+@{
+    ViewData["Title"] = @Localizer["Place_Create"];
+    Layout = "~/Views/Shared/_LayoutSettingsPlace.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+<hr />
+<form asp-action="Create" asp-controller="PlaceDatabase">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>    
+    <h2>@Localizer["PlaceName"]</h2>
+    <div id="toponymyContainer" class="mb-3">
+        <div class="input-group inputDivToponymy mb-2">
+            <div class="form-group">
+                <input class="form-control inputToponymy" asp-for="ToponymyList[0].Name">
+                <span asp-validation-for="ToponymyList[0].Name" class="text-danger"></span>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input checkboxCurrentName" asp-for="ToponymyList[0].IsCurrentName" id="currentName_0" checked>
+                <label class="form-check-label ms-1" for="currentName_0">@Localizer["IsCurrentName"]</label>
+            </div>
+            <button type="button" class="btn btn-danger removeToponmy" disabled>@Localizer["Remove"]</button>
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="addToponymy()">@Localizer["PlaceName_Add"]</button>
+    <hr />
+    <h2>@Localizer["ConnectedPlaces"]</h2>
+    <div class="mb-3">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">@Localizer["Name"]</th>
+                    <th scope="col">@Localizer["FurtherSpecs"]</th>
+                    <th scope="col">@Localizer["Relationship"]</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody id="appendPlaceHere">
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
+            @Localizer["Relation_Add"]
+        </button>
+    </div>
+    <hr />
+    <h2></h2>
+    <div class="form-group mb-3">
+        <label asp-for="FurtherSpecs" class="control-label"></label>
+        <input asp-for="FurtherSpecs" class="form-control">
+        <span asp-validation-for="FurtherSpecs" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-3">
+        <label asp-for="WikipediaUrl" class="control-label"></label>
+        <input asp-for="WikipediaUrl" class="form-control">
+        <span asp-validation-for="WikipediaUrl" class="text-danger"></span>
+    </div>
+    <div class="mt-4 pt-3 border-top">
+        <button type="submit" class="btn btn-success btn-lg px-5">
+            <i class="bi bi-check-circle"></i>@Localizer["Create"]
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+            @Localizer["Cancel"]
+        </a>
+    </div>
+</form>
+
+<partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

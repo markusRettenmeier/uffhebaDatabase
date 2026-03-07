@@ -1,40 +1,47 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.PlaceDatabase;
+using Sammlerplattform.Models.PlaceDatabase.Toponymy;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
 {
     public interface IProcessToponymy
     {
-        Toponymy CreateOrEditToponymy(Toponymy toponomy);
+        List<Toponymy> GetListWithPredicate(ToponymySearchParameterModel toponymySearchParameter);
+        int Insert(string name);
+        void Delete(int id);
     }
 
     public class ToponymyProcessor(IUnitOfWork unitOfWork) : IProcessToponymy
     {
-        public Toponymy CreateOrEditToponymy(Toponymy toponymy)
+        public void Delete(int id)
         {
-            if (string.IsNullOrEmpty(toponymy.ToponymyName))
-            {
-                return new Toponymy() { ToponymyName = string.Empty };
-            }
-
-            Toponymy? existingToponymy = GetFirst(toponymy);
-            if (existingToponymy != null)
-            {
-                return existingToponymy;
-            }
-            else
-            {
-                Toponymy newToponymy = unitOfWork.ToponymyRepository.Insert(toponymy);
-                unitOfWork.Save();
-                return newToponymy;
-            }
+            unitOfWork.ToponymyRepository.Delete(id);
+            unitOfWork.Save();
         }
 
-        private Toponymy? GetFirst(Toponymy toponymy)
+        public List<Toponymy> GetListWithPredicate(ToponymySearchParameterModel toponymySearchParameter)
         {
-            return unitOfWork.ToponymyRepository
-                .Get(m => m.ToponymyName == toponymy.ToponymyName)
-                .FirstOrDefault();
+            IEnumerable<Toponymy> toponymyQuery = unitOfWork.ToponymyRepository.Get(
+                filter: SearchPredicateBuilder.BuildPredicate<Toponymy>(toponymySearchParameter));
+
+            return [.. toponymyQuery.Order()];
+        }
+
+        public int Insert(string name)
+        {  
+            int? toponymyId = GetListWithPredicate(new ToponymySearchParameterModel { ToponymyName = [name] }).FirstOrDefault()?.ToponymyID;
+            if(toponymyId != null)
+            {
+                return toponymyId.Value;
+            }
+
+            Toponymy newToponymy = new()
+            {
+                ToponymyName = name
+            };
+            newToponymy = unitOfWork.ToponymyRepository.Insert(newToponymy);
+            unitOfWork.Save(); 
+            return newToponymy.ToponymyID;
         }
     }
 }

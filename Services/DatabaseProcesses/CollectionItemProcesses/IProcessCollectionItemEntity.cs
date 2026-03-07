@@ -1,19 +1,18 @@
-﻿using Microsoft.CodeAnalysis;
-using Sammlerplattform.Data;
+﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionSetDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.OwnershipProofPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
-using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
+using Sammlerplattform.Models.PlaceDatabase.Toponymy;
 using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.PictureProcesses;
 using Sammlerplattform.Services.Translation;
-using System.Linq;
 using System.Transactions;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
@@ -30,22 +29,20 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 
     public class CollectionItemEntityProcessor(IUnitOfWork unitOfWork,
         IProcessCollectionItemPicture processCollectionItemPicture,
+        IProcessOwnershipProofPicture processOwnershipProofPicture,
         IProcessPicturePhysically processPicturePhysically,
         IProcessConceptValue processConceptValue,
+        IProcessConcept processConcept,
         IProcessCollectionItemEmbedding processCollectionItemEmbedding,
         IDeeplTranslationService translationService,
         IProcessTranslations processTranslations,
         ITranslationStore translationStore,
-        ITrackEvents trackEvents) : IProcessCollectionItemEntity
+        ITrackEventsCSV trackEvents) : IProcessCollectionItemEntity
     {
         public CollectionItemSearchParameterModel ParametersOperationToSearch(CollectionItemOperationParameterModel operationParameterModel)
         {
             CollectionItemSearchParameterModel searchParameterModel = new();
             searchParameterModel.CollectionItemEntityID.Add(operationParameterModel.CollectionItemEntity.CollectionItemEntityID);
-            if (!string.IsNullOrEmpty(operationParameterModel.CollectionItemEntity.UniqueName))
-            {
-                searchParameterModel.UniqueName.Add(operationParameterModel.CollectionItemEntity.UniqueName);
-            }
 
             return searchParameterModel;
         }
@@ -54,16 +51,25 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         {
             if (model.CollectionItemEntity.CollectionAreaID <= 0)
             {
-                trackEvents.TrackWarning ("InsertCollectionItemEntity_Failed_MissingCollectionAreaID");
+                trackEvents.TrackError ("InsertCollectionItemEntity_Failed_MissingCollectionAreaID");
                 return (400, "Error_CollectionArea_IdMissing");
             }
             if (string.IsNullOrEmpty(model.CollectionItemEntity.UsingIdentityUsersID))
             {
-                trackEvents.TrackWarning ("InsertCollectionItemEntity_Failed_MissingUserID");
+                trackEvents.TrackError ("InsertCollectionItemEntity_Failed_MissingUserID");
                 return (400, "Error_UserID_Missing");
             }
+            if (model.CollectionItemEntity.UsingIdentityUser.DisplayName == null)
+            {
+                trackEvents.TrackError("InsertCollectionItemEntity_Failed_NullDisplayName", new Dictionary<string, object>
+                    {
+                        { "UsingIdentityUsersID", model.CollectionItemEntity.UsingIdentityUsersID }
+                    });
+                return (400, "Error_DisplayName_Null");
+            }
 
-            List<(CollectionItemPicture, int)> pictureList = [];
+            List<(CollectionItemPicture, int)> collectionItemPictureList = [];
+            List<(OwnershipProofPicture, int)> ownershipProofPictureList = [];
 
             try
             {
@@ -141,21 +147,43 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 foreach (CollectionItemPicture collectionItemPicture in model.CollectionItemPictureList)
                 {
                     (int code, string returnMessage, int pictureId) = processCollectionItemPicture.Insert(collectionItemPicture, newCollectionItemEntity);
-                    pictureList.Add((collectionItemPicture, pictureId));
+                    collectionItemPictureList.Add((collectionItemPicture, pictureId));
                     if (code != 200)
                     {
                         scope.Dispose();
                         return (code, returnMessage);
                     }
                 }
-                foreach (var picture in pictureList)
-                {
-                    (int code, string returnMessage) = processPicturePhysically.Save(picture.Item1, picture.Item2, false);
+                foreach (var picture in collectionItemPictureList)
+                {                    
+                    (int code, string returnMessage) = processPicturePhysically.SaveCollectionItemPic(picture.Item1, picture.Item2, false, model.CollectionItemEntity.UsingIdentityUser.DisplayName);
                     if (code != 200)
                     {
                         scope.Dispose();
                         return (code, returnMessage);
                     }
+                }
+                
+                foreach (OwnershipProofPicture ownershipProofPicture in model.OwnershipProofPictureList)
+                {
+                    (int code, string returnMessage, int pictureId) = processOwnershipProofPicture.Insert(ownershipProofPicture, newCollectionItemEntity);
+                    ownershipProofPictureList.Add((ownershipProofPicture, pictureId));
+                    if (code != 200)
+                    {
+                        scope.Dispose();
+                        return (code, returnMessage);
+                    }
+                }
+                foreach (var picture in ownershipProofPictureList)
+                {
+                    (int code, string returnMessage, byte[] signature) = processPicturePhysically.SaveOwnershipProofPic(picture.Item1, picture.Item2, false);
+                    if (code != 200)
+                    {
+                        scope.Dispose();
+                        return (code, returnMessage);
+                    }
+                    picture.Item1.Signature = signature;
+                    unitOfWork.Save();
                 }
 
                 scope.Complete();
@@ -185,11 +213,19 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             CollectionItemEntity? existingEntity = GetWithPredicates(collectionItemSearchParameterModel).FirstOrDefault()?.CollectionItemEntity;
             if (existingEntity == null)
             {
-                trackEvents.TrackWarning ("UpdateCollectionItemEntity_Failed_NotFound", new Dictionary<string, object>
+                trackEvents.TrackError ("UpdateCollectionItemEntity_Failed_NotFound", new Dictionary<string, object>
                 {
                     { "CollectionItemEntityID", operationModel.CollectionItemEntity.CollectionItemEntityID.ToString() }
                 });
                 return (400, "Error_CollectionItemEntity_NotFound");
+            }
+            if (operationModel.CollectionItemEntity.UsingIdentityUser.DisplayName == null)
+            {
+                trackEvents.TrackError("InsertCollectionItemEntity_Failed_NullDisplayName", new Dictionary<string, object>
+                    {
+                        { "UsingIdentityUsersID", operationModel.CollectionItemEntity.UsingIdentityUsersID }
+                    });
+                return (400, "Error_DisplayName_Null");
             }
 
             try
@@ -216,41 +252,41 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     return (statuscode, statusmessage);
                 }
 
-                (List<(CollectionItemPicture collectionItemPicture, int pictureId, string process)> pictureList, statuscode, statusmessage) = SyncPictureConnections(existingEntity, operationModel.CollectionItemPictureList);
+                (List<(CollectionItemPicture collectionItemPicture, int pictureId, string process)> collectionItemPictureList, statuscode, statusmessage) = SyncCollectionItemPictureConnections(existingEntity, operationModel.CollectionItemPictureList);
                 if (statuscode != 200)
                 {
                     scope.Dispose();
                     return (statuscode, statusmessage);
                 }
-                foreach (var (collectionItemPicture, pictureId, process) in pictureList.Where(x => x.process == "insert"))
+                foreach (var (collectionItemPicture, pictureId, process) in collectionItemPictureList.Where(x => x.process == "insert"))
                 {
-                    (statuscode, statusmessage) = processPicturePhysically.Save(collectionItemPicture, pictureId, false); 
+                    (statuscode, statusmessage) = processPicturePhysically.SaveCollectionItemPic(collectionItemPicture, pictureId, false, operationModel.CollectionItemEntity.UsingIdentityUser.DisplayName); 
                     if (statuscode != 200)
                     {
-                        foreach (var pic in pictureList)
+                        foreach (var pic in collectionItemPictureList)
                         {
-                            processPicturePhysically.Delete(pic.pictureId);
+                            processPicturePhysically.DeleteCollectionItemPic(pic.pictureId);
                         }
                         scope.Dispose();
                         return (statuscode, statusmessage);
                     }
                 }
-                foreach (var (collectionItemPicture, pictureId, process) in pictureList.Where(x => x.process == "update"))
+                foreach (var (collectionItemPicture, pictureId, process) in collectionItemPictureList.Where(x => x.process == "update"))
                 {
-                    (statuscode, statusmessage) = processPicturePhysically.Save(collectionItemPicture, pictureId, true); 
+                    (statuscode, statusmessage) = processPicturePhysically.SaveCollectionItemPic(collectionItemPicture, pictureId, true, operationModel.CollectionItemEntity.UsingIdentityUser.DisplayName); 
                     if (statuscode != 200)
                     {
-                        foreach (var pic in pictureList)
+                        foreach (var pic in collectionItemPictureList)
                         {
-                            processPicturePhysically.Delete(pic.pictureId);
+                            processPicturePhysically.DeleteCollectionItemPic(pic.pictureId);
                         }
                         scope.Dispose();
                         return (statuscode, statusmessage);
                     }
                 }
-                foreach (var (collectionItemPicture, pictureId, process) in pictureList.Where(x => x.process == "delete"))
+                foreach (var (collectionItemPicture, pictureId, process) in collectionItemPictureList.Where(x => x.process == "delete"))
                 {
-                    (statuscode, statusmessage) = processPicturePhysically.Delete(pictureId); 
+                    (statuscode, statusmessage) = processPicturePhysically.DeleteCollectionItemPic(pictureId); 
                     if (statuscode != 200)
                     {
                         scope.Dispose();
@@ -258,6 +294,53 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     }
                 }
 
+                (List<(OwnershipProofPicture ownershipProofPicture, int pictureId, string process)> ownershipProofPictureList, statuscode, statusmessage) = SyncOwnershipProofPictureConnections(existingEntity, operationModel.OwnershipProofPictureList);
+                if (statuscode != 200)
+                {
+                    scope.Dispose();
+                    return (statuscode, statusmessage);
+                }
+                foreach (var (ownershipProofPicture, pictureId, process) in ownershipProofPictureList.Where(x => x.process == "insert"))
+                {
+                    (statuscode, statusmessage, byte[] signature) = processPicturePhysically.SaveOwnershipProofPic(ownershipProofPicture, pictureId, false); 
+                    if (statuscode != 200)
+                    {
+                        foreach (var pic in ownershipProofPictureList)
+                        {
+                            processPicturePhysically.DeleteOwnershipProofPic(pic.pictureId);
+                        }
+                        scope.Dispose();
+                        return (statuscode, statusmessage);
+                    }
+                }
+                foreach (var (ownershipProofPicture, pictureId, process) in ownershipProofPictureList.Where(x => x.process == "update"))
+                {
+                    (statuscode, statusmessage, byte[] signature) = processPicturePhysically.SaveOwnershipProofPic(ownershipProofPicture, pictureId, true); 
+                    if (statuscode != 200)
+                    {
+                        foreach (var pic in ownershipProofPictureList)
+                        {
+                            processPicturePhysically.DeleteOwnershipProofPic(pic.pictureId);
+                        }
+                        scope.Dispose();
+                        return (statuscode, statusmessage);
+                    }
+                }
+                foreach (var (ownershipProofPicture, pictureId, process) in ownershipProofPictureList.Where(x => x.process == "delete"))
+                {
+                    (statuscode, statusmessage) = processPicturePhysically.DeleteOwnershipProofPic(pictureId); 
+                    if (statuscode != 200)
+                    {
+                        scope.Dispose();
+                        return (statuscode, statusmessage);
+                    }
+                }
+                trackEvents.TrackInfo("CollectionItem Update", new Dictionary<string, object>
+                {
+                    { "CollectionItemEntityID", existingEntity.CollectionItemEntityID },
+                    { "User", operationModel.CollectionItemEntity.UsingIdentityUser.DisplayName },
+                    { "CollectionItemEntity", existingEntity }
+                });
                 scope.Complete();
 
                 return (200, "Success_CollectionItemEntity_Changed");
@@ -405,11 +488,6 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     existingEntity.IsApproximate = operationModel.CollectionItemEntity.IsApproximate;
                     hasChanges = true;
                 }
-                if (existingEntity.ConceptID != operationModel.CollectionItemEntity.ConceptID)
-                {
-                    existingEntity.ConceptID = operationModel.CollectionItemEntity.ConceptID;
-                    hasChanges = true;
-                }
                 string? translatedUniqueName = existingTranslations.FirstOrDefault(x => x.FieldName == nameof(CollectionItemEntity.UniqueName))?.TranslatedText;
                 if (!string.IsNullOrEmpty(operationModel.CollectionItemEntity.UniqueName)) {
                     if (translatedUniqueName != null)
@@ -525,7 +603,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             {
                 return (400, "Error_CollectionItemEntity_NotFound");
             }
-            List<int> picutureIdList = [];
+            List<int> collectionItemPictureList = [];
+            List<int> ownershipProofPictureList = [];
 
             try
             {
@@ -544,8 +623,19 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 for (int i = existingOperationParameterModel.CollectionItemPictureList.Count; i > 0; i--)
                 {
                     int index = i - 1;
-                    picutureIdList.Add(existingOperationParameterModel.CollectionItemPictureList[index].CollectionItemPictureID);
+                    collectionItemPictureList.Add(existingOperationParameterModel.CollectionItemPictureList[index].CollectionItemPictureID);
                     (int statuscode, string statusmessage) = processCollectionItemPicture.Delete(existingOperationParameterModel.CollectionItemPictureList[index]);
+                    if (statuscode != 200)
+                    {
+                        scope.Dispose();
+                        return (statuscode, statusmessage);
+                    }
+                }
+                for (int i = existingOperationParameterModel.OwnershipProofPictureList.Count; i > 0; i--)
+                {
+                    int index = i - 1;
+                    ownershipProofPictureList.Add(existingOperationParameterModel.OwnershipProofPictureList[index].OwnershipProofPictureID);
+                    (int statuscode, string statusmessage) = processOwnershipProofPicture.Delete(existingOperationParameterModel.OwnershipProofPictureList[index]);
                     if (statuscode != 200)
                     {
                         scope.Dispose();
@@ -566,9 +656,18 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 unitOfWork.CollectionItemEntityRepository.Delete(existingOperationParameterModel.CollectionItemEntity);
                 unitOfWork.Save();
 
-                foreach (int pictureID in picutureIdList)
+                foreach (int pictureID in collectionItemPictureList)
                 {
-                    (int statuscode, string statusmessage) = processPicturePhysically.Delete(pictureID);
+                    (int statuscode, string statusmessage) = processPicturePhysically.DeleteCollectionItemPic(pictureID);
+                    if (statuscode != 200)
+                    {
+                        scope.Dispose();
+                        return (statuscode, statusmessage);
+                    }
+                }
+                foreach (int pictureID in ownershipProofPictureList)
+                {
+                    (int statuscode, string statusmessage) = processPicturePhysically.DeleteOwnershipProofPic(pictureID);
                     if (statuscode != 200)
                     {
                         scope.Dispose();
@@ -635,7 +734,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                             p.Place != null && p.Place.PlaceID == translationStore.GetId<Place>(term)) ||
                         item.CollectionItemNPartyList.Any(p =>
                             p.Party != null && p.Party.PartyID == translationStore.GetId<Party>(term)) ||
-                        (item.Concept != null && item.Concept.Id == translationStore.GetId<Concept>(term)) ||
+                        //(item.ConceptViewModel != null && item.ConceptViewModel.Id == translationStore.GetId<Concept>(term)) ||
                         (item.Era != null && item.Era.EraID == translationStore.GetId<Era>(term))
                     )
             );
@@ -647,12 +746,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         {
             return nameof(CollectionItemEntity.CollectionItemPictureList) + "," +
                    nameof(CollectionItemEntity.UsingIdentityUser) + "," +
-                   nameof(CollectionItemEntity.Concept) + "," +
                    nameof(CollectionItemEntity.CollectionItemNPlaceList) + "." + nameof(CollectionItemNPlace.Place) +
                        "." + nameof(Place.PlaceNToponymyList) + "." + nameof(PlaceNToponymy.Toponymy) + "," +
-                   nameof(CollectionItemEntity.CollectionItemNPlaceList) + "." + nameof(CollectionItemNPlace.Place) +
-                       "." + nameof(Place.Settlement) + "." + nameof(Settlement.SettlementNPostalcodeList) +
-                       "." + nameof(SettlementNPostalcode.Postalcode) + "," +
+                   nameof(CollectionItemEntity.CollectionItemNPlaceList) + "." + nameof(CollectionItemNPlace.Place) + "," +
                    nameof(CollectionItemEntity.CollectionItemNPartyList) + "." + nameof(CollectionItemNParty.Party) + "," +
                    nameof(CollectionItemEntity.Era) + "," +
                    nameof(CollectionItemEntity.StatePreservation) + "," +
@@ -671,7 +767,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 CollectionItemNPartyList = b.CollectionItemNPartyList,
                 CollectionItemNPlaceList = b.CollectionItemNPlaceList,
                 Era = b.Era ?? new() { EraName = string.Empty },
-                ConceptList = [.. unitOfWork.ConceptRepository.Get(filter: x => x.CollectionAreaID == 0 || x.CollectionAreaID == b.CollectionAreaID)],
+                CvmList = [.. processConcept.Get(new ConceptualRelationshipSearchParameterModel
+                            {
+                                CollectionAreaID = [b.CollectionAreaID,0]
+                            }).Select(x => x.ConceptViewModel)]
             };
         }
         private List<CollectionItemOperationParameterModel> SetTranslations (List<CollectionItemOperationParameterModel> operationParameterList)
@@ -925,7 +1024,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             }
         }
 
-        private (List<(CollectionItemPicture CollectionItemPicture, int PictureId, string Process)>, int Statuscode, string Statusmessage) SyncPictureConnections(CollectionItemEntity existingCollectionItemEntity, List<CollectionItemPicture> newConnections)
+        private (List<(CollectionItemPicture CollectionItemPicture, int PictureId, string Process)>, int Statuscode, string Statusmessage) SyncCollectionItemPictureConnections(CollectionItemEntity existingCollectionItemEntity, List<CollectionItemPicture> newConnections)
         {
             List<CollectionItemPicture> currentConnections = existingCollectionItemEntity.CollectionItemPictureList;
             List<(CollectionItemPicture CollectionItemPicture, int PictureId, string Process)> pictureResults = [];
@@ -961,6 +1060,54 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 if (!exists)
                 {
                     (int statusCode, string statusMessage, int pictureId) = processCollectionItemPicture.Insert(newItem, existingCollectionItemEntity);
+                    if (statusCode != 200)
+                    {
+                        return ([], statusCode, statusMessage);
+                    }
+                    pictureResults.Add((newItem, pictureId, "insert"));
+                }
+            }
+            return (pictureResults, 200, "Success_CollectionItemPicture_Synchronized");
+        }
+
+        private (List<(OwnershipProofPicture OwnershipProofPicture, int PictureId, string Process)>, int Statuscode, string Statusmessage) 
+            SyncOwnershipProofPictureConnections(CollectionItemEntity existingCollectionItemEntity, 
+            List<OwnershipProofPicture> newConnections)
+        {
+            List<OwnershipProofPicture> currentConnections = existingCollectionItemEntity.OwnershipProofPictureList;
+            List<(OwnershipProofPicture CollectionItemPicture, int PictureId, string Process)> pictureResults = [];
+
+            for (int i = 0; i < currentConnections.Count; i++)
+            {
+                OwnershipProofPicture? updated = newConnections.FirstOrDefault(x => x.OwnershipProofPictureID == currentConnections[i].OwnershipProofPictureID);
+
+                if (updated == null)
+                {
+                    (int statusCode, string statusMessage) = processOwnershipProofPicture.Delete(currentConnections[i]);
+                    if (statusCode != 200)
+                    {
+                        return ([], statusCode, statusMessage);
+                    }
+                    pictureResults.Add((currentConnections[i], currentConnections[i].OwnershipProofPictureID, "delete"));
+                }
+                else if (updated != null)
+                {
+                    (int statusCode, string statusMessage) = processOwnershipProofPicture.Update(updated, existingCollectionItemEntity);
+                    if (statusCode != 200)
+                    {
+                        return ([], statusCode, statusMessage);
+                    }
+                    if (updated.IFormFile != null)
+                        pictureResults.Add((updated, updated.OwnershipProofPictureID, "update"));
+                }
+            }
+
+            foreach (OwnershipProofPicture newItem in newConnections)
+            {
+                bool exists = currentConnections.Any(x => x.OwnershipProofPictureID == newItem.OwnershipProofPictureID);
+                if (!exists)
+                {
+                    (int statusCode, string statusMessage, int pictureId) = processOwnershipProofPicture.Insert(newItem, existingCollectionItemEntity);
                     if (statusCode != 200)
                     {
                         return ([], statusCode, statusMessage);

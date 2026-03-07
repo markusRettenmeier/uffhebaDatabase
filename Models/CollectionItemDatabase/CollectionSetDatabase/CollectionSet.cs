@@ -15,8 +15,6 @@ namespace Sammlerplattform.Models.CollectionItemDatabase.CollectionSetDatabase
         [NotMapped]
         [Display(Name = "CollectionSetName", ResourceType = typeof(SharedResources))]
         public required string CollectionSetName { get; set; }
-
-        [Display(Name = "CollectionItemEntityList", ResourceType = typeof(SharedResources))]
         public List<CollectionItemEntity> CollectionItemEntityList { get; set; } = [];
     }
 }

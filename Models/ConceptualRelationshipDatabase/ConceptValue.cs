@@ -61,9 +61,9 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
         }
         [Display(Name = "ConceptID", ResourceType = typeof(SharedResources))]
         public int ConceptID { get; set; }
-
-        [Display(Name = "Concept", ResourceType = typeof(SharedResources))]
         public Concept Concept { get; set; } = null!;
+        [NotMapped]
+        public ConceptViewModel ConceptViewModel { get; set; } = null!;
 
         [Display(Name = "CollectionItemEntityID", ResourceType = typeof(SharedResources))]
         public int? CollectionItemEntityID { get; set; }

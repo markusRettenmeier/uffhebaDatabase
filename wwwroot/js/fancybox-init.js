@@ -1,11 +1,9 @@
-// eslint-disable-next-line no-undef
+"use strict";
 Fancybox.bind('[data-fancybox]', {
     protect: true,
     lang: "de",
-    i18n:
-    {
-        de:
-        {
+    i18n: {
+        de: {
             CLOSE: "Schließen",
             NEXT: "Weiter",
             PREV: "Zurück",
@@ -19,4 +17,4 @@ Fancybox.bind('[data-fancybox]', {
             ZOOM: "Maßstab"
         }
     }
-})
+});

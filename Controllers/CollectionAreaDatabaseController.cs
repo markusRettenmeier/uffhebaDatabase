@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
-using Sammlerplattform.Models;
 using Sammlerplattform.Models.CollectionAreaDatabase;
-using Sammlerplattform.Resources;
 using Sammlerplattform.Services;
 using Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses;
 
 namespace Sammlerplattform.Controllers
 {
+    //[Authorize]
     public class CollectionAreaDatabaseController(IProcessCollectionArea processCollection) : Controller
     {
         [HandleStatus]
@@ -20,15 +18,18 @@ namespace Sammlerplattform.Controllers
         }
 
         [HandleStatus]
+        [HttpGet]
         public ActionResult Create()
         {
             return View();
         }
-        public IActionResult CreateSubmit(CollectionArea collectionArea)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(CollectionArea collectionArea)
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+                return View(collectionArea);
             }
 
             (int statusCode, string statusMessage, int collectionAreaID) = processCollection.Insert(collectionArea);
@@ -39,21 +40,24 @@ namespace Sammlerplattform.Controllers
         }
 
         [HandleStatus]
+        [HttpGet]
         public ActionResult Edit(int id)
         {
             CollectionArea? existingCollection = processCollection.
-                GetListWithPredicate(new CollectionAreaSearchParameterModel{ CollectionAreaID = [id] })
+                GetListWithPredicate(new CollectionAreaSearchParameterModel { CollectionAreaID = [id] })
                 .FirstOrDefault();
 
             return existingCollection == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_CollectionArea_NotFound" })
                 : View(existingCollection);
         }
-        public IActionResult EditSubmit(CollectionArea collectionArea)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(CollectionArea collectionArea)
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+                return View(collectionArea);
             }
 
             (int statusCode, string statusMessage, int id) = processCollection.Update(collectionArea);
@@ -61,6 +65,28 @@ namespace Sammlerplattform.Controllers
                 return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
             else
                 return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
+        }
+
+        [HttpGet]
+        public ActionResult Delete(int id)
+        {
+            CollectionArea? existingCollection = processCollection.
+                GetListWithPredicate(new CollectionAreaSearchParameterModel { CollectionAreaID = [id] })
+                .FirstOrDefault();
+            return existingCollection == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_CollectionArea_NotFound" })
+                : View(existingCollection);
+        }
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            if (id <= 0)
+                return RedirectToAction(nameof(Index),
+                    new { statusMessage = "Error_Invalid_Id" });
+
+            (int statusCode, string statusMessage) = processCollection.Delete(id);
+            return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
     }
 }

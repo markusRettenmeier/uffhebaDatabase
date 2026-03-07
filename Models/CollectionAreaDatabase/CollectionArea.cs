@@ -11,7 +11,6 @@ namespace Sammlerplattform.Models.CollectionAreaDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        [Display(Name = "CollectionAreaID", ResourceType = typeof(SharedResources))]
         public int CollectionAreaID { get; set; }
 
         [NotMapped]
@@ -21,14 +20,8 @@ namespace Sammlerplattform.Models.CollectionAreaDatabase
 
         [Display(Name = "WikipediaUrl", ResourceType = typeof(SharedResources))]
         public string? WikipediaUrl { get; set; }
-
-        [Display(Name = "CollectionItemEntityList", ResourceType = typeof(SharedResources))]
         public List<CollectionItemEntity> CollectionItemEntityList { get; set; } = [];
-
-        [Display(Name = "ConceptList", ResourceType = typeof(SharedResources))]
         public List<Concept> ConceptList { get; set; } = [];
-
-        [Display(Name = "StatePreservationList", ResourceType = typeof(SharedResources))]
         public List<StatePreservation> StatePreservationList { get; set; } = [];
     }
 }

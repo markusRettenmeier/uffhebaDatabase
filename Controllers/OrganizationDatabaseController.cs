@@ -7,7 +7,7 @@ using Sammlerplattform.Services.DatabaseProcesses.PartyProcesses;
 
 namespace Sammlerplattform.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class OrganizationDatabaseController(IProcessOrganization processOrganization
         , IProcessParty processParty) : Controller
     {
@@ -21,47 +21,75 @@ namespace Sammlerplattform.Controllers
         }
 
         [HandleStatus]
+        [HttpGet]
         public ActionResult Create()
         {
             return View();
         }
-        public IActionResult CreateSubmit(OrganizationOperationParameterModel model)
+        [HttpPost]
+        public IActionResult Create(OrganizationCreateDTO model)
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+                return View(model);
             }
             (int statusCode, string statusMessage, int _) = processOrganization.Insert(model);
             return RedirectToAction(nameof(Index), new { statusMessage, statusCode });
         }
 
         [HandleStatus]
+        [HttpGet]
         public ActionResult Edit(int id)
         {
             Party? existingParty = processParty.GetListWithPredicate(new PartySearchParameterModel { PartyID = [id] }).FirstOrDefault();
-            
 
-            ;
             return existingParty == null || existingParty.Individual == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Party_NotFound" })
                 : View(new OrganizationOperationParameterModel
                 {
                     Party = existingParty,
                     Organization = existingParty.Organization!,
-                    PlaceList = existingParty.PlaceList,
+                    //PlaceList = existingParty.PlaceList,
                 });
         }
-        public IActionResult EditSubmit(OrganizationOperationParameterModel model)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(OrganizationOperationParameterModel model)
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+                return View(model);
             }
             (int statusCode, string statusMessage, int id) = processOrganization.Update(model);
             if (statusCode == 200)
                 return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
             else
                 return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
+        }
+
+        [HttpGet]
+        public ActionResult Delete(int id)
+        {
+            Party? existingParty = processParty.GetListWithPredicate(new PartySearchParameterModel { PartyID = [id] }).FirstOrDefault();
+
+            return existingParty == null || existingParty.Individual == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Party_NotFound" })
+                : View(new OrganizationOperationParameterModel
+                {
+                    Party = existingParty,
+                    Organization = existingParty.Organization!,
+                    //PlaceList = existingParty.PlaceList,
+                });
+        }
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            if (id <= 0)
+                return RedirectToAction(nameof(Index),
+                    new { statusMessage = "Error_Invalid_Id" });
+            (int statusCode, string statusMessage) = processOrganization.Delete(id);
+            return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
     }
 }

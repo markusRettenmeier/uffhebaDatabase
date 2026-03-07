@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using Sammlerplattform.Models;
 using Sammlerplattform.Models.CollectionItemDatabase;
-using Sammlerplattform.Resources;
 using Sammlerplattform.Services;
 using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
 using System.Diagnostics;
@@ -17,7 +15,8 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public IActionResult Frontpage(CollectionItemSearchParameterModel itemSearchParameterModel, int topK)
         {
-            var entities = processCollectionItemEntity.GetTraditionalTextSearch(itemSearchParameterModel);
+            List<CollectionItemOperationParameterModel> entities = [.. processCollectionItemEntity.GetTraditionalTextSearch(itemSearchParameterModel)
+                .Where(x => x.CollectionItemEntity.IsCollectionItemPublic)];
             int maxRows = entities.Count;
             if (maxRows > 24)
             {

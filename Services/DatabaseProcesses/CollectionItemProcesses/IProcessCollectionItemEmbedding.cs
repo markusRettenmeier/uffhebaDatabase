@@ -99,7 +99,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             {
                 foreach (var value in item.ConceptValueList)
                 {
-                    AddTextEmbedding(vectors, value.Concept.Name);
+                    AddTextEmbedding(vectors, value.ConceptViewModel.Name);
                     AddTextEmbedding(vectors, value.ValueDisplay);
                 }
             }
@@ -122,12 +122,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 var signature = string.Join(", ", item.CollectionItemNPartyList
                     .Select(p => p.Party?.Individual?.Signature ?? ""));
                 AddTextEmbedding(vectors, signature);
-                var productionFacility = string.Join(", ", item.CollectionItemNPartyList
-                    .Select(p => p.Party?.Organization?.ProductionFacility?.ProductionFacilityName ?? ""));
-                AddTextEmbedding(vectors, productionFacility);
-                var organizationType = string.Join(", ", item.CollectionItemNPartyList
-                    .Select(p => p.Party?.Organization?.OrganizationTypeEnum.ToString() ?? ""));
-                AddTextEmbedding(vectors, organizationType);
+                var industry = string.Join(", ", item.CollectionItemNPartyList
+                    .Select(p => p.Party?.Organization?.Industry?.IndustryName ?? ""));
+                AddTextEmbedding(vectors, industry);
             }
 
             if (item.CollectionItemNPlaceList?.Count > 0)
@@ -136,8 +133,6 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     .Select(p => p.Place?.PlaceNToponymyList.FirstOrDefault(x => x.IsCurrentName)?.Toponymy.ToponymyName?? ""));
                 AddTextEmbedding(vectors, placeText);
             }
-
-            AddTextEmbedding(vectors, item.Concept?.Name);
             AddTextEmbedding(vectors, item.Era?.EraName);
 
             return vectors;

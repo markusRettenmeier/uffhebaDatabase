@@ -133,65 +133,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Bodies of water ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Belongs to ähnelt.
         /// </summary>
-        public static string BodiesOfWater {
+        public static string BelongsTo {
             get {
-                return ResourceManager.GetString("BodiesOfWater", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Body of water ähnelt.
-        /// </summary>
-        public static string BodyOfWater {
-            get {
-                return ResourceManager.GetString("BodyOfWater", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Administer body of water ähnelt.
-        /// </summary>
-        public static string BodyOfWater_Administration {
-            get {
-                return ResourceManager.GetString("BodyOfWater_Administration", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Create body of water ähnelt.
-        /// </summary>
-        public static string BodyOfWater_Create {
-            get {
-                return ResourceManager.GetString("BodyOfWater_Create", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Edit body of water ähnelt.
-        /// </summary>
-        public static string BodyOfWater_Edit {
-            get {
-                return ResourceManager.GetString("BodyOfWater_Edit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Body of water ID ähnelt.
-        /// </summary>
-        public static string BodyOfWaterID {
-            get {
-                return ResourceManager.GetString("BodyOfWaterID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Name of the body of water ähnelt.
-        /// </summary>
-        public static string BodyOfWaterName {
-            get {
-                return ResourceManager.GetString("BodyOfWaterName", resourceCulture);
+                return ResourceManager.GetString("BelongsTo", resourceCulture);
             }
         }
         
@@ -205,101 +151,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Building ähnelt.
-        /// </summary>
-        public static string Building {
-            get {
-                return ResourceManager.GetString("Building", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Administer building ähnelt.
-        /// </summary>
-        public static string Building_Administration {
-            get {
-                return ResourceManager.GetString("Building_Administration", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Create building ähnelt.
-        /// </summary>
-        public static string Building_Create {
-            get {
-                return ResourceManager.GetString("Building_Create", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Edit building ähnelt.
-        /// </summary>
-        public static string Building_Edit {
-            get {
-                return ResourceManager.GetString("Building_Edit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Building ID ähnelt.
-        /// </summary>
-        public static string BuildingID {
-            get {
-                return ResourceManager.GetString("BuildingID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Name of building ähnelt.
-        /// </summary>
-        public static string BuildingName {
-            get {
-                return ResourceManager.GetString("BuildingName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Buildings ähnelt.
-        /// </summary>
-        public static string Buildings {
-            get {
-                return ResourceManager.GetString("Buildings", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Byname ähnelt.
-        /// </summary>
-        public static string Byname {
-            get {
-                return ResourceManager.GetString("Byname", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Cancel ähnelt.
         /// </summary>
         public static string Cancel {
             get {
                 return ResourceManager.GetString("Cancel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Child place ähnelt.
-        /// </summary>
-        public static string ChildPlace {
-            get {
-                return ResourceManager.GetString("ChildPlace", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Child places ähnelt.
-        /// </summary>
-        public static string ChildPlaceList {
-            get {
-                return ResourceManager.GetString("ChildPlaceList", resourceCulture);
             }
         }
         
@@ -421,15 +277,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Administer additional attributes ähnelt.
-        /// </summary>
-        public static string CollectionItemEntity_AdditionalAttribute_Administration {
-            get {
-                return ResourceManager.GetString("CollectionItemEntity_AdditionalAttribute_Administration", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Administer collection item entity ähnelt.
         /// </summary>
         public static string CollectionItemEntity_Administration {
@@ -520,29 +367,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Collection items ähnelt.
-        /// </summary>
-        public static string CollectionItemEntityList {
-            get {
-                return ResourceManager.GetString("CollectionItemEntityList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Verbundene Partei ID ähnelt.
         /// </summary>
         public static string CollectionItemNPartyID {
             get {
                 return ResourceManager.GetString("CollectionItemNPartyID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Connected parties ähnelt.
-        /// </summary>
-        public static string CollectionItemNPartyList {
-            get {
-                return ResourceManager.GetString("CollectionItemNPartyList", resourceCulture);
             }
         }
         
@@ -556,29 +385,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Connected places ähnelt.
-        /// </summary>
-        public static string CollectionItemNPlaceList {
-            get {
-                return ResourceManager.GetString("CollectionItemNPlaceList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Collection item picture ID ähnelt.
         /// </summary>
         public static string CollectionItemPictureID {
             get {
                 return ResourceManager.GetString("CollectionItemPictureID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Collection item pictures ähnelt.
-        /// </summary>
-        public static string CollectionItemPictureList {
-            get {
-                return ResourceManager.GetString("CollectionItemPictureList", resourceCulture);
             }
         }
         
@@ -718,11 +529,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Collection area independent concepts ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Add as umbrella term ähnelt.
         /// </summary>
-        public static string Concept_CollectionAreaIndependent {
+        public static string Concept_ParentConceptAdd {
             get {
-                return ResourceManager.GetString("Concept_CollectionAreaIndependent", resourceCulture);
+                return ResourceManager.GetString("Concept_ParentConceptAdd", resourceCulture);
             }
         }
         
@@ -736,25 +547,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Add as a short term ähnelt.
-        /// </summary>
-        public static string Concept_ShortForAdd {
-            get {
-                return ResourceManager.GetString("Concept_ShortForAdd", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Add as synonym ähnelt.
-        /// </summary>
-        public static string Concept_SubTermAdd {
-            get {
-                return ResourceManager.GetString("Concept_SubTermAdd", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Add as a sub term ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Add as a synonym ähnelt.
         /// </summary>
         public static string Concept_SynonymAdd {
             get {
@@ -772,29 +565,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Concepts ähnelt.
-        /// </summary>
-        public static string ConceptList {
-            get {
-                return ResourceManager.GetString("ConceptList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Concept ähnelt.
         /// </summary>
         public static string ConceptName {
             get {
                 return ResourceManager.GetString("ConceptName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Concept name is required. ähnelt.
-        /// </summary>
-        public static string ConceptNameRequired {
-            get {
-                return ResourceManager.GetString("ConceptNameRequired", resourceCulture);
             }
         }
         
@@ -826,7 +601,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Administer attributes ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administer concepts for  ähnelt.
         /// </summary>
         public static string ConceptRelation_Administration_Specific {
             get {
@@ -871,6 +646,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Concepts ähnelt.
+        /// </summary>
+        public static string Concepts {
+            get {
+                return ResourceManager.GetString("Concepts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Concept type ähnelt.
         /// </summary>
         public static string ConceptType {
@@ -889,20 +673,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Concept values ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Connected Places ähnelt.
         /// </summary>
-        public static string ConceptValueList {
+        public static string ConnectedPlaces {
             get {
-                return ResourceManager.GetString("ConceptValueList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Confirm the new password ähnelt.
-        /// </summary>
-        public static string ConfirmPassword {
-            get {
-                return ResourceManager.GetString("ConfirmPassword", resourceCulture);
+                return ResourceManager.GetString("ConnectedPlaces", resourceCulture);
             }
         }
         
@@ -921,6 +696,15 @@ namespace Sammlerplattform.Resources {
         public static string ContentRequired {
             get {
                 return ResourceManager.GetString("ContentRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die We only use cookies to enable users to access the site. ähnelt.
+        /// </summary>
+        public static string CookieConsent_Text {
+            get {
+                return ResourceManager.GetString("CookieConsent_Text", resourceCulture);
             }
         }
         
@@ -975,15 +759,6 @@ namespace Sammlerplattform.Resources {
         public static string Delete_Confirm {
             get {
                 return ResourceManager.GetString("Delete_Confirm", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Entries can only be deleted after consultation with the administrator, as deletion can have negative effects on many collectibles. ähnelt.
-        /// </summary>
-        public static string Delete_NotAllowed {
-            get {
-                return ResourceManager.GetString("Delete_NotAllowed", resourceCulture);
             }
         }
         
@@ -1060,6 +835,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Display name ähnelt.
+        /// </summary>
+        public static string DisplayName {
+            get {
+                return ResourceManager.GetString("DisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Documentation ähnelt.
         /// </summary>
         public static string Documentation {
@@ -1096,38 +880,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Change email ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Email (optional) ähnelt.
         /// </summary>
-        public static string Email_Change {
+        public static string Email_Optional {
             get {
-                return ResourceManager.GetString("Email_Change", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The {0} field is not a valid e-mail address. ähnelt.
-        /// </summary>
-        public static string EmailAddress {
-            get {
-                return ResourceManager.GetString("EmailAddress", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Resend email confirmation ähnelt.
-        /// </summary>
-        public static string EmailConfirmation_Resend {
-            get {
-                return ResourceManager.GetString("EmailConfirmation_Resend", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Send verification email ähnelt.
-        /// </summary>
-        public static string EmailVerification_Send {
-            get {
-                return ResourceManager.GetString("EmailVerification_Send", resourceCulture);
+                return ResourceManager.GetString("Email_Optional", resourceCulture);
             }
         }
         
@@ -1137,6 +894,15 @@ namespace Sammlerplattform.Resources {
         public static string EndYear {
             get {
                 return ResourceManager.GetString("EndYear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Enter place name ähnelt.
+        /// </summary>
+        public static string EnterToponymy {
+            get {
+                return ResourceManager.GetString("EnterToponymy", resourceCulture);
             }
         }
         
@@ -1186,15 +952,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Era name is missing. ähnelt.
-        /// </summary>
-        public static string Era_Name_Missing {
-            get {
-                return ResourceManager.GetString("Era_Name_Missing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Select era ähnelt.
         /// </summary>
         public static string Era_Select {
@@ -1227,6 +984,15 @@ namespace Sammlerplattform.Resources {
         public static string Eras {
             get {
                 return ResourceManager.GetString("Eras", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Access forbidden ähnelt.
+        /// </summary>
+        public static string Error_Access_Forbidden {
+            get {
+                return ResourceManager.GetString("Error_Access_Forbidden", resourceCulture);
             }
         }
         
@@ -1357,6 +1123,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Concept name is required. ähnelt.
+        /// </summary>
+        public static string Error_Concept_NameRequired {
+            get {
+                return ResourceManager.GetString("Error_Concept_NameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Concept not found. ähnelt.
         /// </summary>
         public static string Error_Concept_NotFound {
@@ -1384,15 +1159,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Error sending confirmation email. ähnelt.
-        /// </summary>
-        public static string Error_ConfirmationEmail_NotSend {
-            get {
-                return ResourceManager.GetString("Error_ConfirmationEmail_NotSend", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Content is empty. ähnelt.
         /// </summary>
         public static string Error_Content_Empty {
@@ -1402,56 +1168,29 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Changed Email successfully. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Credential Id is missing ähnelt.
         /// </summary>
-        public static string Error_Email_Change {
+        public static string Error_CredentialId_Missing {
             get {
-                return ResourceManager.GetString("Error_Email_Change", resourceCulture);
+                return ResourceManager.GetString("Error_CredentialId_Missing", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Email is missing. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Display name is missing. ähnelt.
         /// </summary>
-        public static string Error_Email_Missing {
+        public static string Error_DisplayName_Missing {
             get {
-                return ResourceManager.GetString("Error_Email_Missing", resourceCulture);
+                return ResourceManager.GetString("Error_DisplayName_Missing", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die New email is missing. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Display name must be 2-100 characters long. ähnelt.
         /// </summary>
-        public static string Error_Email_NewMissing {
+        public static string Error_DisplayName_StringLength {
             get {
-                return ResourceManager.GetString("Error_Email_NewMissing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Your email was not changed. ähnelt.
-        /// </summary>
-        public static string Error_Email_NotChanged {
-            get {
-                return ResourceManager.GetString("Error_Email_NotChanged", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Email has not been confirmed. ähnelt.
-        /// </summary>
-        public static string Error_Email_NotConfirmed {
-            get {
-                return ResourceManager.GetString("Error_Email_NotConfirmed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Specified email address not found. ähnelt.
-        /// </summary>
-        public static string Error_Email_NotFound {
-            get {
-                return ResourceManager.GetString("Error_Email_NotFound", resourceCulture);
+                return ResourceManager.GetString("Error_DisplayName_StringLength", resourceCulture);
             }
         }
         
@@ -1461,24 +1200,6 @@ namespace Sammlerplattform.Resources {
         public static string Error_Email_NotValid {
             get {
                 return ResourceManager.GetString("Error_Email_NotValid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Old email is missing. ähnelt.
-        /// </summary>
-        public static string Error_Email_OldMissing {
-            get {
-                return ResourceManager.GetString("Error_Email_OldMissing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Email or Password are necessary. ähnelt.
-        /// </summary>
-        public static string Error_EmailPassword_Necessary {
-            get {
-                return ResourceManager.GetString("Error_EmailPassword_Necessary", resourceCulture);
             }
         }
         
@@ -1503,9 +1224,9 @@ namespace Sammlerplattform.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Era Id is missing. ähnelt.
         /// </summary>
-        public static string Error_Era_IdMissing {
+        public static string Error_Era_IdMissing1 {
             get {
-                return ResourceManager.GetString("Error_Era_IdMissing", resourceCulture);
+                return ResourceManager.GetString("Error_Era_IdMissing1", resourceCulture);
             }
         }
         
@@ -1528,7 +1249,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die An unexpected error occurred, which was tracked. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die A technical error has occurred and has been recorded. We will fix it as soon as possible. ähnelt.
         /// </summary>
         public static string Error_Error_Ocurred {
             get {
@@ -1564,11 +1285,29 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Wrong inputs. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Miussing or wrong inputs. ähnelt.
         /// </summary>
-        public static string Error_InvalidModelState {
+        public static string Error_ModelState_Invalid {
             get {
-                return ResourceManager.GetString("Error_InvalidModelState", resourceCulture);
+                return ResourceManager.GetString("Error_ModelState_Invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Organization type is missing. ähnelt.
+        /// </summary>
+        public static string Error_OrganizationTypeInt_Missing {
+            get {
+                return ResourceManager.GetString("Error_OrganizationTypeInt_Missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Picture of proof of ownership was not found. ähnelt.
+        /// </summary>
+        public static string Error_OwnershipProofPicture_NotFound {
+            get {
+                return ResourceManager.GetString("Error_OwnershipProofPicture_NotFound", resourceCulture);
             }
         }
         
@@ -1618,20 +1357,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Password empty. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Party Type is missing. ähnelt.
         /// </summary>
-        public static string Error_Password_Empty {
+        public static string Error_PartyTypeInt_Missing {
             get {
-                return ResourceManager.GetString("Error_Password_Empty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Password incorrect. ähnelt.
-        /// </summary>
-        public static string Error_Password_Incorrect {
-            get {
-                return ResourceManager.GetString("Error_Password_Incorrect", resourceCulture);
+                return ResourceManager.GetString("Error_PartyTypeInt_Missing", resourceCulture);
             }
         }
         
@@ -1672,6 +1402,24 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Public key is missing. ähnelt.
+        /// </summary>
+        public static string Error_PublicKey_Missing {
+            get {
+                return ResourceManager.GetString("Error_PublicKey_Missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Session expired. Please restart your registration. ähnelt.
+        /// </summary>
+        public static string Error_Session_Expired {
+            get {
+                return ResourceManager.GetString("Error_Session_Expired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die State already exists. ähnelt.
         /// </summary>
         public static string Error_StatePreservation_Exists {
@@ -1695,15 +1443,6 @@ namespace Sammlerplattform.Resources {
         public static string Error_Title_Empty {
             get {
                 return ResourceManager.GetString("Error_Title_Empty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die An User with the same Email exists already. ähnelt.
-        /// </summary>
-        public static string Error_User_Exists {
-            get {
-                return ResourceManager.GetString("Error_User_Exists", resourceCulture);
             }
         }
         
@@ -1735,15 +1474,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die An error occurred while changing user name. ähnelt.
-        /// </summary>
-        public static string Error_UserName_Change {
-            get {
-                return ResourceManager.GetString("Error_UserName_Change", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Exact year ähnelt.
         /// </summary>
         public static string ExactYear {
@@ -1758,69 +1488,6 @@ namespace Sammlerplattform.Resources {
         public static string Fake {
             get {
                 return ResourceManager.GetString("Fake", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Field ähnelt.
-        /// </summary>
-        public static string Field {
-            get {
-                return ResourceManager.GetString("Field", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Administer field ähnelt.
-        /// </summary>
-        public static string Field_Administration {
-            get {
-                return ResourceManager.GetString("Field_Administration", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Create field ähnelt.
-        /// </summary>
-        public static string Field_Create {
-            get {
-                return ResourceManager.GetString("Field_Create", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Edit field ähnelt.
-        /// </summary>
-        public static string Field_Edit {
-            get {
-                return ResourceManager.GetString("Field_Edit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Field ID ähnelt.
-        /// </summary>
-        public static string FieldID {
-            get {
-                return ResourceManager.GetString("FieldID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Name of field ähnelt.
-        /// </summary>
-        public static string FieldName {
-            get {
-                return ResourceManager.GetString("FieldName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Fields ähnelt.
-        /// </summary>
-        public static string Fields {
-            get {
-                return ResourceManager.GetString("Fields", resourceCulture);
             }
         }
         
@@ -1848,15 +1515,6 @@ namespace Sammlerplattform.Resources {
         public static string FurtherSpecs {
             get {
                 return ResourceManager.GetString("FurtherSpecs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Geography ähnelt.
-        /// </summary>
-        public static string Geography {
-            get {
-                return ResourceManager.GetString("Geography", resourceCulture);
             }
         }
         
@@ -1996,11 +1654,47 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die &lt;p&gt;This is a prototype in the beta phase. There is only one user. All data will be deleted later.&lt;/p&gt; ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Industry ähnelt.
         /// </summary>
-        public static string Info_Prototype {
+        public static string Industry {
             get {
-                return ResourceManager.GetString("Info_Prototype", resourceCulture);
+                return ResourceManager.GetString("Industry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Industry ID ähnelt.
+        /// </summary>
+        public static string IndustryID {
+            get {
+                return ResourceManager.GetString("IndustryID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Industry name ähnelt.
+        /// </summary>
+        public static string IndustryName {
+            get {
+                return ResourceManager.GetString("IndustryName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Entries can only be deleted after consultation with the administrator or if there are no references to other entries. This is because deletion can have a negative impact on many collectibles. ähnelt.
+        /// </summary>
+        public static string Info_Delete_NotAllowed {
+            get {
+                return ResourceManager.GetString("Info_Delete_NotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Place name is only deletable and addable ähnelt.
+        /// </summary>
+        public static string Info_PlaceName_NotChangeable {
+            get {
+                return ResourceManager.GetString("Info_PlaceName_NotChangeable", resourceCulture);
             }
         }
         
@@ -2059,15 +1753,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Was email confirmed? ähnelt.
-        /// </summary>
-        public static string IsEmailConfirmed {
-            get {
-                return ResourceManager.GetString("IsEmailConfirmed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die IS it a general concept, so not collection area specific ähnelt.
         /// </summary>
         public static string IsGeneralConcept {
@@ -2091,6 +1776,15 @@ namespace Sammlerplattform.Resources {
         public static string IsPartOfASet {
             get {
                 return ResourceManager.GetString("IsPartOfASet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Is it intended for the general public? ähnelt.
+        /// </summary>
+        public static string IsPublic {
+            get {
+                return ResourceManager.GetString("IsPublic", resourceCulture);
             }
         }
         
@@ -2140,6 +1834,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Login with Passkey ähnelt.
+        /// </summary>
+        public static string Login_Passkey {
+            get {
+                return ResourceManager.GetString("Login_Passkey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Login/Register ähnelt.
         /// </summary>
         public static string Login_Register {
@@ -2181,24 +1884,6 @@ namespace Sammlerplattform.Resources {
         public static string Message_ConfirmAccount {
             get {
                 return ResourceManager.GetString("Message_ConfirmAccount", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Confirm your email ähnelt.
-        /// </summary>
-        public static string Message_ConfirmEmail {
-            get {
-                return ResourceManager.GetString("Message_ConfirmEmail", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Confirm password ähnelt.
-        /// </summary>
-        public static string Message_ConfirmPassword {
-            get {
-                return ResourceManager.GetString("Message_ConfirmPassword", resourceCulture);
             }
         }
         
@@ -2249,20 +1934,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Please reset your password by &amp;lt;a href=&apos;{0}&apos;&amp;gt;click here&amp;lt;/a&amp;gt; ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Interesting and unique collectibles: Manage your own and find those from other collectors ähnelt.
         /// </summary>
-        public static string Message_Password_Reset {
+        public static string Meta_Description {
             get {
-                return ResourceManager.GetString("Message_Password_Reset", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Thank you very much for the email confirmation. ähnelt.
-        /// </summary>
-        public static string Message_ThanksForConfirmation {
-            get {
-                return ResourceManager.GetString("Message_ThanksForConfirmation", resourceCulture);
+                return ResourceManager.GetString("Meta_Description", resourceCulture);
             }
         }
         
@@ -2272,24 +1948,6 @@ namespace Sammlerplattform.Resources {
         public static string Name {
             get {
                 return ResourceManager.GetString("Name", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die New email ähnelt.
-        /// </summary>
-        public static string NewEmail {
-            get {
-                return ResourceManager.GetString("NewEmail", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die New password ähnelt.
-        /// </summary>
-        public static string NewPassword {
-            get {
-                return ResourceManager.GetString("NewPassword", resourceCulture);
             }
         }
         
@@ -2330,20 +1988,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Old email ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die For notifications only ähnelt.
         /// </summary>
-        public static string OldEmail {
+        public static string OnlyforNotifications {
             get {
-                return ResourceManager.GetString("OldEmail", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Old password ähnelt.
-        /// </summary>
-        public static string OldPassword {
-            get {
-                return ResourceManager.GetString("OldPassword", resourceCulture);
+                return ResourceManager.GetString("OnlyforNotifications", resourceCulture);
             }
         }
         
@@ -2438,29 +2087,38 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Parent place ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Others ähnelt.
         /// </summary>
-        public static string ParentPlace {
+        public static string Others {
             get {
-                return ResourceManager.GetString("ParentPlace", resourceCulture);
+                return ResourceManager.GetString("Others", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die There may only be one parent place. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Bill of sale ähnelt.
         /// </summary>
-        public static string ParentPlace_Max1 {
+        public static string OwnershipProof_Type_BillOfSale {
             get {
-                return ResourceManager.GetString("ParentPlace_Max1", resourceCulture);
+                return ResourceManager.GetString("OwnershipProof_Type_BillOfSale", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Parent place ID ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Certificate ähnelt.
         /// </summary>
-        public static string ParentPlaceID {
+        public static string OwnershipProof_Type_Certificate {
             get {
-                return ResourceManager.GetString("ParentPlaceID", resourceCulture);
+                return ResourceManager.GetString("OwnershipProof_Type_Certificate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Other proofs ähnelt.
+        /// </summary>
+        public static string OwnershipProof_Type_Other {
+            get {
+                return ResourceManager.GetString("OwnershipProof_Type_Other", resourceCulture);
             }
         }
         
@@ -2470,6 +2128,15 @@ namespace Sammlerplattform.Resources {
         public static string Part_of {
             get {
                 return ResourceManager.GetString("Part of", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Parties ähnelt.
+        /// </summary>
+        public static string Parties {
+            get {
+                return ResourceManager.GetString("Parties", resourceCulture);
             }
         }
         
@@ -2510,15 +2177,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Parties ähnelt.
-        /// </summary>
-        public static string PartyList {
-            get {
-                return ResourceManager.GetString("PartyList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Party name ähnelt.
         /// </summary>
         public static string PartyName {
@@ -2537,74 +2195,28 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Password ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die &lt;h6&gt;&lt;i class=&quot;bi bi-info-circle me-2&quot;&gt;What is a passkey?&lt;/i&gt;&lt;/h6&gt;
+        ///&lt;p class=&quot;mb-1&quot;&gt;A passkey is a secure and convenient alternative to passwords.&lt;/p&gt;
+        ///&lt;ul class=&quot;mb-0&quot;&gt;
+        ///    &lt;li&gt;No need to remember a password&lt;/li&gt;&lt;li&gt;No E-Mail necessary&lt;/li&gt;
+        ///    &lt;li&gt;Phishing-proof&lt;/li&gt;
+        ///&lt;li&gt;Passkeys already stored on this device are automatically recognized&lt;/li&gt;
+        ///    &lt;li&gt;Synchronized between your devices&lt;/li&gt;
+        ///    &lt;li&gt;Supported by: iPhone (Touch ID/Face ID), Android, Windows Hello&lt;/li&gt;
+        ///&lt;/ul&gt; ähnelt.
         /// </summary>
-        public static string Password {
+        public static string Passkey_Information {
             get {
-                return ResourceManager.GetString("Password", resourceCulture);
+                return ResourceManager.GetString("Passkey_Information", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Change password ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Passkey login ähnelt.
         /// </summary>
-        public static string Password_Change {
+        public static string Passkey_Login {
             get {
-                return ResourceManager.GetString("Password_Change", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Password forgotten? ähnelt.
-        /// </summary>
-        public static string Password_Forgotten {
-            get {
-                return ResourceManager.GetString("Password_Forgotten", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Password is missing. ähnelt.
-        /// </summary>
-        public static string Password_Missing {
-            get {
-                return ResourceManager.GetString("Password_Missing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die New password is missing. ähnelt.
-        /// </summary>
-        public static string Password_New_Missing {
-            get {
-                return ResourceManager.GetString("Password_New_Missing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Altes password is missing. ähnelt.
-        /// </summary>
-        public static string Password_Old_Missing {
-            get {
-                return ResourceManager.GetString("Password_Old_Missing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Reset password ähnelt.
-        /// </summary>
-        public static string Password_Reset {
-            get {
-                return ResourceManager.GetString("Password_Reset", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Link to reset your password, will be send to the given email address. ähnelt.
-        /// </summary>
-        public static string Password_Reset_ConfirmationSent {
-            get {
-                return ResourceManager.GetString("Password_Reset_ConfirmationSent", resourceCulture);
+                return ResourceManager.GetString("Passkey_Login", resourceCulture);
             }
         }
         
@@ -2663,11 +2275,29 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Pictures ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Pictures of the colleciton item ähnelt.
         /// </summary>
-        public static string Pictures {
+        public static string Pictures_CollectionItem {
             get {
-                return ResourceManager.GetString("Pictures", resourceCulture);
+                return ResourceManager.GetString("Pictures_CollectionItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Images of proof of ownership ähnelt.
+        /// </summary>
+        public static string Pictures_OwnershipProof {
+            get {
+                return ResourceManager.GetString("Pictures_OwnershipProof", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die e.g. receipt, document, certificate ähnelt.
+        /// </summary>
+        public static string Pictures_OwnershipProof_Description {
+            get {
+                return ResourceManager.GetString("Pictures_OwnershipProof_Description", resourceCulture);
             }
         }
         
@@ -2681,7 +2311,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Add places ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Add place ähnelt.
         /// </summary>
         public static string Place_Add {
             get {
@@ -2690,20 +2320,29 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Add District ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administer places ähnelt.
         /// </summary>
-        public static string Place_ChildAdd {
+        public static string Place_Administration {
             get {
-                return ResourceManager.GetString("Place_ChildAdd", resourceCulture);
+                return ResourceManager.GetString("Place_Administration", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Add to a place ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Create place ähnelt.
         /// </summary>
-        public static string Place_ParentAdd {
+        public static string Place_Create {
             get {
-                return ResourceManager.GetString("Place_ParentAdd", resourceCulture);
+                return ResourceManager.GetString("Place_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Edit place ähnelt.
+        /// </summary>
+        public static string Place_Edit {
+            get {
+                return ResourceManager.GetString("Place_Edit", resourceCulture);
             }
         }
         
@@ -2726,15 +2365,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Locations ähnelt.
-        /// </summary>
-        public static string PlaceList {
-            get {
-                return ResourceManager.GetString("PlaceList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Place name ähnelt.
         /// </summary>
         public static string PlaceName {
@@ -2753,38 +2383,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Postalcode ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Places ähnelt.
         /// </summary>
-        public static string Postalcode {
+        public static string Places {
             get {
-                return ResourceManager.GetString("Postalcode", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Add postalcode ähnelt.
-        /// </summary>
-        public static string Postalcode_Add {
-            get {
-                return ResourceManager.GetString("Postalcode_Add", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Postalcode ID ähnelt.
-        /// </summary>
-        public static string PostalcodeID {
-            get {
-                return ResourceManager.GetString("PostalcodeID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Postalcodes ähnelt.
-        /// </summary>
-        public static string Postalcodes {
-            get {
-                return ResourceManager.GetString("Postalcodes", resourceCulture);
+                return ResourceManager.GetString("Places", resourceCulture);
             }
         }
         
@@ -2794,33 +2397,6 @@ namespace Sammlerplattform.Resources {
         public static string PrivacyImprint {
             get {
                 return ResourceManager.GetString("PrivacyImprint", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Production facility ähnelt.
-        /// </summary>
-        public static string ProductionFacility {
-            get {
-                return ResourceManager.GetString("ProductionFacility", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Production facility ID ähnelt.
-        /// </summary>
-        public static string ProductionFacilityID {
-            get {
-                return ResourceManager.GetString("ProductionFacilityID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Production facility ähnelt.
-        /// </summary>
-        public static string ProductionFacilityName {
-            get {
-                return ResourceManager.GetString("ProductionFacilityName", resourceCulture);
             }
         }
         
@@ -2852,69 +2428,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Region ähnelt.
-        /// </summary>
-        public static string Region {
-            get {
-                return ResourceManager.GetString("Region", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Administer region ähnelt.
-        /// </summary>
-        public static string Region_Administration {
-            get {
-                return ResourceManager.GetString("Region_Administration", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Create region ähnelt.
-        /// </summary>
-        public static string Region_Create {
-            get {
-                return ResourceManager.GetString("Region_Create", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Edit region ähnelt.
-        /// </summary>
-        public static string Region_Edit {
-            get {
-                return ResourceManager.GetString("Region_Edit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Region ID ähnelt.
-        /// </summary>
-        public static string RegionID {
-            get {
-                return ResourceManager.GetString("RegionID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Name of region ähnelt.
-        /// </summary>
-        public static string RegionName {
-            get {
-                return ResourceManager.GetString("RegionName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Regions ähnelt.
-        /// </summary>
-        public static string Regions {
-            get {
-                return ResourceManager.GetString("Regions", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Register ähnelt.
         /// </summary>
         public static string Register {
@@ -2933,6 +2446,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Register with passkey ähnelt.
+        /// </summary>
+        public static string Register_Passkey {
+            get {
+                return ResourceManager.GetString("Register_Passkey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Geographical Reference ähnelt.
         /// </summary>
         public static string RelatedGeography {
@@ -2947,15 +2469,6 @@ namespace Sammlerplattform.Resources {
         public static string RelatedGeography_Add {
             get {
                 return ResourceManager.GetString("RelatedGeography_Add", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die There may only be one geographical reference. ähnelt.
-        /// </summary>
-        public static string RelatedGeography_Max1 {
-            get {
-                return ResourceManager.GetString("RelatedGeography_Max1", resourceCulture);
             }
         }
         
@@ -3001,69 +2514,6 @@ namespace Sammlerplattform.Resources {
         public static string RelationType {
             get {
                 return ResourceManager.GetString("RelationType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Relief ähnelt.
-        /// </summary>
-        public static string Relief {
-            get {
-                return ResourceManager.GetString("Relief", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Administer relief ähnelt.
-        /// </summary>
-        public static string Relief_Administration {
-            get {
-                return ResourceManager.GetString("Relief_Administration", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Create relief ähnelt.
-        /// </summary>
-        public static string Relief_Create {
-            get {
-                return ResourceManager.GetString("Relief_Create", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Edit relief ähnelt.
-        /// </summary>
-        public static string Relief_Edit {
-            get {
-                return ResourceManager.GetString("Relief_Edit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Relief ID ähnelt.
-        /// </summary>
-        public static string ReliefID {
-            get {
-                return ResourceManager.GetString("ReliefID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Relief ähnelt.
-        /// </summary>
-        public static string ReliefName {
-            get {
-                return ResourceManager.GetString("ReliefName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Reliefs ähnelt.
-        /// </summary>
-        public static string Reliefs {
-            get {
-                return ResourceManager.GetString("Reliefs", resourceCulture);
             }
         }
         
@@ -3194,96 +2644,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Settlement ähnelt.
-        /// </summary>
-        public static string Settlement {
-            get {
-                return ResourceManager.GetString("Settlement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Administer settlement ähnelt.
-        /// </summary>
-        public static string Settlement_Administration {
-            get {
-                return ResourceManager.GetString("Settlement_Administration", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Create settlement ähnelt.
-        /// </summary>
-        public static string Settlement_Create {
-            get {
-                return ResourceManager.GetString("Settlement_Create", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Edit settlement ähnelt.
-        /// </summary>
-        public static string Settlement_Edit {
-            get {
-                return ResourceManager.GetString("Settlement_Edit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Settlement ID ähnelt.
-        /// </summary>
-        public static string SettlementID {
-            get {
-                return ResourceManager.GetString("SettlementID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Settlement names ähnelt.
-        /// </summary>
-        public static string SettlementNames {
-            get {
-                return ResourceManager.GetString("SettlementNames", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Connected Postalcode ID ähnelt.
-        /// </summary>
-        public static string SettlementNPostalcodeID {
-            get {
-                return ResourceManager.GetString("SettlementNPostalcodeID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Connected postal codes ähnelt.
-        /// </summary>
-        public static string SettlementNPostalcodeList {
-            get {
-                return ResourceManager.GetString("SettlementNPostalcodeList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Settlements ähnelt.
-        /// </summary>
-        public static string Settlements {
-            get {
-                return ResourceManager.GetString("Settlements", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Short for ähnelt.
-        /// </summary>
-        public static string ShortFor {
-            get {
-                return ResourceManager.GetString("ShortFor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Reverse side ähnelt.
         /// </summary>
         public static string Side_Back {
@@ -3352,6 +2712,15 @@ namespace Sammlerplattform.Resources {
         public static string SortingOrder {
             get {
                 return ResourceManager.GetString("SortingOrder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Show concept with all its subconcepts ähnelt.
+        /// </summary>
+        public static string SpecificView {
+            get {
+                return ResourceManager.GetString("SpecificView", resourceCulture);
             }
         }
         
@@ -3446,15 +2815,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die States of preservation ähnelt.
-        /// </summary>
-        public static string StatePreservationList {
-            get {
-                return ResourceManager.GetString("StatePreservationList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Name of state of preservation ähnelt.
         /// </summary>
         public static string StatePreservationName {
@@ -3478,15 +2838,6 @@ namespace Sammlerplattform.Resources {
         public static string StructureCollectionAreas {
             get {
                 return ResourceManager.GetString("StructureCollectionAreas", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Sub concepts ähnelt.
-        /// </summary>
-        public static string SubConceptList {
-            get {
-                return ResourceManager.GetString("SubConceptList", resourceCulture);
             }
         }
         
@@ -3671,33 +3022,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Confirmation email has been sent. ähnelt.
-        /// </summary>
-        public static string Success_ConfirmationEmail_Sent {
-            get {
-                return ResourceManager.GetString("Success_ConfirmationEmail_Sent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Changed Email successfully. ähnelt.
-        /// </summary>
-        public static string Success_Email_Change {
-            get {
-                return ResourceManager.GetString("Success_Email_Change", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Email successfully confirmed. ähnelt.
-        /// </summary>
-        public static string Success_Email_Confirmed {
-            get {
-                return ResourceManager.GetString("Success_Email_Confirmed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Embedding deleted successfully. ähnelt.
         /// </summary>
         public static string Success_Embedding_Deleted {
@@ -3815,6 +3139,33 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Picture of proof of ownership was created successfully. ähnelt.
+        /// </summary>
+        public static string Success_OwnershipProofPicture_Created {
+            get {
+                return ResourceManager.GetString("Success_OwnershipProofPicture_Created", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Picture of proof of ownership was deleted successfully. ähnelt.
+        /// </summary>
+        public static string Success_OwnershipProofPicture_Deleted {
+            get {
+                return ResourceManager.GetString("Success_OwnershipProofPicture_Deleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Picture of proof of ownership was updated successfully. ähnelt.
+        /// </summary>
+        public static string Success_OwnershipProofPicture_Updated {
+            get {
+                return ResourceManager.GetString("Success_OwnershipProofPicture_Updated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Party was created successfully. ähnelt.
         /// </summary>
         public static string Success_Party_Created {
@@ -3829,15 +3180,6 @@ namespace Sammlerplattform.Resources {
         public static string Success_Party_Updated {
             get {
                 return ResourceManager.GetString("Success_Party_Updated", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Password changed successfully. ähnelt.
-        /// </summary>
-        public static string Success_Password_Change {
-            get {
-                return ResourceManager.GetString("Success_Password_Change", resourceCulture);
             }
         }
         
@@ -3977,78 +3319,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Toponymic typology ähnelt.
-        /// </summary>
-        public static string ToponymyType {
-            get {
-                return ResourceManager.GetString("ToponymyType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Transport route ähnelt.
-        /// </summary>
-        public static string TransportRoute {
-            get {
-                return ResourceManager.GetString("TransportRoute", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Administer transport route ähnelt.
-        /// </summary>
-        public static string TransportRoute_Administration {
-            get {
-                return ResourceManager.GetString("TransportRoute_Administration", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Create  transport route ähnelt.
-        /// </summary>
-        public static string TransportRoute_Create {
-            get {
-                return ResourceManager.GetString("TransportRoute_Create", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Edit transport route ähnelt.
-        /// </summary>
-        public static string TransportRoute_Edit {
-            get {
-                return ResourceManager.GetString("TransportRoute_Edit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Transport route ID ähnelt.
-        /// </summary>
-        public static string TransportRouteID {
-            get {
-                return ResourceManager.GetString("TransportRouteID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Name of transport route ähnelt.
-        /// </summary>
-        public static string TransportRouteName {
-            get {
-                return ResourceManager.GetString("TransportRouteName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Transport routes ähnelt.
-        /// </summary>
-        public static string TransportRoutes {
-            get {
-                return ResourceManager.GetString("TransportRoutes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Unique name ähnelt.
         /// </summary>
         public static string UniqueName {
@@ -4072,24 +3342,6 @@ namespace Sammlerplattform.Resources {
         public static string User_Register {
             get {
                 return ResourceManager.GetString("User_Register", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die User name ähnelt.
-        /// </summary>
-        public static string UserName {
-            get {
-                return ResourceManager.GetString("UserName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Change user name ähnelt.
-        /// </summary>
-        public static string UserName_Change {
-            get {
-                return ResourceManager.GetString("UserName_Change", resourceCulture);
             }
         }
         

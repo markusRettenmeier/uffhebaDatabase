@@ -1,10 +1,8 @@
-﻿export let id_count = 1;
+export let id_count = 1;
 export let countRemove = 1;
-
 export function incrementIdCount() {
     id_count++;
 }
-
 export function incrementCountRemove() {
     countRemove++;
 }

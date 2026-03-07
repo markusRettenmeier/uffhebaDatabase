@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
-using Sammlerplattform.Models;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
-using Sammlerplattform.Resources;
 using Sammlerplattform.Services;
 using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
 
 namespace Sammlerplattform.Controllers
 {
+    //[Authorize]
     public class StatePreservationDatabaseController(IProcessStatePreservation processStates) : Controller
     {
         [HandleStatus]
@@ -19,16 +17,18 @@ namespace Sammlerplattform.Controllers
         }
 
         [HandleStatus]
+        [HttpGet]
         public ActionResult Create(int collectionAreaID)
         {
             StatePreservation state = new() { StatePreservationName = string.Empty, CollectionAreaID = collectionAreaID };
             return View(state);
         }
-        public IActionResult CreateSubmit(StatePreservation state)
+        [HttpPost]
+        public IActionResult Create(StatePreservation state)
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+                return View(state);
             }
             (int statusCode, string statusMessage) = processStates.Insert(state);
 
@@ -36,6 +36,7 @@ namespace Sammlerplattform.Controllers
         }
 
         [HandleStatus]
+        [HttpGet]
         public ActionResult Edit(int statePreservationID)
         {
             StatePreservation existingState = processStates.GetWithPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [statePreservationID] }).First();
@@ -43,11 +44,13 @@ namespace Sammlerplattform.Controllers
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_StatePreservation_NotFound" })
                 : View(existingState);
         }
-        public ActionResult EditSubmit(StatePreservation state)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(StatePreservation state)
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Error_InvalidModelState" });
+                return View(state);
             }
             (int statusCode, string statusMessage) = processStates.Update(state);
             if (statusCode == 200)
@@ -56,19 +59,24 @@ namespace Sammlerplattform.Controllers
                 return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
 
-        [HandleStatus]
-        public ActionResult Delete(int statePreservationID)
+        [HttpGet]
+        public ActionResult Delete(int id)
         {
-            StatePreservation existingState = processStates.GetWithPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [statePreservationID] }).First();
+            StatePreservation existingState = processStates.GetWithPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [id] }).First();
             return existingState == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_StatePreservation_NotFound" })
                 : View(existingState);
         }
-        public IActionResult DeleteSubmit(int statePreservationID, int collectionAreaID)
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
         {
-            (int statusCode, string statusMessage) = processStates.Delete(statePreservationID, collectionAreaID);
+            if (id <= 0)
+                return RedirectToAction(nameof(Index),
+                    new { statusMessage = "Error_Invalid_Id" });
+            (int statusCode, string statusMessage) = processStates.Delete(id);
 
-            return RedirectToAction(nameof(Index), new { statusCode, statusMessage, collectionAreaID });
+            return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
     }
 }

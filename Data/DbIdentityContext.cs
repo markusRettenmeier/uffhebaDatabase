@@ -4,6 +4,7 @@ using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionSetDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.OwnershipProofPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.VectorSearch;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
@@ -11,14 +12,9 @@ using Sammlerplattform.Models.ImprovementSuggestions;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
 using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
+using Sammlerplattform.Models.Passkey;
 using Sammlerplattform.Models.PlaceDatabase;
-using Sammlerplattform.Models.PlaceDatabase.BodyOfWaterDatabase;
-using Sammlerplattform.Models.PlaceDatabase.BuildingDatabase;
-using Sammlerplattform.Models.PlaceDatabase.FieldDatabase;
-using Sammlerplattform.Models.PlaceDatabase.RegionDatabase;
-using Sammlerplattform.Models.PlaceDatabase.ReliefDatabase;
-using Sammlerplattform.Models.PlaceDatabase.SettlementDatabase;
-using Sammlerplattform.Models.PlaceDatabase.TransportRouteDatabase;
+using Sammlerplattform.Models.PlaceDatabase.Toponymy;
 using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Models.UserSettings;
 
@@ -26,8 +22,10 @@ namespace Sammlerplattform.Data;
 
 public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : IdentityDbContext<UsingIdentityUser>(options)
 {
-    public DbSet<ConceptRelationshipQueryResult> ConceptRelationshipQueryResult { get; set; }
-    public DbSet<EntityTranslation> EntityTranslation { get; set; }
+    public DbSet<ConceptRelationViewModel> ConceptRelation { get; set; } = null!;
+    public DbSet<Concept> Concept { get; set; } = null!;
+    public DbSet<EntityTranslation> EntityTranslation { get; set; } = null!;
+    public DbSet<FidoCredential> FidoCredential { get; set; } = null!;
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -83,75 +81,16 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .WithMany(e => e.PlaceNToponymyList)
             .IsRequired(true);
 
-        _ = builder.Entity<Place>()
-            .HasOne(c => c.ParentPlace)
-            .WithMany(c => c.ChildPlaceList)
-            .HasForeignKey(c => c.ParentPlaceID)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<PlaceNPlace>()
+    .HasOne(p => p.Place1)
+    .WithMany(p => p.ConnectionsAsFirst)
+    .HasForeignKey(p => p.PlaceID1)
+    .OnDelete(DeleteBehavior.Restrict);
 
-        _ = builder.Entity<Concept>()
-            .HasOne(c => c.RootConcept)
-            .WithMany(c => c.SubConceptList)
-            .HasForeignKey(c => c.RootConceptID)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        _ = builder.Entity<Place>()
-            .HasOne(e => e.BodyOfWater)
-            .WithOne(e => e.Place)
-            .HasForeignKey<BodyOfWater>(e => e.PlaceID)
-            .IsRequired();
-        _ = builder.Entity<Place>()
-            .HasOne(e => e.Building)
-            .WithOne(e => e.Place)
-            .HasForeignKey<Building>(e => e.PlaceID)
-            .IsRequired();
-        _ = builder.Entity<Place>()
-            .HasOne(e => e.Field)
-            .WithOne(e => e.Place)
-            .HasForeignKey<Field>(e => e.PlaceID)
-            .IsRequired();
-        _ = builder.Entity<Place>()
-            .HasOne(e => e.Region)
-            .WithOne(e => e.Place)
-            .HasForeignKey<Region>(e => e.PlaceID)
-            .IsRequired();
-        _ = builder.Entity<Place>()
-            .HasOne(e => e.Relief)
-            .WithOne(e => e.Place)
-            .HasForeignKey<Relief>(e => e.PlaceID)
-            .IsRequired();
-        _ = builder.Entity<Place>()
-            .HasOne(e => e.Settlement)
-            .WithOne(e => e.Place)
-            .HasForeignKey<Settlement>(e => e.PlaceID)
-            .IsRequired();
-        _ = builder.Entity<Place>()
-            .HasOne(e => e.TransportRoute)
-            .WithOne(e => e.Place)
-            .HasForeignKey<TransportRoute>(e => e.PlaceID)
-            .IsRequired();
-
-        _ = builder.Entity<Settlement>()
-            .HasMany(e => e.SettlementNPostalcodeList)
-            .WithOne(e => e.Settlement)
-            .HasForeignKey(e => e.SettlementID);
-        _ = builder.Entity<Postalcode>()
-            .HasMany(e => e.SettlementNPostalcodeList)
-            .WithOne(e => e.Postalcode)
-            .HasForeignKey(e => e.PostalcodeID);
-        _ = builder.Entity<SettlementNPostalcode>()
-            .HasOne(e => e.Settlement)
-            .WithMany(e => e.SettlementNPostalcodeList)
-            .IsRequired(true);
-        _ = builder.Entity<SettlementNPostalcode>()
-            .HasOne(e => e.Postalcode)
-            .WithMany(e => e.SettlementNPostalcodeList)
-            .IsRequired(true);
-
-        _ = builder.Entity<Settlement>()
-            .HasOne(e => e.RelatedGeography)
-            .WithOne(e => e.RelatedSettlement)
-            .HasForeignKey<Settlement>(e => e.RelatedGeographyID)
+        builder.Entity<PlaceNPlace>()
+            .HasOne(p => p.Place2)
+            .WithMany(p => p.ConnectionsAsSecond)
+            .HasForeignKey(p => p.PlaceID2)
             .OnDelete(DeleteBehavior.Restrict);
 
         _ = builder.Entity<Party>()
@@ -165,25 +104,25 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
              .HasForeignKey<Organization>(i => i.PartyID)
              .IsRequired();
 
-        _ = builder.Entity<Party>()
-            .HasMany(e => e.PlaceList)
-            .WithMany(e => e.PartyList)
-            .UsingEntity(
-                "PartyNPlace",
-                l => l.HasOne(typeof(Party)).WithMany().HasForeignKey("PartyID"),
-                r => r.HasOne(typeof(Place)).WithMany().HasForeignKey("PlaceID"),
-                j => j.HasKey("PartyID", "PlaceID"));
-        _ = builder.Entity<Place>()
-            .HasMany(e => e.PartyList)
-            .WithMany(e => e.PlaceList)
-            .UsingEntity(
-                "PartyNPlace",
-                l => l.HasOne(typeof(Party)).WithMany().HasForeignKey("PartyID"),
-                r => r.HasOne(typeof(Place)).WithMany().HasForeignKey("PlaceID"),
-                j => j.HasKey("PartyID", "PlaceID"));
+        //_ = builder.Entity<Party>()
+        //    .HasMany(e => e.PlaceList)
+        //    .WithMany(e => e.PartyList)
+        //    .UsingEntity(
+        //        "PartyNPlace",
+        //        l => l.HasOne(typeof(Party)).WithMany().HasForeignKey("PartyID"),
+        //        r => r.HasOne(typeof(Place)).WithMany().HasForeignKey("PlaceID"),
+        //        j => j.HasKey("PartyID", "PlaceID"));
+        //_ = builder.Entity<Place>()
+        //    .HasMany(e => e.PartyList)
+        //    .WithMany(e => e.PlaceList)
+        //    .UsingEntity(
+        //        "PartyNPlace",
+        //        l => l.HasOne(typeof(Party)).WithMany().HasForeignKey("PartyID"),
+        //        r => r.HasOne(typeof(Place)).WithMany().HasForeignKey("PlaceID"),
+        //        j => j.HasKey("PartyID", "PlaceID"));
 
         _ = builder.Entity<Organization>()
-            .HasOne(o => o.ProductionFacility)
+            .HasOne(o => o.Industry)
             .WithMany(p => p.OrganizationList)
             .IsRequired();
 
@@ -228,14 +167,6 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .WithMany(c => c.CollectionItemEntityList)
             .IsRequired(true);
 
-        _ = builder.Entity<Concept>()
-            .HasMany(cf => cf.ConceptValueList)
-            .WithOne(civ => civ.Concept)
-            .HasForeignKey(civ => civ.ConceptID);
-        _ = builder.Entity<ConceptValue>()
-            .HasOne(civ => civ.Concept)
-            .WithMany(cf => cf.ConceptValueList)
-            .IsRequired(true);
         _ = builder.Entity<ConceptValue>()
             .HasOne(civ => civ.CollectionItemEntity)
             .WithMany(pe => pe.ConceptValueList)
@@ -254,29 +185,13 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .WithOne(cie => cie.UsingIdentityUser)
             .HasForeignKey(cie => cie.UsingIdentityUsersID);
 
-        _ = builder.Entity<Concept>()
-            .HasOne(c => c.CollectionArea)
-            .WithMany(ca => ca.ConceptList)
-            .IsRequired(true);
-        _ = builder.Entity<CollectionArea>()
-            .HasMany(ca => ca.ConceptList)
-            .WithOne(c => c.CollectionArea)
-            .HasForeignKey(c => c.CollectionAreaID);
-        _ = builder.Entity<CollectionItemEntity>()
-            .HasOne(cip => cip.Concept)
-            .WithMany(c => c.CollectionItemEntityList)
-            .HasForeignKey(cip => cip.ConceptID)
-            .IsRequired(false);
         _ = builder.Entity<CollectionItemEntity>()
             .HasOne(cip => cip.Era)
             .WithMany(c => c.CollectionItemEntityList)
             .HasForeignKey(cip => cip.EraID)
             .IsRequired(false);
-        _ = builder.Entity<ConceptRelationshipQueryResult>()
-            .HasNoKey()                // wichtig, sonst will EF einen PK erzwingen
-            .ToView(null);             // verhindert Mapping auf View/Tabelle
 
-        _ = builder.Entity<ConceptRelation>().ToTable("ConceptRelation", b => b.IsTemporal(false)) // echte Edge-Table
+        _ = builder.Entity<ConceptRelationViewModel>().ToTable("ConceptRelation", b => b.IsTemporal(false)) // echte Edge-Table
            .HasNoKey()                // wichtig, sonst will EF einen PK erzwingen
            .ToView(null);             // verhindert Mapping auf View/Tabelle
         _ = builder.Entity<CollectionItemEmbedding>()
@@ -313,5 +228,21 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .HasOne(t => t.Author)
             .WithMany(u => u.TopicList)
             .IsRequired(true);
+
+        _ = builder.Entity<OwnershipProofPicture>()
+            .HasOne(x => x.CollectionItemEntity)
+            .WithMany(x => x.OwnershipProofPictureList)
+            .IsRequired(true);
+
+        builder.Entity<FidoCredential>()
+                .HasOne(f => f.User)
+                .WithMany(u => u.FidoCredentialList)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+        _ = builder.Entity<PlaceEditDTO>()
+            .HasNoKey();
     }
+
+public DbSet<Sammlerplattform.Models.PlaceDatabase.PlaceEditDTO> PlaceEditDTO { get; set; } = default!;
 }

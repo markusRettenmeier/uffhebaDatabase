@@ -12,7 +12,7 @@ namespace Sammlerplattform.Services.EMail
                        IWebHostEnvironment hostEnvironment,
         IStringLocalizer<SharedResources> stringLocalizer,
         IHtmlLocalizer<SharedResources> htmlLocalizer,
-        ITrackEvents trackEvents) : IEmailSender
+        ITrackEventsCSV trackEvents) : IEmailSender
     {
         public AuthMessageSenderOptions Options { get; } = optionsAccessor.Value;
 

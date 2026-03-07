@@ -1,351 +1,414 @@
 ﻿using LinqKit;
 using Microsoft.EntityFrameworkCore;
-using System.Buffers;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Sammlerplattform.Data
 {
+    //public class SearchPredicateBuilder
+    //{
+    //    public static Expression<Func<T, bool>> BuildPredicate<T>(object searchModel)
+    //    {
+    //        var predicate = PredicateBuilder.New<T>(true); // TRUE = kein Filter
+
+    //        PropertyInfo[] modelProperties = searchModel
+    //            .GetType()
+    //            .GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+    //        foreach (PropertyInfo prop in modelProperties)
+    //        {
+    //            object? value = prop.GetValue(searchModel);
+    //            if (value == null)
+    //                continue;
+
+    //            string columnName = prop.Name.Replace("_", ".");
+
+    //            switch (value)
+    //            {
+    //                case ICollection<int> intValue when intValue.Count > 0:
+    //                    predicate = predicate.And(CreateLambdaSpanIntJoin<T>(columnName, intValue));
+    //                    break;
+    //                case ICollection<int?> intNullValue when intNullValue.Count > 0:
+    //                    predicate = predicate.And(CreateLambdaSpanIntNullJoin<T>(columnName, intNullValue));
+    //                    break;
+
+    //                case ICollection<string> strList when strList.Count > 0:
+    //                    predicate = predicate.And(
+    //                        CreateLambdaStringContainsJoin<T>(columnName, strList));
+    //                    break;
+    //            }
+    //        }
+
+    //        return predicate;
+    //    }
+
+    //    private static Expression<Func<T, bool>> CreateLambdaStringContainsJoin<T>(string propertyPath, ICollection<string> values)
+    //    {
+    //        ParameterExpression parameter = Expression.Parameter(typeof(T), "x");
+
+    //        Expression? property = parameter;
+    //        foreach (string part in propertyPath.Split('.'))
+    //        {
+    //            property = Expression.PropertyOrField(property!, part);
+    //        }
+
+    //        MethodInfo containsMethod = typeof(string).GetMethod("Contains", [typeof(string)])!;
+
+    //        Expression? combined = null;
+    //        foreach (string value in values)
+    //        {
+    //            ConstantExpression constant = Expression.Constant(value, typeof(string));
+    //            MethodCallExpression contains = Expression.Call(property!, containsMethod, constant);
+
+    //            combined = combined == null ? contains : Expression.OrElse(combined, contains);
+    //        }
+
+    //        return Expression.Lambda<Func<T, bool>>(combined!, parameter);
+    //    }
+
+    //    public static Expression<Func<T, bool>> CreateLambdaSpanIntNullJoin<T>(string columnName, ICollection<int?> searchValues)
+    //    {
+    //        ExpressionStarter<T> predicate = PredicateBuilder.New<T>();
+
+    //        if (IsICollectionIntNullValid(searchValues))
+    //        {
+    //            ParameterExpression pe = Expression.Parameter(typeof(T), "s");
+
+    //            MemberExpression property = GetNestedProperty(pe, columnName);
+    //            MethodInfo? method = searchValues.GetType().GetMethod("Equals");
+    //            if (method == null)
+    //            {
+    //                return predicate;
+    //            }
+
+    //            ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
+    //            UnaryExpression converted = Expression.Convert(constant, typeof(object));
+    //            MethodCallExpression call = Expression.Call(property, method, converted);
+    //            Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(call, pe);
+    //            predicate = predicate.Or(lambda);                
+    //        }
+
+    //        return predicate;
+    //    }
+
+    //    public static Expression<Func<T, bool>> CreateLambdaSpanIntJoin<T>(string columnName, ICollection<int> searchValues)
+    //    {
+    //        ExpressionStarter<T> predicate = PredicateBuilder.New<T>();
+
+    //        if (IsICollectionIntValid(searchValues))
+    //        {
+    //            ParameterExpression pe = Expression.Parameter(typeof(T), "s");
+
+    //            MemberExpression property = GetNestedProperty(pe, columnName);
+    //            MethodInfo? method = searchValues.GetType().GetMethod("Equals");
+    //            if (method == null)
+    //            {
+    //                return predicate;
+    //            }
+
+    //            ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
+    //            UnaryExpression converted = Expression.Convert(constant, typeof(object));
+    //            MethodCallExpression call = Expression.Call(property, method, converted);
+    //            Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(call, pe);
+    //            predicate = predicate.Or(lambda);                
+    //        }
+
+    //        return predicate;
+    //    }
+
+    //    private static bool IsICollectionIntValid(ICollection<int> collection)
+    //    {
+    //        if (collection == null)
+    //        {
+    //            return false;
+    //        }
+    //        else if (collection.Count == 0)
+    //        {
+    //            return false;
+    //        }
+
+    //        return true;
+    //    }
+    //    private static bool IsICollectionIntNullValid(ICollection<int?> collection)
+    //    {
+    //        if (collection == null)
+    //        {
+    //            return false;
+    //        }
+    //        else if (collection.Count == 0)
+    //        {
+    //            return false;
+    //        }
+
+    //        return true;
+    //    }
+    //    public static MemberExpression GetNestedProperty(Expression parameter, string propertyPath)
+    //    {
+    //        Expression current = parameter;
+    //        foreach (string member in propertyPath.Split('.'))
+    //        {
+    //            current = Expression.Property(current, member);
+    //        }
+    //        return (MemberExpression)current;
+    //    }
+    //}
+
     public class SearchPredicateBuilder
     {
-        public static ExpressionStarter<T>? BuildPredicate<T>(object searchModel)
+        public static Expression<Func<T, bool>> BuildPredicate<T>(object searchModel)
         {
-            ExpressionStarter<T> predicate = PredicateBuilder.New<T>();
-            PropertyInfo[] modelProperties = searchModel.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var predicate = PredicateBuilder.New<T>(true); // TRUE = kein Filter
+
+            PropertyInfo[] modelProperties = searchModel
+                .GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             foreach (PropertyInfo prop in modelProperties)
             {
                 object? value = prop.GetValue(searchModel);
                 if (value == null)
-                {
                     continue;
-                }
+
                 string columnName = prop.Name.Replace("_", ".");
 
                 switch (value)
                 {
-                    case ICollection<int> intValue when intValue.Count != 0:
+                    case ICollection<int> intValue when intValue.Count > 0:
                         predicate = predicate.And(CreateLambdaSpanIntJoin<T>(columnName, intValue));
                         break;
-                    case ICollection<string> strList when strList.Count != 0:
-                        predicate = columnName.Contains("List") || columnName.Contains("List")
-                            ? (ExpressionStarter<T>)predicate.And(CreateLambdaAnyDeepContains<T>(columnName, strList))
-                            : (ExpressionStarter<T>)predicate.And(CreateLambdaStringContainsJoin<T>(columnName, strList));
+                    case ICollection<int?> intNullValue when intNullValue.Count > 0:
+                        predicate = predicate.And(CreateLambdaSpanIntNullJoin<T>(columnName, intNullValue));
                         break;
-                    case "on":
-                    case true:
-                        predicate = predicate.Or(CreateLambdaBool<T>(columnName));
-                        break;
-                    case ICollection<DateTime> dateValue when dateValue.Count != 0:
-                        predicate = predicate.And(CreateLambdaSpanDateTimeJoin<T>(columnName, dateValue));
-                        break;
-                    case ICollection<decimal> decimalValue when decimalValue.Count != 0:
-                        predicate = predicate.And(CreateLambdaSpanDecimalJoin<T>(columnName, decimalValue));
+
+                    case ICollection<string> strList when strList.Count > 0:
+                        predicate = predicate.And(
+                            CreateLambdaStringContainsJoin<T>(columnName, strList));
                         break;
                 }
             }
 
-            return predicate.IsStarted ? predicate : null;
-        }
-
-        private static Expression<Func<T, bool>> CreateLambdaBool<T>(string propertyName)
-        {
-            ParameterExpression parameter = Expression.Parameter(typeof(T), "x");
-            MemberExpression property = Expression.Property(parameter, propertyName);
-            ConstantExpression constant = Expression.Constant(true, typeof(bool));
-            BinaryExpression equal = Expression.Equal(property, constant);
-            return Expression.Lambda<Func<T, bool>>(equal, parameter);
+            return predicate;
         }
 
         private static Expression<Func<T, bool>> CreateLambdaStringContainsJoin<T>(string propertyPath, ICollection<string> values)
         {
             ParameterExpression parameter = Expression.Parameter(typeof(T), "x");
 
-            Expression? property = parameter;
-            foreach (string part in propertyPath.Split('.'))
+            // Prüfen, ob wir auf eine Collection zugreifen
+            Type currentType = typeof(T);
+            string[] pathParts = propertyPath.Split('.');
+
+            Expression property = parameter;
+            bool isCollectionPath = false;
+            Type collectionElementType = typeof(object); // Platzhalter, wird später gesetzt
+            ParameterExpression? collectionParameter = null;
+            Expression? collectionPropertyAccess = null;
+
+            // Pfad analysieren und erkennen, wo eine Collection ist
+            for (int i = 0; i < pathParts.Length; i++)
             {
-                property = Expression.PropertyOrField(property!, part);
-            }
+                string part = pathParts[i];
+                PropertyInfo? propInfo = currentType.GetProperty(part) ?? throw new ArgumentException($"Property '{part}' not found on type '{currentType.Name}'");
 
-            MethodInfo containsMethod = typeof(string).GetMethod("Contains", [typeof(string)])!;
-
-            Expression? combined = null;
-            foreach (string value in values)
-            {
-                ConstantExpression constant = Expression.Constant(value, typeof(string));
-                MethodCallExpression contains = Expression.Call(property!, containsMethod, constant);
-
-                combined = combined == null ? contains : Expression.OrElse(combined, contains);
-            }
-
-            return Expression.Lambda<Func<T, bool>>(combined!, parameter);
-        }
-
-        public static Expression<Func<T, bool>> CreateLambdaAnyDeepContains<T>(string path, ICollection<string> searchValues)
-        {
-            if (searchValues == null || !searchValues.Any(v => !string.IsNullOrWhiteSpace(v)))
-            {
-                return PredicateBuilder.New<T>();
-            }
-
-            ParameterExpression outerParam = Expression.Parameter(typeof(T), "x");
-
-            Expression? body = null;
-            foreach (string? val in searchValues.Where(v => !string.IsNullOrWhiteSpace(v)))
-            {
-                Expression partExpr = BuildAnyLambda(outerParam, path.Split('.'), val);
-                body = body == null ? partExpr : Expression.OrElse(body, partExpr);
-            }
-
-            return body == null ? (Expression<Func<T, bool>>)PredicateBuilder.New<T>() : Expression.Lambda<Func<T, bool>>(body, outerParam);
-        }
-
-        private static Expression BuildAnyLambda(Expression source, string[] pathParts, string searchValue)
-        {
-            Type currentType = source.Type;
-
-            PropertyInfo prop = currentType.GetProperty(pathParts[0])
-                ?? throw new ArgumentException($"'{pathParts[0]}' is not a member of type '{currentType.Name}'");
-
-            Expression propExpr = Expression.Property(source, prop);
-
-            // Collection?
-            if (typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.PropertyType) &&
-                prop.PropertyType != typeof(string))
-            {
-                Type elementType = prop.PropertyType.GetGenericArguments().First();
-
-                ParameterExpression innerParam = Expression.Parameter(elementType, "e");
-                Expression innerBody = BuildAnyLambda(innerParam, [.. pathParts.Skip(1)], searchValue);
-
-                LambdaExpression anyLambda = Expression.Lambda(innerBody, innerParam);
-
-                MethodInfo anyMethod = typeof(Enumerable)
-                    .GetMethods()
-                    .First(m => m.Name == "Any" && m.GetParameters().Length == 2)
-                    .MakeGenericMethod(elementType);
-
-                return Expression.Call(anyMethod, propExpr, anyLambda);
-            }
-            else
-            {
-                if (pathParts.Length == 1)
+                // Prüfen, ob diese Property eine Collection ist
+                if (IsCollectionType(propInfo.PropertyType))
                 {
-                    // Fallback: ToString().Contains(searchValue)
-                    MethodInfo toStringMethod = typeof(object).GetMethod("ToString")!;
-                    Expression toStringCall = Expression.Call(propExpr, toStringMethod);
+                    isCollectionPath = true;
+                    collectionElementType = GetCollectionElementType(propInfo.PropertyType);
 
-                    MethodInfo containsMethod = typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!;
-                    return Expression.Call(toStringCall, containsMethod, Expression.Constant(searchValue));
+                    // Property bis zur Collection zugreifen
+                    property = Expression.Property(property, part);
+
+                    // Parameter für das Element der Collection erstellen
+                    collectionParameter = Expression.Parameter(collectionElementType, "c");
+
+                    // Restlichen Pfad für das Collection-Element erstellen
+                    collectionPropertyAccess = collectionParameter;
+                    for (int j = i + 1; j < pathParts.Length; j++)
+                    {
+                        collectionPropertyAccess = Expression.Property(collectionPropertyAccess, pathParts[j]);
+                    }
+
+                    break;
                 }
                 else
                 {
-                    // Weiter runter
-                    return BuildAnyLambda(propExpr, [.. pathParts.Skip(1)], searchValue);
+                    property = Expression.Property(property, part);
+                    currentType = propInfo.PropertyType;
                 }
             }
+
+            // Wenn es eine Collection ist, verwenden wir Any()
+            if (isCollectionPath && collectionParameter != null && collectionPropertyAccess != null)
+            {
+                // Contains-Bedingungen für das Collection-Element erstellen
+                MethodInfo containsMethod = typeof(string).GetMethod("Contains", [typeof(string)])!;
+
+                Expression? combinedCondition = null;
+                foreach (string value in values)
+                {
+                    ConstantExpression constant = Expression.Constant(value, typeof(string));
+                    MethodCallExpression contains = Expression.Call(collectionPropertyAccess, containsMethod, constant);
+
+                    combinedCondition = combinedCondition == null ? contains : Expression.OrElse(combinedCondition, contains);
+                }
+
+                // Lambda für das Collection-Element
+                var elementLambda = Expression.Lambda(combinedCondition!, collectionParameter);
+
+                // Any-Methode holen und aufrufen
+                var anyMethod = typeof(Enumerable)
+                    .GetMethods()
+                    .First(m => m.Name == "Any" && m.GetParameters().Length == 2)
+                    .MakeGenericMethod(collectionElementType);
+
+                var anyCall = Expression.Call(anyMethod, property, elementLambda);
+
+                return Expression.Lambda<Func<T, bool>>(anyCall, parameter);
+            }
+            else
+            {
+                // Normale Property (keine Collection)
+                MethodInfo containsMethod = typeof(string).GetMethod("Contains", [typeof(string)])!;
+
+                Expression? combined = null;
+                foreach (string value in values)
+                {
+                    ConstantExpression constant = Expression.Constant(value, typeof(string));
+                    MethodCallExpression contains = Expression.Call(property, containsMethod, constant);
+
+                    combined = combined == null ? contains : Expression.OrElse(combined, contains);
+                }
+
+                return Expression.Lambda<Func<T, bool>>(combined!, parameter);
+            }
+        }
+
+        public static Expression<Func<T, bool>> CreateLambdaSpanIntNullJoin<T>(string columnName, ICollection<int?> searchValues)
+        {
+            if (!IsICollectionIntNullValid(searchValues))
+                return PredicateBuilder.New<T>();
+
+            return CreateLambdaSpanIntJoinInternal<T, int?>(columnName, searchValues.Cast<int?>());
         }
 
         public static Expression<Func<T, bool>> CreateLambdaSpanIntJoin<T>(string columnName, ICollection<int> searchValues)
         {
-            ExpressionStarter<T> predicate = PredicateBuilder.New<T>();
+            if (!IsICollectionIntValid(searchValues))
+                return PredicateBuilder.New<T>();
 
-            if (IsICollectionIntValid(searchValues))
+            return CreateLambdaSpanIntJoinInternal<T, int>(columnName, searchValues.Cast<int>());
+        }
+
+        private static Expression<Func<T, bool>> CreateLambdaSpanIntJoinInternal<T, TValue>(string columnName, IEnumerable<TValue> searchValues)
+        {
+            ParameterExpression parameter = Expression.Parameter(typeof(T), "s");
+
+            // Prüfen, ob wir auf eine Collection zugreifen
+            Type currentType = typeof(T);
+            string[] pathParts = columnName.Split('.');
+
+            Expression property = parameter;
+            bool isCollectionPath = false;
+            Type? collectionElementType = typeof(object);
+            ParameterExpression? collectionParameter = null;
+            Expression? collectionPropertyAccess = null;
+
+            // Pfad analysieren
+            for (int i = 0; i < pathParts.Length; i++)
             {
-                ParameterExpression pe = Expression.Parameter(typeof(T), "s");
+                string part = pathParts[i];
+                PropertyInfo? propInfo = currentType.GetProperty(part) ?? throw new ArgumentException($"Property '{part}' not found on type '{currentType.Name}'");
+                if (IsCollectionType(propInfo.PropertyType))
+                {
+                    isCollectionPath = true;
+                    collectionElementType = GetCollectionElementType(propInfo.PropertyType);
 
-                MemberExpression property = GetNestedProperty(pe, columnName);
-                MethodInfo? method = searchValues.GetType().GetMethod("Equals");
-                if (method == null)
+                    property = Expression.Property(property, part);
+                    collectionParameter = Expression.Parameter(collectionElementType, "c");
+
+                collectionPropertyAccess = collectionParameter;
+                for (int j = i + 1; j < pathParts.Length; j++)
                 {
-                    return predicate;
+                    collectionPropertyAccess = Expression.Property(collectionPropertyAccess, pathParts[j]);
                 }
 
-                if (searchValues.Count == 1)
+                break;
+            }
+                else
                 {
-                    ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
-                    UnaryExpression converted = Expression.Convert(constant, typeof(object));
-                    MethodCallExpression call = Expression.Call(property, method, converted);
-                    Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(call, pe);
-                    predicate = predicate.Or(lambda);
-                }
-                else if (searchValues.Count == 2)
-                {
-                    ConstantExpression constant0 = Expression.Constant(searchValues.ToArray()[0]);
-                    ConstantExpression constant1 = Expression.Constant(searchValues.ToArray()[1]);
-                    predicate = Expression.Lambda<Func<T, bool>>(
-                        Expression.AndAlso(
-                            GreaterThanOrEqual(property, constant0),
-                            LessThanOrEqual(property, constant1)),
-                                [pe]);
-                }
-                else if (searchValues.Count >= 3)
-                {
-                    foreach (int value in searchValues)
-                    {
-                        ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
-                        UnaryExpression converted = Expression.Convert(constant, typeof(object));
-                        MethodCallExpression call = Expression.Call(property, method, converted);
-                        Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(call, pe);
-                        predicate = predicate.Or(lambda);
-                    }
+                    property = Expression.Property(property, part);
+                    currentType = propInfo.PropertyType;
                 }
             }
 
-            return predicate;
-        }
-        public static Expression<Func<T, bool>> CreateLambdaSpanDateTimeJoin<T>(string columnName, ICollection<DateTime> searchValues)
-        {
-            ExpressionStarter<T> predicate = PredicateBuilder.New<T>();
+            // Bedingung für Gleichheit erstellen
+            Expression? combinedCondition = null;
 
-            if (IsICollectionDateTimeValid(searchValues))
+            if (isCollectionPath && collectionParameter != null && collectionPropertyAccess != null)
             {
-                ParameterExpression pe = Expression.Parameter(typeof(T), "s");
-                MemberExpression property = Expression.Property(pe, columnName);
+                // Für Collection: Any mit Gleichheitsbedingungen
+                foreach (var searchValue in searchValues)
+                {
+                    ConstantExpression constant = Expression.Constant(searchValue, typeof(TValue));
+                    BinaryExpression equalsExpression = Expression.Equal(collectionPropertyAccess, constant);
 
-                if (searchValues.Count == 1)
-                {
-                    ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
-                    predicate = Expression.Lambda<Func<T, bool>>(Equal(property, constant), [pe]);
+                    combinedCondition = combinedCondition == null
+                        ? equalsExpression
+                        : Expression.OrElse(combinedCondition, equalsExpression);
                 }
-                else if (searchValues.Count == 2)
-                {
-                    ConstantExpression constant0 = Expression.Constant(searchValues.ToArray()[0]);
-                    ConstantExpression constant1 = Expression.Constant(searchValues.ToArray()[1]);
-                    predicate = Expression.Lambda<Func<T, bool>>(
-                        Expression.AndAlso(
-                            GreaterThanOrEqual(property, constant0),
-                            LessThanOrEqual(property, constant1)),
-                                [pe]);
-                }
+
+                var elementLambda = Expression.Lambda(combinedCondition!, collectionParameter);
+
+                var anyMethod = typeof(Enumerable)
+                    .GetMethods()
+                    .First(m => m.Name == "Any" && m.GetParameters().Length == 2)
+                    .MakeGenericMethod(collectionElementType);
+
+                var anyCall = Expression.Call(anyMethod, property, elementLambda);
+
+                return Expression.Lambda<Func<T, bool>>(anyCall, parameter);
             }
-            return predicate;
-        }
-
-        public static Expression<Func<T, bool>> CreateLambdaSpanDecimalJoin<T>(string columnName, ICollection<decimal> searchValues)
-        {
-            ExpressionStarter<T> predicateloc = PredicateBuilder.New<T>();
-
-            if (IsICollectionDecimalValid(searchValues))
+            else
             {
-                ParameterExpression pe = Expression.Parameter(typeof(T), "s");
-                MemberExpression property = Expression.Property(pe, columnName);
+                // Normale Property
+                foreach (var searchValue in searchValues)
+                {
+                    ConstantExpression constant = Expression.Constant(searchValue, typeof(TValue));
+                    BinaryExpression equalsExpression = Expression.Equal(property, constant);
 
-                if (searchValues.Count == 1)
-                {
-                    ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
-                    predicateloc = Expression.Lambda<Func<T, bool>>(Equal(property, constant), [pe]);
+                    combinedCondition = combinedCondition == null
+                        ? equalsExpression
+                        : Expression.OrElse(combinedCondition, equalsExpression);
                 }
-                else if (searchValues.Count == 2)
-                {
-                    ConstantExpression constant0 = Expression.Constant(searchValues.ToArray()[0]);
-                    ConstantExpression constant1 = Expression.Constant(searchValues.ToArray()[1]);
-                    predicateloc = Expression.Lambda<Func<T, bool>>(
-                        Expression.AndAlso(
-                            GreaterThanOrEqual(property, constant0),
-                            LessThanOrEqual(property, constant1)),
-                                [pe]);
-                }
+
+                return Expression.Lambda<Func<T, bool>>(combinedCondition!, parameter);
             }
-            return predicateloc;
         }
 
-        private static BinaryExpression Equal(Expression memberExpression,
-                                   ConstantExpression constantToCompare)
+        // Hilfsmethoden
+        private static bool IsCollectionType(Type type)
         {
-            MemberExpression hasValueExpression = Expression.Property(memberExpression, "HasValue");
-            MemberExpression valueExpression = Expression.Property(memberExpression, "Value");
-            BinaryExpression notEqual = Expression.Equal(valueExpression, constantToCompare);
-            return Expression.AndAlso(hasValueExpression, notEqual);
+            return type.IsGenericType &&
+                   (type.GetGenericTypeDefinition() == typeof(ICollection<>) ||
+                    type.GetGenericTypeDefinition() == typeof(IEnumerable<>) ||
+                    type.GetGenericTypeDefinition() == typeof(IList<>) ||
+                    type.GetGenericTypeDefinition() == typeof(List<>));
         }
-        private static BinaryExpression GreaterThanOrEqual(Expression memberExpression,
-                                   ConstantExpression constantToCompare)
+
+        private static Type GetCollectionElementType(Type collectionType)
         {
-            MemberExpression hasValueExpression = Expression.Property(memberExpression, "HasValue");
-            MemberExpression valueExpression = Expression.Property(memberExpression, "Value");
-            BinaryExpression notEqual = Expression.GreaterThanOrEqual(valueExpression, constantToCompare);
-            return Expression.AndAlso(hasValueExpression, notEqual);
-        }
-        private static BinaryExpression LessThanOrEqual(Expression memberExpression,
-                                   ConstantExpression constantToCompare)
-        {
-            MemberExpression hasValueExpression = Expression.Property(memberExpression, "HasValue");
-            MemberExpression valueExpression = Expression.Property(memberExpression, "Value");
-            BinaryExpression notEqual = Expression.LessThanOrEqual(valueExpression, constantToCompare);
-            return Expression.AndAlso(hasValueExpression, notEqual);
+            return collectionType.GetGenericArguments()[0];
         }
 
         private static bool IsICollectionIntValid(ICollection<int> collection)
         {
-            if (collection == null)
-            {
-                return false;
-            }
-            else if (collection.Count == 0)
-            {
-                return false;
-            }
-
-            return true;
+            return collection != null && collection.Count > 0;
         }
-        private static bool IsICollectionStringValid(ICollection<string> collection)
-        {
-            if (collection == null)
-            {
-                return false;
-            }
-            else if (collection.Count == 0)
-            {
-                return false;
-            }
 
-            return true;
-        }
-        private static bool IsICollectionDateTimeValid(ICollection<DateTime> collection)
+        private static bool IsICollectionIntNullValid(ICollection<int?> collection)
         {
-            if (collection == null)
-            {
-                return false;
-            }
-            else if (collection.Count == 0)
-            {
-                return false;
-            }
-
-            return true;
-        }
-        private static bool IsICollectionDecimalValid(ICollection<decimal> collection)
-        {
-            if (collection == null)
-            {
-                return false;
-            }
-            else if (collection.Count == 0)
-            {
-                return false;
-            }
-
-            return true;
-        }
-        private static Expression GetNestedPropertyExpression(Expression parameter, string[] pathParts)
-        {
-            Expression current = parameter;
-            foreach (string part in pathParts)
-            {
-                PropertyInfo property = current.Type.GetProperty(part) ?? throw new ArgumentException($"'{part}' is not a member of type '{current.Type.Name}'");
-                current = Expression.Property(current, property);
-            }
-
-            return current;
-        }
-        public static MemberExpression GetNestedProperty(Expression parameter, string propertyPath)
-        {
-            Expression current = parameter;
-            foreach (string member in propertyPath.Split('.'))
-            {
-                current = Expression.Property(current, member);
-            }
-            return (MemberExpression)current;
+            return collection != null && collection.Count > 0;
         }
     }
 }

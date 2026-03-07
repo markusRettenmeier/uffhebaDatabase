@@ -10,9 +10,6 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="UserSettings" asp-action="Profile">@Localizer["Profile"]</a>
-                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             @Localizer["CollectionAreas"]
@@ -30,25 +27,7 @@
                         </a>
                         <ul class="dropdown-menu" style="background-color: #FFFFF0">
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="SettlementDatabase" asp-action="Index">@Localizer["Settlements"]</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="BodyOfWaterDatabase" asp-action="Index">@Localizer["BodiesOfWater"]</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="BuildingDatabase" asp-action="Index">@Localizer["Buildings"]</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="FieldDatabase" asp-action="Index">@Localizer["Fields"]</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="RegionDatabase" asp-action="Index">@Localizer["Regions"]</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="ReliefDatabase" asp-action="Index">@Localizer["Reliefs"]</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="TransportRouteDatabase" asp-action="Index">@Localizer["TransportRoutes"]</a>
+                                <a class="nav-link" asp-controller="PlaceDatabase" asp-action="Index">@Localizer["Places"]</a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li class="nav-item">
@@ -67,13 +46,24 @@
                         <a class="nav-link" asp-controller="CollectionAreaDatabase" asp-action="Index">@Localizer["StructureCollectionAreas"]</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="ConceptualRelationshipDatabase" asp-action="IndexGeneral">@Localizer["Concept_CollectionAreaIndependent"]</a>
+                        <a class="nav-link" asp-controller="ConceptualRelationshipDatabase" asp-action="IndexGeneral">@Localizer["Concepts"]</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="ImprovementSuggestions" asp-action="Index">@Localizer["ImprovementSuggestions"]</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Account" asp-action="Logout">@Localizer["Logout"]</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            @Localizer["Others"]
+                        </a>
+                        <ul class="dropdown-menu" style="background-color: #FFFFF0">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="UserSettings" asp-action="Profile">@Localizer["Profile"]</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="ImprovementSuggestions" asp-action="Index">@Localizer["ImprovementSuggestions"]</a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Passkey" asp-action="Logout">@Localizer["Logout"]</a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </div>

@@ -1,7 +1,4 @@
-﻿using Sammlerplattform.Resources;
-using System.ComponentModel.DataAnnotations;
-
-namespace Sammlerplattform.Models.PlaceDatabase
+﻿namespace Sammlerplattform.Models.PlaceDatabase
 {
     public class PlaceViewModelHelper
     {
@@ -11,51 +8,22 @@ namespace Sammlerplattform.Models.PlaceDatabase
                 .Select(x => x.IsCurrentName
                     ? $"<strong>{x.Toponymy.ToponymyName}</strong>"
                     : x.Toponymy.ToponymyName)];
-            string parentPlace = place.ParentPlace?.PlaceNToponymyList
-                .FirstOrDefault(x => x.IsCurrentName)?.Toponymy.ToponymyName ?? string.Empty;
-            List<string>? postalcodes = place.Settlement?.SettlementNPostalcodeList?
-                .Select(x => x.IsCurrentPostalcode
-                    ? $"<strong>{x.Postalcode.PostalcodeNumber}</strong>"
-                    : x.Postalcode.PostalcodeNumber)
-                .ToList();
-            string relatedGeography = place.Settlement?.RelatedGeography?.PlaceNToponymyList?
-                .FirstOrDefault(x => x.IsCurrentName)?.Toponymy.ToponymyName ?? string.Empty;
-            IEnumerable<string?> childPlaces = place.ChildPlaceList.Select(x => x.PlaceNToponymyList.Where(x => x.IsCurrentName).FirstOrDefault()?.Toponymy.ToponymyName);
+            //List<string> connectedPlaces = [.. place.ConnectedPlaces
+            //    .SelectMany(x => x.PlaceNToponymyList.Select(x => x.IsCurrentName
+            //        ? $"<strong>{x.Toponymy.ToponymyName}</strong>"
+            //        : x.Toponymy.ToponymyName))];
+            List<string> connectedPlaces = [.. place.ConnectedPlaces
+                .Select(x => x.PlaceNToponymyList.First(x => x.IsCurrentName).Toponymy.ToponymyName)];
 
             PlaceViewModel placeViewModel = new()
             {
                 PlaceID = place.PlaceID,
                 Toponymy = string.Join(", ", toponymys ?? []),
-                ParentPlaceName = parentPlace,
-                Postalcodes = string.Join(", ", postalcodes ?? []),
-                RelatedGeographyName = relatedGeography,
-                Byname = place.Settlement?.Byname ?? string.Empty,
-                ChildPlaces = string.Join(",", childPlaces ?? [])
+                ConnectedPlaces = string.Join(", ", connectedPlaces ?? []),
+                FurtherSpecs = place.FurtherSpecs ?? string.Empty,
+                //IsDeletable = place.ConnectedPlaces.ToList().Count == 0 && place.PartyList.Count == 0 && place.CollectionItemNPlaceList.Count == 0
+                IsDeletable = place.ConnectedPlaces.ToList().Count == 0 && place.CollectionItemNPlaceList.Count == 0
             };
-            if (!string.IsNullOrEmpty(placeViewModel.Postalcodes))
-            {
-                placeViewModel.FurtherSpecs = "PLZ: " + placeViewModel.Postalcodes + ", ";
-            }
-
-            if (!string.IsNullOrEmpty(placeViewModel.RelatedGeographyName))
-            {
-                placeViewModel.FurtherSpecs += "Geo: " + placeViewModel.RelatedGeographyName + ", ";
-            }
-
-            if (!string.IsNullOrEmpty(placeViewModel.Byname))
-            {
-                placeViewModel.FurtherSpecs += "Beiname: " + placeViewModel.Byname + ", ";
-            }
-
-            if (!string.IsNullOrEmpty(placeViewModel.ParentPlaceName))
-            {
-                placeViewModel.FurtherSpecs += "Teil von: " + placeViewModel.ParentPlaceName + ", ";
-            }
-
-            if (!string.IsNullOrEmpty(placeViewModel.ChildPlaces))
-            {
-                placeViewModel.FurtherSpecs += "Enthält: " + placeViewModel.ChildPlaces + ", ";
-            }
 
             return placeViewModel;
         }
@@ -65,11 +33,8 @@ namespace Sammlerplattform.Models.PlaceDatabase
     {
         public int PlaceID { get; set; }
         public string Toponymy { get; set; } = string.Empty;
-        public string ParentPlaceName { get; set; } = string.Empty;
-        public string ChildPlaces { get; set; } = string.Empty;
-        public string Postalcodes { get; set; } = string.Empty;
-        public string RelatedGeographyName { get; set; } = string.Empty;
-        public string Byname { get; set; } = string.Empty;
+        public string ConnectedPlaces { get; set; } = string.Empty;
         public string FurtherSpecs { get; set; } = string.Empty;
+        public bool IsDeletable { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
     {
         (int StatusCode, string StatusMessage) Insert(StatePreservation state);
         (int StatusCode, string StatusMessage) Update(StatePreservation state);
-        (int StatusCode, string StatusMessage) Delete(int statePreservationID, int collectionAreaID);
+        (int StatusCode, string StatusMessage) Delete(int id);
         List<StatePreservation> GetWithPredicates(StatePreservationSearchParameterModel stateSearchParameterModel);
     }
 
@@ -18,14 +18,14 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         IDeeplTranslationService translationService,
         IProcessTranslations processTranslations,
         ITranslationStore translationStore,
-        ITrackEvents trackEvents) : IProcessStatePreservation
+        ITrackEventsCSV trackEvents) : IProcessStatePreservation
     {
         public (int StatusCode, string StatusMessage) Insert(StatePreservation state)
         {
             int collectionAreaID = state.CollectionAreaID ?? 0;
             if (string.IsNullOrEmpty(state.StatePreservationName) || string.IsNullOrWhiteSpace(state.StatePreservationName) || state.CollectionAreaID <= 0)
             {
-                trackEvents.TrackWarning("StateProcessor/Create: StateName or CollectionAreaID is missing.", new Dictionary<string, object>
+                trackEvents.TrackError("StateProcessor/Create: StateName or CollectionAreaID is missing.", new Dictionary<string, object>
                 {
                     {"State", state }
                 });
@@ -42,7 +42,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             };
             if (searchParameterModel.StatePreservationID.Count > 0)
             {                
-                trackEvents.TrackWarning("StateProcessor/Create: State already exists.", new Dictionary<string, object>
+                trackEvents.TrackError("StateProcessor/Create: State already exists.", new Dictionary<string, object>
                 {
                     {"State", state }
                 });
@@ -143,12 +143,20 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             }
         }
 
-        public (int StatusCode, string StatusMessage) Delete(int statePreservationID, int collectionAreaID)
+        public (int StatusCode, string StatusMessage) Delete(int id)
         {
-            var existingState = unitOfWork.StateRepository.GetByID(statePreservationID);
+            var existingState = GetWithPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [id] }).FirstOrDefault();
             if (existingState == null)
             {
                 return (400, "Error_StatePreservation_NotFound");
+            }
+            if (existingState.CollectionItemEntityList != null && existingState.CollectionItemEntityList.Count > 0)
+            {
+                return (400, "Error_StatePreservation_InUse");
+            }
+            if (existingState.IsGeneralState)
+            {
+                return (400, "Error_StatePreservation_GeneralState");
             }
 
             unitOfWork.StateRepository.Delete(existingState);

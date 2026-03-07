@@ -1,8 +1,8 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.CollectionAreaDatabase;
-using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.Translations;
+using Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses;
 using Sammlerplattform.Services.Translation;
 using System.Globalization;
 using System.Transactions;
@@ -14,22 +14,19 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
         List<CollectionArea> GetListWithPredicate(CollectionAreaSearchParameterModel searchParameterModel);
         (int StatusCode, string StatusMessage, int CollectionAreaID) Insert(CollectionArea collectionArea);
         (int StatusCode, string StatusMessage, int CollectionAreaID) Update(CollectionArea collectionArea);
+        (int StatusCode, string StatusMessage) Delete(int id);
     }
-    public class CollectionAreaProcessor(IUnitOfWork unitOfWork, 
-        IDeeplTranslationService translationService, 
-        IProcessTranslations processTranslations, 
+    public class CollectionAreaProcessor(IUnitOfWork unitOfWork,
+        IDeeplTranslationService translationService,
+        IProcessTranslations processTranslations,
         ITranslationStore translationStore,
-        ITrackEvents trackEvents) : IProcessCollectionArea
+        ITrackEventsCSV trackEvents,
+        IProcessConcept processConcept) : IProcessCollectionArea
     {
         public (int StatusCode, string StatusMessage, int CollectionAreaID) Insert(CollectionArea collectionArea)
         {
-            if (string.IsNullOrWhiteSpace(collectionArea.CollectionAreaName))
+            CollectionAreaSearchParameterModel searchParameterModel = new()
             {
-                trackEvents.TrackWarning("Attempted to create CollectionArea with empty name");
-                return (400, "Error_CollectionArea_NameEmpty", 0);
-            }
-
-            CollectionAreaSearchParameterModel searchParameterModel = new() { 
                 CollectionAreaID = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter
                     {
                         EntityType = [nameof(CollectionArea)],
@@ -39,7 +36,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
             };
             if (searchParameterModel.CollectionAreaID.Count > 0)
             {
-                trackEvents.TrackWarning("Attempted to create duplicate CollectionArea", new Dictionary<string, object>
+                trackEvents.TrackError("Attempted to create duplicate CollectionArea", new Dictionary<string, object>
                 {
                     { "CollectionAreaName", collectionArea.CollectionAreaName }
                 });
@@ -64,24 +61,15 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
                     },
                     collectionArea.CollectionAreaName);
 
-                Concept newConcept = new()
+                ConceptViewModel newConcept = new()
                 {
                     Name = collectionArea.CollectionAreaName,
                     CollectionAreaID = newCollection.CollectionAreaID
                 };
-                newConcept = unitOfWork.ConceptRepository.Insert(newConcept);
-                unitOfWork.Save();
-
-                processTranslations.Insert(
-                    new EntityTranslation
-                    {
-                        EntityType = nameof(Concept),
-                        EntityId = newConcept.Id,
-                        FieldName = nameof(newConcept.Name),
-                        TranslatedText = collectionArea.CollectionAreaName,
-                        Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
-                    },
-                    collectionArea.CollectionAreaName);
+                processConcept.Insert(new ConceptualRelationshipOperationParameterModel
+                {
+                    ConceptViewModel = newConcept
+                });
 
                 transactionScope.Complete();
                 return (201, "Success_CollectionArea_Created", newCollection.CollectionAreaID);
@@ -100,10 +88,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
         {
             if (collectionArea.CollectionAreaID <= 0)
             {
-                trackEvents.TrackWarning("Attempted to edit CollectionArea with missing ID", new Dictionary<string, object> {
+                trackEvents.TrackError("Attempted to edit CollectionArea with missing ID", new Dictionary<string, object> {
                     {
                         "CollectionArea", collectionArea
-                    } 
+                    }
                 });
                 return (400, "Error_CollectionArea_IdMissing", 0);
             }
@@ -112,7 +100,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
             CollectionArea? existingCollection = GetListWithPredicate(collectionSearchParameterModel).FirstOrDefault();
             if (existingCollection == null)
             {
-                trackEvents.TrackWarning("Attempted to edit non-existing CollectionArea", new Dictionary<string, object>
+                trackEvents.TrackError("Attempted to edit non-existing CollectionArea", new Dictionary<string, object>
                 {
                     { "CollectionArea", collectionArea }
                 });
@@ -123,7 +111,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
             {
                 using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-                if(collectionArea.WikipediaUrl != existingCollection.WikipediaUrl)
+                if (collectionArea.WikipediaUrl != existingCollection.WikipediaUrl)
                 {
                     existingCollection.WikipediaUrl = collectionArea.WikipediaUrl;
                     unitOfWork.Save();
@@ -158,7 +146,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
                     {
                         EntityType = [nameof(Concept)],
                         EntityId = [linkedConcept.Id],
-                        FieldName = [nameof(Concept.Name)],
+                        FieldName = [nameof(ConceptViewModel.Name)],
                         Culture = [translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)]
                     }).FirstOrDefault();
                     if (conceptTranslations != null && conceptTranslations.TranslatedText != collectionArea.CollectionAreaName)
@@ -168,7 +156,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
                             {
                                 EntityType = nameof(Concept),
                                 EntityId = linkedConcept.Id,
-                                FieldName = nameof(Concept.Name),
+                                FieldName = nameof(ConceptViewModel.Name),
                                 TranslatedText = collectionArea.CollectionAreaName,
                                 Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
                             },
@@ -206,6 +194,63 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
             }
 
             return [.. query.OrderBy(x => x.CollectionAreaName)];
+        }
+
+        public (int StatusCode, string StatusMessage) Delete(int id)
+        {
+            CollectionArea? collectionArea = GetListWithPredicate(new CollectionAreaSearchParameterModel { CollectionAreaID = [id] }).FirstOrDefault();
+            if (collectionArea == null)
+            {
+                trackEvents.TrackError("Attempted to delete non-existing CollectionArea", new Dictionary<string, object>
+                {
+                    { "CollectionAreaID", id }
+                });
+                return (404, "Error_CollectionArea_NotFound");
+            }
+
+            if (collectionArea.ConceptList.Count > 0)
+            {
+                trackEvents.TrackError("Attempted to delete CollectionArea with linked Concepts", new Dictionary<string, object>
+                {
+                    { "CollectionAreaID", id },
+                    { "LinkedConceptIDs", string.Join(", ", collectionArea.ConceptList.Select(c => c.Id)) }
+                });
+                return (400, "Error_CollectionArea_HasLinkedConcepts");
+            }
+            if (collectionArea.StatePreservationList.Count > 0)
+            {
+                trackEvents.TrackError("Attempted to delete CollectionArea with linked StatePreservations", new Dictionary<string, object>
+                {
+                    { "CollectionAreaID", id },
+                    { "LinkedStatePreservationIDs", string.Join(", ", collectionArea.StatePreservationList.Select(sp => sp.StatePreservationID)) }
+                });
+                return (400, "Error_CollectionArea_HasLinkedStatePreservations");
+            }
+            if (collectionArea.CollectionItemEntityList.Count > 0)
+            {
+                trackEvents.TrackError("Attempted to delete CollectionArea with linked CollectionItems", new Dictionary<string, object>
+                {
+                    { "CollectionAreaID", id },
+                    { "LinkedCollectionItemIDs", string.Join(", ", collectionArea.CollectionItemEntityList.Select(cie => cie.CollectionItemEntityID)) }
+                });
+                return (400, "Error_CollectionArea_HasLinkedCollectionItems");
+            }
+
+            try
+            {
+                unitOfWork.CollectionAreaRepository.Delete(collectionArea);
+                unitOfWork.Save();
+
+                return (200, "Success_CollectionArea_Deleted");
+            }
+            catch (Exception ex)
+            {
+                trackEvents.TrackException(ex, "Deleting CollectionArea", new Dictionary<string, object>
+                {
+                    { "CollectionAreaID", id }
+                });
+                return (500, "Error_Error_Ocurred");
+            }
         }
     }
 }

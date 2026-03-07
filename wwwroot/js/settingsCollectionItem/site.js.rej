@@ -1,0 +1,13 @@
+diff a/wwwroot/js/settingsCollectionItem/site.js b/wwwroot/js/settingsCollectionItem/site.js	(rejected hunks)
+@@ -464,11 +464,6 @@
+ 
+     container.appendChild(div);
+ }
+-//function removeFormFileInput(pictureCount) {
+-//    const appendInputFormFile = document.getElementById('appendInputFormFile');
+-//    const inputGroupFormFile = document.getElementById(`inputGroupFormFile_${pictureCount}`)
+-//    appendInputFormFile.removeChild(inputGroupFormFile);
+-//}
+ (function initRemoveFormFileButtonHandler() {
+     const container = document.getElementById('appendInputFormFile');
+     if (!container) return;

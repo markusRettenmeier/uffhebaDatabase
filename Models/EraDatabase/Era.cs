@@ -14,7 +14,7 @@ namespace Sammlerplattform.Models.EraDatabase
         public int EraID { get; set; }
 
         [NotMapped]
-        [Required(ErrorMessageResourceName = "Era_Name_Missing", ErrorMessageResourceType = typeof(SharedResources))]
+        [Required(ErrorMessageResourceName = "Error_Era_NameMissing", ErrorMessageResourceType = typeof(SharedResources))]
         [Display(Name = "EraName", ResourceType = typeof(SharedResources))]
         [StringLength(50)]
         public required string EraName { get; set; }
@@ -27,9 +27,6 @@ namespace Sammlerplattform.Models.EraDatabase
 
         [Display(Name = "WikipediaUrl", ResourceType = typeof(SharedResources))]
         public string? WikipediaUrl { get; set; }
-
-        [Display(Name = "CollectionItemEntityList", ResourceType = typeof(SharedResources))]
         public List<CollectionItemEntity> CollectionItemEntityList { get; set; } = [];
-
     }
 }

@@ -1,49 +1,90 @@
-﻿using Sammlerplattform.Data;
+﻿using AspNetCoreGeneratedDocument;
+using Sammlerplattform.Data;
 using Sammlerplattform.Models.PartyDatabase;
 using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
+using Sammlerplattform.Models.Translations;
+using Sammlerplattform.Services.DatabaseProcesses.PictureProcesses;
+using Sammlerplattform.Services.Translation;
 using System.Transactions;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
 {
     public interface IProcessOrganization
     {
-        (int Statuscode, string StatusMessage, int PartyID) Insert(OrganizationOperationParameterModel organizationOperationParameterModel);
+        (int Statuscode, string StatusMessage, int PartyID) Insert(OrganizationCreateDTO createDTO);
         (int Statuscode, string StatusMessage, int PartyID) Update(OrganizationOperationParameterModel organizationOperationParameterModel);
+        (int Statuscode, string StatusMessage) Delete(int partyID);
     }
     public class OrganizationProcessor(IProcessParty processParty
         , IUnitOfWork unitOfWork
-        , ITrackEvents trackEvents) : IProcessOrganization
+        , ITrackEventsCSV trackEvents
+        , IProcessTranslations processTranslations
+        , IProcessIndustry processIndustry) : IProcessOrganization
     {
-        public (int Statuscode, string StatusMessage, int PartyID) Insert(OrganizationOperationParameterModel organizationOperationParameterModel)
+        public (int Statuscode, string StatusMessage) Delete(int partyID)
         {
-            if (string.IsNullOrWhiteSpace(organizationOperationParameterModel.Party.PartyName))
+            Party? party = processParty
+                .GetListWithPredicate(new PartySearchParameterModel { PartyID = [partyID] })
+                .FirstOrDefault();
+            if (party == null || party.Organization == null)
             {
-                trackEvents.TrackWarning("OrganizationProcessor.Insert: PartyName is missing.", new Dictionary<string, object>
+                trackEvents.TrackError("IndividualProcessor.Delete: Individual not found.", new Dictionary<string, object>
                 {
-                    { "Party", organizationOperationParameterModel.Party },
-                    { "Organization", organizationOperationParameterModel.Organization }
+                    { "PartyID", partyID  }
                 });
-                return (412, "Error_Party_NameMissing", 0);
+                return (404, "Error_Individual_NotFound");
             }
 
+            try
+            {
+                TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+                unitOfWork.IndividualRepository.Delete(party.Organization);
+                unitOfWork.Save();
+
+                (int statuscode, string message) = processParty.Delete(party);
+                if (statuscode != 200)
+                {
+                    trackEvents.TrackError("IndividualProcessor.Delete: Error occurred in party deletion.", new Dictionary<string, object>
+                    {
+                        { "PartyID", partyID  },
+                        { "ProcessPartyStatuscode", statuscode },
+                        { "ProcessPartyMessage", message }
+                    });
+                    scope.Dispose();
+                    return (statuscode, message);
+                }
+
+                scope.Complete();
+                return (200, "Success_Individual_Deleted");
+            }
+            catch (Exception ex)
+            {
+                trackEvents.TrackException(ex, "IndividualProcessor.Delete: Exception occurred.", new Dictionary<string, object>
+                {
+                    { "PartyID", partyID  }
+                });
+                return (500, "Error_Error_Ocurred");
+            }
+        }
+
+        public (int Statuscode, string StatusMessage, int PartyID) Insert(OrganizationCreateDTO createDTO)
+        {
             PartySearchParameterModel partySearchParameterModel = new()
             {
-                PartyName = [organizationOperationParameterModel.Party.PartyName],
-                PartyTypeInt = [organizationOperationParameterModel.Party.PartyTypeInt],
-                PlaceList_PlaceNToponymyList_Toponymy_ToponymyName = [.. organizationOperationParameterModel.PlaceList.Select(x => x.PlaceNToponymyList.FirstOrDefault()?.Toponymy.ToponymyName ?? string.Empty)],
-                Organization_OrganizationTypeInt = [organizationOperationParameterModel.Organization.OrganizationTypeInt]
+                PartyName = [createDTO.Name],
+                PartyTypeInt = [createDTO.PartyTypeInt]
             };
-            if (organizationOperationParameterModel.Organization.ProductionFacility?.ProductionFacilityName != null)
+            if (createDTO.Industry != null)
             {
-                partySearchParameterModel.Organization_ProductionFacility_ProductionFacilityName = [organizationOperationParameterModel.Organization.ProductionFacility.ProductionFacilityName];
+                partySearchParameterModel.Organization_Industry_IndustryName = [createDTO.Industry];
             }
             Party? existingParty = processParty.GetListWithPredicate(partySearchParameterModel).FirstOrDefault();
             if (existingParty != null)
             {
-                trackEvents.TrackWarning("OrganizationProcessor.Insert: Party already exists.", new Dictionary<string, object>
+                trackEvents.TrackError("OrganizationProcessor.Insert: Party already exists.", new Dictionary<string, object>
                 {
-                    { "Party", organizationOperationParameterModel.Party },
-                    { "Organization", organizationOperationParameterModel.Organization }
+                    { "CreatePartyDTO", createDTO }
                 });
                 return (409, "Error_Party_Exists", 0);
             }
@@ -54,14 +95,19 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
 
                 PartyOperationParameterModel partyOperationParameterModel = new()
                 {
-                    Party = organizationOperationParameterModel.Party,
-                    PlaceList = organizationOperationParameterModel.PlaceList
+                    Party = new Party { PartyName = createDTO.Name, PartyTypeInt = createDTO.PartyTypeInt, WikipediaUrl = createDTO.WikipediaUrl },
+                    //ConnectedPlaceIDList = [.. createDTO.ConnectedPlaceList.Select(p => p.PlaceID)]
                 };
                 Party newParty = processParty.Insert(partyOperationParameterModel).Party;
 
-                organizationOperationParameterModel.Organization.PartyID = newParty.PartyID;
-                Organization newOrganization = unitOfWork.OrganizationRepository.Insert(organizationOperationParameterModel.Organization);
+                Organization organization = new()
+                {
+                    PartyID = newParty.PartyID
+                };
+                Organization newOrganization = unitOfWork.OrganizationRepository.Insert(organization);
                 unitOfWork.Save();
+                if(!string.IsNullOrEmpty(createDTO.Industry))
+                    ConnectIndustryToOrganization(newOrganization, createDTO.Industry);
 
                 scope.Complete();
                 return (201, "Success_Organization_Created", newOrganization.PartyID);
@@ -70,8 +116,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
             {
                 trackEvents.TrackException(ex, "OrganizationProcessor.Insert: Exception occurred.", new Dictionary<string, object>
                 {
-                    { "Party", organizationOperationParameterModel.Party },
-                    { "Organization", organizationOperationParameterModel.Organization }
+                    { "CreatePartyDTO", createDTO }
                 });
                 return (500, "Error_Error_Ocurred", 0);
             }
@@ -81,7 +126,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
         {
             if (organizationOperationParameterModel.Party == null || organizationOperationParameterModel.Party.PartyID <= 0)
             {
-                trackEvents.TrackWarning("OrganizationProcessor.Update: PartyID is missing.", new Dictionary<string, object>
+                trackEvents.TrackError("OrganizationProcessor.Update: PartyID is missing.", new Dictionary<string, object>
                 {
                     { "Organization", organizationOperationParameterModel.Organization }
                 });
@@ -89,7 +134,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
             }
             if (string.IsNullOrWhiteSpace(organizationOperationParameterModel.Party.PartyName))
             {
-                trackEvents.TrackWarning("OrganizationProcessor.Update: PartyName is missing.", new Dictionary<string, object>
+                trackEvents.TrackError("OrganizationProcessor.Update: PartyName is missing.", new Dictionary<string, object>
                 {
                     { "Party", organizationOperationParameterModel.Party },
                     { "Organization", organizationOperationParameterModel.Organization }
@@ -102,7 +147,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
                 .FirstOrDefault()?.Organization;
             if (existingOrganization == null)
             {
-                trackEvents.TrackWarning("OrganizationProcessor.Update: Organization not found.", new Dictionary<string, object>
+                trackEvents.TrackError("OrganizationProcessor.Update: Organization not found.", new Dictionary<string, object>
                 {
                     { "Party", organizationOperationParameterModel.Party },
                     { "Organization", organizationOperationParameterModel.Organization }
@@ -114,20 +159,20 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-                if (existingOrganization.OrganizationTypeInt != organizationOperationParameterModel.Organization.OrganizationTypeInt ||
-                    existingOrganization.ProductionFacilityID != organizationOperationParameterModel.Organization.ProductionFacilityID)
+                if (existingOrganization.IndustryID != organizationOperationParameterModel.Organization.IndustryID)
                 {
-                    existingOrganization.OrganizationTypeInt = organizationOperationParameterModel.Organization.OrganizationTypeInt;
-                    existingOrganization.ProductionFacilityID = organizationOperationParameterModel.Organization.ProductionFacilityID;
+                    existingOrganization.IndustryID = organizationOperationParameterModel.Organization.IndustryID;
                     unitOfWork.Save();
                 }
 
                 PartyOperationParameterModel partyOperationParameterModel = new()
                 {
                     Party = organizationOperationParameterModel.Party,
-                    PlaceList = organizationOperationParameterModel.PlaceList
+                    //PlaceList = organizationOperationParameterModel.PlaceList
                 };
                 Party editedParty = processParty.Update(partyOperationParameterModel).Party;
+
+                SyncIndustry(existingOrganization, organizationOperationParameterModel.Organization.Industry?.IndustryName);
 
                 scope.Complete();
                 return (200, "Success_Organization_Created", editedParty.PartyID);
@@ -141,6 +186,46 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PartyProcesses
                 });
                 return (500, "Error_Error_Ocurred", 0);
             }
+        }
+
+        private void ConnectIndustryToOrganization(Organization organization, string name)
+        {
+            int? industryId = GetIndustryId(name);
+            if(industryId != null)
+            {
+                industryId = processIndustry.Insert(new Industry { IndustryName = name }).id;
+            }
+
+            organization.IndustryID = industryId;
+            unitOfWork.Save();
+        }
+
+        private void SyncIndustry(Organization organization, string? name)
+        {
+            if(organization.IndustryID != null && string.IsNullOrWhiteSpace(name))
+            {
+                DisconnectIndustry(organization);
+                return;
+            } 
+            else if(organization.IndustryID == null && !string.IsNullOrWhiteSpace(name))
+            {
+                ConnectIndustryToOrganization(organization, name);
+                return;
+            }
+        }
+        private void DisconnectIndustry(Organization organization)
+        {
+            organization.IndustryID = null;
+            unitOfWork.Save();
+        }
+
+        private int? GetIndustryId(string name)
+        {
+            return processTranslations.GetWithPredicate(new EntityTranslationSearchParameter
+            {
+                EntityType = [nameof(Industry)],
+                TranslatedText = [name],
+            }).Select(x => x.EntityId).FirstOrDefault();
         }
     }
 }

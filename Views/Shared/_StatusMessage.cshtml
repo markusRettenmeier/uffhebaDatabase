@@ -9,7 +9,7 @@
 @if (!String.IsNullOrEmpty(statusMessage))
 {
     var statusMessageClass = "danger";
-    if(statusCode == 200)
+    if(statusCode == 200 || statusCode == 201)
     {
         statusMessageClass = "success";
     }

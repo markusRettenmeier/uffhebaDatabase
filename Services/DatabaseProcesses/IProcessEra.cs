@@ -12,25 +12,26 @@ namespace Sammlerplattform.Services.DatabaseProcesses
         List<Era> GetWithPredicates(EraSearchParameterModel eraSearchParameter);
         (int statuscode, string message, int EraId) Insert(Era era);
         (int statuscode, string message, int EraId) Update(Era era);
+        (int statusCode, string message) Delete(int id);
     }
     public class EraProcessor(IUnitOfWork unitOfWork,
         IDeeplTranslationService translationService,
         IProcessTranslations processTranslations,
         ITranslationStore translationStore,
-        ITrackEvents trackEvents) : IProcessEra
+        ITrackEventsCSV trackEvents) : IProcessEra
     {
         public (int statuscode, string message, int EraId) Insert(Era era)
         {
             if (string.IsNullOrEmpty(era.EraName))
             {
-                trackEvents.TrackWarning("EraProcessor.Create: EraName is missing.", new Dictionary<string, object>
+                trackEvents.TrackError("EraProcessor.Create: EraName is missing.", new Dictionary<string, object>
                 {
                     { "Era", era}
                 });
                 return (404, "Error_EraName_Missing", 0);
             }
 
-            EraSearchParameterModel searchParameterModel = new() 
+            EraSearchParameterModel searchParameterModel = new()
             {
                 EraID = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter
                 {
@@ -38,15 +39,15 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                     TranslatedText = [era.EraName]
                 }).Select(x => x.EntityId).Distinct()]
             };
-            if(searchParameterModel.EraID.Count > 0)
+            if (searchParameterModel.EraID.Count > 0)
             {
-                trackEvents.TrackWarning("EraProcessor.Create: Era already exists.", new Dictionary<string, object>
+                trackEvents.TrackError("EraProcessor.Create: Era already exists.", new Dictionary<string, object>
                 {
                     { "Era",era}
                 });
                 return (303, "Error_Era_Exists", era.EraID);
             }
-            
+
             try
             {
                 TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
@@ -81,7 +82,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
         {
             if (era.EraID <= 0)
             {
-                trackEvents.TrackWarning("EraProcessor.Edit: EraID is missing or invalid.", new Dictionary<string, object>
+                trackEvents.TrackError("EraProcessor.Edit: EraID is missing or invalid.", new Dictionary<string, object>
                 {
                     { "Era", era}
                 });
@@ -89,7 +90,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             }
             if (string.IsNullOrEmpty(era.EraName))
             {
-                trackEvents.TrackWarning("EraProcessor.Edit: EraName is missing.", new Dictionary<string, object>
+                trackEvents.TrackError("EraProcessor.Edit: EraName is missing.", new Dictionary<string, object>
                 {
                     { "Era", era}
                 });
@@ -100,7 +101,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                                 select e).Where(x => x.EraID == era.EraID).FirstOrDefault();
             if (existingEra == null)
             {
-                trackEvents.TrackWarning("EraProcessor.Edit: Era not found.", new Dictionary<string, object>
+                trackEvents.TrackError("EraProcessor.Edit: Era not found.", new Dictionary<string, object>
                 {
                     { "Era", era}
                 });
@@ -111,17 +112,17 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             {
                 using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
                 bool isChanged = false;
-                if(existingEra.StartYear != era.StartYear)
+                if (existingEra.StartYear != era.StartYear)
                 {
                     existingEra.StartYear = era.StartYear;
                     isChanged = true;
                 }
-                if(existingEra.EndYear != era.EndYear)
+                if (existingEra.EndYear != era.EndYear)
                 {
                     existingEra.EndYear = era.EndYear;
                     isChanged = true;
                 }
-                if(existingEra.EraName != era.EraName)
+                if (existingEra.EraName != era.EraName)
                 {
                     processTranslations.Update(
                         new EntityTranslation
@@ -135,7 +136,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                         era.EraName);
                     isChanged = true;
                 }
-                if(existingEra.WikipediaUrl != era.WikipediaUrl)
+                if (existingEra.WikipediaUrl != era.WikipediaUrl)
                 {
                     existingEra.WikipediaUrl = era.WikipediaUrl;
                     isChanged = true;
@@ -174,6 +175,52 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             }
 
             return [.. eraList.OrderBy(x => x.EraName)];
+        }
+
+        public (int statusCode, string message) Delete(int id)
+        {
+            Era? era = GetWithPredicates(new EraSearchParameterModel { EraID = [id] }).FirstOrDefault();
+            if (era == null)
+            {
+                trackEvents.TrackError("EraProcessor.Delete: Era not found.", new Dictionary<string, object>
+                {
+                    { "EraId", id}
+                });
+                return (404, "Error_Era_NotFound");
+            }
+            if (era.CollectionItemEntityList.Count > 0)
+            {
+                trackEvents.TrackError("EraProcessor.Delete: Era cannot be deleted because it is associated with collection items.", new Dictionary<string, object>
+                {
+                    { "EraId", id},
+                    { "AssociatedCollectionItemsCount", era.CollectionItemEntityList.Count}
+                });
+                return (400, "Error_Era_AssociatedWithCollectionItems");
+            }
+
+            try
+            {
+                TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+                processTranslations.Delete(new EntityTranslationSearchParameter
+                {
+                    EntityType = [nameof(Era)],
+                    EntityId = [id]
+                });
+
+                unitOfWork.EraRepository.Delete(era);
+                unitOfWork.Save();
+
+                return (200, "Success_Era_Deleted");
+            }
+            catch (Exception ex)
+            {
+                trackEvents.TrackException(ex, "EraProcessor.Delete: Exception occurred while deleting Era.", new Dictionary<string, object>
+                {
+                    { "EraId", id}
+                });
+                return (500, "Error_Error_Ocurred");
+            }
         }
     }
 }

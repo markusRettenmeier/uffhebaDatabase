@@ -165,11 +165,11 @@
     <dd class="col-sm-10">
         @Html.DisplayFor(model => model.CollectionItemEntity.CollectionArea.CollectionAreaName)
     </dd>
+    <dt class="col-sm-4">
+        @Localizer["ConceptName"]
+    </dt>
     @foreach(var itemValue in Model.ConceptValueList)
     {
-        <dt class="col-sm-4">
-            @itemValue.Concept.Name
-        </dt>
         <dd class="col-sm-10">
             @itemValue.ValueDisplay
         </dd>
@@ -181,8 +181,7 @@
         @foreach(var collItemNParty in Model.CollectionItemNPartyList)
         {
             var vm = PartyViewModelHelper.FromDomainModel(collItemNParty.Party);
-            var text = vm.Name + ", " + @vm.FurtherSpecs;
-            @Html.Raw(text) <br />
+            @Html.Raw(vm.Name) <br />
         }
     </dd>
     <dt class="col-sm-4">
@@ -192,8 +191,8 @@
         @foreach(var collItemNPlace in Model.CollectionItemNPlaceList)
         {
             var vm = PlaceViewModelHelper.FromDomainModel(collItemNPlace.Place);
-            var text = vm.Toponymy + ", " + @vm.FurtherSpecs;
-            @Html.Raw(text) <br />
+            var text = vm.Toponymy + ", " + collItemNPlace.Relationship;
+            @Html.Raw(text)<br />
         }
     </dd>
 </dl>
