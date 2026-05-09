@@ -1,8 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Localization
 @using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase
-@using Sammlerplattform.Models.PartyDatabase
+@using Sammlerplattform.Models.ParticipantDatabase
 @using Sammlerplattform.Models.PlaceDatabase
-@model IEnumerable<Sammlerplattform.Models.CollectionItemDatabase.CollectionItemOperationParameterModel>
+@model IEnumerable<Sammlerplattform.Models.CollectionItemDatabase.CollectionItemDisplayDTO>
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
@@ -13,9 +13,11 @@
     int? maxRows = ViewData["maxRows"] as int?;
     int? lastAmountRows = ViewData["lastAmountRows"] as int?;
 }
+<h1 hidden>@Localizer["CollectionItem_AllPublic"]</h1>
 <form asp-for="Frontpage">
     <div class="position-relative mb-4 mt-4">
-        <input name="SemanticSearchQuery" type="text" class="form-control search-input" placeholder="@Localizer["Search_TypeIn"]">
+        <label for="searchFrontpage" class="visually-hidden">@Localizer["Search"]</label>
+        <input name="SemanticSearchQuery" id="searchFrontpage" type="text" class="form-control search-input" placeholder="@Localizer["Search_TypeIn"]">
         <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
     </div>
 </form>
@@ -25,41 +27,49 @@
     <div class="row align-items-start pt-3" id="row_@count">
         @{
             <div class="col me-1" id="indexSimplePicColumn_@count">
-                @for (int i = 0;i < item.CollectionItemPictureList.Count; i++)
+                @for (int i = 0; i < item.CollectionItemPictureList.Count; i++)
                 {
-                    string imageNormal = $"/images/Klein/{item.CollectionItemPictureList[i].CollectionItemPictureID}.png";
-                    string imageKlein = $"/images/Klein/{item.CollectionItemPictureList[i].CollectionItemPictureID}.png";
+                    string imageNormal = $"/images/Normal/{item.CollectionItemPictureList[i].CollectionItemPictureID}.webp";
+                    string imageSmall = $"/images/Klein/{item.CollectionItemPictureList[i].CollectionItemPictureID}.webp";
                     @if (i == 0)
                     {
                         <a class="photo" data-fancybox="gallery_@item.CollectionItemEntity.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntity.CollectionItemEntityID">
-                            <img src="@imageKlein" width="498" height="322" alt="" id="simplePic_@count" class="indexMobile-Picture">
+                            <img src="@imageSmall" width="498" height="322" alt="@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]" id="simplePic_@count" class="indexMobile-Picture">
+                            <span hidden>@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]</span>
                         </a>
                     }
                     else
                     {
-                        <a class="photo" data-fancybox="gallery_@item.CollectionItemEntity.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntity.CollectionItemEntityID"></a>
+                        <a class="photo" data-fancybox="gallery_@item.CollectionItemEntity.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntity.CollectionItemEntityID">
+                            <span hidden>@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]</span>
+                        </a>
                     }
                 }
             </div>
             <div class="col indexSimple2ndColumns" id="IndexSimple2ndColumn_@count">
                 <ul>
                     <li>
-                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.UniqueName): @Html.DisplayFor(modelItem => item.CollectionItemEntity.UniqueName)
+                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.CollectionArea): @Html.DisplayFor(modelItem => item.CollectionItemEntity.CollectionArea.CollectionAreaName)
+                    </li>                    
+                    <li>
+                        @Html.DisplayNameFor(modelItem => item.DisplayName): @Html.DisplayFor(modelItem => item.DisplayName)
                     </li>
                     <li>
-                        @{var statenameValue = item.CollectionItemEntity.StatePreservation != null ? item.CollectionItemEntity.StatePreservation.StatePreservationName : "N/A";}
+                        @{
+                            var statenameValue = item.CollectionItemEntity.StatePreservation != null ? item.CollectionItemEntity.StatePreservation.StatePreservationName : "N/A";
+                        }
                         @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.StatePreservation!.StatePreservationName): @statenameValue
                     </li>
                     <li>
-                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Time): @Html.DisplayFor(modelItem => item.CollectionItemEntity.Time)
+                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Time): @Html.DisplayFor(modelItem => item.CollectionItemEntity.Time), @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Era): @Html.DisplayFor(modelItem => item.Era.EraName)
                     </li>
                     <li>
-                        @Html.DisplayNameFor(modelItem => item.CollectionItemNPartyList):
+                        @Html.DisplayNameFor(modelItem => item.CollectionItemNParticipantList):
                         <ul>
-                            @foreach (var party in item.CollectionItemNPartyList)
+                            @foreach (var participant in item.CollectionItemNParticipantList)
                             {
-                                var vm = PartyViewModelHelper.FromDomainModel(party.Party);
-                                string content = vm.Name + ", " + party.Relationship + ", " + vm.FurtherSpecs;
+                                var vm = ParticipantViewModelHelper.FromDomainModel(participant.Participant);
+                                string content = vm.Name + ", " + vm.FurtherSpecs + Localizer["As"].Value + participant.RelationType.CollectionItemRelationshipName;
                                 <li>@Html.Raw(content)</li>
                             }
                         </ul>
@@ -70,7 +80,7 @@
                             @foreach (var place in item.CollectionItemNPlaceList)
                             {
                                 var vm = PlaceViewModelHelper.FromDomainModel(place.Place);
-                                var content = vm.Toponymy + ", " + place.Relationship;
+                                var content = vm.Toponymy + Localizer["As"].Value + place.RelationType.CollectionItemRelationshipName;
                                 <li>@Html.Raw(content)</li>
                             }
                         </ul>
@@ -78,7 +88,7 @@
                 </ul>
             </div>
             <div class="col col-2">
-                <a class="btn btn-primary" asp-action="Details" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID">@Localizer["Details"]</a>
+                <a class="btn btn-primary" asp-action="Details" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID">@Localizer["Details"]: @item.DisplayName</a>
             </div>
             count++;
         }

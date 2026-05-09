@@ -8,22 +8,6 @@
     // Verwenden Sie zunächst den SimpleEmbeddingService zum Testen
     public class SimpleEmbeddingService : IEmbeddingService
     {
-        // Azure Cognitive Services (~€20/Monat)
-        // Google Vertex AI (Kostenlos bis bestimmtes Limit)  
-        // Hugging Face Inference API (Günstig)
-
-        //public float[] GenerateEmbedding(string text)
-        //{
-        //    var random = new Random(text.GetHashCode());
-        //    var embedding = new float[1536]; // Gleiche Größe wie OpenAI
-
-        //    for (int i = 0; i < embedding.Length; i++)
-        //    {
-        //        embedding[i] = (float)random.NextDouble() * 2 - 1; // -1 to 1
-        //    }
-
-        //    return embedding;
-        //}
         public float[] GenerateEmbedding(string text)
         {
             if (string.IsNullOrEmpty(text))

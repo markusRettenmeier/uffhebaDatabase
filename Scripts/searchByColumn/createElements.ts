@@ -1,4 +1,4 @@
-﻿import { i18n } from '../TranslationService.js';
+﻿import { i18n } from '../TranslationService';
 
 interface ElementAttributes {
     [key: string]: string;
@@ -50,15 +50,10 @@ export function createListBox(colName: string, parentId: string): void {
     });
 
     const options: Record<string, Array<{ value: string; label: string }>> = {
-        PartyTypeInt: [
+        ParticipantTypeInt: [
             { value: "0", label: i18n.get("Individual") },
             { value: "1", label: i18n.get("Organization") }
-        ],
-        Organization_OrganizationTypeInt: [
-            { value: "0", label: i18n.get("Company") },
-            { value: "1", label: i18n.get("Institution") },
-            { value: "2", label: i18n.get("Other") }
-        ],
+        ]
     };
 
     const currentOptions = options[colName];
@@ -91,7 +86,7 @@ export function createAddButton(idParent: string): void {
     const addButton = createElement(
         "button",
         {
-            class: "btn btn-outline-info start-0 fieldAdd",
+            class: "btn btn-primary start-0 fieldAdd",
             type: "button",
             id: `addField_${idParent}`,
         },
@@ -105,7 +100,7 @@ export function createPeriodButton(idParent: string): void {
     const periodButton = createElement(
         "button",
         {
-            class: "btn btn-outline-info periodAdd",
+            class: "btn btn-primary periodAdd",
             type: "button",
             id: `btnPeriod_${idParent}`,
         },

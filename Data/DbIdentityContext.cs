@@ -3,15 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
-using Sammlerplattform.Models.CollectionItemDatabase.CollectionSetDatabase;
-using Sammlerplattform.Models.CollectionItemDatabase.OwnershipProofPictureDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemRelationshipDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.VectorSearch;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.ImprovementSuggestions;
-using Sammlerplattform.Models.PartyDatabase;
-using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
-using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
+using Sammlerplattform.Models.ParticipantDatabase;
+using Sammlerplattform.Models.ParticipantDatabase.IndividualDatabase;
+using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase;
 using Sammlerplattform.Models.Passkey;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.Toponymy;
@@ -81,45 +80,45 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .WithMany(e => e.PlaceNToponymyList)
             .IsRequired(true);
 
-        builder.Entity<PlaceNPlace>()
-    .HasOne(p => p.Place1)
-    .WithMany(p => p.ConnectionsAsFirst)
-    .HasForeignKey(p => p.PlaceID1)
-    .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Entity<PlaceNPlace>()
+        _ = builder.Entity<PlaceNPlace>()
+            .HasOne(p => p.Place1)
+            .WithMany(p => p.ConnectionsAsFirst)
+            .HasForeignKey(p => p.PlaceID1)
+            .OnDelete(DeleteBehavior.Restrict);
+        _ = builder.Entity<PlaceNPlace>()
             .HasOne(p => p.Place2)
             .WithMany(p => p.ConnectionsAsSecond)
             .HasForeignKey(p => p.PlaceID2)
             .OnDelete(DeleteBehavior.Restrict);
 
-        _ = builder.Entity<Party>()
+        _ = builder.Entity<Participant>()
              .HasOne(p => p.Individual)
-             .WithOne(i => i.Party)
-             .HasForeignKey<Individual>(i => i.PartyID)
+             .WithOne(i => i.Participant)
+             .HasForeignKey<Individual>(i => i.ParticipantID)
              .IsRequired();
-        _ = builder.Entity<Party>()
+        _ = builder.Entity<Participant>()
              .HasOne(p => p.Organization)
-             .WithOne(i => i.Party)
-             .HasForeignKey<Organization>(i => i.PartyID)
+             .WithOne(i => i.Participant)
+             .HasForeignKey<Organization>(i => i.ParticipantID)
              .IsRequired();
 
-        //_ = builder.Entity<Party>()
-        //    .HasMany(e => e.PlaceList)
-        //    .WithMany(e => e.PartyList)
-        //    .UsingEntity(
-        //        "PartyNPlace",
-        //        l => l.HasOne(typeof(Party)).WithMany().HasForeignKey("PartyID"),
-        //        r => r.HasOne(typeof(Place)).WithMany().HasForeignKey("PlaceID"),
-        //        j => j.HasKey("PartyID", "PlaceID"));
-        //_ = builder.Entity<Place>()
-        //    .HasMany(e => e.PartyList)
-        //    .WithMany(e => e.PlaceList)
-        //    .UsingEntity(
-        //        "PartyNPlace",
-        //        l => l.HasOne(typeof(Party)).WithMany().HasForeignKey("PartyID"),
-        //        r => r.HasOne(typeof(Place)).WithMany().HasForeignKey("PlaceID"),
-        //        j => j.HasKey("PartyID", "PlaceID"));
+        _ = builder.Entity<ParticipantNPlace>()
+            .HasOne(e => e.Place)
+            .WithMany(e => e.ParticipantNPlaceList)
+            .IsRequired(true);
+        _ = builder.Entity<ParticipantNPlace>()
+            .HasOne(e => e.Participant)
+            .WithMany(e => e.ParticipantNPlaceList)
+            .IsRequired(true);
+
+        _ = builder.Entity<ParticipantNEra>()
+            .HasOne(e => e.Era)
+            .WithMany(e => e.ParticipantNEraList)
+            .IsRequired(true);
+        _ = builder.Entity<ParticipantNEra>()
+            .HasOne(e => e.Participant)
+            .WithMany(e => e.ParticipantNEraList)
+            .IsRequired(true);
 
         _ = builder.Entity<Organization>()
             .HasOne(o => o.Industry)
@@ -127,19 +126,19 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .IsRequired();
 
         _ = builder.Entity<CollectionItemEntity>()
-            .HasMany(x => x.CollectionItemNPartyList)
+            .HasMany(x => x.CollectionItemNParticipantList)
             .WithOne(x => x.CollectionItemEntity)
             .HasForeignKey(x => x.CollectionItemEntityID);
-        _ = builder.Entity<Party>()
-            .HasMany(c => c.CollectionItemNPartyList)
-            .WithOne(x => x.Party)
-            .HasForeignKey(x => x.PartyID);
-        _ = builder.Entity<CollectionItemNParty>()
+        _ = builder.Entity<Participant>()
+            .HasMany(c => c.CollectionItemNParticipantList)
+            .WithOne(x => x.Participant)
+            .HasForeignKey(x => x.ParticipantID);
+        _ = builder.Entity<CollectionItemNParticipant>()
             .HasOne(x => x.CollectionItemEntity)
-            .WithMany(x => x.CollectionItemNPartyList);
-        _ = builder.Entity<CollectionItemNParty>()
-            .HasOne(x => x.Party)
-            .WithMany(x => x.CollectionItemNPartyList);
+            .WithMany(x => x.CollectionItemNParticipantList);
+        _ = builder.Entity<CollectionItemNParticipant>()
+            .HasOne(x => x.Participant)
+            .WithMany(x => x.CollectionItemNParticipantList);
 
         _ = builder.Entity<CollectionItemEntity>()
             .HasMany(x => x.CollectionItemNPlaceList)
@@ -199,15 +198,6 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .WithOne(ce => ce.CollectionItemEmbedding)
             .IsRequired(true);
 
-        _ = builder.Entity<CollectionSet>()
-            .HasMany(s => s.CollectionItemEntityList)
-            .WithOne(cie => cie.CollectionSet)
-            .HasForeignKey(cie => cie.CollectionSetId);
-        _ = builder.Entity<CollectionItemEntity>()
-            .HasOne(cie => cie.CollectionSet)
-            .WithMany(cs => cs.CollectionItemEntityList)
-            .IsRequired(false);
-
         _ = builder.Entity<Topic>()
             .HasMany(ft => ft.VoteList)
             .WithOne(tv => tv.Topic)
@@ -224,17 +214,12 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .HasMany(u => u.TopicList)
             .WithOne(t => t.Author)
             .HasForeignKey(t => t.UserId);
-        _ = builder.Entity<Topic>()
-            .HasOne(t => t.Author)
-            .WithMany(u => u.TopicList)
-            .IsRequired(true);
+        //_ = builder.Entity<Topic>()
+        //    .HasOne(t => t.Author)
+        //    .WithMany(u => u.TopicList)
+        //    .IsRequired(true);
 
-        _ = builder.Entity<OwnershipProofPicture>()
-            .HasOne(x => x.CollectionItemEntity)
-            .WithMany(x => x.OwnershipProofPictureList)
-            .IsRequired(true);
-
-        builder.Entity<FidoCredential>()
+        _ = builder.Entity<FidoCredential>()
                 .HasOne(f => f.User)
                 .WithMany(u => u.FidoCredentialList)
                 .HasForeignKey(f => f.UserId)
@@ -242,7 +227,14 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
 
         _ = builder.Entity<PlaceEditDTO>()
             .HasNoKey();
-    }
 
-public DbSet<Sammlerplattform.Models.PlaceDatabase.PlaceEditDTO> PlaceEditDTO { get; set; } = default!;
+        _ = builder.Entity<CollectionItemRelationship>()
+            .HasMany(rt => rt.CollectionItemNParticipantList)
+            .WithOne(cip => cip.RelationType)
+            .HasForeignKey(cip => cip.RelationTypeId);
+        _ = builder.Entity<CollectionItemRelationship>()
+            .HasMany(rt => rt.CollectionItemNPlaceList)
+            .WithOne(cip => cip.RelationType)
+            .HasForeignKey(cip => cip.RelationTypeId);
+    }
 }

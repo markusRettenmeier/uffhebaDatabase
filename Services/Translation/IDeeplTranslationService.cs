@@ -37,6 +37,14 @@ namespace Sammlerplattform.Services.Translation
                 "en" or "en-US" => LanguageCode.EnglishAmerican,
                 "fr" or "fr-FR" => LanguageCode.French,
                 "es" or "es-ES" => LanguageCode.Spanish,
+                "zh-Hans" or "zh-CN" => LanguageCode.ChineseSimplified,
+                "ja" or "ja-JP" => LanguageCode.Japanese,
+                //"de" => LanguageCode.German,
+                //"en" => LanguageCode.EnglishAmerican,
+                //"fr" => LanguageCode.French,
+                //"es" => LanguageCode.Spanish,
+                //"zh-Hans" => LanguageCode.ChineseSimplified,
+                //"ja" => LanguageCode.Japanese,
                 _ => LanguageCode.EnglishAmerican.ToString()
             };
         }

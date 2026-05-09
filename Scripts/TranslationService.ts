@@ -12,12 +12,22 @@ export class TranslationService {
 
     #languageNames: Record<string, string> = {
         'de': 'Deutsch',
-        'de-DE': 'Deutsch (Deutschland)',
-        'de-AT': 'Deutsch (Österreich)',
-        'de-CH': 'Deutsch (Schweiz)',
+        //'de-DE': 'Deutsch (Deutschland)',
+        //'de-AT': 'Deutsch (Österreich)',
+        //'de-CH': 'Deutsch (Schweiz)',
         'en': 'Englisch',
-        'en-US': 'Englisch (USA)',
-        'en-GB': 'Englisch (Großbritannien)',
+      //  'en-US': 'Englisch (USA)',
+      //'en-GB': 'Englisch (Großbritannien)',
+      'zh': 'Chinesisch', 
+      //'zh-CN': 'Chinesisch (China)',
+      //'zh-TW': 'Chinesisch (Taiwan)',
+      'fr': 'Französisch',
+      //'fr-FR': 'Französisch (Frankreich)',
+      //'fr-CA': 'Französisch (Kanada)',
+      'es': 'Spanisch',
+      //'es-ES': 'Spanisch (Spanien)',
+      //'es-MX': 'Spanisch (Mexiko)',
+      'ja': 'Japanisch',
     };
 
     constructor() {

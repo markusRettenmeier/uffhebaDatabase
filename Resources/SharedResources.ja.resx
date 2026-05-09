@@ -1,0 +1,1326 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CollectionArea" xml:space="preserve">
+    <value>収集分野</value>
+  </data>
+  <data name="CollectionAreaID" xml:space="preserve">
+    <value>収集エリアのID</value>
+  </data>
+  <data name="CollectionAreaName" xml:space="preserve">
+    <value>収集分野名</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>メール</value>
+  </data>
+  <data name="Bool" xml:space="preserve">
+    <value>正誤</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>日付</value>
+  </data>
+  <data name="Decimal" xml:space="preserve">
+    <value>10進法</value>
+  </data>
+  <data name="Number" xml:space="preserve">
+    <value>数</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>本文</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>{0} の入力は必須です。</value>
+  </data>
+  <data name="StringLength" xml:space="preserve">
+    <value>{0} の文字数は最大 {1} 文字までです。</value>
+  </data>
+  <data name="Success_Logout" xml:space="preserve">
+    <value>ログアウトが完了しました。</value>
+  </data>
+  <data name="Error_User_NotFound" xml:space="preserve">
+    <value>ユーザーが見つかりません。</value>
+  </data>
+  <data name="Error_Place_NotFound" xml:space="preserve">
+    <value>場所が見つかりません。</value>
+  </data>
+  <data name="Error_CollectionArea_NotFound" xml:space="preserve">
+    <value>収集分野が見つかりません。</value>
+  </data>
+  <data name="Error_ConceptValue_NotFound" xml:space="preserve">
+    <value>用語が見つかりません。</value>
+  </data>
+  <data name="Error_CollectionArea_IdMissing" xml:space="preserve">
+    <value>コレクション領域IDがありません。</value>
+  </data>
+  <data name="Error_ConceptValueId_Required" xml:space="preserve">
+    <value>概念IDが欠落しています。</value>
+  </data>
+  <data name="Error_ConceptualRelation_NotFound" xml:space="preserve">
+    <value>Begriffsbeziehung nicht gefunden.</value>
+  </data>
+  <data name="Error_Era_NotFound" xml:space="preserve">
+    <value>時代が見つかりません。</value>
+  </data>
+  <data name="Individual" xml:space="preserve">
+    <value>個人</value>
+  </data>
+  <data name="Error_Participant_NotFound" xml:space="preserve">
+    <value>該当するパーティーが見つかりません。</value>
+  </data>
+  <data name="Organization" xml:space="preserve">
+    <value>組織</value>
+  </data>
+  <data name="Part of" xml:space="preserve">
+    <value>の一部</value>
+  </data>
+  <data name="Pseudonym" xml:space="preserve">
+    <value>ペンネーム</value>
+  </data>
+  <data name="Industry" xml:space="preserve">
+    <value>業種</value>
+  </data>
+  <data name="to" xml:space="preserve">
+    <value>へ</value>
+  </data>
+  <data name="Success_Profile_Change" xml:space="preserve">
+    <value>プロファイルの変更が完了しました。</value>
+  </data>
+  <data name="Success_Account_Deleted" xml:space="preserve">
+    <value>アカウントは正常に削除されました。</value>
+  </data>
+  <data name="Side_Front" xml:space="preserve">
+    <value>表</value>
+  </data>
+  <data name="Perspective" xml:space="preserve">
+    <value>視点</value>
+  </data>
+  <data name="CollectionItemEntityID" xml:space="preserve">
+    <value>コレクターズアイテムID</value>
+  </data>
+  <data name="CollectionItemEntity" xml:space="preserve">
+    <value>コレクターズアイテム</value>
+  </data>
+  <data name="IFormFile" xml:space="preserve">
+    <value>ファイル</value>
+  </data>
+  <data name="Side_Back" xml:space="preserve">
+    <value>裏面</value>
+  </data>
+  <data name="Side_Left" xml:space="preserve">
+    <value>左側</value>
+  </data>
+  <data name="Side_Right" xml:space="preserve">
+    <value>右側</value>
+  </data>
+  <data name="UniqueName" xml:space="preserve">
+    <value>Einzigartiger Name</value>
+  </data>
+  <data name="Fake" xml:space="preserve">
+    <value>偽造</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>注記</value>
+  </data>
+  <data name="StatePreservationID" xml:space="preserve">
+    <value>保存状態ID</value>
+  </data>
+  <data name="StatePreservation" xml:space="preserve">
+    <value>保存状態</value>
+  </data>
+  <data name="Inscription" xml:space="preserve">
+    <value>銘文</value>
+  </data>
+  <data name="ConceptID" xml:space="preserve">
+    <value>用語ID</value>
+  </data>
+  <data name="Concept" xml:space="preserve">
+    <value>用語</value>
+  </data>
+  <data name="Concepts" xml:space="preserve">
+    <value>用語</value>
+  </data>
+  <data name="SerialNumber" xml:space="preserve">
+    <value>シリアル番号</value>
+  </data>
+  <data name="ExactYear" xml:space="preserve">
+    <value>正確な年</value>
+  </data>
+  <data name="IsApproximate" xml:space="preserve">
+    <value>推定されていますか？</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>時間</value>
+  </data>
+  <data name="EraID" xml:space="preserve">
+    <value>時代ID</value>
+  </data>
+  <data name="Era" xml:space="preserve">
+    <value>時代</value>
+  </data>
+  <data name="Width" xml:space="preserve">
+    <value>幅</value>
+  </data>
+  <data name="Height" xml:space="preserve">
+    <value>高さ</value>
+  </data>
+  <data name="Length" xml:space="preserve">
+    <value>長さ</value>
+  </data>
+  <data name="Diameter" xml:space="preserve">
+    <value>直径</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>重量</value>
+  </data>
+  <data name="PersonalIdentificationNumber" xml:space="preserve">
+    <value>個人識別番号</value>
+  </data>
+  <data name="FilingLocation" xml:space="preserve">
+    <value>保存場所</value>
+  </data>
+  <data name="DeliveryPrice" xml:space="preserve">
+    <value>購入価格</value>
+  </data>
+  <data name="DeliveryDate" xml:space="preserve">
+    <value>基準日</value>
+  </data>
+  <data name="DeliveryAdress" xml:space="preserve">
+    <value>送付先住所</value>
+  </data>
+  <data name="ParticipantID" xml:space="preserve">
+    <value>参加者ID</value>
+  </data>
+  <data name="Participant" xml:space="preserve">
+    <value>参加者</value>
+  </data>
+  <data name="Relationship" xml:space="preserve">
+    <value>関係</value>
+  </data>
+  <data name="PlaceID" xml:space="preserve">
+    <value>場所ID</value>
+  </data>
+  <data name="Place" xml:space="preserve">
+    <value>場所</value>
+  </data>
+  <data name="ConceptName" xml:space="preserve">
+    <value>用語</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>説明</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="CollectionItemEntityID_Required" xml:space="preserve">
+    <value>コレクターズアイテムのIDがありません。</value>
+  </data>
+  <data name="UsingIdentityUsersID" xml:space="preserve">
+    <value>ユーザーID</value>
+  </data>
+  <data name="UsingIdentityUser" xml:space="preserve">
+    <value>ユーザー</value>
+  </data>
+  <data name="IsPartOfASet" xml:space="preserve">
+    <value>シリーズの一部ですか？</value>
+  </data>
+  <data name="StatePreservationName" xml:space="preserve">
+    <value>保存状態</value>
+  </data>
+  <data name="SortingOrder" xml:space="preserve">
+    <value>順序</value>
+  </data>
+  <data name="IsGeneralState" xml:space="preserve">
+    <value>これは一般的な保存状態、つまり特定の収集分野に限定されないものですか？</value>
+  </data>
+  <data name="EraName" xml:space="preserve">
+    <value>お見送り</value>
+  </data>
+  <data name="IndividualID" xml:space="preserve">
+    <value>個人ID</value>
+  </data>
+  <data name="Signature" xml:space="preserve">
+    <value>署名</value>
+  </data>
+  <data name="OrganizationType" xml:space="preserve">
+    <value>組織の種類</value>
+  </data>
+  <data name="IndustryID" xml:space="preserve">
+    <value>業種ID</value>
+  </data>
+  <data name="Institution" xml:space="preserve">
+    <value>機関</value>
+  </data>
+  <data name="IndustryName" xml:space="preserve">
+    <value>業界名</value>
+  </data>
+  <data name="ParticipantName" xml:space="preserve">
+    <value>参加者名</value>
+  </data>
+  <data name="ParticipantType" xml:space="preserve">
+    <value>参加者の種類</value>
+  </data>
+  <data name="Places" xml:space="preserve">
+    <value>場所</value>
+  </data>
+  <data name="IsCurrentPostalcode" xml:space="preserve">
+    <value>現在の郵便番号ですか？</value>
+  </data>
+  <data name="IsCurrentName" xml:space="preserve">
+    <value>それが現在の名前ですか？</value>
+  </data>
+  <data name="Error_CollectionArea_NameEmpty" xml:space="preserve">
+    <value>コレクション領域名は空にできません。</value>
+  </data>
+  <data name="Error_CollectionArea_Exists" xml:space="preserve">
+    <value>その収集分野名はすでに存在します。</value>
+  </data>
+  <data name="Success_CollectionArea_Created" xml:space="preserve">
+    <value>コレクションが正常に作成されました。</value>
+  </data>
+  <data name="Error_Error_Ocurred" xml:space="preserve">
+    <value>技術的なエラーが発生し、記録されました。弊社にて早急に修正いたします。</value>
+  </data>
+  <data name="Success_CollectionArea_Updated" xml:space="preserve">
+    <value>収集対象が正常に変更されました。</value>
+  </data>
+  <data name="Success_CollectionArea_Deleted" xml:space="preserve">
+    <value>コレクションが正常に削除されました。</value>
+  </data>
+  <data name="Error_CollectionItemEntity_IDMissing" xml:space="preserve">
+    <value>コレクターズアイテムIDがありません。</value>
+  </data>
+  <data name="Success_Embeding_Created" xml:space="preserve">
+    <value>埋め込みが正常に作成されました。</value>
+  </data>
+  <data name="Success_Embedding_Updated" xml:space="preserve">
+    <value>埋め込みが正常に変更されました。</value>
+  </data>
+  <data name="Success_Embedding_Deleted" xml:space="preserve">
+    <value>埋め込みは正常に削除されました。</value>
+  </data>
+  <data name="Error_Embedding_NotFound" xml:space="preserve">
+    <value>埋め込みが見つかりません。</value>
+  </data>
+  <data name="Error_UserID_Missing" xml:space="preserve">
+    <value>ユーザーIDがありません。</value>
+  </data>
+  <data name="Success_CollectionItemEntity_Created" xml:space="preserve">
+    <value>コレクターズアイテムの作成に成功しました。</value>
+  </data>
+  <data name="Error_CollectionItemEntity_NotFound" xml:space="preserve">
+    <value>コレクターズアイテムが見つかりませんでした。</value>
+  </data>
+  <data name="Success_CollectionItemEntity_Changed" xml:space="preserve">
+    <value>「コレクターズアイテム」の変更が完了しました。</value>
+  </data>
+  <data name="Success_CollectionItemEntity_Deleted" xml:space="preserve">
+    <value>「コレクターズアイテム」は正常に削除されました。</value>
+  </data>
+  <data name="Success_CollectionItemPicture_Synchronized" xml:space="preserve">
+    <value>画像の同期が完了しました。</value>
+  </data>
+  <data name="Error_StatePreservation_NotFound" xml:space="preserve">
+    <value>保存状態が見つかりません。</value>
+  </data>
+  <data name="Success_StatePreservation_Updated" xml:space="preserve">
+    <value>状態の変更が完了しました。</value>
+  </data>
+  <data name="Success_StatePreservation_Deleted" xml:space="preserve">
+    <value>「保存状態」が正常に削除されました。</value>
+  </data>
+  <data name="Error_Concept_Exists" xml:space="preserve">
+    <value>その用語はすでに存在します。</value>
+  </data>
+  <data name="Success_Concept_Created" xml:space="preserve">
+    <value>用語が正常に作成されました。</value>
+  </data>
+  <data name="Error_Concept_NotFound" xml:space="preserve">
+    <value>用語が見つかりません。</value>
+  </data>
+  <data name="Error_Concept_IDMissing" xml:space="preserve">
+    <value>用語IDがありません。</value>
+  </data>
+  <data name="Error_Concept_NameMissing" xml:space="preserve">
+    <value>用語名がありません。</value>
+  </data>
+  <data name="Success_Concept_Deleted" xml:space="preserve">
+    <value>用語が正常に削除されました。</value>
+  </data>
+  <data name="Success_Concept_Updated" xml:space="preserve">
+    <value>用語が正常に変更されました。</value>
+  </data>
+  <data name="Error_Participant_Exists" xml:space="preserve">
+    <value>その政党はすでに存在しています。</value>
+  </data>
+  <data name="Success_Individual_Created" xml:space="preserve">
+    <value>個体が正常に作成されました。</value>
+  </data>
+  <data name="Error_ParticipantID_Required" xml:space="preserve">
+    <value>党IDが指定されていません。</value>
+  </data>
+  <data name="Error_Individual_NotFound" xml:space="preserve">
+    <value>該当する個人が見つかりませんでした。</value>
+  </data>
+  <data name="Success_Individual_Updated" xml:space="preserve">
+    <value>個体が正常に変更されました。</value>
+  </data>
+  <data name="Success_Organization_Created" xml:space="preserve">
+    <value>組織の作成に成功しました。</value>
+  </data>
+  <data name="Success_Organization_Updated" xml:space="preserve">
+    <value>組織の変更が完了しました。</value>
+  </data>
+  <data name="Success_Participant_Created" xml:space="preserve">
+    <value>関係者が正常に作成されました。</value>
+  </data>
+  <data name="Success_Place_Updated" xml:space="preserve">
+    <value>場所の変更が完了しました。</value>
+  </data>
+  <data name="Success_Participant_Updated" xml:space="preserve">
+    <value>関係者が正常に削除されました</value>
+  </data>
+  <data name="Success_Participant_Deleted" xml:space="preserve">
+    <value>関係者が正常に変更されました。</value>
+  </data>
+  <data name="Success_Place_Created" xml:space="preserve">
+    <value>場所の作成に成功しました。</value>
+  </data>
+  <data name="Error_File_Empty" xml:space="preserve">
+    <value>ファイルは空です。</value>
+  </data>
+  <data name="Success_CollectionItemPicture_Created" xml:space="preserve">
+    <value>コレクターズアイテムの画像が正常に作成されました。</value>
+  </data>
+  <data name="Error_CollectionItemPicture_NotFound" xml:space="preserve">
+    <value>コレクターズアイテムの画像が見つかりません。</value>
+  </data>
+  <data name="Success_CollectionItemPicture_Deleted" xml:space="preserve">
+    <value>「コレクターズアイテム」の画像は正常に削除されました。</value>
+  </data>
+  <data name="Success_PhysicalPicture_Saved" xml:space="preserve">
+    <value>画像は正常に保存されました。</value>
+  </data>
+  <data name="Success_PhysicalPicture_Deleted" xml:space="preserve">
+    <value>物理イメージは正常に削除されました。</value>
+  </data>
+  <data name="Error_PlaceName_Missing" xml:space="preserve">
+    <value>地名がありません。</value>
+  </data>
+  <data name="Error_Place_Exists" xml:space="preserve">
+    <value>その場所はすでに存在しています。</value>
+  </data>
+  <data name="Error_PlaceID_Missing" xml:space="preserve">
+    <value>場所IDがありません。</value>
+  </data>
+  <data name="Error_ParentPlace_ParentOfItsOwn" xml:space="preserve">
+    <value>ある場所は、自分自身を親とすることはできない。</value>
+  </data>
+  <data name="Success_Place_Deleted" xml:space="preserve">
+    <value>場所が正常に削除されました。</value>
+  </data>
+  <data name="Error_Era_NameMissing" xml:space="preserve">
+    <value>ドメイン名が指定されていません。</value>
+  </data>
+  <data name="Error_OrganizationTypeInt_Missing" xml:space="preserve">
+    <value>組織タイプが指定されていません。</value>
+  </data>
+  <data name="Error_Era_IdMissing" xml:space="preserve">
+    <value>時代のIDは0より大きくなければなりません。</value>
+  </data>
+  <data name="Error_Era_Exists" xml:space="preserve">
+    <value>その時代はすでに存在している。</value>
+  </data>
+  <data name="Success_Era_Created" xml:space="preserve">
+    <value>エラが正常に作成されました。</value>
+  </data>
+  <data name="Success_Era_Updated" xml:space="preserve">
+    <value>時代の変更に成功しました。</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>登録する</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>ログイン</value>
+  </data>
+  <data name="User_Register" xml:space="preserve">
+    <value>新規ユーザーとして登録する</value>
+  </data>
+  <data name="Register_Here" xml:space="preserve">
+    <value>こちらから登録できます。</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>リセット</value>
+  </data>
+  <data name="PlaceName_Add" xml:space="preserve">
+    <value>地名をさらに追加する</value>
+  </data>
+  <data name="FurtherSpecs" xml:space="preserve">
+    <value>その他の仕様</value>
+  </data>
+  <data name="Place_Add" xml:space="preserve">
+    <value>場所を追加</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>検索</value>
+  </data>
+  <data name="Column_Add" xml:space="preserve">
+    <value>列を追加する</value>
+  </data>
+  <data name="StatePreservation_Administration" xml:space="preserve">
+    <value>保存状態の管理</value>
+  </data>
+  <data name="ConceptRelation_Administration" xml:space="preserve">
+    <value>用語間の関連を管理する</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="Search_Started" xml:space="preserve">
+    <value>検索を開始しました</value>
+  </data>
+  <data name="Picture_Watermark" xml:space="preserve">
+    <value>すべての画像には自動的に透かしが入ります。</value>
+  </data>
+  <data name="CollectionItemEntity_AttributesConcepts" xml:space="preserve">
+    <value>その他の特徴と一般的な用語</value>
+  </data>
+  <data name="Concept_Select" xml:space="preserve">
+    <value>Begriff wählen</value>
+  </data>
+  <data name="StatePreservation_NotAvailable" xml:space="preserve">
+    <value>保存状態の記載なし</value>
+  </data>
+  <data name="Participant_Add" xml:space="preserve">
+    <value>参加者を追加する</value>
+  </data>
+  <data name="AdministrationData" xml:space="preserve">
+    <value>管理データ</value>
+  </data>
+  <data name="Delete_Confirm" xml:space="preserve">
+    <value>本当に削除してもよろしいですか？</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="Picture_Add" xml:space="preserve">
+    <value>画像を追加する</value>
+  </data>
+  <data name="Place_Select" xml:space="preserve">
+    <value>場所を選択</value>
+  </data>
+  <data name="CollectionArea_OwnAdministration" xml:space="preserve">
+    <value>独自の収集エリア {0} を管理する</value>
+  </data>
+  <data name="Relation_Add" xml:space="preserve">
+    <value>関係を追加する</value>
+  </data>
+  <data name="RelationType" xml:space="preserve">
+    <value>関係の種類</value>
+  </data>
+  <data name="SynonymFor" xml:space="preserve">
+    <value>の同義語</value>
+  </data>
+  <data name="SubTermOf" xml:space="preserve">
+    <value>Unterbegriff</value>
+  </data>
+  <data name="BackToList" xml:space="preserve">
+    <value>一覧に戻る</value>
+  </data>
+  <data name="ConceptRelation_Add" xml:space="preserve">
+    <value>用語間の関連を追加する</value>
+  </data>
+  <data name="Imprint" xml:space="preserve">
+    <value>サイト運営者情報</value>
+  </data>
+  <data name="Individual_Edit" xml:space="preserve">
+    <value>個人を変更する</value>
+  </data>
+  <data name="Frontpage" xml:space="preserve">
+    <value>トップページ</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>受け入れる</value>
+  </data>
+  <data name="Documentation" xml:space="preserve">
+    <value>ドキュメンテーション</value>
+  </data>
+  <data name="Login/Register" xml:space="preserve">
+    <value>ログイン／登録</value>
+  </data>
+  <data name="PrivacyImprint" xml:space="preserve">
+    <value>プライバシーポリシー・サイト運営者情報</value>
+  </data>
+  <data name="CollectionAreas" xml:space="preserve">
+    <value>収集エリア</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>作成</value>
+  </data>
+  <data name="Dimensions_Adminstration" xml:space="preserve">
+    <value>Dimensionen verwalten</value>
+  </data>
+  <data name="Eras" xml:space="preserve">
+    <value>エーレン</value>
+  </data>
+  <data name="Individuals" xml:space="preserve">
+    <value>個人</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>ログアウト</value>
+  </data>
+  <data name="Organizations" xml:space="preserve">
+    <value>組織</value>
+  </data>
+  <data name="Profile" xml:space="preserve">
+    <value>プロフィール</value>
+  </data>
+  <data name="StructureCollectionAreas" xml:space="preserve">
+    <value>収集地域の構成</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>変更</value>
+  </data>
+  <data name="Info_Delete_NotAllowed" xml:space="preserve">
+    <value>投稿の削除は、管理者と相談した上で、または他の投稿への参照が一切ない場合にのみ可能です。削除を行うと、多くの収集品に悪影響を及ぼす可能性があるためです。</value>
+  </data>
+  <data name="PlaceName" xml:space="preserve">
+    <value>地名</value>
+  </data>
+  <data name="CollectionArea_Create" xml:space="preserve">
+    <value>収集カテゴリを作成する</value>
+  </data>
+  <data name="CollectionArea_Edit" xml:space="preserve">
+    <value>収集分野を変更する</value>
+  </data>
+  <data name="CollectionArea_Structure" xml:space="preserve">
+    <value>収集分野の構築</value>
+  </data>
+  <data name="CollectionItemEntity_Create" xml:space="preserve">
+    <value>コレクターズアイテムを作成する</value>
+  </data>
+  <data name="Participant_Select" xml:space="preserve">
+    <value>参加者を選択</value>
+  </data>
+  <data name="Measurements_Weight" xml:space="preserve">
+    <value>寸法と重量</value>
+  </data>
+  <data name="CollectionItemEntity_Delete" xml:space="preserve">
+    <value>コレクションアイテムを削除する</value>
+  </data>
+  <data name="CollectionItemEntity_Edit" xml:space="preserve">
+    <value>コレクションアイテムを変更する</value>
+  </data>
+  <data name="Era_Select" xml:space="preserve">
+    <value>Ära wählen</value>
+  </data>
+  <data name="CollectionItemEntity_Administration" xml:space="preserve">
+    <value>コレクションを管理する</value>
+  </data>
+  <data name="CollectionItemEntity_Download_All" xml:space="preserve">
+    <value>すべてのコレクションアイテムをYAML形式でダウンロード</value>
+  </data>
+  <data name="CollectionItemEntity_Download_One" xml:space="preserve">
+    <value>YAML形式でダウンロード</value>
+  </data>
+  <data name="ConceptRelation_Create" xml:space="preserve">
+    <value>概念の関連付けを作成する</value>
+  </data>
+  <data name="ConceptRelation_Connected" xml:space="preserve">
+    <value>関連する概念の関係</value>
+  </data>
+  <data name="ConceptRelation_Delete" xml:space="preserve">
+    <value>概念の関連を削除する</value>
+  </data>
+  <data name="ConceptRelation_Edit" xml:space="preserve">
+    <value>用語間の関連を変更する</value>
+  </data>
+  <data name="Era_Create" xml:space="preserve">
+    <value>時代を作成する</value>
+  </data>
+  <data name="Era_Edit" xml:space="preserve">
+    <value>時代を変更する</value>
+  </data>
+  <data name="Era_Administration" xml:space="preserve">
+    <value>資産管理</value>
+  </data>
+  <data name="Message_NothingFound" xml:space="preserve">
+    <value>&lt;h4&gt;残念ながら、該当する結果は見つかりませんでした。&lt;/h4&gt;
+&lt;h4&gt;別のキーワードで検索してみてください。&lt;/h4&gt;</value>
+  </data>
+  <data name="Search_TypeIn" xml:space="preserve">
+    <value>検索するには入力してください</value>
+  </data>
+  <data name="Individual_Create" xml:space="preserve">
+    <value>個人を作成する</value>
+  </data>
+  <data name="Individual_Administration" xml:space="preserve">
+    <value>ユーザー管理</value>
+  </data>
+  <data name="Organization_Create" xml:space="preserve">
+    <value>組織を作成する</value>
+  </data>
+  <data name="Organization_Select" xml:space="preserve">
+    <value>組織を選択する</value>
+  </data>
+  <data name="Organization_Edit" xml:space="preserve">
+    <value>組織を変更する</value>
+  </data>
+  <data name="Organization_Administration" xml:space="preserve">
+    <value>組織管理</value>
+  </data>
+  <data name="StatePreservation_Create" xml:space="preserve">
+    <value>保存状態を作成する</value>
+  </data>
+  <data name="StatePreservation_Delete" xml:space="preserve">
+    <value>保存状態を削除する</value>
+  </data>
+  <data name="StatePreservation_Edit" xml:space="preserve">
+    <value>保存状態を変更する</value>
+  </data>
+  <data name="AccountDelete_Confirm" xml:space="preserve">
+    <value>データを削除し、アカウントを閉鎖してください。</value>
+  </data>
+  <data name="AccountDelete_Notification" xml:space="preserve">
+    <value>これらのデータを削除すると、アカウントとコレクションが削除されます。この操作は元に戻せません。</value>
+  </data>
+  <data name="Account_Delete" xml:space="preserve">
+    <value>アカウントを削除する</value>
+  </data>
+  <data name="Download_Notification" xml:space="preserve">
+    <value>アカウントを削除する前に、まず登録データをダウンロードしてください。</value>
+  </data>
+  <data name="CollectionItem_DownloadAll" xml:space="preserve">
+    <value>コレクターズアイテムに関するすべてのデータをダウンロードする</value>
+  </data>
+  <data name="PersonalData_Download" xml:space="preserve">
+    <value>アカウントの詳細をダウンロードする</value>
+  </data>
+  <data name="PersonalData_Notification" xml:space="preserve">
+    <value>お客様のアカウントには、ご提供いただいた個人情報が含まれています。ここでは、これらのデータをダウンロードまたは削除することができます。</value>
+  </data>
+  <data name="Message_Greetings_String" xml:space="preserve">
+    <value>皆様、</value>
+  </data>
+  <data name="Message_Greetings_HTML" xml:space="preserve">
+    <value>皆様、&lt;br/&gt;</value>
+  </data>
+  <data name="Message_GeneralText_String" xml:space="preserve">
+    <value>&lt;br/&gt;これは自動送信メールです。ご質問がある場合は、{0}までお問い合わせください。&lt;br/&gt;よろしくお願いいたします</value>
+  </data>
+  <data name="Message_GeneralText_Html" xml:space="preserve">
+    <value>これは自動送信メールです。ご質問がある場合は、{0}までお問い合わせください。よろしくお願いいたします。</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details zum Sammlerstück</value>
+  </data>
+  <data name="NothingFound" xml:space="preserve">
+    <value>その検索語に関する結果は見つかりませんでした。</value>
+  </data>
+  <data name="Concept_SynonymAdd" xml:space="preserve">
+    <value>同義語として追加</value>
+  </data>
+  <data name="Concept_ParentConceptAdd" xml:space="preserve">
+    <value>総称として追加する</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>追加</value>
+  </data>
+  <data name="NumberRange_Change" xml:space="preserve">
+    <value>数</value>
+  </data>
+  <data name="Side_Top" xml:space="preserve">
+    <value>上部</value>
+  </data>
+  <data name="Side_Bottom" xml:space="preserve">
+    <value>下部</value>
+  </data>
+  <data name="InscriptionTranslated" xml:space="preserve">
+    <value>翻訳された碑文</value>
+  </data>
+  <data name="OrganizationID" xml:space="preserve">
+    <value>組織ID</value>
+  </data>
+  <data name="IsGeneralConcept" xml:space="preserve">
+    <value>それは一般的な用語、つまり特定の収集分野に限定されないものですか？</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>はい</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>いいえ</value>
+  </data>
+  <data name="ConceptRelation_Administration_Specific" xml:space="preserve">
+    <value>「」のサブカテゴリの管理 </value>
+  </data>
+  <data name="IsRootConcept" xml:space="preserve">
+    <value>それが基本概念なのでしょうか？</value>
+  </data>
+  <data name="RootConceptID" xml:space="preserve">
+    <value>基本概念ID</value>
+  </data>
+  <data name="RootConcept" xml:space="preserve">
+    <value>基本概念</value>
+  </data>
+  <data name="Dimensions" xml:space="preserve">
+    <value>寸法</value>
+  </data>
+  <data name="ConceptType" xml:space="preserve">
+    <value>概念タイプ</value>
+  </data>
+  <data name="Pictures_CollectionItem" xml:space="preserve">
+    <value>コレクターズアイテムの写真</value>
+  </data>
+  <data name="CollectionItemEntity_BasicAttributes" xml:space="preserve">
+    <value>基本機能</value>
+  </data>
+  <data name="Identification" xml:space="preserve">
+    <value>識別</value>
+  </data>
+  <data name="Concept_Add" xml:space="preserve">
+    <value>用語を追加する</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Abbreviation" xml:space="preserve">
+    <value>略語</value>
+  </data>
+  <data name="Error_Concept_NameRequired" xml:space="preserve">
+    <value>用語の定義が必要です。</value>
+  </data>
+  <data name="Success_ConceptValue_Created" xml:space="preserve">
+    <value>用語値が正常に作成されました。</value>
+  </data>
+  <data name="Success_ConceptValue_Updated" xml:space="preserve">
+    <value>項目の値が正常に削除されました。</value>
+  </data>
+  <data name="Success_ConceptValue_Deleteed" xml:space="preserve">
+    <value>項目の値が正常に変更されました。</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>タイトル</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>目次</value>
+  </data>
+  <data name="TitleRequired" xml:space="preserve">
+    <value>タイトルが必要です。</value>
+  </data>
+  <data name="ContentRequired" xml:space="preserve">
+    <value>この内容は必須です。</value>
+  </data>
+  <data name="Error_Title_Empty" xml:space="preserve">
+    <value>タイトルが空欄です。</value>
+  </data>
+  <data name="Error_Content_Empty" xml:space="preserve">
+    <value>内容が欠落しています。</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Created" xml:space="preserve">
+    <value>改善提案が正常に作成されました。</value>
+  </data>
+  <data name="Error_ImprovementSuggestion_NotFound" xml:space="preserve">
+    <value>改善案が見つかりませんでした。</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Updated" xml:space="preserve">
+    <value>改善提案が正常に更新されました。</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Deleted" xml:space="preserve">
+    <value>改善提案は正常に削除されました。</value>
+  </data>
+  <data name="ImprovementSuggestions" xml:space="preserve">
+    <value>改善案</value>
+  </data>
+  <data name="ImprovementSuggestions_Create" xml:space="preserve">
+    <value>改善提案を作成する</value>
+  </data>
+  <data name="ImprovementSuggestions_Administration" xml:space="preserve">
+    <value>改善提案を管理する</value>
+  </data>
+  <data name="ImprovementSuggestions_Edit" xml:space="preserve">
+    <value>改善提案を編集する</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>作成日 </value>
+  </data>
+  <data name="ImprovementSuggestions_Delete" xml:space="preserve">
+    <value>改善提案を削除する</value>
+  </data>
+  <data name="UpdatedAt" xml:space="preserve">
+    <value>最終更新日</value>
+  </data>
+  <data name="Error_CollectionAreaName_IsMissing" xml:space="preserve">
+    <value>収集分野名が指定されていません。</value>
+  </data>
+  <data name="StatePreservation_Name_Missing" xml:space="preserve">
+    <value>保存状態の名称がありません。</value>
+  </data>
+  <data name="Error_ParticipantName_Required" xml:space="preserve">
+    <value>党名が記載されていません。</value>
+  </data>
+  <data name="Error_ParticipantTypeInt_Missing" xml:space="preserve">
+    <value>パーティタイプが指定されていません。</value>
+  </data>
+  <data name="Error_Email_NotValid" xml:space="preserve">
+    <value>有効なメールアドレスではありません。</value>
+  </data>
+  <data name="Error_StatePreservation_Exists" xml:space="preserve">
+    <value>「保存状態」はすでに存在します。</value>
+  </data>
+  <data name="Success_StatePreservation_Created" xml:space="preserve">
+    <value>保存状態が正常に作成されました。</value>
+  </data>
+  <data name="StatePreservation_Select" xml:space="preserve">
+    <value>保存状態を選択してください</value>
+  </data>
+  <data name="WikipediaUrl" xml:space="preserve">
+    <value>ウィキペディアのURL</value>
+  </data>
+  <data name="Error_User_NameEmpty" xml:space="preserve">
+    <value>ユーザー名が空欄です。</value>
+  </data>
+  <data name="ConnectedPlaces" xml:space="preserve">
+    <value>関連する場所</value>
+  </data>
+  <data name="Place_Administration" xml:space="preserve">
+    <value>場所を管理する</value>
+  </data>
+  <data name="Place_Create" xml:space="preserve">
+    <value>場所を作成する</value>
+  </data>
+  <data name="Place_Edit" xml:space="preserve">
+    <value>場所を変更する</value>
+  </data>
+  <data name="Others" xml:space="preserve">
+    <value>その他</value>
+  </data>
+  <data name="SpecificView" xml:space="preserve">
+    <value>その用語と、そのすべての下位用語を表示する</value>
+  </data>
+  <data name="BelongsTo" xml:space="preserve">
+    <value>カテゴリ</value>
+  </data>
+  <data name="ConceptRelation_Administration_General" xml:space="preserve">
+    <value>親カテゴリの管理</value>
+  </data>
+  <data name="Pictures_OwnershipProof" xml:space="preserve">
+    <value>所有権証明書の画像</value>
+  </data>
+  <data name="Pictures_OwnershipProof_Description" xml:space="preserve">
+    <value>例：領収書、レシート、証明書</value>
+  </data>
+  <data name="IsPublic" xml:space="preserve">
+    <value>これは一般向けのものですか？</value>
+  </data>
+  <data name="OwnershipProof_Type_BillOfSale" xml:space="preserve">
+    <value>販売伝票</value>
+  </data>
+  <data name="OwnershipProof_Type_Certificate" xml:space="preserve">
+    <value>証明書</value>
+  </data>
+  <data name="Error_OwnershipProofPicture_NotFound" xml:space="preserve">
+    <value>所有権証明書の画像が見つかりませんでした。</value>
+  </data>
+  <data name="Success_OwnershipProofPicture_Deleted" xml:space="preserve">
+    <value>所有権証明書の画像は正常に削除されました。</value>
+  </data>
+  <data name="Success_OwnershipProofPicture_Created" xml:space="preserve">
+    <value>所有権証明書の画像が正常に作成されました。</value>
+  </data>
+  <data name="Success_OwnershipProofPicture_Updated" xml:space="preserve">
+    <value>所有権証明書の画像が正常に更新されました。</value>
+  </data>
+  <data name="OwnershipProof_Type_Other" xml:space="preserve">
+    <value>その他の証拠</value>
+  </data>
+  <data name="CookieConsent_Text" xml:space="preserve">
+    <value>当サイトでは、ユーザーのアクセスを可能にする目的でのみクッキーを使用しています。</value>
+  </data>
+  <data name="Error_CredentialId_Missing" xml:space="preserve">
+    <value>CredentialId がありません。</value>
+  </data>
+  <data name="Error_PublicKey_Missing" xml:space="preserve">
+    <value>公開鍵がありません。</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>表示名</value>
+  </data>
+  <data name="Login_Passkey" xml:space="preserve">
+    <value>Passkeyでログイン</value>
+  </data>
+  <data name="Error_DisplayName_Missing" xml:space="preserve">
+    <value>ファイル名がありません。</value>
+  </data>
+  <data name="Register_Passkey" xml:space="preserve">
+    <value>Passkeyで登録する。</value>
+  </data>
+  <data name="Error_Session_Expired" xml:space="preserve">
+    <value>セッションが切断されました。登録をやり直してください。</value>
+  </data>
+  <data name="Passkey_Login" xml:space="preserve">
+    <value>パスキーログイン</value>
+  </data>
+  <data name="Passkey_Information" xml:space="preserve">
+    <value>&lt;h2&gt;&lt;i class="bi bi-info-circle me-2"&gt;パスキーとは何ですか？&lt;/i&gt;&lt;/h2&gt;
+&lt;p class="mb-1"&gt;パスキーは、パスワードに代わる安全で便利な手段です。&lt;/p&gt;
+&lt;ul class="mb-0"&gt;
+    &lt;li&gt;パスワードを覚える必要がありません&lt;/li&gt;&lt;li&gt;メールアドレスは不要です&lt;/li&gt;
+    &lt;li&gt;フィッシング対策済み&lt;/li&gt;
+&lt;li&gt;このデバイスに保存済みのパスキーは自動的に認識されます&lt;/li&gt;
+    &lt;li&gt;デバイス間で同期されます&lt;/li&gt;
+    &lt;li&gt;対応機種：iPhone（Touch ID/Face ID）、Android、Windows Hello&lt;/li&gt;
+&lt;/ul&gt;</value>
+  </data>
+  <data name="Email_Optional" xml:space="preserve">
+    <value>メールアドレス（任意）</value>
+  </data>
+  <data name="OnlyforNotifications" xml:space="preserve">
+    <value>通知専用</value>
+  </data>
+  <data name="Error_Access_Forbidden" xml:space="preserve">
+    <value>アクセス拒否</value>
+  </data>
+  <data name="Meta_Description" xml:space="preserve">
+    <value>あらゆるコレクション分野に対応した柔軟なプラットフォーム：コレクション分野を作成し、その用語を動的に定義したり、自分のコレクションを整理して管理したり、他のユーザーのコレクションを一か所で発見したりできます。</value>
+  </data>
+  <data name="EnterToponymy" xml:space="preserve">
+    <value>地名を入力してください</value>
+  </data>
+  <data name="Info_PlaceName_NotChangeable" xml:space="preserve">
+    <value>地名は削除または追加のみ可能です</value>
+  </data>
+  <data name="Error_Organization_NotFound" xml:space="preserve">
+    <value>組織が見つかりませんでした。</value>
+  </data>
+  <data name="Error_Organization_ConnectedToCollectionItems" xml:space="preserve">
+    <value>この組織には、まだあるコレクターズアイテムが関連付けられています。</value>
+  </data>
+  <data name="Success_Organization_Deleted" xml:space="preserve">
+    <value>組織は正常に削除されました。</value>
+  </data>
+  <data name="Success_Era_Deleted" xml:space="preserve">
+    <value>時代が正常に削除されました。</value>
+  </data>
+  <data name="Error_CollectionAreaId_IsMissing" xml:space="preserve">
+    <value>コレクション領域IDが指定されていません。</value>
+  </data>
+  <data name="EndYear" xml:space="preserve">
+    <value>年末</value>
+  </data>
+  <data name="StartYear" xml:space="preserve">
+    <value>開始年</value>
+  </data>
+  <data name="BirthYear" xml:space="preserve">
+    <value>生年</value>
+  </data>
+  <data name="DeathYear" xml:space="preserve">
+    <value>没年</value>
+  </data>
+  <data name="Era_Add" xml:space="preserve">
+    <value>時代を追加する</value>
+  </data>
+  <data name="ConnectedEras" xml:space="preserve">
+    <value>関連する時代</value>
+  </data>
+  <data name="Place_Delete" xml:space="preserve">
+    <value>場所を削除する</value>
+  </data>
+  <data name="Organization_Delete" xml:space="preserve">
+    <value>組織を削除する</value>
+  </data>
+  <data name="Individual_Delete" xml:space="preserve">
+    <value>個人を削除する</value>
+  </data>
+  <data name="Success_Individual_Deleted" xml:space="preserve">
+    <value>そのユーザーは正常に削除されました。</value>
+  </data>
+  <data name="Error_SortingOrder_Range" xml:space="preserve">
+    <value>並べ替え順序の値の範囲は、1より大きくなければなりません。</value>
+  </data>
+  <data name="Error_StatePreservationName_IsMissing" xml:space="preserve">
+    <value>保存状態の名称が欠落しています。</value>
+  </data>
+  <data name="Error_StatePreservationId_IsMissing" xml:space="preserve">
+    <value>保存状態IDが欠落しています。</value>
+  </data>
+  <data name="Error_CollectionAreaId_Range" xml:space="preserve">
+    <value>集約領域IDは0より大きくなければなりません。</value>
+  </data>
+  <data name="Error_StatePreservationID_Range" xml:space="preserve">
+    <value>「状態ID」の値の範囲は1より大きくなければなりません。</value>
+  </data>
+  <data name="Error_ConceptId_Range" xml:space="preserve">
+    <value>用語IDは0より大きくなければなりません。</value>
+  </data>
+  <data name="Error_ConceptValueId_Range" xml:space="preserve">
+    <value>用語IDは0より大きくなければなりません。</value>
+  </data>
+  <data name="Error_EraId_Range" xml:space="preserve">
+    <value>La valeur « ÄraId » doit être supérieure à 0.</value>
+  </data>
+  <data name="Error_OwnershipProofPictureId_Range" xml:space="preserve">
+    <value>所有権証明IDは0より大きくなければなりません。</value>
+  </data>
+  <data name="Error_Perspective_Range" xml:space="preserve">
+    <value>視点を定める必要がある。</value>
+  </data>
+  <data name="Error_CollectionItemPicture_IsMissing" xml:space="preserve">
+    <value>コレクターズアイテムの画像がありません。</value>
+  </data>
+  <data name="Error_OwnershipProofPicture_IsMissing" xml:space="preserve">
+    <value>所有権証明書の画像がありません。</value>
+  </data>
+  <data name="Participants" xml:space="preserve">
+    <value>関係者</value>
+  </data>
+  <data name="Error_CollectionItemId_Required" xml:space="preserve">
+    <value>コレクターズアイテムIDが欠落しています。</value>
+  </data>
+  <data name="Error_CollectionItemId_Range" xml:space="preserve">
+    <value>コレクションアイテムのIDは0より大きくなければなりません。</value>
+  </data>
+  <data name="Error_PlaceId_Range" xml:space="preserve">
+    <value>その場所のIDは0より大きくなければなりません。</value>
+  </data>
+  <data name="Error_OrganizationId_Range" xml:space="preserve">
+    <value>組織のIDは0より大きくなければなりません。</value>
+  </data>
+  <data name="Error_IndividualId_Range" xml:space="preserve">
+    <value>個体のIDは1より大きくなければなりません。</value>
+  </data>
+  <data name="Error_Relationship_Required" xml:space="preserve">
+    <value>関係が欠けている。</value>
+  </data>
+  <data name="IsTranslateable" xml:space="preserve">
+    <value>これは翻訳可能ですか？</value>
+  </data>
+  <data name="Error_ConceptId_Required" xml:space="preserve">
+    <value>ConceptId がありません。</value>
+  </data>
+  <data name="CollectionArea_Mine" xml:space="preserve">
+    <value>私の収集分野</value>
+  </data>
+  <data name="Error_RelationshipName_Required" xml:space="preserve">
+    <value>名前がありません。</value>
+  </data>
+  <data name="CollectionItemRelationships" xml:space="preserve">
+    <value>人間関係</value>
+  </data>
+  <data name="Info_CollectionItemRelationship" xml:space="preserve">
+    <value>ここでは、収集品と次元との関係についてのみ扱います</value>
+  </data>
+  <data name="CollectionItemRelationship_Create" xml:space="preserve">
+    <value>収集品関係を設定する</value>
+  </data>
+  <data name="CollectionItemRelationship_Edit" xml:space="preserve">
+    <value>収集品の関連付けを変更する</value>
+  </data>
+  <data name="CollectionItemRelationship_Delete" xml:space="preserve">
+    <value>収集品の関連付けを削除する</value>
+  </data>
+  <data name="CollectionItemRelationship_Index" xml:space="preserve">
+    <value>収集品の関係の管理</value>
+  </data>
+  <data name="Error_RelationId_Required" xml:space="preserve">
+    <value>関係IDがありません。</value>
+  </data>
+  <data name="Error_CIRelationship_NotFound" xml:space="preserve">
+    <value>該当する関係が見つかりませんでした。</value>
+  </data>
+  <data name="Error_CIRelationship_InUse" xml:space="preserve">
+    <value>関係が利用される。</value>
+  </data>
+  <data name="Error_CIRelationship_Exists" xml:space="preserve">
+    <value>関係はすでに存在しています。</value>
+  </data>
+  <data name="Success_CIRelationship_Created" xml:space="preserve">
+    <value>関係が正常に作成されました。</value>
+  </data>
+  <data name="Success_CIRelationship_Deleted" xml:space="preserve">
+    <value>関係が正常に削除されました。</value>
+  </data>
+  <data name="Success_CIRelationship_Updated" xml:space="preserve">
+    <value>関係が正常に変更されました。</value>
+  </data>
+  <data name="As" xml:space="preserve">
+    <value> として </value>
+  </data>
+  <data name="FullView" xml:space="preserve">
+    <value>画像 {0} を全画面表示で開く。</value>
+  </data>
+  <data name="CollectionItem_AllPublic" xml:space="preserve">
+    <value>すべての公的な収集品</value>
+  </data>
+  <data name="Of" xml:space="preserve">
+    <value>著者：</value>
+  </data>
+  <data name="ID" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>キャンペーン</value>
+  </data>
+  <data name="PreViewOf" xml:space="preserve">
+    <value>{0}のサムネイル</value>
+  </data>
+  <data name="CollectionAreaSearchParamters_Select" xml:space="preserve">
+    <value>収集エリア検索パラメータのメニュー</value>
+  </data>
+  <data name="CollectionItemSearchParameters_Select" xml:space="preserve">
+    <value>コレクターズアイテムパラメータ検索メニュー</value>
+  </data>
+  <data name="ConceptSearchParameters_Select" xml:space="preserve">
+    <value>用語検索パラメータのメニュー</value>
+  </data>
+  <data name="CollectionRelationshipSearchParameters_Select" xml:space="preserve">
+    <value>収集品関連検索パラメータのメニュー</value>
+  </data>
+  <data name="EraSearchParameters_Select" xml:space="preserve">
+    <value>時代検索パラメータメニュー</value>
+  </data>
+  <data name="ParticipantSearchParameters_Select" xml:space="preserve">
+    <value>参加者検索パラメータを選択してください</value>
+  </data>
+  <data name="PlaceSearchParameters_Select" xml:space="preserve">
+    <value>場所検索パラメータのメニュー</value>
+  </data>
+  <data name="CollectionArea_Delete" xml:space="preserve">
+    <value>収集エリアを削除する</value>
+  </data>
+  <data name="Pictures" xml:space="preserve">
+    <value>図</value>
+  </data>
+  <data name="Error_TopicId_Required" xml:space="preserve">
+    <value>トピックIDが指定されていません。</value>
+  </data>
+  <data name="Error_TopicId_Range" xml:space="preserve">
+    <value>トピックIDは0より大きくなければなりません。</value>
+  </data>
+  <data name="Column_Select" xml:space="preserve">
+    <value>列を選択</value>
+  </data>
+  <data name="Error_DisplayName_StringLength" xml:space="preserve">
+    <value>表示名は2～100文字でなければなりません。</value>
+  </data>
+  <data name="Error_ModelState_Invalid" xml:space="preserve">
+    <value>入力漏れまたは誤った入力があります。</value>
+  </data>
+</root>

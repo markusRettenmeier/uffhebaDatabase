@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Sammlerplattform.Data
 {
@@ -41,31 +40,6 @@ namespace Sammlerplattform.Data
         {
             EntityEntry<TEntity> entityEntry = dbSet.Add(entity);
             return entityEntry != null ? entityEntry.Entity : throw new NullReferenceException();
-        }
-
-        public void AddMemberToCollection<TMember>(TEntity parentEntity,
-                                                   Expression<Func<TEntity, ICollection<TMember>>> navigationProperty,
-                                                   TMember member)
-        where TMember : class
-        {
-            PropertyInfo? property = (navigationProperty.Body as MemberExpression)?.Member as PropertyInfo;
-            ICollection<TMember>? collection = property?.GetValue(parentEntity) as ICollection<TMember>;
-            collection?.Add(member);
-        }
-        public void RemoveMemberFromCollection<TMember>(TEntity parentEntity,
-                                            Expression<Func<TEntity, ICollection<TMember>>> navigationProperty,
-                                            TMember member)
-        where TMember : class
-        {
-            PropertyInfo? property = (navigationProperty.Body as MemberExpression)?.Member as PropertyInfo;
-            ICollection<TMember>? collection = property?.GetValue(parentEntity) as ICollection<TMember>;
-            _ = (collection?.Remove(member));
-        }
-
-        public void SetForeignKey<TProperty>(TEntity entity, Expression<Func<TEntity, TProperty>> foreignKeyProperty, TProperty value)
-        {
-            PropertyInfo? property = (foreignKeyProperty.Body as MemberExpression)?.Member as PropertyInfo;
-            property?.SetValue(entity, value);
         }
 
         public virtual void Delete(object id)

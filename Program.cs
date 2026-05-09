@@ -11,7 +11,7 @@ using Sammlerplattform.Services.DatabaseProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses;
-using Sammlerplattform.Services.DatabaseProcesses.PartyProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.PasskeyProcessees;
 using Sammlerplattform.Services.DatabaseProcesses.PictureProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
@@ -63,7 +63,7 @@ services.Configure<CookiePolicyOptions>(options =>
 
 services.Configure<RequestLocalizationOptions>(options =>
 {
-    string[] supportedCultures = ["de", "fr", "es"];
+    string[] supportedCultures = ["en", "de", "fr", "es", "zh-Hans", "ja"];
     options.SetDefaultCulture(supportedCultures[0])
            .AddSupportedCultures(supportedCultures)
            .AddSupportedUICultures(supportedCultures);
@@ -116,18 +116,17 @@ services.AddScoped<IProcessEra, EraProcessor>();
 services.AddScoped<IProcessCollectionItemEntity, CollectionItemEntityProcessor>();
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 services.AddScoped<IProcessCollectionItemPicture, CollectionItemPictureProcessor>();
-services.AddScoped<IProcessOwnershipProofPicture, OwnershipProofPictureProcessor>();
+//services.AddScoped<IProcessOwnershipProofPicture, OwnershipProofPictureProcessor>();
 services.AddScoped<IProcessPlace, PlaceProcessor>();
 services.AddScoped<IProcessToponymy, ToponymyProcessor>();
-services.AddScoped<IProcessParty, PartyProcessor>();
+services.AddScoped<IProcessParticpant, ParticipantProcessor>();
 services.AddScoped<IProcessIndividual, IndividualProcessor>();
 services.AddScoped<IProcessOrganization, OrganizationProcessor>();
-services.AddScoped<IProcessIndustry, IndustryProcessor>();  
+services.AddScoped<IProcessIndustry, IndustryProcessor>();
 services.AddScoped<IProcessCollectionArea, CollectionAreaProcessor>();
 services.AddScoped<IProcessConceptValue, ConceptValueProcessor>();
 services.AddScoped<IProcessConcept, ConceptualRelationshipProcessor>();
 services.AddScoped<IProcessConceptRelation, ConceptRelationProcessor>();
-services.AddScoped<IProcessCollectionSet, CollectionSetProcessor>();
 services.AddScoped<IProcessStatePreservation, StatePreservationProcessor>();
 services.AddScoped<IProcessPicturePhysically, PhysicalPictureProcessor>();
 services.AddSingleton<IEmbeddingService, SimpleEmbeddingService>();
@@ -136,9 +135,10 @@ services.AddScoped<IDeeplTranslationService, DeeplTranslationService>();
 services.AddScoped<IProcessTranslations, ProcessTranslations>();
 services.AddScoped<ITranslationStore, TranslationStore>();
 services.AddScoped<ITrackEventsCSV, EventTracker>();
-services.AddScoped<IProcessImprovementSuggestions, ImprovementSuggestionsProcessor>(); 
-services.AddScoped<IProcessFidoCredential, FidoCredentialProcessor>(); 
+services.AddScoped<IProcessImprovementSuggestions, ImprovementSuggestionsProcessor>();
+services.AddScoped<IProcessFidoCredential, FidoCredentialProcessor>();
 services.AddSingleton<IAuthorizationHandler, RecentPasskeyHandler>();
+services.AddScoped<IProcessCIRelationship, CIRelationshipProcessor>();
 
 services.AddIdentity<UsingIdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<DbIdentityContext>()
@@ -165,6 +165,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 services.Configure<AuthMessageSenderOptions>(builder.Configuration);
+
+var keyPath = Path.Combine(
+    builder.Environment.ContentRootPath,
+    "keys");
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keyPath))
+    .SetApplicationName("Sammlerplattform");
 
 WebApplication app = builder.Build();
 

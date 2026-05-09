@@ -1,82 +1,130 @@
-﻿@model OrganizationOperationParameterModel
-@using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase
+﻿@model OrganizationEditDTO
+@using Sammlerplattform.Models.EraDatabase
+@using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase
 @using Sammlerplattform.Models.PlaceDatabase
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
     ViewData["Title"] = Localizer["Organization_Edit"];
-    Layout = "~/Views/Shared/_LayoutSettingsParty.cshtml";
+    Layout = "~/Views/Shared/_LayoutSettingsDimensions.cshtml";
+
+    List<Place>? connectedPlaceList = ViewData["ConnectedPlaces"] as List<Place>;
+    List<Era>? connectedEraList = ViewData["ConnectedEras"] as List<Era>;
 }
 
-<h3>@ViewData["Title"]</h3>
+<h1>@ViewData["Title"]</h1>
 <hr />
 <form asp-action="Edit" asp-controller="OrganizationDatabase">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-    <input asp-for="Party.PartyID" type="hidden">
-    <input asp-for="Party.PartyTypeInt" type="hidden">
-
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input asp-for="Id" type="hidden" />
     <div class="form-group">
-        <label asp-for="Party.PartyName" class="control-label"></label>
-        <input asp-for="Party.PartyName" class="form-control" />
-        <span asp-validation-for="Party.PartyName" class="text-danger"></span>
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" aria-required="true" aria-invalid="false" />
+        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
-    @* <div class="form-group" id="productionFacilityDiv">
-        <label asp-for="Organization.Industry" class="control-label"></label>
-        <input type="hidden" asp-for="Organization.IndustryID" id="hiddenProductionFacilityID">
-        <select asp-for="Organization.IndustryID" id="inputProductionFacilityID" class="form-select" aria-label="Production Facility"></select>
-    </div> *@
-    @* <div class="mb-3">
+    <div class="form-group">
+        <label asp-for="Industry" class="control-label"></label>
+        <input asp-for="Industry" class="form-control" />
+    </div>
+    <div class="form-group mb-3">
+        <label asp-for="WikipediaUrl" class="control-label"></label>
+        <input asp-for="WikipediaUrl" class="form-control" />
+        <span asp-validation-for="WikipediaUrl" class="text-danger"></span>
+    </div>
+    <hr />
+    <h2>@Localizer["ConnectedPlaces"]</h2>
+    <div class="mb-3">
         <table class="table">
+            <caption class="visually-hidden">@Localizer["ConnectedPlaces"]</caption>
             <thead>
                 <tr>
-                    <th scope="col">@Localizer["PlaceName"]</th>
-                    <th scope="col"></th>
+                    <th scope="col">@Localizer["Name"]</th>
+                    <th scope="col">@Localizer["FurtherSpecs"]</th>
+                    @* <th scope="col">@Localizer["Relationship"]</th> *@
+                    <th scope="col">@Localizer["Actions"]</th>
                 </tr>
             </thead>
-            <tbody id="appendPlaceHere">
-                @if (Model.PlaceList.Count > 0)
+            <tbody id="appendPlaceHere" aria-live="polite" aria-relevant="additions">
+                @if (connectedPlaceList != null)
                 {
-                    for (int i = 0; i < Model.PlaceList.Count; i++)
+                    @for (int i = 0; i < connectedPlaceList.Count; i++)
                     {
-                        var vm = PlaceViewModelHelper.FromDomainModel(Model.PlaceList[i]);
-                        <tr class="placeTableRow">
-                            <td>@Html.Raw(vm.Toponymy)</td>
+                        var vm = PlaceViewModelHelper.FromDomainModel(connectedPlaceList[i]);
+                        <tr class="placeTableTr">
                             <td>
-                                <input type="hidden" name="PlaceList[@i].PlaceID" value="@Model.PlaceList[i].PlaceID">
-                                <button type="button" class="btn btn-danger btn-sm removePlaceRow">@Localizer["Remove"]</button>
+                                @Html.Raw(vm.Toponymy)
+                            </td>
+                            <td>
+                                @Html.Raw(vm.FurtherSpecs)
+                            </td>
+                            @* <td>
+                                <label for="connectPlace_@i" class="visually-hidden">@Localizer["Relationship"]</label>
+                                <input class="form-control" asp-for="ConnectedPlaceList[@i].Relationship" id="connectPlace_@i"/>
+                            </td> *@
+                            <td>
+                                <input class="form-control" type="hidden" name="ConnectedPlaceList[@i].PlaceID" value="@vm.PlaceID" />
+                                <button type="button" class="btn btn-danger btn-sm removePlace">@Localizer["Remove"]</button>
                             </td>
                         </tr>
                     }
                 }
             </tbody>
         </table>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
-            @Localizer["Place_Add"]
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal" aria-haspopup="dialog" aria-controls="placeModal">
+            @Localizer["Relation_Add"]
         </button>
-    </div> *@
-    <div class="form-group mb-3">
-        <label asp-for="Party.WikipediaUrl" class="control-label"></label>
-        <input asp-for="Party.WikipediaUrl" class="form-control" />
-        <span asp-validation-for="Party.WikipediaUrl" class="text-danger"></span>
+    </div>
+    <hr />
+    <h2>@Localizer["ConnectedEras"]</h2>
+    <div class="mb-3">
+        <table class="table">
+            <caption class="visually-hidden">@Localizer["ConnectedEras"]</caption>
+            <thead>
+                <tr>
+                    <th scope="col">@Localizer["EraName"]</th>
+                    <th scope="col">@Localizer["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody id="appendEraHere" aria-live="polite" aria-relevant="additions">
+                @if (connectedEraList != null)
+                {
+                    @for (int i = 0; i < connectedEraList.Count; i++)
+                    {
+                        <tr class="eraResultTableTr">
+                            <td>
+                                @Html.Raw(connectedEraList[i].EraName)
+                            </td>
+                            <td>
+                                <input class="form-control" type="hidden" name="ConnectedEraList[@i].EraID" value="@connectedEraList[@i].EraID" />
+                                <button type="button" class="btn btn-danger btn-sm removeEra">@Localizer["Remove"]</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#EraModal" aria-haspopup="dialog" aria-controls="EraModal">
+            @Localizer["Era_Add"]
+        </button>
     </div>
 
     <div class="mt-4 pt-3 border-top">
         <button type="submit" class="btn btn-success btn-lg px-5">
             <i class="bi bi-check-circle"></i> @Localizer["Edit"]
         </button>
-        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+        <a asp-action="Index" class="btn btn-dark text-white ms-2">
             @Localizer["Cancel"]
         </a>
     </div>
 </form>
 
 <partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
+<partial name="~/Views/EraDatabase/_ModalEra.cshtml" />
 
+@*Hier notwendig, da dynamische asp-validation in addParticipant und addPlace durchgeführt wird*@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
-

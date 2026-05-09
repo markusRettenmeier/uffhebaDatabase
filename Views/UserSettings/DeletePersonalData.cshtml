@@ -6,18 +6,14 @@
     Layout = "_LayoutSettings";
 }
 
-<h3>@ViewData["Title"]</h3>
+<h1>@ViewData["Title"]</h1>
 <strong>@Localizer["Download_Notification"]</strong>
 <a type="button" class="w-100 btn btn-lg btn-success" href="/CollectionItemDatabase/DownloadSubmit" onclick="ActivateDeleteButton()">
     @Localizer["CollectionItem_DownloadAll"]</a>
 <hr />
-<div class="alert alert-warning" role="alert">
+<div class="alert alert-warning" role="alert" aria-live="assertive">
     <p>
         <strong>@Localizer["AccountDelete_Notification"]</strong>
     </p>
 </div>
 <button class="w-100 btn btn-lg btn-danger" type="button" onclick="verifyForDeletePersonalDataSubmit()">@Localizer["AccountDelete_Confirm"]</button>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

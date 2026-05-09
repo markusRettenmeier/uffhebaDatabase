@@ -1,64 +1,72 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Sammlerplattform.Models.PartyDatabase;
-using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Sammlerplattform.Models.ParticipantDatabase;
+using Sammlerplattform.Models.ParticipantDatabase.IndividualDatabase;
 using Sammlerplattform.Services;
-using Sammlerplattform.Services.DatabaseProcesses.PartyProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses;
 
 namespace Sammlerplattform.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class IndividualDatabaseController(IProcessIndividual processIndividual,
-        IProcessParty processParty) : Controller
+        IProcessParticpant processParticipant) : Controller
     {
         [HandleStatus]
-        public ActionResult Index(PartySearchParameterModel partySearchParameter)
+        public ActionResult Index(ParticipantSearchParameterModel participantSearchParameter)
         {
-            ViewData["Party"] = "Individual";
+            ViewData["Participant"] = "Individual";
 
-            List<Party> partyList = [.. processParty.GetListWithPredicate(partySearchParameter).Where(x => x.Individual != null)];
-            return View(partyList);
+            List<Participant> participantList = [.. processParticipant.GetListWithPredicate(participantSearchParameter).Where(x => x.Individual != null)];
+            return View(participantList);
         }
 
-        [HandleStatus]
-        [HttpGet]
         public ActionResult Create()
         {
             return View();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(IndividualCreateDTO model)
+        public IActionResult Create(IndividualCreateDTO createDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(createDto);
             }
-            (int statusCode, string statusMessage, int _) = processIndividual.Insert(model);
-            return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
+            (int statusCode, string statusMessage, int id) = processIndividual.Insert(createDto);
+
+            if (id > 0)
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
+            else
+                return RedirectToAction(nameof(Index), new { statusMessage, statusCode });
         }
 
         [HandleStatus]
-        [HttpGet]
         public ActionResult Edit(int id)
         {
-            Party? existingParty = processParty
-                .GetListWithPredicate(new PartySearchParameterModel{ PartyID = [id] }).FirstOrDefault();
-            if (existingParty == null || existingParty.Individual == null)
+            Participant? existingParticipant = processParticipant
+                .GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
+            if (existingParticipant == null || existingParticipant.Individual == null)
             {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Error_Party_NotFound" });
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_Participant_NotFound" });
             }
 
             IndividualEditDTO individualEditDTO = new()
             {
-                PartyID = existingParty.PartyID,
-                PartyTypeInt = existingParty.PartyTypeInt,
-                Name = existingParty.PartyName,
-                WikipediaUrl = existingParty.WikipediaUrl,
-                Pseudonym = existingParty.Individual.Pseudonym,
-                Signature = existingParty.Individual.Signature
+                Id = existingParticipant.ParticipantID,
+                Name = existingParticipant.ParticipantName,
+                WikipediaUrl = existingParticipant.WikipediaUrl,
+                Pseudonym = existingParticipant.Individual.Pseudonym,
+                Signature = existingParticipant.Individual.Signature,
+                BirthYear = existingParticipant.StartYear,
+                DeathYear = existingParticipant.EndYear,
+                ConnectedPlaceList = [.. existingParticipant.ParticipantNPlaceList.Select(x => new ConnectedPlaceDTO {
+                    Id = x.PlaceID,
+                    //Relationship = x.
+                })]
             };
 
-            //ViewData["ConnectedPlaces"] = existingParty.PlaceList;
+            ViewData["ConnectedPlaces"] = existingParticipant.ParticipantNPlaceList.Select(x => x.Place).ToList();
+            ViewData["ConnectedEras"] = existingParticipant.ParticipantNEraList.Select(x => x.Era).ToList();
 
             return View(individualEditDTO);
         }
@@ -77,16 +85,13 @@ namespace Sammlerplattform.Controllers
                 return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
 
-        [HttpGet]
         public ActionResult Delete(int id)
         {
-            Party? existingParty = processParty
-                .GetListWithPredicate(new PartySearchParameterModel { PartyID = [id] }).FirstOrDefault();
-            if (existingParty == null || existingParty.Individual == null)
-            {
-                return RedirectToAction(nameof(Index), new { statusMessage = "Error_Party_NotFound" });
-            }
-            return View(existingParty);
+            Participant? existingParticipant = processParticipant
+                .GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
+            return existingParticipant == null || existingParticipant.Individual == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Participant_NotFound" })
+                : View(existingParticipant);
         }
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

@@ -8,10 +8,6 @@
                 .Select(x => x.IsCurrentName
                     ? $"<strong>{x.Toponymy.ToponymyName}</strong>"
                     : x.Toponymy.ToponymyName)];
-            //List<string> connectedPlaces = [.. place.ConnectedPlaces
-            //    .SelectMany(x => x.PlaceNToponymyList.Select(x => x.IsCurrentName
-            //        ? $"<strong>{x.Toponymy.ToponymyName}</strong>"
-            //        : x.Toponymy.ToponymyName))];
             List<string> connectedPlaces = [.. place.ConnectedPlaces
                 .Select(x => x.PlaceNToponymyList.First(x => x.IsCurrentName).Toponymy.ToponymyName)];
 
@@ -21,8 +17,7 @@
                 Toponymy = string.Join(", ", toponymys ?? []),
                 ConnectedPlaces = string.Join(", ", connectedPlaces ?? []),
                 FurtherSpecs = place.FurtherSpecs ?? string.Empty,
-                //IsDeletable = place.ConnectedPlaces.ToList().Count == 0 && place.PartyList.Count == 0 && place.CollectionItemNPlaceList.Count == 0
-                IsDeletable = place.ConnectedPlaces.ToList().Count == 0 && place.CollectionItemNPlaceList.Count == 0
+                IsDeletable = place.ConnectedPlaces.ToList().Count == 0 && place.ParticipantNPlaceList.Count == 0 && place.CollectionItemNPlaceList.Count == 0
             };
 
             return placeViewModel;

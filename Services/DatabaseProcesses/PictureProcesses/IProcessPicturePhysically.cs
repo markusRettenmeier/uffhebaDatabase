@@ -1,36 +1,33 @@
 ﻿using ImageMagick;
-using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
-using Sammlerplattform.Models.CollectionItemDatabase.OwnershipProofPictureDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
 {
     public interface IProcessPicturePhysically
     {
-        (int Statuscode, string Statusmessage) SaveCollectionItemPic(CollectionItemPicture collectionItemPicture, int id, bool update, string displayName);
-        (int Statuscode, string Statusmessage, byte[] signature) SaveOwnershipProofPic(OwnershipProofPicture ownershipProofPicture, int id, bool update); 
+        (int Statuscode, string Statusmessage) SaveCollectionItemPic(PictureToCollectionItemCreateDTO collectionItemPicture, int id, string displayName);
         (int Statuscode, string Statusmessage) DeleteCollectionItemPic(int id);
-        (int Statuscode, string Statusmessage) DeleteOwnershipProofPic(int id);
     }
 
     public partial class PhysicalPictureProcessor(IWebHostEnvironment hostEnvironment
         , ITrackEventsCSV trackEvents) : IProcessPicturePhysically
     {
-        public (int Statuscode, string Statusmessage) SaveCollectionItemPic(CollectionItemPicture collectionItemPicture, int id, bool update, string displayName)
+        public (int Statuscode, string Statusmessage) SaveCollectionItemPic(PictureToCollectionItemCreateDTO pic, int id, string displayName)
         {
             try
             {
-                if (update)
-                {
-                    DeleteCollectionItemPic(id);
-                }
-                string pathFile = SaveFileForOCR(collectionItemPicture.IFormFile, hostEnvironment);
+                //if (update)
+                //{
+                //    DeleteCollectionItemPic(Id);
+                //}
+                string pathFile = SaveFileForOCR(pic.IFormFile, hostEnvironment);
                 var fileStream = new FileStream(pathFile, FileMode.Open);
                 MagickImage image = new(fileStream)
                 {
                     Quality = 30
                 };
                 ImageSetWatermark(displayName, image);
-                ImageResizeAndMoveToFolder(collectionItemPicture.Frontside, id, image);
+                ImageResizeAndMoveToFolder(pic.Frontside, id, image);
 
                 return (200, "Success_PhysicalPicture_Saved");
             }
@@ -41,31 +38,6 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
 
             }
         }
-
-        public (int Statuscode, string Statusmessage, byte[] signature) SaveOwnershipProofPic(OwnershipProofPicture ownershipProofPicture, int id, bool update)
-        {
-            try
-            {
-                if (update)
-                {
-                    DeleteCollectionItemPic(id);
-                }
-                string pathFile = SaveFileForOCR(ownershipProofPicture.IFormFile, hostEnvironment);
-                var fileStream = new FileStream(pathFile, FileMode.Open);
-                byte[] signature = ImageSigner.SignImage(pathFile);
-                MagickImage image = new(fileStream);
-                image.Write(Path.Combine(hostEnvironment.WebRootPath, Path.Combine("images", "OwnershipProof")), MagickFormat.Tiff);
-
-                return (200, "Success_PhysicalPicture_Saved", signature);
-            }
-            catch (Exception ex)
-            {
-                trackEvents.TrackException(ex, "PhysicalPictureProcessor", new Dictionary<string, object> { { "ID", id } });
-                return (500, "Error_Error_Ocurred", []);
-
-            }
-        }
-
 
         public (int Statuscode, string Statusmessage) DeleteCollectionItemPic(int id)
         {
@@ -85,34 +57,11 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
             }
         }
 
-        public (int Statuscode, string Statusmessage) DeleteOwnershipProofPic(int id)
-        {
-            try
-            {
-                string imgName = id + ".tiff";
-                DeletePictureFromFolders(imgName);
-
-                return (200, "Success_PhysicalPicture_Deleted");
-            }
-            catch (Exception ex)
-            {
-                trackEvents.TrackException(ex, "PhysicalPictureProcessor", new Dictionary<string, object> { { "ID", id } });
-                return (500, "Error_Error_Ocurred");
-            }
-        }
-
         public static void DeletePicturesFromFolders((string pathNormal, string pathSmall, string pathThumbnail) pathes)
         {
             File.Delete(pathes.pathNormal);
             File.Delete(pathes.pathSmall);
             File.Delete(pathes.pathThumbnail);
-        }
-
-        public void DeletePictureFromFolders(string imgName)
-        {
-            string wwwRootPath = hostEnvironment.WebRootPath;
-            string path = Path.Combine(Path.Combine(wwwRootPath, Path.Combine("images", "OwnershipProof")), imgName);
-            File.Delete(path);
         }
 
         private void ImageResizeAndMoveToFolder(bool isfrontside, int id, MagickImage image)
@@ -232,30 +181,6 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
             image.Scale(640, 480);
             image.Write(pathFile);
             File.SetLastAccessTime(pathFile, DateTime.Now);
-
-            return pathFile;
-        }
-        public static string SaveFileOwnershipProof(IFormFile? file, IWebHostEnvironment hostEnvironment)
-        {
-            if (file == null)
-            {
-                return "";
-            }
-
-            MemoryStream ms;
-            MagickImage image;
-
-            string pathOriginal = Path.Combine(hostEnvironment.WebRootPath, Path.Combine("images", "OwnershipProof"));
-            string pathFile = Path.Combine(pathOriginal, RandomString(10) + DateTime.Now.ToString("_ddMMyyhhmmss") + ".tiff");
-
-            ms = new MemoryStream();
-            file.CopyTo(ms);
-            ms.Position = 0;
-            image = new MagickImage(ms)
-            {
-                Format = MagickFormat.Tiff
-            };
-            image.Write(pathFile);
 
             return pathFile;
         }

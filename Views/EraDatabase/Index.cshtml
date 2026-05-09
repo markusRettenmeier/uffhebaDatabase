@@ -3,30 +3,25 @@
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 @{
     ViewData["Title"] = Localizer["Era_Administration"];
-    Layout = "_LayoutSettings";
+    Layout = "~/Views/Shared/_LayoutSettingsDimensions.cshtml";    
 }
 
-<h3>@ViewData["Title"]</h3>
+<h1>@ViewData["Title"]</h1>
 <p>@Localizer["Info_Delete_NotAllowed"]</p>
 <hr />
 
-<div class="btn-group" role="group" aria-label="">
+<div class="btn-group">
     <a type="button" href="/EraDatabase/Create" class="btn btn-success">@Localizer["Create"]</a>
-    <button id="tooltip-SucheOpen" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="under" title="Öffne Suchleiste" type="button" onclick="openNav()"><svg viewBox="0 0 1024 1024"><path class="path1" d="M848.471 928l-263.059-263.059c-48.941 36.706-110.118 55.059-177.412 55.059-171.294 0-312-140.706-312-312s140.706-312 312-312c171.294 0 312 140.706 312 312 0 67.294-24.471 128.471-55.059 177.412l263.059 263.059-79.529 79.529zM189.623 408.078c0 121.364 97.091 218.455 218.455 218.455s218.455-97.091 218.455-218.455c0-121.364-103.159-218.455-218.455-218.455-121.364 0-218.455 97.091-218.455 218.455z"></path></svg></button>
+    <button id="openSidebarButton" class="btn btn-info" data-toggle="tooltip" data-placement="under" title="Öffne Suchleiste" type="button" onclick="openNav()"><svg viewBox="0 0 1024 1024"><path class="path1" d="M848.471 928l-263.059-263.059c-48.941 36.706-110.118 55.059-177.412 55.059-171.294 0-312-140.706-312-312s140.706-312 312-312c171.294 0 312 140.706 312 312 0 67.294-24.471 128.471-55.059 177.412l263.059 263.059-79.529 79.529zM189.623 408.078c0 121.364 97.091 218.455 218.455 218.455s218.455-97.091 218.455-218.455c0-121.364-103.159-218.455-218.455-218.455-121.364 0-218.455 97.091-218.455 218.455z"></path></svg></button>
 </div>
 <table class="table">
+    <caption class="visually-hidden">@Localizer["Era"]</caption>
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.EraName)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartYear)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndYear)
-            </th>
-            <th></th>
+            <th>@Localizer["Actions"]</th>
         </tr>
     </thead>
     <tbody>
@@ -37,13 +32,14 @@
                     @Html.DisplayFor(modelItem => item.EraName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.StartYear)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EndYear)
-                </td>
-                <td>
-                    <a asp-action="EditEra" asp-route-id="@item.EraID">@Localizer["Edit"]</a>
+                    <a asp-action="Edit" asp-route-id="@item.EraID">@Localizer["Edit"]</a> | 
+                    @{
+                        bool isDeletable = item.CollectionItemEntityList.Count == 0;
+                        if(isDeletable)
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.EraID">@Localizer["Delete"]</a>
+                        }
+                    }
                 </td>
             </tr>
         }

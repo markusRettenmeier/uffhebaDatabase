@@ -15,17 +15,16 @@ namespace Sammlerplattform.Models.ImprovementSuggestions
         public Topic Topic { get; set; } = null!;
         public int VoteTypeInt { get; set; }
         [NotMapped]
-        public VoteType VoteType 
-        { 
-            get => (VoteType)VoteTypeInt; 
-            set => VoteTypeInt = (int)value; 
+        public VoteType VoteType
+        {
+            get => (VoteType)VoteTypeInt;
+            set => VoteTypeInt = (int)value;
         }
         public DateTime VotedAt { get; set; } = DateTime.UtcNow;
     }
 
     public enum VoteType
     {
-        Up = 1,
-        Down = -1
+        Up = 1
     }
 }

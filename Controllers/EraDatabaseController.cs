@@ -6,7 +6,7 @@ using Sammlerplattform.Services.DatabaseProcesses;
 
 namespace Sammlerplattform.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class EraDatabaseController(IProcessEra processEra) : Controller
     {
         [HandleStatus]
@@ -15,51 +15,57 @@ namespace Sammlerplattform.Controllers
             return View(processEra.GetWithPredicates(eraSearchParameterModel));
         }
 
-        [HandleStatus]
-        [HttpGet]
         public ActionResult Create()
         {
             return View();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Era era)
+        public ActionResult Create(EraCreateDTO createDTO)
         {
             if (!ModelState.IsValid)
             {
-                return View(era);
+                return View(createDTO);
             }
-            (int _, string statusMessage, int _) = processEra.Insert(era);
+            (int statusCode, string statusMessage, int id) = processEra.Insert(createDTO);
 
-            return RedirectToAction(nameof(Index), new { statusMessage });
+            if (id > 0)
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
+            else
+                return RedirectToAction(nameof(Index), new { statusMessage, statusCode });
         }
 
         [HandleStatus]
-        [HttpGet]
         public ActionResult Edit(int id)
         {
             Era? era = processEra.GetWithPredicates(new EraSearchParameterModel { EraID = [id] })
                        .FirstOrDefault();
-            return era == null
-                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Era_NotFound" })
-                : View(era);
+            if (era == null)
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_Era_NotFound" });
+
+            EraEditDTO eraEditDTO = new()
+            {
+                Name = era.EraName,
+                WikipediaUrl = era.WikipediaUrl,
+                Id = era.EraID
+            };
+            return View(eraEditDTO);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(Era era)
+        public ActionResult Edit(EraEditDTO editDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(era);
+                return View(editDto);
             }
-            (int statusCode, string statusMessage, int id) = processEra.Update(era);
+            (int statusCode, string statusMessage, int id) = processEra.Update(editDto);
             if (statusCode == 200)
                 return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
             else
                 return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
 
-        [HttpGet]
         public ActionResult Delete(int id)
         {
             Era? era = processEra.GetWithPredicates(new EraSearchParameterModel { EraID = [id] })
@@ -70,12 +76,12 @@ namespace Sammlerplattform.Controllers
         }
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult DeleteConfirmed(int eraId)
         {
-            if (id <= 0)
+            if (eraId <= 0)
                 return RedirectToAction(nameof(Index),
                     new { statusMessage = "Error_Invalid_Id" });
-            (int statusCode, string statusMessage) = processEra.Delete(id);
+            (int statusCode, string statusMessage) = processEra.Delete(eraId);
             return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
     }

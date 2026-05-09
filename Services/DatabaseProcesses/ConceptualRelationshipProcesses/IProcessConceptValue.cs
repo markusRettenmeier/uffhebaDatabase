@@ -23,8 +23,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
             {
                 return (400, "Error_CollectionItemEntity_IDMissing", []);
             }
-           
-            conceptValue.CollectionItemEntityID = collectionItemEntityID;           
+
+            conceptValue.CollectionItemEntityID = collectionItemEntityID;
             _ = unitOfWork.ConceptValueRepository.Insert(conceptValue);
             unitOfWork.Save();
 
@@ -32,15 +32,14 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
             if (!string.IsNullOrWhiteSpace(conceptValue.ValueString))
             {
                 translationList = processTranslations.Insert(
-                    new EntityTranslation
+                    new TranslationDTO
                     {
+                        TextToTranslate = conceptValue.ValueString,
                         EntityType = nameof(ConceptValue),
                         EntityId = conceptValue.ConceptValueID,
                         FieldName = nameof(ConceptValue.ValueString),
-                        TranslatedText = conceptValue.ValueString,
                         Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
-                    },
-                    conceptValue.ValueString);
+                    });
             }
 
             return (200, "Success_ConceptValue_Created", translationList);
@@ -62,15 +61,14 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 if (existingConceptValue.ValueString != conceptValue.ValueString)
                 {
                     translationList = processTranslations.Update(
-                        new EntityTranslation
+                        new TranslationDTO
                         {
+                            TextToTranslate = conceptValue.ValueString,
                             EntityType = nameof(ConceptValue),
                             EntityId = existingConceptValue.ConceptValueID,
                             FieldName = nameof(ConceptValue.ValueString),
-                            TranslatedText = conceptValue.ValueString,
                             Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
-                        },
-                        conceptValue.ValueString);
+                        });
                     hasChanges = true;
                 }
             }
@@ -104,14 +102,14 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
         {
             if (conceptValueID <= 0)
             {
-                return (400, "Error_ConceptValue_IdMissing");
+                return (400, "Error_ConceptValueId_Required");
             }
 
             ConceptValue? existingConceptValue = unitOfWork.ConceptValueRepository.Get(ci =>
                 ci.ConceptValueID == conceptValueID).FirstOrDefault();
             if (existingConceptValue == null)
             {
-                return (404, "Error_ConceeptValue_NotFound");
+                return (404, "Error_ConceptValue_NotFound");
             }
             unitOfWork.ConceptValueRepository.Delete(existingConceptValue);
             unitOfWork.Save();

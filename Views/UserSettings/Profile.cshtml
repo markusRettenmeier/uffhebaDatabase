@@ -6,11 +6,11 @@
     Layout = "_LayoutSettings";
 }
 
-<h3>@ViewData["Title"]</h3>
+<h1>@ViewData["Title"]</h1>
 <hr />
 <form asp-action="ProfileChange">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-group mb-2">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
         <label asp-for="DisplayName" class="form-label"></label>
         <input asp-for="DisplayName" class="form-control">
         <span asp-validation-for="DisplayName" class="text-danger"></span>

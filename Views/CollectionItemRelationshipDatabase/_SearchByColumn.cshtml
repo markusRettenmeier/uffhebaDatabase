@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+<div id="mySidebar" class="zIndex_5 sidenav-search box-shadow">
+    <div class="d-grid gap-2 m-2 sidenav-search-upperPart">
+        <button type="button" class="btn btn-danger" onclick="closeNav()">@Localizer["Close"]</button>
+        <button class="btn btn-primary hochladenSubmitSuche">@Localizer["Search"]</button>
+        <button class="btn btn-primary hochladenSpinnerSuche" disabled style="display: none;">
+            <span class="spinner-border spinner-border-sm"></span>
+            @Localizer["Search_Started"]
+        </button>
+    </div>
+    <div class="divToTransmit container">
+        <div class="row SbCDiv" id="propertyHolder_0">
+            <div class="col input-group">
+                <button id="removeColumn_0" type="button" class="btn btn-outline-danger removeColumn" style="display:none">-</button>
+                <select name="columnName" id="columnName_0" class="form-select columnDropDown" aria-label="@Localizer["ConceptRelationshipSearchParameters_Select"]">
+                    <option value="Choose_Column" selected>@Localizer["Column_Select"]</option>
+                    <option value="CollectionItemRelationshipName">@Localizer["Name"]</option>
+                </select>
+            </div>
+            <div class="col inputArea" id="inputArea_0">
+                <div id="divAdd_0" class="divAdd"></div>
+            </div>
+            <input type="hidden" value="1" class="total_input" id="total_input0">
+        </div>
+        <div id="propertyHolder-append"></div>
+    </div>
+    <div class="text-center mt-2">
+        <div class="btn-group">
+            <button class="btn btn-primary addColumn" type="button">@Localizer["Column_Add"]</button>
+            <button class="btn btn-danger searchReset" onclick="searchReset()" type="button">@Localizer["Reset"]</button>
+        </div>
+    </div>
+</div>

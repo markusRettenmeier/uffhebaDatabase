@@ -11,12 +11,10 @@ namespace Sammlerplattform.Models.ImprovementSuggestions
         [Key]
         public int Id { get; set; }
 
-        [Display(Name ="Title", ResourceType = typeof(SharedResources))]
-        [Required(ErrorMessageResourceName = "TitleRequired", ErrorMessageResourceType = typeof(SharedResources))]
+        [Display(Name = "Title", ResourceType = typeof(SharedResources))]
         public required string Title { get; set; }
 
         [Display(Name = "Content", ResourceType = typeof(SharedResources))]
-        [Required(ErrorMessageResourceName = "ContentRequired", ErrorMessageResourceType = typeof(SharedResources))]
         public required string Content { get; set; }
         public required string UserId { get; set; }
         public UsingIdentityUser Author { get; set; } = null!;

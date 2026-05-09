@@ -1,14 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
-using Sammlerplattform.Models;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Sammlerplattform.Models.PlaceDatabase;
-using Sammlerplattform.Resources;
 using Sammlerplattform.Services;
 using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
 
 namespace Sammlerplattform.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class PlaceDatabaseController(IProcessPlace processPlace
         , ITrackEventsCSV trackEvents) : Controller
     {
@@ -19,8 +17,6 @@ namespace Sammlerplattform.Controllers
             return View(placeList);
         }
 
-        [HttpGet]
-        [HandleStatus]
         public ActionResult Create()
         {
             return View();
@@ -31,7 +27,7 @@ namespace Sammlerplattform.Controllers
         {
             // 1 Model bereinigen
             model.ToponymyList = [.. model.ToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Name))];
-            // 2 ModelState neu validieren, da sonst bei leeren Feldern der Fehler "The Name field is required." angezeigt wird, obwohl das Feld ja nicht zwingend erforderlich ist, da es ja auch gelöscht werden kann.
+            // 2 ModelState neu validieren, da sonst bei leeren Feldern der Fehler "The ToName field is required." angezeigt wird, obwohl das Feld ja nicht zwingend erforderlich ist, da es ja auch gelöscht werden kann.
             ModelState.Clear();
             TryValidateModel(model);
             if (!ModelState.IsValid)
@@ -43,12 +39,15 @@ namespace Sammlerplattform.Controllers
                 return View(model);
             }
 
-            (int statusCode, string statusMessage, int _) = processPlace.Insert(model);
-            return RedirectToAction(nameof(Index), new { statusMessage, statusCode });
+            (int statusCode, string statusMessage, int id) = processPlace.Insert(model);
+
+            if (id > 0)
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
+            else
+                return RedirectToAction(nameof(Index), new { statusMessage, statusCode });
         }
 
         [HandleStatus]
-        [HttpGet]
         public ActionResult Edit(int id)
         {
             Place? existingPlace = processPlace
@@ -85,7 +84,7 @@ namespace Sammlerplattform.Controllers
             // 1 Model bereinigen
             model.ToponymyList = [.. model.ToponymyList.Where(x => !string.IsNullOrWhiteSpace(x.Name))];
             // 2 ModelState neu validieren, da sonst bei leeren Feldern der Fehler
-            // "The Name field is required." angezeigt wird, obwohl das Feld ja nicht zwingend erforderlich ist, da es ja auch gelöscht werden kann.
+            // "The ToName field is required." angezeigt wird, obwohl das Feld ja nicht zwingend erforderlich ist, da es ja auch gelöscht werden kann.
             ModelState.Clear();
             TryValidateModel(model);
             if (!ModelState.IsValid)
@@ -103,7 +102,6 @@ namespace Sammlerplattform.Controllers
                 return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
 
-        [HttpGet]
         public ActionResult Delete(int id)
         {
             Place? existingPlace = processPlace

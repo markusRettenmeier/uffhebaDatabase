@@ -3,7 +3,7 @@
 
 <div id="mySidebar" class="zIndex_5 sidenav-search box-shadow">
     <div class="d-grid gap-2 m-2 sidenav-search-upperPart">
-        <button type="button" class="btn-close" aria-label="Close" onclick="closeNav()"></button>
+        <button type="button" class="btn btn-danger" onclick="closeNav()">@Localizer["Close"]</button>
         <button class="btn btn-primary hochladenSubmitSuche">@Localizer["Search"]</button>
         <button class="btn btn-primary hochladenSpinnerSuche" disabled style="display: none;">
             <span class="spinner-border spinner-border-sm"></span>
@@ -14,9 +14,9 @@
         <div class="row SbCDiv" id="propertyHolder_0">
             <div class="col input-group">
                 <button id="removeColumn_0" type="button" class="btn btn-outline-danger removeColumn" style="display:none">-</button>
-                <select name="columnName" id="columnName_0" class="form-select columnDropDown">
-                    <option value="" selected>@Localizer["Option_Select"]</option>
-                    <option value="EraName">@Localizer["EraName"]</option>
+                <select name="columnName" id="columnName_0" class="form-select columnDropDown" aria-label="@Localizer["EraSearchParameters_Select"]">
+                    <option value="" selected>@Localizer["Column_Select"]</option>
+                    <option value="EraName">@Localizer["Name"]</option>
                 </select>
             </div>
             <div class="col inputArea" id="inputArea_0">
@@ -27,9 +27,9 @@
         <div id="propertyHolder-append"></div>
     </div>
     <div class="text-center mt-2">
-        <div class="btn-group" role="group" aria-label="addCol reset">
+        <div class="btn-group">
             <button class="btn btn-primary addColumn" type="button">@Localizer["Column_Add"]</button>
-            <button class="btn btn-outline-primary searchReset" onclick="searchReset()" type="button">@Localizer["Reset"]</button>
+            <button class="btn btn-danger searchReset" onclick="searchReset()" type="button">@Localizer["Reset"]</button>
         </div>
     </div>
 </div>

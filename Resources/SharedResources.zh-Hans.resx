@@ -1,0 +1,1324 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CollectionArea" xml:space="preserve">
+    <value>收藏领域</value>
+  </data>
+  <data name="CollectionAreaID" xml:space="preserve">
+    <value>收藏领域ID</value>
+  </data>
+  <data name="CollectionAreaName" xml:space="preserve">
+    <value>收藏领域名称</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>电子邮件</value>
+  </data>
+  <data name="Bool" xml:space="preserve">
+    <value>对/错</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>日期</value>
+  </data>
+  <data name="Decimal" xml:space="preserve">
+    <value>十进制</value>
+  </data>
+  <data name="Number" xml:space="preserve">
+    <value>数字</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>文本</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>{0} の入力は必須です。</value>
+  </data>
+  <data name="StringLength" xml:space="preserve">
+    <value>字段 {0} 的长度最多为 {1} 个字符。</value>
+  </data>
+  <data name="Success_Logout" xml:space="preserve">
+    <value>您已成功退出。</value>
+  </data>
+  <data name="Error_User_NotFound" xml:space="preserve">
+    <value>未找到该用户。</value>
+  </data>
+  <data name="Error_Place_NotFound" xml:space="preserve">
+    <value>未找到该地点。</value>
+  </data>
+  <data name="Error_CollectionArea_NotFound" xml:space="preserve">
+    <value>未找到收藏领域。</value>
+  </data>
+  <data name="Error_ConceptValue_NotFound" xml:space="preserve">
+    <value>未找到该术语。</value>
+  </data>
+  <data name="Error_CollectionArea_IdMissing" xml:space="preserve">
+    <value>缺少集合区域ID。</value>
+  </data>
+  <data name="Error_ConceptValueId_Required" xml:space="preserve">
+    <value>缺少术语值ID。</value>
+  </data>
+  <data name="Error_ConceptualRelation_NotFound" xml:space="preserve">
+    <value>未找到术语关联。</value>
+  </data>
+  <data name="Error_Era_NotFound" xml:space="preserve">
+    <value>未找到时代。</value>
+  </data>
+  <data name="Individual" xml:space="preserve">
+    <value>个体</value>
+  </data>
+  <data name="Error_Participant_NotFound" xml:space="preserve">
+    <value>未找到相关方。</value>
+  </data>
+  <data name="Organization" xml:space="preserve">
+    <value>组织</value>
+  </data>
+  <data name="Part of" xml:space="preserve">
+    <value>属于</value>
+  </data>
+  <data name="Pseudonym" xml:space="preserve">
+    <value>ペンネーム</value>
+  </data>
+  <data name="Industry" xml:space="preserve">
+    <value>行业</value>
+  </data>
+  <data name="to" xml:space="preserve">
+    <value>至</value>
+  </data>
+  <data name="Success_Profile_Change" xml:space="preserve">
+    <value>个人资料已成功修改。</value>
+  </data>
+  <data name="Success_Account_Deleted" xml:space="preserve">
+    <value>アカウントは正常に削除されました。</value>
+  </data>
+  <data name="Side_Front" xml:space="preserve">
+    <value>封面</value>
+  </data>
+  <data name="Perspective" xml:space="preserve">
+    <value>视角</value>
+  </data>
+  <data name="CollectionItemEntityID" xml:space="preserve">
+    <value>收藏品ID</value>
+  </data>
+  <data name="CollectionItemEntity" xml:space="preserve">
+    <value>收藏品</value>
+  </data>
+  <data name="IFormFile" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="Side_Back" xml:space="preserve">
+    <value>背面</value>
+  </data>
+  <data name="Side_Left" xml:space="preserve">
+    <value>左側</value>
+  </data>
+  <data name="Side_Right" xml:space="preserve">
+    <value>右侧</value>
+  </data>
+  <data name="UniqueName" xml:space="preserve">
+    <value>独特的名字</value>
+  </data>
+  <data name="Fake" xml:space="preserve">
+    <value>伪造</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>注</value>
+  </data>
+  <data name="StatePreservationID" xml:space="preserve">
+    <value>保存状况ID</value>
+  </data>
+  <data name="StatePreservation" xml:space="preserve">
+    <value>保存状况</value>
+  </data>
+  <data name="Inscription" xml:space="preserve">
+    <value>题词</value>
+  </data>
+  <data name="ConceptID" xml:space="preserve">
+    <value>术语ID</value>
+  </data>
+  <data name="Concept" xml:space="preserve">
+    <value>术语</value>
+  </data>
+  <data name="Concepts" xml:space="preserve">
+    <value>术语</value>
+  </data>
+  <data name="SerialNumber" xml:space="preserve">
+    <value>序列号</value>
+  </data>
+  <data name="ExactYear" xml:space="preserve">
+    <value>确切年份</value>
+  </data>
+  <data name="IsApproximate" xml:space="preserve">
+    <value>这是估价吗？</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>时间</value>
+  </data>
+  <data name="EraID" xml:space="preserve">
+    <value>时代ID</value>
+  </data>
+  <data name="Era" xml:space="preserve">
+    <value>时代</value>
+  </data>
+  <data name="Width" xml:space="preserve">
+    <value>宽度</value>
+  </data>
+  <data name="Height" xml:space="preserve">
+    <value>高度</value>
+  </data>
+  <data name="Length" xml:space="preserve">
+    <value>长度</value>
+  </data>
+  <data name="Diameter" xml:space="preserve">
+    <value>直径</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>重量</value>
+  </data>
+  <data name="PersonalIdentificationNumber" xml:space="preserve">
+    <value>个人身份号码</value>
+  </data>
+  <data name="FilingLocation" xml:space="preserve">
+    <value>存放位置</value>
+  </data>
+  <data name="DeliveryPrice" xml:space="preserve">
+    <value>认购价格</value>
+  </data>
+  <data name="DeliveryDate" xml:space="preserve">
+    <value>基准日期</value>
+  </data>
+  <data name="DeliveryAdress" xml:space="preserve">
+    <value>收件地址</value>
+  </data>
+  <data name="ParticipantID" xml:space="preserve">
+    <value>当事人ID</value>
+  </data>
+  <data name="Participant" xml:space="preserve">
+    <value>当事人</value>
+  </data>
+  <data name="Relationship" xml:space="preserve">
+    <value>関係</value>
+  </data>
+  <data name="PlaceID" xml:space="preserve">
+    <value>地点ID</value>
+  </data>
+  <data name="Place" xml:space="preserve">
+    <value>地点</value>
+  </data>
+  <data name="ConceptName" xml:space="preserve">
+    <value>术语名称</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>姓名</value>
+  </data>
+  <data name="CollectionItemEntityID_Required" xml:space="preserve">
+    <value>缺少收藏品ID。</value>
+  </data>
+  <data name="UsingIdentityUsersID" xml:space="preserve">
+    <value>用户ID</value>
+  </data>
+  <data name="UsingIdentityUser" xml:space="preserve">
+    <value>用户</value>
+  </data>
+  <data name="IsPartOfASet" xml:space="preserve">
+    <value>这是系列作品的一部分吗？</value>
+  </data>
+  <data name="StatePreservationName" xml:space="preserve">
+    <value>保存状况</value>
+  </data>
+  <data name="SortingOrder" xml:space="preserve">
+    <value>順序</value>
+  </data>
+  <data name="IsGeneralState" xml:space="preserve">
+    <value>这是指总体保护状况，即不针对特定收藏领域的状况吗？</value>
+  </data>
+  <data name="EraName" xml:space="preserve">
+    <value>致谢</value>
+  </data>
+  <data name="IndividualID" xml:space="preserve">
+    <value>个体ID</value>
+  </data>
+  <data name="Signature" xml:space="preserve">
+    <value>署名</value>
+  </data>
+  <data name="OrganizationType" xml:space="preserve">
+    <value>组织类型</value>
+  </data>
+  <data name="IndustryID" xml:space="preserve">
+    <value>行业代码</value>
+  </data>
+  <data name="Institution" xml:space="preserve">
+    <value>机构</value>
+  </data>
+  <data name="IndustryName" xml:space="preserve">
+    <value>行业名称</value>
+  </data>
+  <data name="ParticipantName" xml:space="preserve">
+    <value>股东名称</value>
+  </data>
+  <data name="ParticipantType" xml:space="preserve">
+    <value>参与者类型</value>
+  </data>
+  <data name="Places" xml:space="preserve">
+    <value>地点</value>
+  </data>
+  <data name="IsCurrentPostalcode" xml:space="preserve">
+    <value>这是当前的邮政编码吗？</value>
+  </data>
+  <data name="IsCurrentName" xml:space="preserve">
+    <value>这是当前的名称吗？</value>
+  </data>
+  <data name="Error_CollectionArea_NameEmpty" xml:space="preserve">
+    <value>集合域名称不能为空。</value>
+  </data>
+  <data name="Error_CollectionArea_Exists" xml:space="preserve">
+    <value>该收藏类别名称已存在。</value>
+  </data>
+  <data name="Success_CollectionArea_Created" xml:space="preserve">
+    <value>已成功创建收藏夹。</value>
+  </data>
+  <data name="Error_Error_Ocurred" xml:space="preserve">
+    <value>已发生技术故障并已记录在案。我们将尽快予以修复。</value>
+  </data>
+  <data name="Success_CollectionArea_Updated" xml:space="preserve">
+    <value>收藏领域已成功更改。</value>
+  </data>
+  <data name="Success_CollectionArea_Deleted" xml:space="preserve">
+    <value>收藏领域已成功删除。</value>
+  </data>
+  <data name="Error_CollectionItemEntity_IDMissing" xml:space="preserve">
+    <value>缺少藏品ID。</value>
+  </data>
+  <data name="Success_Embeding_Created" xml:space="preserve">
+    <value>嵌入已成功创建。</value>
+  </data>
+  <data name="Success_Embedding_Updated" xml:space="preserve">
+    <value>嵌入已成功更改。</value>
+  </data>
+  <data name="Success_Embedding_Deleted" xml:space="preserve">
+    <value>Embedding wurde erfolgreich gelöscht.</value>
+  </data>
+  <data name="Error_Embedding_NotFound" xml:space="preserve">
+    <value>未找到嵌入内容。</value>
+  </data>
+  <data name="Error_UserID_Missing" xml:space="preserve">
+    <value>缺少用户ID。</value>
+  </data>
+  <data name="Success_CollectionItemEntity_Created" xml:space="preserve">
+    <value>收藏品已成功创建。</value>
+  </data>
+  <data name="Error_CollectionItemEntity_NotFound" xml:space="preserve">
+    <value>未找到该收藏品。</value>
+  </data>
+  <data name="Success_CollectionItemEntity_Changed" xml:space="preserve">
+    <value>收藏品已成功修改。</value>
+  </data>
+  <data name="Success_CollectionItemEntity_Deleted" xml:space="preserve">
+    <value>该收藏品已成功删除。</value>
+  </data>
+  <data name="Success_CollectionItemPicture_Synchronized" xml:space="preserve">
+    <value>图片已成功同步。</value>
+  </data>
+  <data name="Error_StatePreservation_NotFound" xml:space="preserve">
+    <value>未找到保存状况。</value>
+  </data>
+  <data name="Success_StatePreservation_Updated" xml:space="preserve">
+    <value>状态已成功更改。</value>
+  </data>
+  <data name="Success_StatePreservation_Deleted" xml:space="preserve">
+    <value>状态已成功删除。</value>
+  </data>
+  <data name="Error_Concept_Exists" xml:space="preserve">
+    <value>该术语已存在。</value>
+  </data>
+  <data name="Success_Concept_Created" xml:space="preserve">
+    <value>术语已成功创建。</value>
+  </data>
+  <data name="Error_Concept_NotFound" xml:space="preserve">
+    <value>未找到该术语。</value>
+  </data>
+  <data name="Error_Concept_IDMissing" xml:space="preserve">
+    <value>缺少术语ID。</value>
+  </data>
+  <data name="Error_Concept_NameMissing" xml:space="preserve">
+    <value>缺少术语名称。</value>
+  </data>
+  <data name="Success_Concept_Deleted" xml:space="preserve">
+    <value>该术语已成功删除。</value>
+  </data>
+  <data name="Success_Concept_Updated" xml:space="preserve">
+    <value>术语已成功修改。</value>
+  </data>
+  <data name="Error_Participant_Exists" xml:space="preserve">
+    <value>该参与方已存在。</value>
+  </data>
+  <data name="Success_Individual_Created" xml:space="preserve">
+    <value>已成功创建该用户。</value>
+  </data>
+  <data name="Error_ParticipantID_Required" xml:space="preserve">
+    <value>缺少相关方 ID。</value>
+  </data>
+  <data name="Error_Individual_NotFound" xml:space="preserve">
+    <value>未找到该用户。</value>
+  </data>
+  <data name="Success_Individual_Updated" xml:space="preserve">
+    <value>该条目已成功修改。</value>
+  </data>
+  <data name="Success_Organization_Created" xml:space="preserve">
+    <value>组织已成功创建。</value>
+  </data>
+  <data name="Success_Organization_Updated" xml:space="preserve">
+    <value>組織の変更が完了しました。</value>
+  </data>
+  <data name="Success_Participant_Created" xml:space="preserve">
+    <value>已成功创建相关方。</value>
+  </data>
+  <data name="Success_Place_Updated" xml:space="preserve">
+    <value>位置已成功更改。</value>
+  </data>
+  <data name="Success_Participant_Updated" xml:space="preserve">
+    <value>已成功创建相关方。</value>
+  </data>
+  <data name="Success_Participant_Deleted" xml:space="preserve">
+    <value>相关方已成功更改。</value>
+  </data>
+  <data name="Success_Place_Created" xml:space="preserve">
+    <value>地点已成功创建。</value>
+  </data>
+  <data name="Error_File_Empty" xml:space="preserve">
+    <value>文件为空。</value>
+  </data>
+  <data name="Success_CollectionItemPicture_Created" xml:space="preserve">
+    <value>收藏品图片已成功创建。</value>
+  </data>
+  <data name="Error_CollectionItemPicture_NotFound" xml:space="preserve">
+    <value>未找到收藏品图片。</value>
+  </data>
+  <data name="Success_CollectionItemPicture_Deleted" xml:space="preserve">
+    <value>收藏品图片已成功删除。</value>
+  </data>
+  <data name="Success_PhysicalPicture_Saved" xml:space="preserve">
+    <value>图片已成功保存。</value>
+  </data>
+  <data name="Success_PhysicalPicture_Deleted" xml:space="preserve">
+    <value>已成功创建相关方。</value>
+  </data>
+  <data name="Error_PlaceName_Missing" xml:space="preserve">
+    <value>缺少地名。</value>
+  </data>
+  <data name="Error_Place_Exists" xml:space="preserve">
+    <value>该地点已存在。</value>
+  </data>
+  <data name="Error_PlaceID_Missing" xml:space="preserve">
+    <value>缺少地点ID。</value>
+  </data>
+  <data name="Error_ParentPlace_ParentOfItsOwn" xml:space="preserve">
+    <value>一个地方不可能成为自己的父母。</value>
+  </data>
+  <data name="Success_Place_Deleted" xml:space="preserve">
+    <value>该地点已成功删除。</value>
+  </data>
+  <data name="Error_Era_NameMissing" xml:space="preserve">
+    <value>缺少文件名。</value>
+  </data>
+  <data name="Error_OrganizationTypeInt_Missing" xml:space="preserve">
+    <value>缺少组织类型。</value>
+  </data>
+  <data name="Error_Era_IdMissing" xml:space="preserve">
+    <value>缺少时代ID。</value>
+  </data>
+  <data name="Error_Era_Exists" xml:space="preserve">
+    <value>这个时代已经存在了。</value>
+  </data>
+  <data name="Success_Era_Created" xml:space="preserve">
+    <value>时代已成功创建。</value>
+  </data>
+  <data name="Success_Era_Updated" xml:space="preserve">
+    <value>時代の変更に成功しました。</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>注册</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>登录</value>
+  </data>
+  <data name="User_Register" xml:space="preserve">
+    <value>注册为新用户</value>
+  </data>
+  <data name="Register_Here" xml:space="preserve">
+    <value>您可以在此注册。</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>重置</value>
+  </data>
+  <data name="PlaceName_Add" xml:space="preserve">
+    <value>Mehr Ortsnamen hinzufügen</value>
+  </data>
+  <data name="FurtherSpecs" xml:space="preserve">
+    <value>其他规格</value>
+  </data>
+  <data name="Place_Add" xml:space="preserve">
+    <value>添加地点</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>関係を追加する</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>検索</value>
+  </data>
+  <data name="Column_Add" xml:space="preserve">
+    <value>添加列</value>
+  </data>
+  <data name="StatePreservation_Administration" xml:space="preserve">
+    <value>保存状態の管理</value>
+  </data>
+  <data name="ConceptRelation_Administration" xml:space="preserve">
+    <value>管理术语关系</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Search_Started" xml:space="preserve">
+    <value>検索を開始しました</value>
+  </data>
+  <data name="Picture_Watermark" xml:space="preserve">
+    <value>所有图片都会自动添加水印。</value>
+  </data>
+  <data name="CollectionItemEntity_AttributesConcepts" xml:space="preserve">
+    <value>其他特征和通用术语</value>
+  </data>
+  <data name="Concept_Select" xml:space="preserve">
+    <value>选择术语</value>
+  </data>
+  <data name="StatePreservation_NotAvailable" xml:space="preserve">
+    <value>没有保存状态</value>
+  </data>
+  <data name="Participant_Add" xml:space="preserve">
+    <value>添加参与者</value>
+  </data>
+  <data name="AdministrationData" xml:space="preserve">
+    <value>管理数据</value>
+  </data>
+  <data name="Delete_Confirm" xml:space="preserve">
+    <value>真的要删除吗？</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Picture_Add" xml:space="preserve">
+    <value>添加图片</value>
+  </data>
+  <data name="Place_Select" xml:space="preserve">
+    <value>选择地点</value>
+  </data>
+  <data name="CollectionArea_OwnAdministration" xml:space="preserve">
+    <value>管理自己的收藏区域 {0}</value>
+  </data>
+  <data name="Relation_Add" xml:space="preserve">
+    <value>関係を追加する</value>
+  </data>
+  <data name="RelationType" xml:space="preserve">
+    <value>关系类型</value>
+  </data>
+  <data name="SynonymFor" xml:space="preserve">
+    <value>同义词</value>
+  </data>
+  <data name="SubTermOf" xml:space="preserve">
+    <value>子类</value>
+  </data>
+  <data name="BackToList" xml:space="preserve">
+    <value>返回列表</value>
+  </data>
+  <data name="ConceptRelation_Add" xml:space="preserve">
+    <value>添加概念关系</value>
+  </data>
+  <data name="Imprint" xml:space="preserve">
+    <value>版权声明</value>
+  </data>
+  <data name="Individual_Edit" xml:space="preserve">
+    <value>修改个人资料</value>
+  </data>
+  <data name="Frontpage" xml:space="preserve">
+    <value>Startseite</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>接受</value>
+  </data>
+  <data name="Documentation" xml:space="preserve">
+    <value>文档</value>
+  </data>
+  <data name="Login/Register" xml:space="preserve">
+    <value>登录/注册</value>
+  </data>
+  <data name="PrivacyImprint" xml:space="preserve">
+    <value>隐私政策与网站声明</value>
+  </data>
+  <data name="CollectionAreas" xml:space="preserve">
+    <value>收藏领域</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>创建</value>
+  </data>
+  <data name="Dimensions_Adminstration" xml:space="preserve">
+    <value>管理维度</value>
+  </data>
+  <data name="Eras" xml:space="preserve">
+    <value>埃伦</value>
+  </data>
+  <data name="Individuals" xml:space="preserve">
+    <value>个人</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>注销</value>
+  </data>
+  <data name="Organizations" xml:space="preserve">
+    <value>组织</value>
+  </data>
+  <data name="Profile" xml:space="preserve">
+    <value>个人资料</value>
+  </data>
+  <data name="StructureCollectionAreas" xml:space="preserve">
+    <value>収集地域の構成</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>修改</value>
+  </data>
+  <data name="Info_Delete_NotAllowed" xml:space="preserve">
+    <value>条目只能在征得管理员同意后删除，或者在该条目不再被其他条目引用时才能删除。因为删除操作可能会对许多收藏品产生负面影响。</value>
+  </data>
+  <data name="PlaceName" xml:space="preserve">
+    <value>地名</value>
+  </data>
+  <data name="CollectionArea_Create" xml:space="preserve">
+    <value>创建收藏领域</value>
+  </data>
+  <data name="CollectionArea_Edit" xml:space="preserve">
+    <value>更改收藏类别</value>
+  </data>
+  <data name="CollectionArea_Structure" xml:space="preserve">
+    <value>收藏领域的构建</value>
+  </data>
+  <data name="CollectionItemEntity_Create" xml:space="preserve">
+    <value>制作收藏品</value>
+  </data>
+  <data name="Participant_Select" xml:space="preserve">
+    <value>选择相关方</value>
+  </data>
+  <data name="Measurements_Weight" xml:space="preserve">
+    <value>尺寸和重量</value>
+  </data>
+  <data name="CollectionItemEntity_Delete" xml:space="preserve">
+    <value>删除收藏品</value>
+  </data>
+  <data name="CollectionItemEntity_Edit" xml:space="preserve">
+    <value>更改收藏品</value>
+  </data>
+  <data name="Era_Select" xml:space="preserve">
+    <value>选择时代</value>
+  </data>
+  <data name="CollectionItemEntity_Administration" xml:space="preserve">
+    <value>管理我的收藏品</value>
+  </data>
+  <data name="CollectionItemEntity_Download_All" xml:space="preserve">
+    <value>将所有收藏品下载为 YAML 格式</value>
+  </data>
+  <data name="CollectionItemEntity_Download_One" xml:space="preserve">
+    <value>下载为 YAML 格式</value>
+  </data>
+  <data name="ConceptRelation_Create" xml:space="preserve">
+    <value>建立概念关系</value>
+  </data>
+  <data name="ConceptRelation_Connected" xml:space="preserve">
+    <value>相关术语关系</value>
+  </data>
+  <data name="ConceptRelation_Delete" xml:space="preserve">
+    <value>删除概念关系</value>
+  </data>
+  <data name="ConceptRelation_Edit" xml:space="preserve">
+    <value>更改概念关系</value>
+  </data>
+  <data name="Era_Create" xml:space="preserve">
+    <value>创建时代</value>
+  </data>
+  <data name="Era_Edit" xml:space="preserve">
+    <value>更改时代</value>
+  </data>
+  <data name="Era_Administration" xml:space="preserve">
+    <value>资产管理</value>
+  </data>
+  <data name="Message_NothingFound" xml:space="preserve">
+    <value>&lt;h4&gt;很抱歉，未找到相关内容。&lt;/h4&gt;
+&lt;h4&gt;请尝试输入其他关键词。&lt;/h4&gt;</value>
+  </data>
+  <data name="Search_TypeIn" xml:space="preserve">
+    <value>検索するには入力してください</value>
+  </data>
+  <data name="Individual_Create" xml:space="preserve">
+    <value>创建角色</value>
+  </data>
+  <data name="Individual_Administration" xml:space="preserve">
+    <value>人员管理</value>
+  </data>
+  <data name="Organization_Create" xml:space="preserve">
+    <value>创建组织</value>
+  </data>
+  <data name="Organization_Select" xml:space="preserve">
+    <value>选择组织</value>
+  </data>
+  <data name="Organization_Edit" xml:space="preserve">
+    <value>更改组织</value>
+  </data>
+  <data name="Organization_Administration" xml:space="preserve">
+    <value>组织管理</value>
+  </data>
+  <data name="StatePreservation_Create" xml:space="preserve">
+    <value>保存状態の管理</value>
+  </data>
+  <data name="StatePreservation_Delete" xml:space="preserve">
+    <value>删除维护状态</value>
+  </data>
+  <data name="StatePreservation_Edit" xml:space="preserve">
+    <value>保存状態を変更する</value>
+  </data>
+  <data name="AccountDelete_Confirm" xml:space="preserve">
+    <value>删除数据并关闭我的账户。</value>
+  </data>
+  <data name="AccountDelete_Notification" xml:space="preserve">
+    <value>删除这些数据将导致您的账户和收藏集被删除。此操作无法撤销。</value>
+  </data>
+  <data name="Account_Delete" xml:space="preserve">
+    <value>删除账户</value>
+  </data>
+  <data name="Download_Notification" xml:space="preserve">
+    <value>在删除账户之前，请先下载您的记录。</value>
+  </data>
+  <data name="CollectionItem_DownloadAll" xml:space="preserve">
+    <value>下载所有收藏品的相关数据</value>
+  </data>
+  <data name="PersonalData_Download" xml:space="preserve">
+    <value>下载账户详情</value>
+  </data>
+  <data name="PersonalData_Notification" xml:space="preserve">
+    <value>您的账户中包含您提供给我们的个人数据。您可以在此下载或删除这些数据。</value>
+  </data>
+  <data name="Message_Greetings_String" xml:space="preserve">
+    <value>尊敬的各位，</value>
+  </data>
+  <data name="Message_Greetings_HTML" xml:space="preserve">
+    <value>尊敬的各位，&lt;br/&gt;</value>
+  </data>
+  <data name="Message_GeneralText_String" xml:space="preserve">
+    <value>&lt;br/&gt;这是一封自动生成的邮件。如有疑问，请联系 {0}。&lt;br/&gt;此致</value>
+  </data>
+  <data name="Message_GeneralText_Html" xml:space="preserve">
+    <value>这是一封自动生成的邮件。如有疑问，请联系 {0}。此致</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>收藏品的详细信息</value>
+  </data>
+  <data name="NothingFound" xml:space="preserve">
+    <value>没有与该搜索词相关的条目。</value>
+  </data>
+  <data name="Concept_SynonymAdd" xml:space="preserve">
+    <value>添加为同义词</value>
+  </data>
+  <data name="Concept_ParentConceptAdd" xml:space="preserve">
+    <value>添加为总类</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>添加</value>
+  </data>
+  <data name="NumberRange_Change" xml:space="preserve">
+    <value>更改数值范围</value>
+  </data>
+  <data name="Side_Top" xml:space="preserve">
+    <value>上部</value>
+  </data>
+  <data name="Side_Bottom" xml:space="preserve">
+    <value>子页面</value>
+  </data>
+  <data name="InscriptionTranslated" xml:space="preserve">
+    <value>铭文译文</value>
+  </data>
+  <data name="OrganizationID" xml:space="preserve">
+    <value>组织ID</value>
+  </data>
+  <data name="IsGeneralConcept" xml:space="preserve">
+    <value>这是一个通用术语，也就是说，它不属于某个特定收藏领域的术语吗？</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>是的</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>不</value>
+  </data>
+  <data name="ConceptRelation_Administration_Specific" xml:space="preserve">
+    <value>子术语的管理 </value>
+  </data>
+  <data name="IsRootConcept" xml:space="preserve">
+    <value>这是基本概念吗？</value>
+  </data>
+  <data name="RootConceptID" xml:space="preserve">
+    <value>基本概念ID</value>
+  </data>
+  <data name="RootConcept" xml:space="preserve">
+    <value>基本概念</value>
+  </data>
+  <data name="Dimensions" xml:space="preserve">
+    <value>维度</value>
+  </data>
+  <data name="ConceptType" xml:space="preserve">
+    <value>术语类型</value>
+  </data>
+  <data name="Pictures_CollectionItem" xml:space="preserve">
+    <value>收藏品图片</value>
+  </data>
+  <data name="CollectionItemEntity_BasicAttributes" xml:space="preserve">
+    <value>基本特征</value>
+  </data>
+  <data name="Identification" xml:space="preserve">
+    <value>识别</value>
+  </data>
+  <data name="Concept_Add" xml:space="preserve">
+    <value>添加术语</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Abbreviation" xml:space="preserve">
+    <value>缩写</value>
+  </data>
+  <data name="Error_Concept_NameRequired" xml:space="preserve">
+    <value>必须明确术语的定义。</value>
+  </data>
+  <data name="Success_ConceptValue_Created" xml:space="preserve">
+    <value>已成功创建术语值。</value>
+  </data>
+  <data name="Success_ConceptValue_Updated" xml:space="preserve">
+    <value>已成功删除术语值。</value>
+  </data>
+  <data name="Success_ConceptValue_Deleteed" xml:space="preserve">
+    <value>已成功修改术语值。</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>标题</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>目录</value>
+  </data>
+  <data name="TitleRequired" xml:space="preserve">
+    <value>必须填写标题。</value>
+  </data>
+  <data name="ContentRequired" xml:space="preserve">
+    <value>该内容必不可少。</value>
+  </data>
+  <data name="Error_Title_Empty" xml:space="preserve">
+    <value>标题为空。</value>
+  </data>
+  <data name="Error_Content_Empty" xml:space="preserve">
+    <value>内容缺失。</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Created" xml:space="preserve">
+    <value>改进建议已成功提交。</value>
+  </data>
+  <data name="Error_ImprovementSuggestion_NotFound" xml:space="preserve">
+    <value>未找到改进建议。</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Updated" xml:space="preserve">
+    <value>改进建议已成功修改。</value>
+  </data>
+  <data name="Success_ImprovementSuggestion_Deleted" xml:space="preserve">
+    <value>改善提案は正常に削除されました。</value>
+  </data>
+  <data name="ImprovementSuggestions" xml:space="preserve">
+    <value>改进建议</value>
+  </data>
+  <data name="ImprovementSuggestions_Create" xml:space="preserve">
+    <value>提交改进建议</value>
+  </data>
+  <data name="ImprovementSuggestions_Administration" xml:space="preserve">
+    <value>管理改进建议</value>
+  </data>
+  <data name="ImprovementSuggestions_Edit" xml:space="preserve">
+    <value>修改改进建议</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>创建于 </value>
+  </data>
+  <data name="ImprovementSuggestions_Delete" xml:space="preserve">
+    <value>删除改进建议</value>
+  </data>
+  <data name="UpdatedAt" xml:space="preserve">
+    <value>修改于</value>
+  </data>
+  <data name="Error_CollectionAreaName_IsMissing" xml:space="preserve">
+    <value>缺少收藏类别名称。</value>
+  </data>
+  <data name="StatePreservation_Name_Missing" xml:space="preserve">
+    <value>缺少保存状态名称。</value>
+  </data>
+  <data name="Error_ParticipantName_Required" xml:space="preserve">
+    <value>缺少参与者名称。</value>
+  </data>
+  <data name="Error_ParticipantTypeInt_Missing" xml:space="preserve">
+    <value>缺少参与者类型。</value>
+  </data>
+  <data name="Error_Email_NotValid" xml:space="preserve">
+    <value>电子邮件地址无效。</value>
+  </data>
+  <data name="Error_StatePreservation_Exists" xml:space="preserve">
+    <value>“保存状况”字段已存在。</value>
+  </data>
+  <data name="Success_StatePreservation_Created" xml:space="preserve">
+    <value>已成功创建保存状态。</value>
+  </data>
+  <data name="StatePreservation_Select" xml:space="preserve">
+    <value>选择保护状况</value>
+  </data>
+  <data name="WikipediaUrl" xml:space="preserve">
+    <value>维基百科网址</value>
+  </data>
+  <data name="Error_User_NameEmpty" xml:space="preserve">
+    <value>用户名为空。</value>
+  </data>
+  <data name="ConnectedPlaces" xml:space="preserve">
+    <value>相关地点</value>
+  </data>
+  <data name="Place_Administration" xml:space="preserve">
+    <value>管理地点</value>
+  </data>
+  <data name="Place_Create" xml:space="preserve">
+    <value>创建地点</value>
+  </data>
+  <data name="Place_Edit" xml:space="preserve">
+    <value>更改地点</value>
+  </data>
+  <data name="Others" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="SpecificView" xml:space="preserve">
+    <value>显示该术语及其所有子术语</value>
+  </data>
+  <data name="BelongsTo" xml:space="preserve">
+    <value>属于</value>
+  </data>
+  <data name="ConceptRelation_Administration_General" xml:space="preserve">
+    <value>管理父类</value>
+  </data>
+  <data name="Pictures_OwnershipProof" xml:space="preserve">
+    <value>产权证明的图片</value>
+  </data>
+  <data name="Pictures_OwnershipProof_Description" xml:space="preserve">
+    <value>例如：收据、凭证、证书</value>
+  </data>
+  <data name="IsPublic" xml:space="preserve">
+    <value>这是面向公众的吗？</value>
+  </data>
+  <data name="OwnershipProof_Type_BillOfSale" xml:space="preserve">
+    <value>销售单据</value>
+  </data>
+  <data name="OwnershipProof_Type_Certificate" xml:space="preserve">
+    <value>证书</value>
+  </data>
+  <data name="Error_OwnershipProofPicture_NotFound" xml:space="preserve">
+    <value>未找到所有权证明图片。</value>
+  </data>
+  <data name="Success_OwnershipProofPicture_Deleted" xml:space="preserve">
+    <value>组织变更已完成。</value>
+  </data>
+  <data name="Success_OwnershipProofPicture_Created" xml:space="preserve">
+    <value>已成功生成所有权证明图片。</value>
+  </data>
+  <data name="Success_OwnershipProofPicture_Updated" xml:space="preserve">
+    <value>所有权证明图片已成功更新。</value>
+  </data>
+  <data name="OwnershipProof_Type_Other" xml:space="preserve">
+    <value>更改组织</value>
+  </data>
+  <data name="CookieConsent_Text" xml:space="preserve">
+    <value>我们仅使用Cookie来帮助用户访问网站。</value>
+  </data>
+  <data name="Error_CredentialId_Missing" xml:space="preserve">
+    <value>缺少凭证ID。</value>
+  </data>
+  <data name="Error_PublicKey_Missing" xml:space="preserve">
+    <value>缺少公钥。</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>显示名称</value>
+  </data>
+  <data name="Login_Passkey" xml:space="preserve">
+    <value>使用密钥登录</value>
+  </data>
+  <data name="Error_DisplayName_Missing" xml:space="preserve">
+    <value>缺少显示名称。</value>
+  </data>
+  <data name="Register_Passkey" xml:space="preserve">
+    <value>使用Passkey注册。</value>
+  </data>
+  <data name="Error_Session_Expired" xml:space="preserve">
+    <value>会话已过期。请重新开始注册。</value>
+  </data>
+  <data name="Passkey_Login" xml:space="preserve">
+    <value>Passkey 登录</value>
+  </data>
+  <data name="Passkey_Information" xml:space="preserve">
+    <value>&lt;h2&gt;&lt;i class="bi bi-info-circle me-2"&gt;什么是密钥？&lt;/i&gt;&lt;/h2&gt;&lt;\n
+&lt;p class="mb-1"&gt;密钥是替代密码的一种安全且便捷的方式。&lt;/p&gt;&lt;\n
+&lt;ul class="mb-0"&gt;&lt;\n
+    &lt;li&gt;无需记忆密码&lt;/li&gt;
+    &lt;li&gt;无需电子邮件&lt;/li&gt;
+    &lt;li&gt;防网络钓鱼&lt;/li&gt;
+&lt;li&gt;自动识别已存储在该设备上的密钥&lt;/li&gt;
+    &lt;li&gt;在您的设备之间同步&lt;/li&gt;
+    &lt;li&gt;支持：iPhone（Touch ID/Face ID）、Android、Windows Hello&lt;/li&gt;
+&lt;/ul&gt;</value>
+  </data>
+  <data name="Email_Optional" xml:space="preserve">
+    <value>电子邮件（可选）</value>
+  </data>
+  <data name="OnlyforNotifications" xml:space="preserve">
+    <value>仅用于通知</value>
+  </data>
+  <data name="Error_Access_Forbidden" xml:space="preserve">
+    <value>访问被拒绝</value>
+  </data>
+  <data name="Meta_Description" xml:space="preserve">
+    <value>适用于所有收藏领域的灵活收藏平台：创建收藏领域并动态定义其分类，清晰管理自己的收藏品，并在一处浏览其他用户的收藏。</value>
+  </data>
+  <data name="EnterToponymy" xml:space="preserve">
+    <value>输入地名</value>
+  </data>
+  <data name="Info_PlaceName_NotChangeable" xml:space="preserve">
+    <value>地名仅可删除或添加</value>
+  </data>
+  <data name="Error_Organization_NotFound" xml:space="preserve">
+    <value>未找到该组织。</value>
+  </data>
+  <data name="Error_Organization_ConnectedToCollectionItems" xml:space="preserve">
+    <value>该组织还与一件收藏品有关。</value>
+  </data>
+  <data name="Success_Organization_Deleted" xml:space="preserve">
+    <value>组织已成功删除。</value>
+  </data>
+  <data name="Success_Era_Deleted" xml:space="preserve">
+    <value>“时代”已成功删除。</value>
+  </data>
+  <data name="Error_CollectionAreaId_IsMissing" xml:space="preserve">
+    <value>缺少集合区域ID。</value>
+  </data>
+  <data name="EndYear" xml:space="preserve">
+    <value>年末</value>
+  </data>
+  <data name="StartYear" xml:space="preserve">
+    <value>起始年份</value>
+  </data>
+  <data name="BirthYear" xml:space="preserve">
+    <value>出生年份</value>
+  </data>
+  <data name="DeathYear" xml:space="preserve">
+    <value>逝世年份</value>
+  </data>
+  <data name="Era_Add" xml:space="preserve">
+    <value>添加时代</value>
+  </data>
+  <data name="ConnectedEras" xml:space="preserve">
+    <value>相关领域</value>
+  </data>
+  <data name="Place_Delete" xml:space="preserve">
+    <value>删除地点</value>
+  </data>
+  <data name="Organization_Delete" xml:space="preserve">
+    <value>删除组织</value>
+  </data>
+  <data name="Individual_Delete" xml:space="preserve">
+    <value>删除个人</value>
+  </data>
+  <data name="Success_Individual_Deleted" xml:space="preserve">
+    <value>该用户已成功删除。</value>
+  </data>
+  <data name="Error_SortingOrder_Range" xml:space="preserve">
+    <value>排序顺序的数值范围必须大于 1。</value>
+  </data>
+  <data name="Error_StatePreservationName_IsMissing" xml:space="preserve">
+    <value>缺少保存状态名称。</value>
+  </data>
+  <data name="Error_StatePreservationId_IsMissing" xml:space="preserve">
+    <value>缺少维护状态ID。</value>
+  </data>
+  <data name="Error_CollectionAreaId_Range" xml:space="preserve">
+    <value>集合区域ID必须大于0。</value>
+  </data>
+  <data name="Error_StatePreservationID_Range" xml:space="preserve">
+    <value>“维护状态ID”的取值范围必须大于0。</value>
+  </data>
+  <data name="Error_ConceptId_Range" xml:space="preserve">
+    <value>术语ID必须大于0。</value>
+  </data>
+  <data name="Error_ConceptValueId_Range" xml:space="preserve">
+    <value>术语ID必须大于0。</value>
+  </data>
+  <data name="Error_EraId_Range" xml:space="preserve">
+    <value>ID 字段的值必须大于 0。</value>
+  </data>
+  <data name="Error_OwnershipProofPictureId_Range" xml:space="preserve">
+    <value>所有权证明ID必须大于0。</value>
+  </data>
+  <data name="Error_Perspective_Range" xml:space="preserve">
+    <value>必须确立发展方向。</value>
+  </data>
+  <data name="Error_CollectionItemPicture_IsMissing" xml:space="preserve">
+    <value>缺少收藏品图片。</value>
+  </data>
+  <data name="Error_OwnershipProofPicture_IsMissing" xml:space="preserve">
+    <value>缺少所有权证明图片。</value>
+  </data>
+  <data name="Participants" xml:space="preserve">
+    <value>相关方</value>
+  </data>
+  <data name="Error_CollectionItemId_Required" xml:space="preserve">
+    <value>缺少收藏品ID。</value>
+  </data>
+  <data name="Error_CollectionItemId_Range" xml:space="preserve">
+    <value>该收藏品的ID必须大于0。</value>
+  </data>
+  <data name="Error_PlaceId_Range" xml:space="preserve">
+    <value>该地点的ID必须大于0。</value>
+  </data>
+  <data name="Error_OrganizationId_Range" xml:space="preserve">
+    <value>组织的ID必须大于0。</value>
+  </data>
+  <data name="Error_IndividualId_Range" xml:space="preserve">
+    <value>该个体的ID必须大于0。</value>
+  </data>
+  <data name="Error_Relationship_Required" xml:space="preserve">
+    <value>缺少关系。</value>
+  </data>
+  <data name="IsTranslateable" xml:space="preserve">
+    <value>这能翻译吗？</value>
+  </data>
+  <data name="Error_ConceptId_Required" xml:space="preserve">
+    <value>缺少概念 ID。</value>
+  </data>
+  <data name="CollectionArea_Mine" xml:space="preserve">
+    <value>我的收藏领域</value>
+  </data>
+  <data name="Error_RelationshipName_Required" xml:space="preserve">
+    <value>未填写姓名。</value>
+  </data>
+  <data name="CollectionItemRelationships" xml:space="preserve">
+    <value>收藏品关系</value>
+  </data>
+  <data name="Info_CollectionItemRelationship" xml:space="preserve">
+    <value>这里仅讨论收藏品与维度之间的关系</value>
+  </data>
+  <data name="CollectionItemRelationship_Create" xml:space="preserve">
+    <value>建立收藏品关联</value>
+  </data>
+  <data name="CollectionItemRelationship_Edit" xml:space="preserve">
+    <value>更改收藏品关系</value>
+  </data>
+  <data name="CollectionItemRelationship_Delete" xml:space="preserve">
+    <value>删除收藏品关联</value>
+  </data>
+  <data name="CollectionItemRelationship_Index" xml:space="preserve">
+    <value>管理收藏品关系</value>
+  </data>
+  <data name="Error_RelationId_Required" xml:space="preserve">
+    <value>缺少关系ID。</value>
+  </data>
+  <data name="Error_CIRelationship_NotFound" xml:space="preserve">
+    <value>未找到相关信息。</value>
+  </data>
+  <data name="Error_CIRelationship_InUse" xml:space="preserve">
+    <value>关系被利用了。</value>
+  </data>
+  <data name="Error_CIRelationship_Exists" xml:space="preserve">
+    <value>该关系已存在。</value>
+  </data>
+  <data name="Success_CIRelationship_Created" xml:space="preserve">
+    <value>已成功建立关联。</value>
+  </data>
+  <data name="Success_CIRelationship_Deleted" xml:space="preserve">
+    <value>已成功删除该关系。</value>
+  </data>
+  <data name="Success_CIRelationship_Updated" xml:space="preserve">
+    <value>关系已成功更改。</value>
+  </data>
+  <data name="As" xml:space="preserve">
+    <value> 作为 </value>
+  </data>
+  <data name="FullView" xml:space="preserve">
+    <value>以全屏模式打开图片 {0}。</value>
+  </data>
+  <data name="CollectionItem_AllPublic" xml:space="preserve">
+    <value>所有公开发行的收藏品</value>
+  </data>
+  <data name="Of" xml:space="preserve">
+    <value>作者：</value>
+  </data>
+  <data name="ID" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>活动</value>
+  </data>
+  <data name="PreViewOf" xml:space="preserve">
+    <value>{0} 的预览图</value>
+  </data>
+  <data name="CollectionAreaSearchParamters_Select" xml:space="preserve">
+    <value>集合区域搜索参数菜单</value>
+  </data>
+  <data name="CollectionItemSearchParameters_Select" xml:space="preserve">
+    <value>收藏品参数搜索菜单</value>
+  </data>
+  <data name="ConceptSearchParameters_Select" xml:space="preserve">
+    <value>术语搜索参数菜单</value>
+  </data>
+  <data name="CollectionRelationshipSearchParameters_Select" xml:space="preserve">
+    <value>收藏品关联搜索参数菜单</value>
+  </data>
+  <data name="EraSearchParameters_Select" xml:space="preserve">
+    <value>时代搜索参数菜单</value>
+  </data>
+  <data name="ParticipantSearchParameters_Select" xml:space="preserve">
+    <value>参与者搜索参数菜单</value>
+  </data>
+  <data name="PlaceSearchParameters_Select" xml:space="preserve">
+    <value>位置搜索参数菜单</value>
+  </data>
+  <data name="CollectionArea_Delete" xml:space="preserve">
+    <value>删除收藏类别</value>
+  </data>
+  <data name="Pictures" xml:space="preserve">
+    <value>插图</value>
+  </data>
+  <data name="Error_TopicId_Required" xml:space="preserve">
+    <value>缺少主题ID。</value>
+  </data>
+  <data name="Error_TopicId_Range" xml:space="preserve">
+    <value>主题 ID 必须大于 0。</value>
+  </data>
+  <data name="Column_Select" xml:space="preserve">
+    <value>选择列</value>
+  </data>
+  <data name="Error_DisplayName_StringLength" xml:space="preserve">
+    <value>显示名称必须为2至100个字符。</value>
+  </data>
+</root>

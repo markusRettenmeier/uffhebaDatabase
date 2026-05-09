@@ -11,9 +11,9 @@ namespace Sammlerplattform.Services
         void TrackUserBehavior(string eventName, Dictionary<string, object>? metrics = null, string? userId = null);
         void TrackPerformance(string operation, TimeSpan duration, string? userId = null);
         void TrackEmailResponse(Response response, string toEmail, string subject);
-    }   
+    }
 
-    public class EventTracker: ITrackEventsCSV
+    public class EventTracker : ITrackEventsCSV
     {
         private readonly string _logDirectory;
         private readonly bool _enableConsoleOutput;
@@ -38,7 +38,7 @@ namespace Sammlerplattform.Services
                 Context = context,
                 //Exception = new
                 //{
-                //    Type = exception.GetType().Name,
+                //    Type = exception.GetType().ToName,
                 //    exception.Message,
                 //    exception.StackTrace
                 //},
@@ -109,8 +109,8 @@ namespace Sammlerplattform.Services
             };
 
             WriteToFile("performance", perfData);
-        } 
-        
+        }
+
         public void TrackEmailResponse(Response response, string toEmail, string subject)
         {
             var emailData = new

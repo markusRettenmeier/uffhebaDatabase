@@ -10,7 +10,7 @@ namespace Sammlerplattform.Services.Translation
         int GetId<T>(string translatedText);
     }
 
-    public class TranslationStore (IProcessTranslations processTranslations) : ITranslationStore
+    public class TranslationStore(IProcessTranslations processTranslations) : ITranslationStore
     {
         private readonly ConcurrentDictionary<string, Dictionary<string, string>> _cache
             = new();
@@ -39,7 +39,7 @@ namespace Sammlerplattform.Services.Translation
             return entityCache.TryGetValue($"{field}:{culture}", out var value)
                 ? value
                 : null;
-        }  
+        }
         public int GetId<T>(string translatedText)
         {
             // Sucht in der DB nach der Übersetzung und gibt die zugehörige EntityId zurück
@@ -48,7 +48,7 @@ namespace Sammlerplattform.Services.Translation
                 EntityType = [nameof(T)],
                 TranslatedText = [translatedText]
             };
-            var translations = processTranslations.GetWithPredicate(searchParameter);
+            var translations = processTranslations.GetWithFallback(searchParameter);
             return translations.FirstOrDefault()?.EntityId ?? 0;
         }
     }

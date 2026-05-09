@@ -1,158 +1,9 @@
 ﻿using LinqKit;
-using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Sammlerplattform.Data
 {
-    //public class SearchPredicateBuilder
-    //{
-    //    public static Expression<Func<T, bool>> BuildPredicate<T>(object searchModel)
-    //    {
-    //        var predicate = PredicateBuilder.New<T>(true); // TRUE = kein Filter
-
-    //        PropertyInfo[] modelProperties = searchModel
-    //            .GetType()
-    //            .GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-    //        foreach (PropertyInfo prop in modelProperties)
-    //        {
-    //            object? value = prop.GetValue(searchModel);
-    //            if (value == null)
-    //                continue;
-
-    //            string columnName = prop.Name.Replace("_", ".");
-
-    //            switch (value)
-    //            {
-    //                case ICollection<int> intValue when intValue.Count > 0:
-    //                    predicate = predicate.And(CreateLambdaSpanIntJoin<T>(columnName, intValue));
-    //                    break;
-    //                case ICollection<int?> intNullValue when intNullValue.Count > 0:
-    //                    predicate = predicate.And(CreateLambdaSpanIntNullJoin<T>(columnName, intNullValue));
-    //                    break;
-
-    //                case ICollection<string> strList when strList.Count > 0:
-    //                    predicate = predicate.And(
-    //                        CreateLambdaStringContainsJoin<T>(columnName, strList));
-    //                    break;
-    //            }
-    //        }
-
-    //        return predicate;
-    //    }
-
-    //    private static Expression<Func<T, bool>> CreateLambdaStringContainsJoin<T>(string propertyPath, ICollection<string> values)
-    //    {
-    //        ParameterExpression parameter = Expression.Parameter(typeof(T), "x");
-
-    //        Expression? property = parameter;
-    //        foreach (string part in propertyPath.Split('.'))
-    //        {
-    //            property = Expression.PropertyOrField(property!, part);
-    //        }
-
-    //        MethodInfo containsMethod = typeof(string).GetMethod("Contains", [typeof(string)])!;
-
-    //        Expression? combined = null;
-    //        foreach (string value in values)
-    //        {
-    //            ConstantExpression constant = Expression.Constant(value, typeof(string));
-    //            MethodCallExpression contains = Expression.Call(property!, containsMethod, constant);
-
-    //            combined = combined == null ? contains : Expression.OrElse(combined, contains);
-    //        }
-
-    //        return Expression.Lambda<Func<T, bool>>(combined!, parameter);
-    //    }
-
-    //    public static Expression<Func<T, bool>> CreateLambdaSpanIntNullJoin<T>(string columnName, ICollection<int?> searchValues)
-    //    {
-    //        ExpressionStarter<T> predicate = PredicateBuilder.New<T>();
-
-    //        if (IsICollectionIntNullValid(searchValues))
-    //        {
-    //            ParameterExpression pe = Expression.Parameter(typeof(T), "s");
-
-    //            MemberExpression property = GetNestedProperty(pe, columnName);
-    //            MethodInfo? method = searchValues.GetType().GetMethod("Equals");
-    //            if (method == null)
-    //            {
-    //                return predicate;
-    //            }
-
-    //            ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
-    //            UnaryExpression converted = Expression.Convert(constant, typeof(object));
-    //            MethodCallExpression call = Expression.Call(property, method, converted);
-    //            Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(call, pe);
-    //            predicate = predicate.Or(lambda);                
-    //        }
-
-    //        return predicate;
-    //    }
-
-    //    public static Expression<Func<T, bool>> CreateLambdaSpanIntJoin<T>(string columnName, ICollection<int> searchValues)
-    //    {
-    //        ExpressionStarter<T> predicate = PredicateBuilder.New<T>();
-
-    //        if (IsICollectionIntValid(searchValues))
-    //        {
-    //            ParameterExpression pe = Expression.Parameter(typeof(T), "s");
-
-    //            MemberExpression property = GetNestedProperty(pe, columnName);
-    //            MethodInfo? method = searchValues.GetType().GetMethod("Equals");
-    //            if (method == null)
-    //            {
-    //                return predicate;
-    //            }
-
-    //            ConstantExpression constant = Expression.Constant(searchValues.ToArray()[0]);
-    //            UnaryExpression converted = Expression.Convert(constant, typeof(object));
-    //            MethodCallExpression call = Expression.Call(property, method, converted);
-    //            Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(call, pe);
-    //            predicate = predicate.Or(lambda);                
-    //        }
-
-    //        return predicate;
-    //    }
-
-    //    private static bool IsICollectionIntValid(ICollection<int> collection)
-    //    {
-    //        if (collection == null)
-    //        {
-    //            return false;
-    //        }
-    //        else if (collection.Count == 0)
-    //        {
-    //            return false;
-    //        }
-
-    //        return true;
-    //    }
-    //    private static bool IsICollectionIntNullValid(ICollection<int?> collection)
-    //    {
-    //        if (collection == null)
-    //        {
-    //            return false;
-    //        }
-    //        else if (collection.Count == 0)
-    //        {
-    //            return false;
-    //        }
-
-    //        return true;
-    //    }
-    //    public static MemberExpression GetNestedProperty(Expression parameter, string propertyPath)
-    //    {
-    //        Expression current = parameter;
-    //        foreach (string member in propertyPath.Split('.'))
-    //        {
-    //            current = Expression.Property(current, member);
-    //        }
-    //        return (MemberExpression)current;
-    //    }
-    //}
-
     public class SearchPredicateBuilder
     {
         public static Expression<Func<T, bool>> BuildPredicate<T>(object searchModel)
@@ -327,14 +178,14 @@ namespace Sammlerplattform.Data
                     property = Expression.Property(property, part);
                     collectionParameter = Expression.Parameter(collectionElementType, "c");
 
-                collectionPropertyAccess = collectionParameter;
-                for (int j = i + 1; j < pathParts.Length; j++)
-                {
-                    collectionPropertyAccess = Expression.Property(collectionPropertyAccess, pathParts[j]);
-                }
+                    collectionPropertyAccess = collectionParameter;
+                    for (int j = i + 1; j < pathParts.Length; j++)
+                    {
+                        collectionPropertyAccess = Expression.Property(collectionPropertyAccess, pathParts[j]);
+                    }
 
-                break;
-            }
+                    break;
+                }
                 else
                 {
                     property = Expression.Property(property, part);

@@ -6,12 +6,6 @@ declare const bootstrap: {
   };
 };
 
-declare const html2pdf: () => {
-  set(options: { filename: string }): any;
-  from(element: HTMLElement): any;
-  output(type: string): void;
-};
-
 declare const Fancybox: {
   bind(selector: string, options: any): void;
 };
@@ -40,25 +34,23 @@ interface Window {
   changingView(): void;
   getMoreData(): void;
   addPlace(idx: number): void;
-  addParty(idx: number): void;
+  addParticipant(idx: number): void;
   addConcept(idx: number, type?: string): void;
   ActivateDeleteButton(): void;
-  addConceptConceptualRelationship: (idx: number, relation: ConceptRelation) => void;
+  addConceptToConcept: (idx: number, relation: ConceptRelation) => void;
   addConceptCollectionRelation: (idx: number) => void;
   initRemoveConceptRelationButtonHandler: () => void;
   addRelatedPlace: (idx: number) => void;
   addToponymy: () => void;
   initializePlaceAndToponymyHandlers: () => void;
   addConceptToCollectionItem(buttonId: number): void;
-  SetEraIntoTable(buttonId: number): void;
   addFormFileCollectionItem(sourcePage: SourcePage): void;
-  addFormFileOwnershipProof(sourcePage: SourcePage): void;
+  //addFormFileOwnershipProof(sourcePage: SourcePage): void;
   removePicture(pictureCount: number): void;
-  getIndustryList(): Promise<string>;
   register: () => Promise<void>;
   login: () => Promise<void>;
   verifyForDeletePersonalDataSubmit: () => Promise<void>;
-  checkWebAuthnSupport: () => Promise<void>;
+  checkWebAuthnSupport: () => void;
   openNav: () => void;
   closeNav: () => void;
   autocomplete: (input: HTMLInputElement, dataList: string[]) => void;

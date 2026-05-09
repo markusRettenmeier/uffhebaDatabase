@@ -16,8 +16,8 @@ export interface PlaceResult extends SearchResultBase {
     oeconomymDisplay?: string;
 }
 
-export interface PartyResult extends SearchResultBase {
-    partyID: number;
+export interface ParticipantResult extends SearchResultBase {
+    participantID: number;
     type?: string;
 }
 
@@ -29,11 +29,6 @@ export interface ConceptResult extends SearchResultBase {
 export interface EraResult extends SearchResultBase {
     eraID: number;
     eraName?: string;
-}
-
-export interface SetResult extends SearchResultBase {
-    setId: number;
-    setName?: string;
 }
 
 export interface CollectionArea {

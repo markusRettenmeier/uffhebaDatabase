@@ -1,14 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
-<div class="modal fade" id="ConceptModal" tabindex="-1" aria-labelledby="ConceptModal" aria-hidden="true">
+<div class="modal fade" id="ConceptModal" tabindex="-1" aria-labelledby="ConceptModalLabel" aria-hidden="true" role="dialog" aria-modal="true" aria-describedby="ConceptModalDescription">
     <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="ConceptModalLabel">@Localizer["Concept_Select"]</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@Localizer["Close"]"></button>
             </div>
             <div class="modal-body ui-front modalBodyConcept">
+                <p id="ConceptModalDescription">@Localizer["Concept_Select_Description"]</p>
                 <div class="row">
                     <div class="col-sm-4 col-sm-offset-4">
                         <div class="input-group">
@@ -20,12 +21,13 @@
                     </div>
                 </div>
                 <table class="table" id="conceptSearchResultTable">
+                    <caption class="visually-hidden">@Localizer["Concept_SearchResults"]</caption>
                     <thead>
                         <tr>
                             <th scope="col">@Localizer["ConceptID"]</th>
                             <th scope="col">@Localizer["Concept"]</th>
                             <th scope="col">@Localizer["Description"]</th>
-                            <th scope="col"></th>
+                            <th scope="col">@Localizer["Actions"]</th>
                         </tr>
                     </thead>
                 </table>

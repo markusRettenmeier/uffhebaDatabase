@@ -1,5 +1,5 @@
 ﻿using Sammlerplattform.Models.CollectionItemDatabase;
-using Sammlerplattform.Models.PartyDatabase;
+using Sammlerplattform.Models.ParticipantDatabase;
 using Sammlerplattform.Models.PlaceDatabase.Toponymy;
 using Sammlerplattform.Resources;
 using System.ComponentModel.DataAnnotations;
@@ -27,7 +27,7 @@ namespace Sammlerplattform.Models.PlaceDatabase
 
         [Display(Name = "WikipediaUrl", ResourceType = typeof(SharedResources))]
         public string? WikipediaUrl { get; set; }
-        //public List<Party> PartyList { get; set; } = [];
+        public List<ParticipantNPlace> ParticipantNPlaceList { get; set; } = [];
         public List<CollectionItemNPlace> CollectionItemNPlaceList { get; set; } = [];
     }
 }

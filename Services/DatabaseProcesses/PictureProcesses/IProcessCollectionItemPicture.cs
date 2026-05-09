@@ -1,13 +1,12 @@
 ﻿using Sammlerplattform.Data;
-using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
 {
     public interface IProcessCollectionItemPicture
     {
-        (int Statuscode, string Statusmessage, int PictureId) Insert(CollectionItemPicture collectionItemPicture, CollectionItemEntity collectionItemEntity);
-        (int Statuscode, string Statusmessage) Update(CollectionItemPicture collectionItemPicture, CollectionItemEntity collectionItemEntity);
+        (int Statuscode, string Statusmessage, int PictureId) Insert(CollectionItemPicture collectionItemPicture);
+        //(int Statuscode, string Statusmessage) Update(CollectionItemPictureEditDTO editDto);
         (int Statuscode, string Statusmessage) Delete(CollectionItemPicture collectionItemPicture);
 
     }
@@ -15,47 +14,34 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
     public class CollectionItemPictureProcessor(IUnitOfWork unitOfWork
         , ITrackEventsCSV trackEvents) : IProcessCollectionItemPicture
     {
-        public (int Statuscode, string Statusmessage, int PictureId) Insert(CollectionItemPicture collectionItemPicture, CollectionItemEntity collectionItemEntity)
+        public (int Statuscode, string Statusmessage, int PictureId) Insert(CollectionItemPicture collectionItemPicture)
         {
-            if (collectionItemPicture.IFormFile == null)
-            {
-                trackEvents.TrackError("CollectionItemPictureProcessor.Insert: File is missing.", new Dictionary<string, object>
-                {
-                    { "CollectionItemPicture", collectionItemPicture },
-                    { "CollectionItemEntity", collectionItemEntity }
-                });
-                return (302, "Error_File_Empty", 0);
-            }
-
-            collectionItemPicture.CollectionItemEntityID = collectionItemEntity.CollectionItemEntityID;
             CollectionItemPicture newCollectionItemPicture = unitOfWork.CollectionItemPictureRepository.Insert(collectionItemPicture);
             unitOfWork.Save();
 
             return (200, "Success_CollectionItemPicture_Created", newCollectionItemPicture.CollectionItemPictureID);
         }
 
-        public (int Statuscode, string Statusmessage) Update(CollectionItemPicture collectionItemPicture, CollectionItemEntity collectionItemEntity)
-        {
+        //public (int Statuscode, string Statusmessage) Update(CollectionItemPictureEditDTO editDto)
+        //{
+        //    CollectionItemPicture? existingCollectionItemPicture = unitOfWork.CollectionItemPictureRepository.GetByID(editDto.Id);
+        //    if (existingCollectionItemPicture == null)
+        //    {
+        //        trackEvents.TrackError("CollectionItemPictureProcessor.Update: CollectionItemPicture not found.", new Dictionary<string, object>
+        //        {
+        //            { "CollectionItemPicture", editDto }
+        //        });
+        //        return (302, "Error_CollectionItemPicture_NotFound");
+        //    }
 
-            CollectionItemPicture? existingCollectionItemPicture = unitOfWork.CollectionItemPictureRepository.GetByID(collectionItemPicture.CollectionItemPictureID);
-            if (existingCollectionItemPicture == null)
-            {
-                trackEvents.TrackError("CollectionItemPictureProcessor.Update: CollectionItemPicture not found.", new Dictionary<string, object>
-                {
-                    { "CollectionItemPicture", collectionItemPicture },
-                    { "CollectionItemEntity", collectionItemEntity }
-                });
-                return (302, "Error_CollectionItemPicture_NotFound");
-            }
+        //    if (existingCollectionItemPicture.PerspectiveInt != editDto.PerspectiveInt)
+        //    {
+        //        existingCollectionItemPicture.PerspectiveInt = editDto.PerspectiveInt;
+        //        unitOfWork.Save();
+        //    }
 
-            if (existingCollectionItemPicture.PerspectiveInt != collectionItemPicture.PerspectiveInt)
-            {
-                existingCollectionItemPicture.PerspectiveInt = collectionItemPicture.PerspectiveInt;
-                unitOfWork.Save();
-            }
-
-            return (200, "Success_CollectionItemPicture_Created");
-        }
+        //    return (200, "Success_CollectionItemPicture_Created");
+        //}
         public (int Statuscode, string Statusmessage) Delete(CollectionItemPicture collectionItemPicture)
         {
             CollectionItemPictureSearchParameterModel searchParameterModel = ParametersOperationToSearch(collectionItemPicture);

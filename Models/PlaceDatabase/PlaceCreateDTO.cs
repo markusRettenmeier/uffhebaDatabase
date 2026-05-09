@@ -1,5 +1,4 @@
-﻿using Sammlerplattform.Models.PlaceDatabase.Toponymy;
-using Sammlerplattform.Resources;
+﻿using Sammlerplattform.Resources;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sammlerplattform.Models.PlaceDatabase

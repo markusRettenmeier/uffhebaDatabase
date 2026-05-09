@@ -1,4 +1,4 @@
-﻿import type { ColumnDefinition } from '../types.js';
+﻿import type { ColumnDefinition } from '../types';
 
 export const columns: ColumnDefinition[] = [
   ["PersonalIdentificationNumber", "text"],
@@ -9,24 +9,20 @@ export const columns: ColumnDefinition[] = [
 
   ["CollectionAreaName", "text"],
 
-  ["PlaceID", "number"],
   ["PlaceNToponymyList_Toponymy_ToponymyName", "text"],
   ["FurtherSpecs", "text"],
 
-  ["PartyID", "number"],
-  ["PartyName", "text"],
-  ["PartyTypeInt", "multiselect"],
+  ["ParticipantName", "text"],
   ["Individual_Pseudonym", "text"],
   ["Individual_Signature", "text"],
-  ["Organization_OrganizationTypeInt", "multiselect"],
   ["Organization_Industry_IndustryName", "text"],
   ["Organization_PlaceList_PlaceNToponymyList_Toponymy_ToponymyName", "text"],
 
-  ["ConceptID", "number"],
   ["ConceptName", "text"],
-  ["RelationTypeInt", "number"],
-  ["CollectionAreaID", "number"],
 
-  ["CollectionSetId", "number"],
-  ["CollectionSetName", "number"]
+  ["CollectionAreaName", "text"],
+
+  ["EraName", "text"],
+
+  ["CollectionItemRelationshipName", "text"],
 ];

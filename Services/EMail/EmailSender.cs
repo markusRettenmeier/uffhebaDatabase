@@ -9,7 +9,7 @@ using SendGrid.Helpers.Mail;
 namespace Sammlerplattform.Services.EMail
 {
     public class EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor,
-                       IWebHostEnvironment hostEnvironment,
+        IWebHostEnvironment hostEnvironment,
         IStringLocalizer<SharedResources> stringLocalizer,
         IHtmlLocalizer<SharedResources> htmlLocalizer,
         ITrackEventsCSV trackEvents) : IEmailSender

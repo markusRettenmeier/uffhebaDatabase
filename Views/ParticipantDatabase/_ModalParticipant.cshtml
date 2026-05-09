@@ -1,0 +1,46 @@
+﻿@using Sammlerplattform.Models.ParticipantDatabase
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+<div class="modal fade" id="participantModal" tabindex="-1" aria-labelledby="participantModalLabel" aria-hidden="true" role="dialog" aria-modal="true" aria-describedby="participantModalDescription">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="participantModalLabel">@Localizer["Participant_Select"]</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@Localizer["Close"]"></button>
+            </div>
+            <div class="modal-body ui-front modalBodyParticipant">
+                <p id="participantModalDescription">@Localizer["Participant_Select_Description"]</p>
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control inputParticipantSearch" placeholder="@Localizer["Participant"]" aria-label="@Localizer["Participant"]" />
+                            <div>
+                                <label for="participantType" class="visually-hidden">@Localizer["Participant_Select"]</label>
+                                <select class="form-select" id="participantType" asp-items="Html.GetEnumSelectList<ParticipantType>()">
+                                    <option value="">@Localizer["Participant_Select"]</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary participantSearchSubmit" type="button">@Localizer["Search"]</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table" id="participantSearchResultTable">
+                    <caption class="visually-hidden">@Localizer["Participant_SearchResults"]</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">@Localizer["ParticipantID"]</th>
+                            <th scope="col">@Localizer["Participant"]</th>
+                            <th scope="col">@Localizer["ParticipantType"]</th>
+                            <th scope="col">@Localizer["FurtherSpecs"]</th>
+                            <th scope="col">@Localizer["Actions"]</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Close"]</button>
+            </div>
+        </div>
+    </div>
+</div>

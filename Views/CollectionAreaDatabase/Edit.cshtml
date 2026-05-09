@@ -1,4 +1,4 @@
-﻿@model Sammlerplattform.Models.CollectionAreaDatabase.CollectionArea
+﻿@model Sammlerplattform.Models.CollectionAreaDatabase.CollectionAreaEditDTO
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
@@ -7,18 +7,17 @@
     Layout = "~/Views/Shared/_LayoutSettings.cshtml";
 }
 
-<h3>@ViewData["Title"]</h3>
-
+<h1>@ViewData["Title"]</h1>
 <hr />
 <form asp-action="Edit">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="CollectionAreaID" />
-    <div class="form-group mb-3">
-        <label asp-for="CollectionAreaName" class="control-label"></label>
-        <input asp-for="CollectionAreaName" class="form-control" />
-        <span asp-validation-for="CollectionAreaName" class="text-danger"></span>
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" aria-required="true" />
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" aria-required="true" aria-invalid="false" />
+        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
-    <div class="form-group mb-3">
+    <div class="form-group">
         <label asp-for="WikipediaUrl" class="control-label"></label>
         <input asp-for="WikipediaUrl" class="form-control" />
         <span asp-validation-for="WikipediaUrl" class="text-danger"></span>
@@ -27,15 +26,8 @@
         <button type="submit" class="btn btn-success btn-lg px-5">
             <i class="bi bi-check-circle"></i> @Localizer["Edit"]
         </button>
-        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+        <a asp-action="Index" class="btn btn-dark text-white ms-2">
             @Localizer["Cancel"]
         </a>
     </div>
 </form>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
-

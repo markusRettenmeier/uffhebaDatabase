@@ -1,15 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Sammlerplattform.Resources;
-using Sammlerplattform.Models.CollectionAreaDatabase;
+﻿using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.VectorSearch;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.UserSettings;
+using Sammlerplattform.Resources;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Sammlerplattform.Models.CollectionItemDatabase.CollectionSetDatabase;
-using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 
 namespace Sammlerplattform.Models.CollectionItemDatabase
 {
@@ -18,9 +16,7 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         [Display(Name = "CollectionItemEntityID", ResourceType = typeof(SharedResources))]
-        public int CollectionItemEntityID { get; set; } // Wegen generischer Suche classname + ID verbunden
-        public int? CollectionSetId { get; set; }
-        public CollectionSet? CollectionSet { get; set; }
+        public int CollectionItemEntityID { get; set; } // Wegen generischer Suche classname + ConceptId verbunden
 
         [NotMapped]
         [Display(Name = "UniqueName", ResourceType = typeof(SharedResources))]
@@ -45,7 +41,7 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
 
         [NotMapped]
         public string? InscriptionTranslated { get; set; }
-        public List<CollectionItemNParty> CollectionItemNPartyList { get; set; } = [];
+        public List<CollectionItemNParticipant> CollectionItemNParticipantList { get; set; } = [];
         public List<CollectionItemNPlace> CollectionItemNPlaceList { get; set; } = [];
 
         [Display(Name = "CollectionAreaID", ResourceType = typeof(SharedResources))]
@@ -54,14 +50,10 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         [Display(Name = "CollectionArea", ResourceType = typeof(SharedResources))]
         public CollectionArea CollectionArea { get; set; } = null!;
         public List<ConceptValue> ConceptValueList { get; set; } = [];
-        //public int? ObjectLayer { get; set; }
-        //public ObjectLayer ObjectLayer { get; set; } = null!;
 
         [Display(Name = "SerialNumber", ResourceType = typeof(SharedResources))]
-        [StringLength(50)]
         public string? SerialNumber { get; set; }
 
-        [Display(Name = "CollectionItemEmbedding", ResourceType = typeof(SharedResources))]
         public CollectionItemEmbedding? CollectionItemEmbedding { get; set; }
 
         //Time
@@ -82,7 +74,7 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         public string Time => ExactYear != null
                     ? $"{ExactYear}"
                     : StartYear == null && EndYear == null
-                        ? "Unbekannt"
+                        ? string.Empty
                         : StartYear == null ? $"{EndYear} geschätzt" : EndYear == null ? $"{StartYear} geschätzt" : $"{StartYear} - {EndYear}";
         [Display(Name = "EraID", ResourceType = typeof(SharedResources))]
         public int? EraID { get; set; }
@@ -94,7 +86,7 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         [Display(Name = "Width", ResourceType = typeof(SharedResources))]
         public int? Width { get; set; }
 
-        [Display(Name = "Width", ResourceType = typeof(SharedResources))]
+        [Display(Name = "Height", ResourceType = typeof(SharedResources))]
         public int? Height { get; set; }
 
         [Display(Name = "Length", ResourceType = typeof(SharedResources))]
@@ -112,12 +104,9 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         public string? PersonalIdentificationNumber { get; set; }
 
         [Display(Name = "FilingLocation", ResourceType = typeof(SharedResources))]
-        [StringLength(50)]
         public string? FilingLocation { get; set; }
 
         [Display(Name = "DeliveryPrice", ResourceType = typeof(SharedResources))]
-        [DisplayFormat(DataFormatString = "{0:0,0.00}")]
-        [Precision(18, 2)]
         public decimal? DeliveryPrice { get; set; }
 
         [Display(Name = "DeliveryDate", ResourceType = typeof(SharedResources))]
@@ -126,7 +115,6 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         [Display(Name = "DeliveryAdress", ResourceType = typeof(SharedResources))]
         public string? DeliveryAdress { get; set; }
 
-        [Required]
         [Display(Name = "UsingIdentityUsersID", ResourceType = typeof(SharedResources))]
         public required string UsingIdentityUsersID { get; set; }
 
@@ -136,6 +124,6 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         [Display(Name = "IsPublic", ResourceType = typeof(SharedResources))]
         public bool IsCollectionItemPublic { get; set; } = true;
 
-        public List<OwnershipProofPictureDatabase.OwnershipProofPicture> OwnershipProofPictureList { get; set; } = [];
+        //public List<OwnershipProofPictureDatabase.OwnershipProofPicture> OwnershipProofPictureList { get; set; } = [];
     }
 }

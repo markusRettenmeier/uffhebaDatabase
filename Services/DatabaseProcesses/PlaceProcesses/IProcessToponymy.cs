@@ -1,5 +1,4 @@
 ﻿using Sammlerplattform.Data;
-using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.Toponymy;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
@@ -28,9 +27,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
         }
 
         public int Insert(string name)
-        {  
+        {
             int? toponymyId = GetListWithPredicate(new ToponymySearchParameterModel { ToponymyName = [name] }).FirstOrDefault()?.ToponymyID;
-            if(toponymyId != null)
+            if (toponymyId != null)
             {
                 return toponymyId.Value;
             }
@@ -40,7 +39,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                 ToponymyName = name
             };
             newToponymy = unitOfWork.ToponymyRepository.Insert(newToponymy);
-            unitOfWork.Save(); 
+            unitOfWork.Save();
             return newToponymy.ToponymyID;
         }
     }

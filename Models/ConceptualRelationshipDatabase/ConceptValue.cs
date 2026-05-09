@@ -1,7 +1,7 @@
-﻿using Sammlerplattform.Resources;
+﻿using Sammlerplattform.Models.CollectionItemDatabase;
+using Sammlerplattform.Resources;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Sammlerplattform.Models.CollectionItemDatabase;
 
 namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
 {
@@ -9,7 +9,6 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        [Display(Name = "ConceptValueID", ResourceType = typeof(SharedResources))]
         public int ConceptValueID { get; set; }
 
         [NotMapped]
@@ -51,7 +50,7 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
                 }
                 else if (ValueBool is not null)
                 {
-                    return ValueBool == true ? "Ja" : "Nein";
+                    return ConceptName;
                 }
                 else
                 {
@@ -59,11 +58,12 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
                 }
             }
         }
+
         [Display(Name = "ConceptID", ResourceType = typeof(SharedResources))]
         public int ConceptID { get; set; }
-        public Concept Concept { get; set; } = null!;
+
         [NotMapped]
-        public ConceptViewModel ConceptViewModel { get; set; } = null!;
+        public string? ConceptName { get; set; }
 
         [Display(Name = "CollectionItemEntityID", ResourceType = typeof(SharedResources))]
         public int? CollectionItemEntityID { get; set; }

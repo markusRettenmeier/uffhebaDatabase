@@ -126,9 +126,6 @@
   <data name="CollectionAreaName" xml:space="preserve">
     <value>Sammelgebietsname</value>
   </data>
-  <data name="Compare" xml:space="preserve">
-    <value>{0} und {1} stimmen nicht überein.</value>
-  </data>
   <data name="Email" xml:space="preserve">
     <value>Email</value>
   </data>
@@ -150,23 +147,14 @@
   <data name="Required" xml:space="preserve">
     <value>Das Feld {0} ist erforderlich.</value>
   </data>
-  <data name="IsRequiredConcept" xml:space="preserve">
-    <value>Ist es ein Pflichtbegriff?</value>
-  </data>
   <data name="StringLength" xml:space="preserve">
     <value>Das Feld {0} darf maximal {1} Zeichen lang sein.</value>
   </data>
   <data name="Success_Logout" xml:space="preserve">
     <value>Sie wurden erfolgreich abgemeldet.</value>
   </data>
-  <data name="Error_Code_Missing" xml:space="preserve">
-    <value>Automatisch erzeugter Code fehlt.</value>
-  </data>
   <data name="Error_User_NotFound" xml:space="preserve">
     <value>Nutzer nicht gefunden.</value>
-  </data>
-  <data name="Message_ConfirmAccount" xml:space="preserve">
-    <value>Bitte bestätige deinen Account durch &amp;lt;a href='{0}'&amp;gt;hier klicken&amp;lt;/a&amp;gt;</value>
   </data>
   <data name="Error_Place_NotFound" xml:space="preserve">
     <value>Ort nicht gefunden.</value>
@@ -174,13 +162,13 @@
   <data name="Error_CollectionArea_NotFound" xml:space="preserve">
     <value>Sammelgebiet nicht gefunden.</value>
   </data>
-  <data name="Error_ConceeptValue_NotFound" xml:space="preserve">
+  <data name="Error_ConceptValue_NotFound" xml:space="preserve">
     <value>Begriffswert nicht gefunden.</value>
   </data>
   <data name="Error_CollectionArea_IdMissing" xml:space="preserve">
     <value>SammelgebietsID fehlt.</value>
   </data>
-  <data name="Error_ConceptValue_IdMissing" xml:space="preserve">
+  <data name="Error_ConceptValueId_Required" xml:space="preserve">
     <value>BegriffswertID fehlt.</value>
   </data>
   <data name="Error_ConceptualRelation_NotFound" xml:space="preserve">
@@ -192,14 +180,11 @@
   <data name="Individual" xml:space="preserve">
     <value>Individuum</value>
   </data>
-  <data name="Error_Party_NotFound" xml:space="preserve">
-    <value>Partei nicht gefunden.</value>
+  <data name="Error_Participant_NotFound" xml:space="preserve">
+    <value>Beteiligter nicht gefunden.</value>
   </data>
   <data name="Organization" xml:space="preserve">
     <value>Organisation</value>
-  </data>
-  <data name="Epithet" xml:space="preserve">
-    <value>Beiname</value>
   </data>
   <data name="Part of" xml:space="preserve">
     <value>Teil von</value>
@@ -218,9 +203,6 @@
   </data>
   <data name="Success_Account_Deleted" xml:space="preserve">
     <value>Account wurde erfolgreich gelöscht.</value>
-  </data>
-  <data name="CollectionItemPictureID" xml:space="preserve">
-    <value>SammlerstückbildID</value>
   </data>
   <data name="Side_Front" xml:space="preserve">
     <value>Vorderseite</value>
@@ -279,12 +261,6 @@
   <data name="ExactYear" xml:space="preserve">
     <value>Exaktes Jahr</value>
   </data>
-  <data name="StartYear" xml:space="preserve">
-    <value>Startjahr</value>
-  </data>
-  <data name="EndYear" xml:space="preserve">
-    <value>Endjahr</value>
-  </data>
   <data name="IsApproximate" xml:space="preserve">
     <value>Ist es geschätzt?</value>
   </data>
@@ -327,29 +303,20 @@
   <data name="DeliveryAdress" xml:space="preserve">
     <value>Bezugsadresse</value>
   </data>
-  <data name="CollectionItemNPartyID" xml:space="preserve">
-    <value>Verbundene Partei ID</value>
+  <data name="ParticipantID" xml:space="preserve">
+    <value>BeteiligterID</value>
   </data>
-  <data name="PartyID" xml:space="preserve">
-    <value>ParteiID</value>
-  </data>
-  <data name="Party" xml:space="preserve">
-    <value>Partei</value>
+  <data name="Participant" xml:space="preserve">
+    <value>Beteiligter</value>
   </data>
   <data name="Relationship" xml:space="preserve">
     <value>Beziehung</value>
   </data>
-  <data name="CollectionItemNPlaceID" xml:space="preserve">
-    <value>Verbundene Orts ID</value>
-  </data>
   <data name="PlaceID" xml:space="preserve">
-    <value>Orts ID</value>
+    <value>OrtsID</value>
   </data>
   <data name="Place" xml:space="preserve">
     <value>Ort</value>
-  </data>
-  <data name="ProductionSize" xml:space="preserve">
-    <value>Produzierte Stückzahl</value>
   </data>
   <data name="ConceptName" xml:space="preserve">
     <value>Begriffsbezeichnung</value>
@@ -363,9 +330,6 @@
   <data name="CollectionItemEntityID_Required" xml:space="preserve">
     <value>Sammlerstück ID fehlt.</value>
   </data>
-  <data name="CollectionItemEmbedding" xml:space="preserve">
-    <value>Sammlerstückeinbettung</value>
-  </data>
   <data name="UsingIdentityUsersID" xml:space="preserve">
     <value>UserID</value>
   </data>
@@ -376,7 +340,7 @@
     <value>Ist es Teil einer Serie?</value>
   </data>
   <data name="StatePreservationName" xml:space="preserve">
-    <value>Erhaltungszustandsname</value>
+    <value>Erhaltungszustand</value>
   </data>
   <data name="SortingOrder" xml:space="preserve">
     <value>Reihenfolge</value>
@@ -399,44 +363,23 @@
   <data name="IndustryID" xml:space="preserve">
     <value>Branchen ID</value>
   </data>
-  <data name="Company" xml:space="preserve">
-    <value>Unternehmen</value>
-  </data>
   <data name="Institution" xml:space="preserve">
     <value>Institution</value>
-  </data>
-  <data name="Other" xml:space="preserve">
-    <value>Andere</value>
   </data>
   <data name="IndustryName" xml:space="preserve">
     <value>Branchename</value>
   </data>
-  <data name="PartyName" xml:space="preserve">
-    <value>Parteiname</value>
+  <data name="ParticipantName" xml:space="preserve">
+    <value>Beteiligtername</value>
   </data>
-  <data name="PartyType" xml:space="preserve">
-    <value>Parteityp</value>
+  <data name="ParticipantType" xml:space="preserve">
+    <value>Beteiligtertyp</value>
   </data>
   <data name="Places" xml:space="preserve">
     <value>Orte</value>
   </data>
   <data name="IsCurrentPostalcode" xml:space="preserve">
     <value>Ist es die aktuelle PLZ?</value>
-  </data>
-  <data name="RelatedGeographyID" xml:space="preserve">
-    <value>Geographischer Bezug ID</value>
-  </data>
-  <data name="RelatedGeography" xml:space="preserve">
-    <value>Geographischer Bezug</value>
-  </data>
-  <data name="RelatedGeography_Add" xml:space="preserve">
-    <value>Geographischen Bezug hinzufügen</value>
-  </data>
-  <data name="RelatedSettlement" xml:space="preserve">
-    <value>Verbundene Siedlung</value>
-  </data>
-  <data name="Parties" xml:space="preserve">
-    <value>Parteien</value>
   </data>
   <data name="IsCurrentName" xml:space="preserve">
     <value>Ist es der aktuelle Name?</value>
@@ -448,13 +391,16 @@
     <value>Sammelgebietsname existiert bereits.</value>
   </data>
   <data name="Success_CollectionArea_Created" xml:space="preserve">
-    <value>Sammelgebiet erfolgreich erstellt.</value>
+    <value>Sammelgebiet wurde erfolgreich erstellt.</value>
   </data>
   <data name="Error_Error_Ocurred" xml:space="preserve">
     <value>Ein technischer Fehler ist aufgetreten und wurde aufgezeichnet. Dieser wird schnellstmöglich von uns behoben.</value>
   </data>
   <data name="Success_CollectionArea_Updated" xml:space="preserve">
     <value>Sammelgebiet wurde erfolgreich geändert.</value>
+  </data>
+  <data name="Success_CollectionArea_Deleted" xml:space="preserve">
+    <value>Sammelgebiet wurde erfolgreich gelöscht.</value>
   </data>
   <data name="Error_CollectionItemEntity_IDMissing" xml:space="preserve">
     <value>SammlerstückID fehlt.</value>
@@ -468,8 +414,8 @@
   <data name="Success_Embedding_Deleted" xml:space="preserve">
     <value>Embedding wurde erfolgreich gelöscht.</value>
   </data>
-  <data name="Error_Embedding_Missing" xml:space="preserve">
-    <value>Embedding fehlt.</value>
+  <data name="Error_Embedding_NotFound" xml:space="preserve">
+    <value>Embedding nicht gefunden.</value>
   </data>
   <data name="Error_UserID_Missing" xml:space="preserve">
     <value>NutzerID fehlt.</value>
@@ -519,14 +465,14 @@
   <data name="Success_Concept_Updated" xml:space="preserve">
     <value>Begriff wurde erfolgreich geändert.</value>
   </data>
-  <data name="Error_Party_Exists" xml:space="preserve">
-    <value>Partei existiert bereits.</value>
+  <data name="Error_Participant_Exists" xml:space="preserve">
+    <value>Beteiligter existiert bereits.</value>
   </data>
   <data name="Success_Individual_Created" xml:space="preserve">
     <value>Individuum wurde erfolgreich erstellt.</value>
   </data>
-  <data name="Error_PartyID_Missing" xml:space="preserve">
-    <value>Partei ID fehlt.</value>
+  <data name="Error_ParticipantID_Required" xml:space="preserve">
+    <value>Beteiligter ID fehlt.</value>
   </data>
   <data name="Error_Individual_NotFound" xml:space="preserve">
     <value>Individuum wurde nicht gefunden.</value>
@@ -540,14 +486,17 @@
   <data name="Success_Organization_Updated" xml:space="preserve">
     <value>Organisation wurde erfolgreich geändert.</value>
   </data>
-  <data name="Success_Party_Created" xml:space="preserve">
-    <value>Partei wurde erfolgreich erstellt.</value>
+  <data name="Success_Participant_Created" xml:space="preserve">
+    <value>Beteiligter wurde erfolgreich erstellt.</value>
   </data>
   <data name="Success_Place_Updated" xml:space="preserve">
     <value>Ort wurde erfolgreich geändert.</value>
   </data>
-  <data name="Success_Party_Updated" xml:space="preserve">
-    <value>Partei wurde erfolgreich geändert.</value>
+  <data name="Success_Participant_Updated" xml:space="preserve">
+    <value>Beteiligter wurde erfolgreich gelöscht</value>
+  </data>
+  <data name="Success_Participant_Deleted" xml:space="preserve">
+    <value>Beteiligter wurde erfolgreich geändert.</value>
   </data>
   <data name="Success_Place_Created" xml:space="preserve">
     <value>Ort wurde erfolgreich erstellt.</value>
@@ -560,9 +509,6 @@
   </data>
   <data name="Error_CollectionItemPicture_NotFound" xml:space="preserve">
     <value>Sammlerstückbild nicht gefunden.</value>
-  </data>
-  <data name="Success_CollectionItemPicture_Updated" xml:space="preserve">
-    <value>Bild wurde erfolgreich geändert.</value>
   </data>
   <data name="Success_CollectionItemPicture_Deleted" xml:space="preserve">
     <value>Sammlerstückbild wurde erfolgreich gelöscht.</value>
@@ -594,7 +540,7 @@
   <data name="Error_OrganizationTypeInt_Missing" xml:space="preserve">
     <value>Organisationstyp fehlt.</value>
   </data>
-  <data name="Error_Era_IdMissing1" xml:space="preserve">
+  <data name="Error_Era_IdMissing" xml:space="preserve">
     <value>Ära ID fehlt.</value>
   </data>
   <data name="Error_Era_Exists" xml:space="preserve">
@@ -618,9 +564,6 @@
   <data name="Register_Here" xml:space="preserve">
     <value>Hier können Sie sich registrieren.</value>
   </data>
-  <data name="Resend" xml:space="preserve">
-    <value>Erneut senden</value>
-  </data>
   <data name="Reset" xml:space="preserve">
     <value>Zurücksetzen</value>
   </data>
@@ -638,9 +581,6 @@
   </data>
   <data name="Search" xml:space="preserve">
     <value>Suche</value>
-  </data>
-  <data name="Option_Select" xml:space="preserve">
-    <value>Wähle Option</value>
   </data>
   <data name="Column_Add" xml:space="preserve">
     <value>Spalte hinzufügen</value>
@@ -669,8 +609,8 @@
   <data name="StatePreservation_NotAvailable" xml:space="preserve">
     <value>Keine Erhaltungszustände vorhanden</value>
   </data>
-  <data name="Party_Add" xml:space="preserve">
-    <value>Partei hinzufügen</value>
+  <data name="Participant_Add" xml:space="preserve">
+    <value>Beteiligter hinzufügen</value>
   </data>
   <data name="AdministrationData" xml:space="preserve">
     <value>Verwaltungsdaten</value>
@@ -700,7 +640,7 @@
     <value>Synonym für</value>
   </data>
   <data name="SubTermOf" xml:space="preserve">
-    <value>Unterbegriff von</value>
+    <value>Unterbegriff</value>
   </data>
   <data name="BackToList" xml:space="preserve">
     <value>Zurück zur Liste</value>
@@ -769,7 +709,7 @@
     <value>Sammelgebiet erstellen</value>
   </data>
   <data name="CollectionArea_Edit" xml:space="preserve">
-    <value>Sammelgebietsname ändern</value>
+    <value>Sammelgebiets ändern</value>
   </data>
   <data name="CollectionArea_Structure" xml:space="preserve">
     <value>Sammelgebietsaufbau</value>
@@ -777,11 +717,8 @@
   <data name="CollectionItemEntity_Create" xml:space="preserve">
     <value>Sammlerstück erstellen</value>
   </data>
-  <data name="ManufacturingTime" xml:space="preserve">
-    <value>Herstellungszeit</value>
-  </data>
-  <data name="Party_Select" xml:space="preserve">
-    <value>Partei wählen</value>
+  <data name="Participant_Select" xml:space="preserve">
+    <value>Beteiligter wählen</value>
   </data>
   <data name="Measurements_Weight" xml:space="preserve">
     <value>Maße und Gewicht</value>
@@ -796,7 +733,7 @@
     <value>Ära wählen</value>
   </data>
   <data name="CollectionItemEntity_Administration" xml:space="preserve">
-    <value>Sammlerstücke verwalten</value>
+    <value>Meine Sammlerstücke verwalten</value>
   </data>
   <data name="CollectionItemEntity_Download_All" xml:space="preserve">
     <value>Alle Sammlerstücke als YAML herunterladen</value>
@@ -848,7 +785,7 @@
     <value>Organisation ändern</value>
   </data>
   <data name="Organization_Administration" xml:space="preserve">
-    <value>Organisationverwaltung</value>
+    <value>Organisationsverwaltung</value>
   </data>
   <data name="StatePreservation_Create" xml:space="preserve">
     <value>Erhaltungszustand erstellen</value>
@@ -887,13 +824,13 @@
     <value>Sehr geehrte Damen und Herren,&lt;br /&gt;</value>
   </data>
   <data name="Message_GeneralText_String" xml:space="preserve">
-    <value>&lt;br/&gt;Dies ist eine automatisch generierte Mail. Bei Fragen, wenden Sie sich bitte an service@uffheba.software. &lt;br/&gt;Viele Grüße</value>
+    <value>&lt;br/&gt;Dies ist eine automatisch generierte Mail. Bei Fragen, wenden Sie sich bitte an {0}. &lt;br/&gt;Viele Grüße</value>
   </data>
   <data name="Message_GeneralText_Html" xml:space="preserve">
-    <value>Dies ist eine automatisch generierte Mail. Bei Fragen, wenden Sie sich bitte an service@uffheba.software. Viele Grüße</value>
+    <value>Dies ist eine automatisch generierte Mail. Bei Fragen, wenden Sie sich bitte an {0} Viele Grüße</value>
   </data>
   <data name="Details" xml:space="preserve">
-    <value>Details</value>
+    <value>Details zum Sammlerstück</value>
   </data>
   <data name="NothingFound" xml:space="preserve">
     <value>Keine Einträge zum Suchwort vorhanden.</value>
@@ -922,9 +859,6 @@
   <data name="OrganizationID" xml:space="preserve">
     <value>OrganisationsID</value>
   </data>
-  <data name="ConceptValueID" xml:space="preserve">
-    <value>BegriffswertID</value>
-  </data>
   <data name="IsGeneralConcept" xml:space="preserve">
     <value>Ist es ein allgemeiner Begriff, also nicht sammelgebietsspezifisch?</value>
   </data>
@@ -935,7 +869,7 @@
     <value>Nein</value>
   </data>
   <data name="ConceptRelation_Administration_Specific" xml:space="preserve">
-    <value>Verwaltung von Begriffe zu </value>
+    <value>Verwaltung von Unterbegriffen zu </value>
   </data>
   <data name="IsRootConcept" xml:space="preserve">
     <value>Ist es der Grundbegriff?</value>
@@ -951,9 +885,6 @@
   </data>
   <data name="ConceptType" xml:space="preserve">
     <value>Begriffstyp</value>
-  </data>
-  <data name="Keywords" xml:space="preserve">
-    <value>Stichworte</value>
   </data>
   <data name="Pictures_CollectionItem" xml:space="preserve">
     <value>Sammlerstückbilder</value>
@@ -975,57 +906,6 @@
   </data>
   <data name="Error_Concept_NameRequired" xml:space="preserve">
     <value>Begriffsbezeichnung ist notwendig.</value>
-  </data>
-  <data name="CollectionSet_Select" xml:space="preserve">
-    <value>Serie auswählen</value>
-  </data>
-  <data name="Set" xml:space="preserve">
-    <value>Serie</value>
-  </data>
-  <data name="SetName" xml:space="preserve">
-    <value>Serienthema</value>
-  </data>
-  <data name="SetId" xml:space="preserve">
-    <value>SerienID</value>
-  </data>
-  <data name="SetName_Requiered" xml:space="preserve">
-    <value>Serienthema muss gesetzt werden.</value>
-  </data>
-  <data name="Error_CollectionSet_NameMissing" xml:space="preserve">
-    <value>Sammelreihenname fehlt.</value>
-  </data>
-  <data name="Error_CollectionSet_NotFound" xml:space="preserve">
-    <value>Sammelreihe nicht gefunden.</value>
-  </data>
-  <data name="CollectionSet_Create" xml:space="preserve">
-    <value>Serie erstellen</value>
-  </data>
-  <data name="CollectionSet_Edit" xml:space="preserve">
-    <value>Serie ändern</value>
-  </data>
-  <data name="CollectionSet_Administration" xml:space="preserve">
-    <value>Serienverwaltung</value>
-  </data>
-  <data name="CollectionSetId" xml:space="preserve">
-    <value>Sammelreihe ID</value>
-  </data>
-  <data name="CollectionSetName" xml:space="preserve">
-    <value>Sammelreihenname</value>
-  </data>
-  <data name="CollectionSet" xml:space="preserve">
-    <value>Sammelreihe</value>
-  </data>
-  <data name="Success_CollectionSet_Created" xml:space="preserve">
-    <value>Sammelreihe erfolgreich erstellt.</value>
-  </data>
-  <data name="Success_CollectionSet_Deleted" xml:space="preserve">
-    <value>Sammelreihe erfolgreich gelöscht.</value>
-  </data>
-  <data name="Success_CollectionSet_Updated" xml:space="preserve">
-    <value>Sammelreihe erfolgreich geändert.</value>
-  </data>
-  <data name="CollectionSetName_Required" xml:space="preserve">
-    <value>Sammelreihenname benötigt.</value>
   </data>
   <data name="Success_ConceptValue_Created" xml:space="preserve">
     <value>Begriffswert erfolgreich erstellt.</value>
@@ -1087,26 +967,20 @@
   <data name="UpdatedAt" xml:space="preserve">
     <value>Geändert am</value>
   </data>
-  <data name="Error_ModelState_Invalid" xml:space="preserve">
-    <value>Fehlende oder falsche Eingaben.</value>
-  </data>
-  <data name="CollectionArea_Name_IsMissing" xml:space="preserve">
+  <data name="Error_CollectionAreaName_IsMissing" xml:space="preserve">
     <value>Sammelgebietsname fehlt.</value>
-  </data>
-  <data name="CollectionSet_Name_IsMissing" xml:space="preserve">
-    <value>Serienname fehlt.</value>
   </data>
   <data name="StatePreservation_Name_Missing" xml:space="preserve">
     <value>Erhaltungszustandsname fehlt.</value>
   </data>
-  <data name="Error_Party_NameMissing" xml:space="preserve">
-    <value>Parteienname fehlt.</value>
+  <data name="Error_ParticipantName_Required" xml:space="preserve">
+    <value>Beteiligtername fehlt.</value>
   </data>
-  <data name="Error_PartyTypeInt_Missing" xml:space="preserve">
-    <value>Parteityp fehlt.</value>
+  <data name="Error_ParticipantTypeInt_Missing" xml:space="preserve">
+    <value>Beteiligtertyp fehlt.</value>
   </data>
   <data name="Error_Email_NotValid" xml:space="preserve">
-    <value>Keine gültige Email-Adresse</value>
+    <value>Keine gültige Email-Adresse.</value>
   </data>
   <data name="Error_StatePreservation_Exists" xml:space="preserve">
     <value>Erhaltungszustand existiert bereits.</value>
@@ -1184,7 +1058,7 @@
     <value>CredentialId fehlt.</value>
   </data>
   <data name="Error_PublicKey_Missing" xml:space="preserve">
-    <value>Public key fehlt.</value>
+    <value>Public Key fehlt.</value>
   </data>
   <data name="DisplayName" xml:space="preserve">
     <value>Anzeigename</value>
@@ -1193,7 +1067,7 @@
     <value>Mit Passkey anmelden</value>
   </data>
   <data name="Error_DisplayName_Missing" xml:space="preserve">
-    <value>Anziegename fehlt.</value>
+    <value>Anzeigename fehlt.</value>
   </data>
   <data name="Register_Passkey" xml:space="preserve">
     <value>Mit Passkey registrieren.</value>
@@ -1201,14 +1075,11 @@
   <data name="Error_Session_Expired" xml:space="preserve">
     <value>Sitzung abgelaufen. Bitte starten Sie die Registrierung erneut.</value>
   </data>
-  <data name="Error_DisplayName_StringLength" xml:space="preserve">
-    <value>Anzeigename muss 2-100 Zeichen lang sein.</value>
-  </data>
   <data name="Passkey_Login" xml:space="preserve">
     <value>Passkey Anmeldung</value>
   </data>
   <data name="Passkey_Information" xml:space="preserve">
-    <value>&lt;h6&gt;&lt;i class="bi bi-info-circle me-2"&gt;Was ist ein Passkey?&lt;/i&gt;&lt;/h6&gt;
+    <value>&lt;h2&gt;&lt;i class="bi bi-info-circle me-2"&gt;Was ist ein Passkey?&lt;/i&gt;&lt;/h2&gt;
 &lt;p class="mb-1"&gt;Ein Passkey ist eine sichere und bequeme Alternative zu Passwörtern.&lt;/p&gt;
 &lt;ul class="mb-0"&gt;
     &lt;li&gt;Kein Passwort merken notwendig&lt;/li&gt;
@@ -1229,12 +1100,228 @@
     <value>Zugang verwehrt</value>
   </data>
   <data name="Meta_Description" xml:space="preserve">
-    <value>Interessante und einzigartige Sammlerstücke: Verwalte deine Eigenen und finde welche von anderen Sammlern</value>
+    <value>Flexible Sammlerplattform für alle Sammelgebiete: Erstelle Sammelgebiete und definiere ihre Begriffe dynamisch, verwalte deine eigenen Sammlerstücke übersichtlich und entdecke Sammlungen anderer Nutzer an einem Ort.</value>
   </data>
   <data name="EnterToponymy" xml:space="preserve">
     <value>Ortsname eingeben</value>
   </data>
   <data name="Info_PlaceName_NotChangeable" xml:space="preserve">
     <value>Ortsname ist nur lösch- oder hinzufügbar</value>
+  </data>
+  <data name="Error_Organization_NotFound" xml:space="preserve">
+    <value>Organisation wurde nicht gefunden.</value>
+  </data>
+  <data name="Error_Organization_ConnectedToCollectionItems" xml:space="preserve">
+    <value>Organisation ist noch mit einem Sammlerstück verbunden.</value>
+  </data>
+  <data name="Success_Organization_Deleted" xml:space="preserve">
+    <value>Organisation wurde erfolgreich gelöscht.</value>
+  </data>
+  <data name="Success_Era_Deleted" xml:space="preserve">
+    <value>Ära wurde erfolgreich gelöscht.</value>
+  </data>
+  <data name="Error_CollectionAreaId_IsMissing" xml:space="preserve">
+    <value>SammelgebietsId fehlt.</value>
+  </data>
+  <data name="EndYear" xml:space="preserve">
+    <value>Endjahr</value>
+  </data>
+  <data name="StartYear" xml:space="preserve">
+    <value>Startjahr</value>
+  </data>
+  <data name="BirthYear" xml:space="preserve">
+    <value>Geburtsjahr</value>
+  </data>
+  <data name="DeathYear" xml:space="preserve">
+    <value>Todesjahr</value>
+  </data>
+  <data name="Era_Add" xml:space="preserve">
+    <value>Ära hinzufügen</value>
+  </data>
+  <data name="ConnectedEras" xml:space="preserve">
+    <value>Verbundene Ären</value>
+  </data>
+  <data name="Place_Delete" xml:space="preserve">
+    <value>Ort löschen</value>
+  </data>
+  <data name="Organization_Delete" xml:space="preserve">
+    <value>Organisation löschen</value>
+  </data>
+  <data name="Individual_Delete" xml:space="preserve">
+    <value>Individuum löschen</value>
+  </data>
+  <data name="Success_Individual_Deleted" xml:space="preserve">
+    <value>Individuum wurde erfolgreich gelöscht.</value>
+  </data>
+  <data name="Error_SortingOrder_Range" xml:space="preserve">
+    <value>Der Wertebereich der Sortierreihenfolge muss gößer als 1 sein.</value>
+  </data>
+  <data name="Error_StatePreservationName_IsMissing" xml:space="preserve">
+    <value>Erhaltungszustandsname fehlt.</value>
+  </data>
+  <data name="Error_StatePreservationId_IsMissing" xml:space="preserve">
+    <value>ErhaltungszustandsId fehlt.</value>
+  </data>
+  <data name="Error_CollectionAreaId_Range" xml:space="preserve">
+    <value>Die SammelgebietsId muss größer als 0 sein.</value>
+  </data>
+  <data name="Error_StatePreservationID_Range" xml:space="preserve">
+    <value>Der Wertebereich der ErhaltungszustandsId muss größer als 1 sein.</value>
+  </data>
+  <data name="Error_ConceptId_Range" xml:space="preserve">
+    <value>Die BegriffsId muss größer als 0 sein.</value>
+  </data>
+  <data name="Error_ConceptValueId_Range" xml:space="preserve">
+    <value>Die BegriffsId muss größer als 0 sein.</value>
+  </data>
+  <data name="Error_EraId_Range" xml:space="preserve">
+    <value>Die ÄraId muss größer als 0 sein.</value>
+  </data>
+  <data name="Error_OwnershipProofPictureId_Range" xml:space="preserve">
+    <value>Die EigentumsnachweisId muss größer als 0 sein.</value>
+  </data>
+  <data name="Error_Perspective_Range" xml:space="preserve">
+    <value>Perspektive muss gesetzt werden.</value>
+  </data>
+  <data name="Error_CollectionItemPicture_IsMissing" xml:space="preserve">
+    <value>Sammlerstückbild fehlt.</value>
+  </data>
+  <data name="Error_OwnershipProofPicture_IsMissing" xml:space="preserve">
+    <value>Eigentumsnachweisbild fehlt.</value>
+  </data>
+  <data name="Participants" xml:space="preserve">
+    <value>Beteiligte</value>
+  </data>
+  <data name="Error_CollectionItemId_Required" xml:space="preserve">
+    <value>SammlerstückId fehlt.</value>
+  </data>
+  <data name="Error_CollectionItemId_Range" xml:space="preserve">
+    <value>Die ID des Sammlerstücks muss größer als 0 sein.</value>
+  </data>
+  <data name="Error_PlaceId_Range" xml:space="preserve">
+    <value>Die ID des Ortes muss größer als 0 sein.</value>
+  </data>
+  <data name="Error_OrganizationId_Range" xml:space="preserve">
+    <value>Die ID der Organisation muss größer als 0 sein.</value>
+  </data>
+  <data name="Error_IndividualId_Range" xml:space="preserve">
+    <value>Die ID des Individuums muss größer als 0 sein.</value>
+  </data>
+  <data name="Error_Relationship_Required" xml:space="preserve">
+    <value>Beziehung fehlt.</value>
+  </data>
+  <data name="IsTranslateable" xml:space="preserve">
+    <value>Ist es übersetzbar?</value>
+  </data>
+  <data name="Error_ConceptId_Required" xml:space="preserve">
+    <value>Konzept ID fehlt.</value>
+  </data>
+  <data name="CollectionArea_Mine" xml:space="preserve">
+    <value>Meine Sammelgebiete</value>
+  </data>
+  <data name="Error_RelationshipName_Required" xml:space="preserve">
+    <value>Name fehlt.</value>
+  </data>
+  <data name="CollectionItemRelationships" xml:space="preserve">
+    <value>Sammlerstückbeziehung</value>
+  </data>
+  <data name="Info_CollectionItemRelationship" xml:space="preserve">
+    <value>Hier geht es ausschließlich um Beziehungen zwischen Sammlerstück und Dimensionen</value>
+  </data>
+  <data name="CollectionItemRelationship_Create" xml:space="preserve">
+    <value>Sammlerstückbeziehung erstellen</value>
+  </data>
+  <data name="CollectionItemRelationship_Edit" xml:space="preserve">
+    <value>Sammlerstückbeziehung ändern</value>
+  </data>
+  <data name="CollectionItemRelationship_Delete" xml:space="preserve">
+    <value>Sammlerstückbeziehung löschen</value>
+  </data>
+  <data name="CollectionItemRelationship_Index" xml:space="preserve">
+    <value>Sammlerstückbeziehungen verwalten</value>
+  </data>
+  <data name="Error_RelationId_Required" xml:space="preserve">
+    <value>BeziehungsId fehlt.</value>
+  </data>
+  <data name="Error_CIRelationship_NotFound" xml:space="preserve">
+    <value>Beziehung wurde nicht gefunden.</value>
+  </data>
+  <data name="Error_CIRelationship_InUse" xml:space="preserve">
+    <value>Beziehung wird benutzt.</value>
+  </data>
+  <data name="Error_CIRelationship_Exists" xml:space="preserve">
+    <value>Beziehung existiert bereits.</value>
+  </data>
+  <data name="Success_CIRelationship_Created" xml:space="preserve">
+    <value>Beziehung wurde erfolgreich erstellt.</value>
+  </data>
+  <data name="Success_CIRelationship_Deleted" xml:space="preserve">
+    <value>Beziehung wurde erfolgreich gelöscht.</value>
+  </data>
+  <data name="Success_CIRelationship_Updated" xml:space="preserve">
+    <value>Beziehung wurde erfolgreich geändert.</value>
+  </data>
+  <data name="As" xml:space="preserve">
+    <value> als </value>
+  </data>
+  <data name="FullView" xml:space="preserve">
+    <value>Öffne Bild {0} in Vollansicht.</value>
+  </data>
+  <data name="CollectionItem_AllPublic" xml:space="preserve">
+    <value>Alle öffentlichen Sammlerstücke</value>
+  </data>
+  <data name="Of" xml:space="preserve">
+    <value>von</value>
+  </data>
+  <data name="ID" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Aktionen</value>
+  </data>
+  <data name="PreViewOf" xml:space="preserve">
+    <value>Vorschaubild von {0}</value>
+  </data>
+  <data name="CollectionAreaSearchParamters_Select" xml:space="preserve">
+    <value>Menü für Sammlegebietssuchparamter</value>
+  </data>
+  <data name="CollectionItemSearchParameters_Select" xml:space="preserve">
+    <value>Menü für Sammlerstückparamtersuche</value>
+  </data>
+  <data name="ConceptSearchParameters_Select" xml:space="preserve">
+    <value>Menü für Begriffssuchparameter</value>
+  </data>
+  <data name="CollectionRelationshipSearchParameters_Select" xml:space="preserve">
+    <value>Menü für Sammlerstückbeziehungsuchparamter</value>
+  </data>
+  <data name="EraSearchParameters_Select" xml:space="preserve">
+    <value>Menü für Ärasuchparamter</value>
+  </data>
+  <data name="ParticipantSearchParameters_Select" xml:space="preserve">
+    <value>Menü für Beteiligtersuchparamter</value>
+  </data>
+  <data name="PlaceSearchParameters_Select" xml:space="preserve">
+    <value>Menü für Ortsuchparamter</value>
+  </data>
+  <data name="CollectionArea_Delete" xml:space="preserve">
+    <value>Sammelgebiet löschen</value>
+  </data>
+  <data name="Pictures" xml:space="preserve">
+    <value>Abbildungen</value>
+  </data>
+  <data name="Error_TopicId_Required" xml:space="preserve">
+    <value>Thema Id fehlt</value>
+  </data>
+  <data name="Error_TopicId_Range" xml:space="preserve">
+    <value>Die Themen-ID muss größer als 0 sein.</value>
+  </data>
+  <data name="Column_Select" xml:space="preserve">
+    <value>Wähle Spalte</value>
+  </data>
+  <data name="Error_DisplayName_StringLength" xml:space="preserve">
+    <value>Anzeigename muss 2-100 Zeichen lang sein.</value>
+  </data>
+  <data name="Error_ModelState_Invalid" xml:space="preserve">
+    <value>Fehlende oder falsche Eingaben.</value>
   </data>
 </root>

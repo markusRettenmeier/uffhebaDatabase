@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
-<div class="modal fade" id="placeModal" tabindex="-1" aria-labelledby="placeModal" aria-hidden="true">
+<div class="modal fade" id="placeModal" tabindex="-1" aria-labelledby="placeModalLabel" aria-hidden="true" role="dialog" aria-modal="true" aria-describedby="placeModalDescription">
     <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
@@ -10,6 +10,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body ui-front modalBodyPlace">
+                <p id="placeModalDescription">@Localizer["Place_Select_Description"]</p>
                 <div class="row">
                     <div class="col-sm-4 col-sm-offset-4">
                         <div class="input-group">
@@ -19,13 +20,14 @@
                     </div>
                 </div>
                 <table class="table" id="placeSearchResultTable">
+                    <caption class="visually-hidden">@Localizer["Place_SearchResults"]</caption>
                     <thead>
                         <tr>
                             <th scope="col">@Localizer["PlaceID"]</th>
                             <th scope="col">@Localizer["Toponymy"]</th>
                             <th scope="col">@Localizer["ConnectedPlaces"]</th>
                             <th scope="col">@Localizer["FurtherSpecs"]</th>
-                            <th scope="col"></th>
+                            <th scope="col">@Localizer["Actions"]</th>
                         </tr>
                     </thead>
                 </table>

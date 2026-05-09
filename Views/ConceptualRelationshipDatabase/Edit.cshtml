@@ -1,4 +1,4 @@
-﻿@model ConceptualRelationshipOperationParameterModel
+﻿@model ConceptEditDTO
 @using Sammlerplattform.Models.ConceptualRelationshipDatabase
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
@@ -8,87 +8,88 @@
     Layout = "~/Views/Shared/_LayoutSettingsConceptualRelationship.cshtml";
 }
 
-<h3>@ViewData["Title"]</h3>
+<h1>@ViewData["Title"]</h1>
 <hr />
 <form asp-action="Edit" enctype="multipart/form-data">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input asp-for="ConceptViewModel.CollectionAreaID" class="form-control" type="hidden">
-    <input asp-for="ConceptViewModel.Id" class="form-control" type="hidden">
-    <div class="form-group mb-3">
-        <label asp-for="ConceptViewModel.Name" class="control-label"></label>
-        <input asp-for="ConceptViewModel.Name" class="form-control">
-        <span asp-validation-for="ConceptViewModel.Name" class="text-danger"></span>
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input asp-for="CollectionAreaID" class="form-control" type="hidden" />
+    <input asp-for="Id" class="form-control" type="hidden" />
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" aria-required="true" aria-invalid="false" />
+        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
-    @if (Model.ConceptViewModel.ConceptType == 0)
+    <div class="form-check form-switch">
+        <input class="form-check-input" asp-for="IsTranslateable" />
+        <label class="form-check-label" asp-for="IsTranslateable"></label>
+    </div>
+    @if (Model.ConceptType == 0)
     {
-        <input type="hidden" asp-for="ConceptViewModel.ConceptTypeInt" value="0" />
+        <input type="hidden" asp-for="ConceptTypeInt" value="0" />
     }
     else
     {
-        <div class="form-group mb-2">
-            <label asp-for="ConceptViewModel.ConceptType" class="control-label"></label>
-            <select asp-for="ConceptViewModel.ConceptType"
+        <div class="form-group">
+            <label asp-for="ConceptType" class="control-label"></label>
+            <select asp-for="ConceptType"
                     asp-items="Html.GetEnumSelectList<ConceptType>()"
                     class="form-select">
             </select>
-            <span asp-validation-for="ConceptViewModel.ConceptType" class="text-danger"></span>
+            <span asp-validation-for="ConceptType" class="text-danger"></span>
         </div>
     }
-    <div class="form-group mb-3">
-        <label asp-for="ConceptViewModel.Abbreviation" class="control-label"></label>
-        <input asp-for="ConceptViewModel.Abbreviation" class="form-control">
-        <span asp-validation-for="ConceptViewModel.Abbreviation" class="text-danger"></span>
+    <div class="form-group">
+        <label asp-for="Abbreviation" class="control-label"></label>
+        <input asp-for="Abbreviation" class="form-control" />
+        <span asp-validation-for="Abbreviation" class="text-danger"></span>
     </div>
-    <div class="mb-3">
+    <div>
         <table class="table">
+            <caption class="visually-hidden">@Localizer["Relationship"]</caption>
             <thead>
                 <tr>
                     <th scope="col">@Localizer["Relationship"]</th>
-                    <th scope="col"></th>
+                    <th scope="col">@Localizer["Actions"]</th>
                 </tr>
             </thead>
-            <tbody id="appendConceptHere">
-                @for(int i = 0; i < Model.ConceptRelationList.Count; i++)
+            <tbody id="appendConceptHere" aria-live="polite" aria-relevant="additions">
+                @for (int i = 0; i < Model.ConceptRelationList.Count; i++)
                 {
                     <tr class="conceptResultTableTr">
-                        @if (Model.ConceptRelationList[i].RelationTypeInt == 0){
-                            <td>@Localizer["SynonymFor"] @Model.ConceptRelationList[i].ToConcept?.Name</td>
+                        @if (Model.ConceptRelationList[i].RelationTypeInt == 0)
+                        {
+                            <td>@Localizer["SynonymFor"] @Model.ConceptRelationList[i].ToName</td>
                         }
                         else if (Model.ConceptRelationList[i].RelationTypeInt == 1)
                         {
-                            <td>@Localizer["SubTermOf"] @Model.ConceptRelationList[i].ToConcept?.Name</td>
+                            <td>@Localizer["SubTermOf"] @Model.ConceptRelationList[i].ToName</td>
                         }
                         <td>
-                            <input type="hidden" class="form-control conceptResultTableId" asp-for="ConceptRelationList[@i].ToConceptID">
-                            <input type="hidden" class="form-control conceptResultTableRelationship" asp-for="ConceptRelationList[@i].RelationTypeInt">
+                            <input type="hidden" class="form-control conceptResultTableId" asp-for="ConceptRelationList[@i].ToConceptId" />
+                            <input type="hidden" class="form-control conceptResultTableRelationship" asp-for="ConceptRelationList[@i].RelationTypeInt" />
                             <button type="button" class="btn btn-danger btn-sm removeConceptRow">@Localizer["Remove"]</button>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ConceptModal">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ConceptModal" aria-haspopup="dialog" aria-controls="ConceptModal">
             @Localizer["ConceptRelation_Add"]
         </button>
-    </div>
-    <div class="form-group mb-3">
-        <label asp-for="ConceptViewModel.Description" class="control-label"></label>
-        <textarea asp-for="ConceptViewModel.Description" rows="3" class="form-control"></textarea>
-        <span asp-validation-for="ConceptViewModel.Description" class="text-danger"></span>
     </div>
     <div class="mt-4 pt-3 border-top">
         <button type="submit" class="btn btn-success btn-lg px-5">
             <i class="bi bi-check-circle"></i> @Localizer["Edit"]
         </button>
-        @if(Model.ConceptViewModel.RootConceptID != null)
+        @if (Model.RootConceptID != null)
         {
-            <a asp-action="IndexSpecific" asp-route-id="@Model.ConceptViewModel.RootConceptID" class="btn btn-outline-secondary ms-2">
+            <a asp-action="IndexSpecific" asp-route-id="@Model.RootConceptID" asp-route-rootConceptId="@Model.RootConceptID" class="btn btn-dark text-white ms-2">
                 @Localizer["Cancel"]
             </a>
         }
         else
         {
-            <a asp-action="IndexGeneral" class="btn btn-outline-secondary ms-2">
+            <a asp-action="IndexGeneral" class="btn btn-dark text-white ms-2">
                 @Localizer["Cancel"]
             </a>
         }

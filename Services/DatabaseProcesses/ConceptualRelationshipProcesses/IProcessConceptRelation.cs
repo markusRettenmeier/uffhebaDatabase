@@ -76,7 +76,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
             {
                 ConceptViewModel conceptView = new()
                 {
-                    Name = processTranslation.GetWithPredicate(new EntityTranslationSearchParameter
+                    Name = processTranslation.GetWithFallback(new EntityTranslationSearchParameter
                     {
                         EntityType = [nameof(Concept)],
                         FieldName = [nameof(ConceptViewModel.Name)],

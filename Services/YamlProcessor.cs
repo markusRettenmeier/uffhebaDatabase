@@ -8,14 +8,14 @@ namespace Sammlerplattform.Services
 {
     public class YamlProcessor
     {
-        public static async Task<MemoryStream> CreateZipFile(List<CollectionItemOperationParameterModel> modelList, UsingIdentityUser user, IWebHostEnvironment hostEnvironment)
+        public static async Task<MemoryStream> CreateZipFile(List<CollectionItemDisplayDTO> modelList, UsingIdentityUser user, IWebHostEnvironment hostEnvironment)
         {
             string sourceDir = Path.Combine(hostEnvironment.WebRootPath, Path.Combine("images", "Original"));
             string downloadFolder = Path.Combine(hostEnvironment.WebRootPath, "Download_" + user.DisplayName);
             _ = Directory.CreateDirectory(downloadFolder);
             string zipFile = Path.Combine(hostEnvironment.WebRootPath, "Download_" + user.DisplayName + ".zip");
 
-            foreach (CollectionItemOperationParameterModel operationParameterModel in modelList)
+            foreach (CollectionItemDisplayDTO operationParameterModel in modelList)
             {
                 // Sicherstellen, dass CollectionItemEntity nicht null ist
                 if (operationParameterModel.CollectionItemEntity == null)
@@ -76,7 +76,7 @@ namespace Sammlerplattform.Services
             return memory;
         }
 
-        public static byte[] CreateYAMLFile(CollectionItemOperationParameterModel operationParameterModel)
+        public static byte[] CreateYAMLFile(CollectionItemDisplayDTO operationParameterModel)
         {
             var exportDto = new YamlExportDto
             {
@@ -101,12 +101,12 @@ namespace Sammlerplattform.Services
                     IsApproximate = operationParameterModel.CollectionItemEntity.IsApproximate,
                     Comment = operationParameterModel.CollectionItemEntity.Comment,
                     Condition = operationParameterModel.CollectionItemEntity.StatePreservation?.StatePreservationName,
-                    Parties = operationParameterModel.CollectionItemEntity.CollectionItemNPartyList?
-                        .ToDictionary(p => p.Relationship, p => p.Party.PartyName),
-                    Places = operationParameterModel.CollectionItemEntity.CollectionItemNPlaceList?
-                        .Select(pl => pl.Place.PlaceNToponymyList?.FirstOrDefault()?.Toponymy?.ToponymyName)
-                        .Where(name => !string.IsNullOrEmpty(name))
-                        .ToList(),
+                    //Parties = operationParameterModel.CollectionItemEntity.CollectionItemNParticipantList?
+                    //    .ToDictionary(p => p.Relationship, p => p.Participant.ParticipantName),
+                    //Places = operationParameterModel.CollectionItemEntity.CollectionItemNPlaceList?
+                    //    .Select(pl => pl.Place.PlaceNToponymyList?.FirstOrDefault()?.Toponymy?.ToponymyName)
+                    //    .Where(name => !string.IsNullOrEmpty(name))
+                    //    .ToList(),
                     Era = operationParameterModel.CollectionItemEntity.Era?.EraName
                 }
             };

@@ -1,85 +1,88 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Sammlerplattform.Models.PartyDatabase;
-using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
+using Sammlerplattform.Models.ParticipantDatabase;
+using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase;
 using Sammlerplattform.Services;
-using Sammlerplattform.Services.DatabaseProcesses.PartyProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses;
 
 namespace Sammlerplattform.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class OrganizationDatabaseController(IProcessOrganization processOrganization
-        , IProcessParty processParty) : Controller
+        , IProcessParticpant processParticipant) : Controller
     {
         [HandleStatus]
-        public ActionResult Index(PartySearchParameterModel partySearchParameter)
+        public ActionResult Index(ParticipantSearchParameterModel participantSearchParameter)
         {
-            ViewData["Party"] = "Organization";
+            ViewData["Participant"] = "Organization";
 
-            List<Party> partyList = [.. processParty.GetListWithPredicate(partySearchParameter).Where(x => x.Organization != null)];
-            return View(partyList);
+            List<Participant> participantList = [.. processParticipant.GetListWithPredicate(participantSearchParameter).Where(x => x.Organization != null)];
+            return View(participantList);
         }
 
-        [HandleStatus]
-        [HttpGet]
         public ActionResult Create()
         {
             return View();
         }
         [HttpPost]
-        public IActionResult Create(OrganizationCreateDTO model)
+        public IActionResult Create(OrganizationCreateDTO createDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(createDto);
             }
-            (int statusCode, string statusMessage, int _) = processOrganization.Insert(model);
-            return RedirectToAction(nameof(Index), new { statusMessage, statusCode });
+            (int statusCode, string statusMessage, int id) = processOrganization.Insert(createDto);
+
+            if (id > 0)
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
+            else
+                return RedirectToAction(nameof(Index), new { statusMessage, statusCode });
         }
 
         [HandleStatus]
-        [HttpGet]
         public ActionResult Edit(int id)
         {
-            Party? existingParty = processParty.GetListWithPredicate(new PartySearchParameterModel { PartyID = [id] }).FirstOrDefault();
+            Participant? existingParticipant = processParticipant.GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
 
-            return existingParty == null || existingParty.Individual == null
-                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Party_NotFound" })
-                : View(new OrganizationOperationParameterModel
-                {
-                    Party = existingParty,
-                    Organization = existingParty.Organization!,
-                    //PlaceList = existingParty.PlaceList,
-                });
+            if (existingParticipant == null || existingParticipant.Organization == null)
+            {
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_Participant_NotFound" });
+            }
+
+            ViewData["ConnectedPlaces"] = existingParticipant.ParticipantNPlaceList.Select(x => x.Place).ToList();
+            ViewData["ConnectedEras"] = existingParticipant.ParticipantNEraList.Select(x => x.Era).ToList();
+
+            OrganizationEditDTO organizationEditDTO = new()
+            {
+                Id = existingParticipant.ParticipantID,
+                Name = existingParticipant.ParticipantName,
+                WikipediaUrl = existingParticipant.WikipediaUrl,
+                Industry = existingParticipant.Organization!.Industry?.IndustryName
+            };
+            return View(organizationEditDTO);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(OrganizationOperationParameterModel model)
+        public IActionResult Edit(OrganizationEditDTO editDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(editDto);
             }
-            (int statusCode, string statusMessage, int id) = processOrganization.Update(model);
+            (int statusCode, string statusMessage, int id) = processOrganization.Update(editDto);
             if (statusCode == 200)
                 return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
             else
                 return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
 
-        [HttpGet]
         public ActionResult Delete(int id)
         {
-            Party? existingParty = processParty.GetListWithPredicate(new PartySearchParameterModel { PartyID = [id] }).FirstOrDefault();
+            Participant? existingParticipant = processParticipant.GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
 
-            return existingParty == null || existingParty.Individual == null
-                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Party_NotFound" })
-                : View(new OrganizationOperationParameterModel
-                {
-                    Party = existingParty,
-                    Organization = existingParty.Organization!,
-                    //PlaceList = existingParty.PlaceList,
-                });
+            return existingParticipant == null || existingParticipant.Organization == null
+                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Participant_NotFound" })
+                : View(existingParticipant);
         }
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

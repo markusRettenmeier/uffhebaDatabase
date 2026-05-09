@@ -1,5 +1,4 @@
-﻿using Fido2NetLib.Objects;
-using Sammlerplattform.Data;
+﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.Passkey;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.PasskeyProcessees
@@ -86,11 +85,11 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PasskeyProcessees
         public (int Statuscode, string Statusmessage) UpdateSignatureCounter(byte[] credentialId, long counter)
         {
             var credential = GetCredentialById(credentialId);
-            if(credential == null)
+            if (credential == null)
             {
                 return (404, "FidoCredential_NotFound");
             }
-            
+
             try
             {
                 credential.SignatureCounter = counter;

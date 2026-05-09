@@ -1,0 +1,33 @@
+﻿@model Sammlerplattform.Models.CollectionItemDatabase.CollectionItemRelationshipDatabase.CollectionItemRelationship
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["CollectionItemRelationship_Delete"];
+    Layout = "~/Views/Shared/_LayoutSettingsDimensions.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+<h2>@Localizer["Delete_Confirm"]</h2>
+<p>@Localizer["Info_CollectionItemRelationship"]</p>
+<hr />
+<dl class="row">
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.CollectionItemRelationshipName)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemRelationshipName)
+    </dd>
+</dl>
+    
+<form asp-action="Delete">
+    <input type="hidden" asp-for="CollectionItemRelationshipId" />
+    <div class="mt-4 pt-3 border-top">
+        <button type="submit" class="btn btn-danger btn-lg px-5">
+            <i class="bi bi-check-circle"></i> @Localizer["Delete"]
+        </button>
+        <a asp-action="Index" class="btn btn-dark text-white ms-2">
+            @Localizer["Cancel"]
+        </a>
+    </div>
+</form>

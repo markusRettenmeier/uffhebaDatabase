@@ -1,5 +1,7 @@
 ﻿using Sammlerplattform.Data;
+using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
+using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Services.Translation;
 using System.Globalization;
 using System.Transactions;
@@ -8,8 +10,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 {
     public interface IProcessStatePreservation
     {
-        (int StatusCode, string StatusMessage) Insert(StatePreservation state);
-        (int StatusCode, string StatusMessage) Update(StatePreservation state);
+        (int StatusCode, string StatusMessage, int Id) Insert(StatePreservationCreateDTO createDTO);
+        (int StatusCode, string StatusMessage, int Id) Update(StatePreservationEditDTO editDto);
         (int StatusCode, string StatusMessage) Delete(int id);
         List<StatePreservation> GetWithPredicates(StatePreservationSearchParameterModel stateSearchParameterModel);
     }
@@ -20,126 +22,99 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         ITranslationStore translationStore,
         ITrackEventsCSV trackEvents) : IProcessStatePreservation
     {
-        public (int StatusCode, string StatusMessage) Insert(StatePreservation state)
+        public (int StatusCode, string StatusMessage, int Id) Insert(StatePreservationCreateDTO createDto)
         {
-            int collectionAreaID = state.CollectionAreaID ?? 0;
-            if (string.IsNullOrEmpty(state.StatePreservationName) || string.IsNullOrWhiteSpace(state.StatePreservationName) || state.CollectionAreaID <= 0)
+            int? statePreservationID = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
             {
-                trackEvents.TrackError("StateProcessor/Create: StateName or CollectionAreaID is missing.", new Dictionary<string, object>
-                {
-                    {"State", state }
-                });
-                return (400, "Error_CollectionArea_IdMissing");
-            }
-
-            StatePreservationSearchParameterModel searchParameterModel = new() {
-                StatePreservationID = [.. processTranslations.GetWithPredicate(new Models.Translations.EntityTranslationSearchParameter
-                    {
-                        EntityType = [nameof(StatePreservation)],
-                        FieldName = [nameof(StatePreservation.StatePreservationName)],
-                        TranslatedText = [state.StatePreservationName]
-                    }).Select(x => x.EntityId).Distinct()]
-            };
-            if (searchParameterModel.StatePreservationID.Count > 0)
-            {                
+                EntityType = [nameof(StatePreservation)],
+                FieldName = [nameof(StatePreservation.StatePreservationName)],
+                TranslatedText = [createDto.Name]
+            }).Select(x => x.EntityId).FirstOrDefault();
+            if (statePreservationID > 0)
+            {
                 trackEvents.TrackError("StateProcessor/Create: State already exists.", new Dictionary<string, object>
                 {
-                    {"State", state }
+                    {"State", createDto }
                 });
-                return (301, "Error_StatePreservation_Exists");
+                return (301, "Error_StatePreservation_Exists", (int)statePreservationID);
             }
 
             try
             {
-                TransactionScope scope = new();
+                using TransactionScope scope = new();
 
-                if (state.IsGeneralState)
+                StatePreservation statePreservation = new()
                 {
-                    state.CollectionAreaID = null;
-                }
-
-                unitOfWork.StateRepository.Insert(state);
+                    CollectionAreaID = createDto.CollectionAreaID,
+                    SortingOrder = createDto.SortingOrder
+                };
+                statePreservation = unitOfWork.StateRepository.Insert(statePreservation);
                 unitOfWork.Save();
 
                 processTranslations.Insert(
-                    new Models.Translations.EntityTranslation
+                    new TranslationDTO
                     {
+                        TextToTranslate = createDto.Name,
                         EntityType = nameof(StatePreservation),
-                        EntityId = state.StatePreservationID,
+                        EntityId = statePreservation.StatePreservationID,
                         FieldName = nameof(StatePreservation.StatePreservationName),
-                        Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name),
-                        TranslatedText = state.StatePreservationName
-                    }, state.StatePreservationName);
+                        Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name),
+                    });
 
                 scope.Complete();
-                return (200, "Success_StatePreservation_Created");
+                return (200, "Success_StatePreservation_Created", statePreservation.StatePreservationID);
             }
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "StateProcessor/Create: Exception occurred while creating state.", new Dictionary<string, object>
                 {
-                    {"State", state }
+                    {"State", createDto }
                 });
-                return (500, "Error_StatePreservation_CreationFailed");
+                return (500, "Error_StatePreservation_CreationFailed", 0);
             }
         }
 
-        public (int StatusCode, string StatusMessage) Update(StatePreservation state)
+        public (int StatusCode, string StatusMessage, int Id) Update(StatePreservationEditDTO editDto)
         {
-            if (string.IsNullOrEmpty(state.StatePreservationName) || string.IsNullOrWhiteSpace(state.StatePreservationName) || state.CollectionAreaID <= 0)
-            {
-                return (400, "Error_CollectionArea_IdMissing");
-            }
-
-            var existingState = unitOfWork.StateRepository.GetByID(state.StatePreservationID);
+            var existingState = unitOfWork.StateRepository.GetByID(editDto.Id);
             if (existingState == null)
             {
-                return (400, "Error_StatePreservation_NotFound");
+                return (400, "Error_StatePreservation_NotFound", 0);
             }
 
             try
             {
-                TransactionScope scope = new();
-                if (existingState.IsGeneralState != state.IsGeneralState
-                    || existingState.StatePreservationName != state.StatePreservationName
-                    || existingState.CollectionAreaID != state.CollectionAreaID
-                    || existingState.SortingOrder != state.SortingOrder)
+                using TransactionScope scope = new();
+
+                if (existingState.StatePreservationName != editDto.Name
+                    || existingState.SortingOrder != editDto.SortingOrder)
                 {
-                    existingState.IsGeneralState = state.IsGeneralState;
-                    if (existingState.IsGeneralState)
-                    {
-                        existingState.CollectionAreaID = null;
-                    }
-                    else
-                    {
-                        existingState.CollectionAreaID = state.CollectionAreaID;
-                    }
-                    if (existingState.StatePreservationName != state.StatePreservationName)
+                    if (existingState.StatePreservationName != editDto.Name)
                     {
                         processTranslations.Update(
-                            new Models.Translations.EntityTranslation
+                            new TranslationDTO
                             {
+                                TextToTranslate = editDto.Name,
                                 EntityType = nameof(StatePreservation),
-                                EntityId = state.StatePreservationID,
+                                EntityId = existingState.StatePreservationID,
                                 FieldName = nameof(StatePreservation.StatePreservationName),
                                 Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name),
-                                TranslatedText = state.StatePreservationName
-                            }, state.StatePreservationName);
+                            });
                     }
-                    existingState.SortingOrder = state.SortingOrder;
+                    existingState.SortingOrder = editDto.SortingOrder;
                     unitOfWork.Save();
                 }
 
                 scope.Complete();
-                return (200, "Success_StatePreservation_Updated");
+                return (200, "Success_StatePreservation_Updated", existingState.StatePreservationID);
             }
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "StateProcessor/Update: Exception occurred while updating state.", new Dictionary<string, object>
                 {
-                    {"State", state }
+                    {"State", editDto }
                 });
-                return (500, "Error_StatePreservation_UpdateFailed");
+                return (500, "Error_StatePreservation_UpdateFailed", 0);
             }
         }
 
@@ -154,15 +129,19 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             {
                 return (400, "Error_StatePreservation_InUse");
             }
-            if (existingState.IsGeneralState)
-            {
-                return (400, "Error_StatePreservation_GeneralState");
-            }
+
+            processTranslations.Delete(
+                new EntityTranslationSearchParameter
+                {
+                    EntityType = [nameof(StatePreservation)],
+                    FieldName = [nameof(StatePreservation.StatePreservationName)],
+                    EntityId = [id]
+                });
 
             unitOfWork.StateRepository.Delete(existingState);
             unitOfWork.Save();
 
-            return (400, "Success_StatePreservation_Deleted");
+            return (200, "Success_StatePreservation_Deleted");
         }
 
         public List<StatePreservation> GetWithPredicates(StatePreservationSearchParameterModel stateSearchParameterModel)
@@ -171,14 +150,20 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 filter: SearchPredicateBuilder.BuildPredicate<StatePreservation>(stateSearchParameterModel),
                 includeProperties: nameof(StatePreservation.CollectionArea));
             List<StatePreservation> stateList = [.. stateIEnumberable];
-            foreach (var state in stateList) 
+            foreach (var state in stateList)
             {
                 state.StatePreservationName = translationStore.GetTranslation(
                     nameof(StatePreservation),
                     state.StatePreservationID,
-                    state.StatePreservationName,
+                    nameof(StatePreservation.StatePreservationName),
                     translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                    ?? state.StatePreservationName;
+                    ?? string.Empty;
+                state.CollectionArea.CollectionAreaName = translationStore.GetTranslation(
+                    nameof(CollectionArea),
+                    state.CollectionArea.CollectionAreaID,
+                    nameof(CollectionArea.CollectionAreaName),
+                    translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
+                    ?? string.Empty;
             }
 
             return [.. stateIEnumberable.OrderBy(x => x.SortingOrder)];

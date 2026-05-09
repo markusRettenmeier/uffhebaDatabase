@@ -104,7 +104,7 @@ namespace Sammlerplattform.Controllers
                 var result = await fido2.MakeNewCredentialAsync(new MakeNewCredentialParams
                 {
                     AttestationResponse = request.AttestationResponse,
-                    OriginalOptions = sessionData.Options,                    
+                    OriginalOptions = sessionData.Options,
                     IsCredentialIdUniqueToUserCallback = async (args, ct) =>
                     {
                         try
@@ -113,7 +113,7 @@ namespace Sammlerplattform.Controllers
                             if (existingCredential != null)
                             {
                                 trackEvents.TrackError("Credential ID {CredentialId} already exists for user {UserId}",
-                                    new Dictionary<string, object>  { { "args", args } } ,
+                                    new Dictionary<string, object> { { "args", args } },
                                     existingCredential.UserId);
                                 return false;
                             }
@@ -142,7 +142,7 @@ namespace Sammlerplattform.Controllers
                     result.Type.ToString(),
                     result.AaGuid
                 );
-                if(statuscode != 201)
+                if (statuscode != 201)
                 {
                     await userManager.DeleteAsync(user);
                     trackEvents.TrackError("Storing credential failed: {StatusMessage}", new Dictionary<string, object> { { "StatusMessage", statusMessage } }, user.Id);
@@ -210,7 +210,7 @@ namespace Sammlerplattform.Controllers
                 return BadRequest(stringLocalizer["Error_Error_Ocurred"]);
             }
         }
-        
+
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> VerifyAssertion([FromBody] VerifyAssertionRequest clientResponse)
@@ -440,5 +440,5 @@ namespace Sammlerplattform.Controllers
 
             return processFidoCredential.Insert(fidoCredential);
         }
-    }    
+    }
 }

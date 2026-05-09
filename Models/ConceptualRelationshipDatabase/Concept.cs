@@ -4,6 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
 {
+    /// <summary>
+    /// Wird benötigt, um die ConceptRelation-Tabelle zu befüllen. ConceptViewModel ist nicht geeignet, da es nicht die nötigen Felder enthält.
+    /// Zudem hat ConceptViewModel [NotMapped Felder, die zu Problemen führen würden.
+    /// </summary>
     public class Concept : IGraphNode
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -15,7 +19,7 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
         public int? RootConceptID { get; set; }
         public int GetRootConceptId()
         {
-            if(RootConceptID == null || RootConceptID == 0)
+            if (RootConceptID == null || RootConceptID == 0)
             {
                 return Id;
             }

@@ -1,4 +1,5 @@
 ﻿using Sammlerplattform.Resources;
+using Sammlerplattform.Services.Extensions;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -8,22 +9,18 @@ namespace Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDa
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        [Display(Name = "CollectionItemPictureID", ResourceType = typeof(SharedResources))]
         public int CollectionItemPictureID { get; set; }
 
-        [NotMapped]
-        [Display(Name = "Side_Front", ResourceType = typeof(SharedResources))]
-        public bool Frontside => PerspectiveInt == 0;
-
         [Display(Name = "Perspective", ResourceType = typeof(SharedResources))]
-        public int? PerspectiveInt { get; set; }
+        public int PerspectiveInt { get; set; }
 
         [NotMapped]
         [Display(Name = "Perspective", ResourceType = typeof(SharedResources))]
         public PerspectiveType Perspective
         {
-            get => PerspectiveInt == null ? PerspectiveType.Frontside : (PerspectiveType)PerspectiveInt; set => PerspectiveInt = (int)value;
+            get => (PerspectiveType)PerspectiveInt; set => PerspectiveInt = (int)value;
         }
+        public string PerspectiveDisplay => Perspective.GetDisplayName();
 
         [Display(Name = "CollectionItemEntityID", ResourceType = typeof(SharedResources))]
         public int CollectionItemEntityID { get; set; }

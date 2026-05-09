@@ -15,7 +15,7 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public IActionResult Frontpage(CollectionItemSearchParameterModel itemSearchParameterModel, int topK)
         {
-            List<CollectionItemOperationParameterModel> entities = [.. processCollectionItemEntity.GetTraditionalTextSearch(itemSearchParameterModel)
+            List<CollectionItemDisplayDTO> entities = [.. processCollectionItemEntity.GetTraditionalTextSearch(itemSearchParameterModel)
                 .Where(x => x.CollectionItemEntity.IsCollectionItemPublic)];
             int maxRows = entities.Count;
             if (maxRows > 24)
@@ -46,8 +46,8 @@ namespace Sammlerplattform.Controllers
 
         public ActionResult Details(int entityId)
         {
-            CollectionItemOperationParameterModel? entity = processCollectionItemEntity.GetWithPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [entityId] }).FirstOrDefault();
-            
+            CollectionItemDisplayDTO? entity = processCollectionItemEntity.GetWithPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [entityId] }).FirstOrDefault();
+
             return entity == null
                 ? RedirectToAction(nameof(Frontpage), new Status { StatusCode = 404, StatusMessage = "Status_EntityNotFound" })
                 : View(entity);

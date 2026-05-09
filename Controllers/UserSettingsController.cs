@@ -14,7 +14,7 @@ using System.Text.Json;
 
 namespace Sammlerplattform.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class UserSettingsController(UserManager<UsingIdentityUser> userManager
         , SignInManager<UsingIdentityUser> signInManager
         , IEmailSender emailSender
@@ -55,18 +55,18 @@ namespace Sammlerplattform.Controllers
             {
                 IdentityResult identityResult = new();
                 bool isChanged = false;
-                if(usingIdentityUser.DisplayName != user.DisplayName)
+                if (usingIdentityUser.DisplayName != user.DisplayName)
                 {
                     user.DisplayName = usingIdentityUser.DisplayName;
                     isChanged = true;
                 }
-                if(usingIdentityUser.Email != user.Email)
+                if (usingIdentityUser.Email != user.Email)
                 {
                     user.Email = usingIdentityUser.Email;
                     isChanged = true;
                 }
 
-                if(isChanged)
+                if (isChanged)
                 {
                     identityResult = await _userManager.UpdateAsync(user);
 
@@ -136,9 +136,11 @@ namespace Sammlerplattform.Controllers
 
             try
             {
-                CollectionItemEntity collectionItemEntity = new() { UsingIdentityUsersID = user.Id };
-                CollectionItemOperationParameterModel collectionItemOperationParameterModel = new() { CollectionItemEntity= collectionItemEntity };
-                processCollectionItemEntity.Delete(collectionItemOperationParameterModel);
+                List<CollectionItemDisplayDTO> collectionItemEntityList = processCollectionItemEntity.GetWithPredicates(new CollectionItemSearchParameterModel { UsingIdentityUsersID = [user.Id] });
+                foreach (var collectionItem in collectionItemEntityList)
+                {
+                    processCollectionItemEntity.Delete(collectionItem.CollectionItemEntity.CollectionItemEntityID);
+                }
 
                 var credentiaList = processFidoCredential.GetCredentialsByUserId(user.Id);
                 foreach (var credential in credentiaList)

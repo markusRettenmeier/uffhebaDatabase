@@ -1,6 +1,8 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.VectorSearch;
+using Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses;
+using Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses;
 using Sammlerplattform.Services.ML.VectorSearch;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
@@ -13,20 +15,22 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         List<CollectionItemSearchResultDTO> Search(string query);
     }
     public class CollectionItemEmbeddingProcessor(IUnitOfWork unitOfWork
-        , IEmbeddingService embeddingService) : IProcessCollectionItemEmbedding
+        , IEmbeddingService embeddingService
+        , IProcessCollectionArea processCollectionArea
+        , IProcessEra processEra
+        , IProcessConcept processConcept) : IProcessCollectionItemEmbedding
     {
-        public (int Statuscode, string Statusmessage) Insert(CollectionItemEntity collectionItemEntity, List<string> translatedTeextList)
+        public (int Statuscode, string Statusmessage) Insert(CollectionItemEntity collectionItemEntity, List<string> translatedTextList)
         {
-            if(collectionItemEntity.CollectionItemEntityID == 0)
+            if (collectionItemEntity.CollectionItemEntityID == 0)
             {
                 return (400, "Error_CollectionItemEntity_IDMissing");
             }
 
-            var vectors = GenerateAllEmbeddings(collectionItemEntity);
-            foreach (var text in translatedTeextList)
+            var vectors = AddCollectionItemWOTranslationsEmbeddings(collectionItemEntity);
+            foreach (var text in translatedTextList)
             {
-                var vector = embeddingService.GenerateEmbedding(text);
-                vectors.Add(vector);
+                AddTextEmbedding(vectors, text);
             }
             var combinedVector = embeddingService.CombineVectors(vectors);
             unitOfWork.CollectionItemEmbeddingRepository.Insert(new CollectionItemEmbedding
@@ -40,20 +44,19 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             return (200, "Embedding created successfully");
         }
 
-        public (int Statuscode, string Statusmessage) Update(CollectionItemEntity collectionItemEntity, List<string> translatedTeextList)
+        public (int Statuscode, string Statusmessage) Update(CollectionItemEntity collectionItemEntity, List<string> translatedTextList)
         {
             if (collectionItemEntity.CollectionItemEntityID == 0)
             {
                 return (400, "Error_CollectionItemEntity_IDMissing");
             }
 
-            var existingEmbedding = unitOfWork.CollectionItemEmbeddingRepository.Get(x => x.CollectionItemEntityID == collectionItemEntity.CollectionItemEntityID, includeProperties:"CollectionItemEntity").FirstOrDefault();
+            var existingEmbedding = unitOfWork.CollectionItemEmbeddingRepository.Get(x => x.CollectionItemEntityID == collectionItemEntity.CollectionItemEntityID, includeProperties: "CollectionItemEntity").FirstOrDefault();
 
-            var vectors = GenerateAllEmbeddings(collectionItemEntity);
-            foreach (var text in translatedTeextList)
+            var vectors = AddCollectionItemWOTranslationsEmbeddings(collectionItemEntity);
+            foreach (var text in translatedTextList)
             {
-                var vector = embeddingService.GenerateEmbedding(text);
-                vectors.Add(vector);
+                AddTextEmbedding(vectors, text);
             }
             var combinedVector = embeddingService.CombineVectors(vectors);
 
@@ -82,7 +85,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             var existingEmbedding = unitOfWork.CollectionItemEmbeddingRepository.Get(x => x.CollectionItemEntityID == collectionItemEntityID, includeProperties: "CollectionItemEntity").FirstOrDefault();
             if (existingEmbedding == null)
             {
-                return (200, "Error_Embedding_Missing");
+                return (404, "Error_Embedding_NotFound");
             }
 
             unitOfWork.CollectionItemEmbeddingRepository.Delete(existingEmbedding);
@@ -90,50 +93,50 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             return (200, "Success_Embedding_Deleted");
         }
 
-        private List<float[]> GenerateAllEmbeddings(CollectionItemEntity item)
+        private List<float[]> AddCollectionItemWOTranslationsEmbeddings(CollectionItemEntity item)
         {
             var vectors = new List<float[]>();
 
-            AddTextEmbedding(vectors, item.CollectionArea.CollectionAreaName);
-            if(item.ConceptValueList != null)
+            AddTextEmbedding(vectors, processCollectionArea.GetListWithPredicate(new Models.CollectionAreaDatabase.CollectionAreaSearchParameterModel
+            { CollectionAreaID = [item.CollectionAreaID] }).FirstOrDefault()?.CollectionAreaName);
+            foreach (var value in item.ConceptValueList)
             {
-                foreach (var value in item.ConceptValueList)
-                {
-                    AddTextEmbedding(vectors, value.ConceptViewModel.Name);
-                    AddTextEmbedding(vectors, value.ValueDisplay);
-                }
+                AddTextEmbedding(vectors, processConcept.Get(new Models.ConceptualRelationshipDatabase.ConceptualRelationshipSearchParameterModel
+                { Id = [value.ConceptID] }).FirstOrDefault()?.ConceptViewModel.Name);
+                AddTextEmbedding(vectors, value.ValueString);
+                AddTextEmbedding(vectors, value.ValueDate.ToString());
             }
             AddTextEmbedding(vectors, item.StatePreservation?.StatePreservationName);
-            AddTextEmbedding(vectors, item.UniqueName);
-            AddTextEmbedding(vectors, item.Comment);
             AddTextEmbedding(vectors, item.Inscription);
-            AddTextEmbedding(vectors, item.PersonalIdentificationNumber);
-            AddTextEmbedding(vectors, item.SerialNumber);
             AddTextEmbedding(vectors, item.Time);
 
-            if (item.CollectionItemNPartyList?.Count > 0)
+            if (item.CollectionItemNParticipantList?.Count > 0)
             {
-                var partyText = string.Join(", ", item.CollectionItemNPartyList
-                    .Select(p => p.Party?.PartyName ?? ""));
-                AddTextEmbedding(vectors, partyText);
-                var pseudonymText = string.Join(", ", item.CollectionItemNPartyList
-                    .Select(p => p.Party?.Individual?.Pseudonym ?? ""));
+                var participantText = string.Join(", ", item.CollectionItemNParticipantList
+                    .Select(p => p.Participant?.ParticipantName ?? ""));
+                AddTextEmbedding(vectors, participantText);
+                var pseudonymText = string.Join(", ", item.CollectionItemNParticipantList
+                    .Select(p => p.Participant?.Individual?.Pseudonym ?? ""));
                 AddTextEmbedding(vectors, pseudonymText);
-                var signature = string.Join(", ", item.CollectionItemNPartyList
-                    .Select(p => p.Party?.Individual?.Signature ?? ""));
+                var signature = string.Join(", ", item.CollectionItemNParticipantList
+                    .Select(p => p.Participant?.Individual?.Signature ?? ""));
                 AddTextEmbedding(vectors, signature);
-                var industry = string.Join(", ", item.CollectionItemNPartyList
-                    .Select(p => p.Party?.Organization?.Industry?.IndustryName ?? ""));
+                var industry = string.Join(", ", item.CollectionItemNParticipantList
+                    .Select(p => p.Participant?.Organization?.Industry?.IndustryName ?? ""));
                 AddTextEmbedding(vectors, industry);
             }
 
             if (item.CollectionItemNPlaceList?.Count > 0)
             {
                 var placeText = string.Join(", ", item.CollectionItemNPlaceList
-                    .Select(p => p.Place?.PlaceNToponymyList.FirstOrDefault(x => x.IsCurrentName)?.Toponymy.ToponymyName?? ""));
+                    .Select(p => p.Place?.PlaceNToponymyList.FirstOrDefault(x => x.IsCurrentName)?.Toponymy.ToponymyName ?? ""));
                 AddTextEmbedding(vectors, placeText);
             }
-            AddTextEmbedding(vectors, item.Era?.EraName);
+            if (item.EraID != null)
+            {
+                AddTextEmbedding(vectors, processEra.GetWithPredicates(new Models.EraDatabase.EraSearchParameterModel
+                { EraID = [(int)item.EraID] }).FirstOrDefault()?.EraName);
+            }
 
             return vectors;
         }

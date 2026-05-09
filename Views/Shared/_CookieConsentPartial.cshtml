@@ -11,9 +11,9 @@
 
 @if (showBanner)
 {
-    <div id="cookieConsent" class="alert alert-info alert-dismissible fade show" role="alert">
+    <div id="cookieConsent" class="alert alert-info alert-dismissible fade show" role="alert" aria-live="assertive">
         @Localizer["CookieConsent_Text"] <a asp-action="PrivacyImprint">Mehr zum Datenschutz</a>.
-        <button type="button" class="accept-policy close btn btn-secondary" data-dismiss="alert" aria-label="Close" data-cookie-string="@cookieString" action="OnPostAcceptConsentAsync">
+        <button type="button" class="accept-policy close btn btn-secondary" data-dismiss="alert" aria-label="@Localizer["Close"]" data-cookie-string="@cookieString" action="OnPostAcceptConsentAsync">
             <span aria-hidden="true">@Localizer["Accept"]</span>
         </button> 
     </div>

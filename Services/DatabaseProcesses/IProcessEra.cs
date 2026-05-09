@@ -1,7 +1,7 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.EraDatabase;
-using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.Translations;
+using Sammlerplattform.Services.Extensions;
 using Sammlerplattform.Services.Translation;
 using System.Transactions;
 
@@ -10,8 +10,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses
     public interface IProcessEra
     {
         List<Era> GetWithPredicates(EraSearchParameterModel eraSearchParameter);
-        (int statuscode, string message, int EraId) Insert(Era era);
-        (int statuscode, string message, int EraId) Update(Era era);
+        (int statuscode, string message, int EraId) Insert(EraCreateDTO createDto);
+        (int statuscode, string message, int EraId) Update(EraEditDTO editDto);
         (int statusCode, string message) Delete(int id);
     }
     public class EraProcessor(IUnitOfWork unitOfWork,
@@ -20,50 +20,43 @@ namespace Sammlerplattform.Services.DatabaseProcesses
         ITranslationStore translationStore,
         ITrackEventsCSV trackEvents) : IProcessEra
     {
-        public (int statuscode, string message, int EraId) Insert(Era era)
+        public (int statuscode, string message, int EraId) Insert(EraCreateDTO createDTO)
         {
-            if (string.IsNullOrEmpty(era.EraName))
+            int? eraID = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
             {
-                trackEvents.TrackError("EraProcessor.Create: EraName is missing.", new Dictionary<string, object>
-                {
-                    { "Era", era}
-                });
-                return (404, "Error_EraName_Missing", 0);
-            }
-
-            EraSearchParameterModel searchParameterModel = new()
-            {
-                EraID = [.. processTranslations.GetWithPredicate(new EntityTranslationSearchParameter
-                {
-                    EntityType = [nameof(Era)],
-                    TranslatedText = [era.EraName]
-                }).Select(x => x.EntityId).Distinct()]
-            };
-            if (searchParameterModel.EraID.Count > 0)
+                EntityType = [nameof(Era)],
+                TranslatedText = [createDTO.Name]
+            }).Select(x => x.EntityId).FirstOrDefault();
+            if (eraID > 0)
             {
                 trackEvents.TrackError("EraProcessor.Create: Era already exists.", new Dictionary<string, object>
                 {
-                    { "Era",era}
+                    { "Era",createDTO}
                 });
-                return (303, "Error_Era_Exists", era.EraID);
+                return (303, "Error_Era_Exists", (int)eraID);
             }
 
             try
             {
-                TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-                Era newEra = unitOfWork.EraRepository.Insert(era);
+                using TransactionScope transactionScope = new();
+
+                Era newEra = new()
+                {
+                    EraName = createDTO.Name,
+                    WikipediaUrl = createDTO.WikipediaUrl.ChangeStringToUriToRemoveSubdomain()
+                };
+                newEra = unitOfWork.EraRepository.Insert(newEra);
                 unitOfWork.Save();
 
                 processTranslations.Insert(
-                    new EntityTranslation
+                    new TranslationDTO
                     {
+                        TextToTranslate = createDTO.Name,
                         EntityType = nameof(Era),
                         EntityId = newEra.EraID,
-                        FieldName = nameof(era.EraName),
-                        TranslatedText = era.EraName,
+                        FieldName = nameof(Era.EraName),
                         Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
-                    },
-                    era.EraName);
+                    });
 
                 transactionScope.Complete();
                 return (201, "Success_Era_Created", newEra.EraID);
@@ -72,73 +65,46 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             {
                 trackEvents.TrackException(ex, "EraProcessor.Create: Exception occurred while creating Era.", new Dictionary<string, object>
                 {
-                    { "Era", era}
+                    { "Era", createDTO}
                 });
                 return (500, "Error_Error_Ocurred", 0);
             }
         }
 
-        public (int statuscode, string message, int EraId) Update(Era era)
+        public (int statuscode, string message, int EraId) Update(EraEditDTO edit)
         {
-            if (era.EraID <= 0)
-            {
-                trackEvents.TrackError("EraProcessor.Edit: EraID is missing or invalid.", new Dictionary<string, object>
-                {
-                    { "Era", era}
-                });
-                return (404, "Error_Era_IdMissing", 0);
-            }
-            if (string.IsNullOrEmpty(era.EraName))
-            {
-                trackEvents.TrackError("EraProcessor.Edit: EraName is missing.", new Dictionary<string, object>
-                {
-                    { "Era", era}
-                });
-                return (404, "Error_EraName_Missing", 0);
-            }
-
             Era? existingEra = (from e in unitOfWork.EraRepository.Get()
-                                select e).Where(x => x.EraID == era.EraID).FirstOrDefault();
+                                select e).Where(x => x.EraID == edit.Id).FirstOrDefault();
             if (existingEra == null)
             {
                 trackEvents.TrackError("EraProcessor.Edit: Era not found.", new Dictionary<string, object>
                 {
-                    { "Era", era}
+                    { "Era", edit}
                 });
                 return (404, "Error_Era_NotFound", 0);
             }
 
             try
             {
-                using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+                using TransactionScope transactionScope = new();
                 bool isChanged = false;
-                if (existingEra.StartYear != era.StartYear)
-                {
-                    existingEra.StartYear = era.StartYear;
-                    isChanged = true;
-                }
-                if (existingEra.EndYear != era.EndYear)
-                {
-                    existingEra.EndYear = era.EndYear;
-                    isChanged = true;
-                }
-                if (existingEra.EraName != era.EraName)
+                if (existingEra.EraName != edit.Name)
                 {
                     processTranslations.Update(
-                        new EntityTranslation
+                        new TranslationDTO
                         {
+                            TextToTranslate = edit.Name,
                             EntityType = nameof(Era),
                             EntityId = existingEra.EraID,
-                            FieldName = nameof(era.EraName),
-                            TranslatedText = era.EraName,
+                            FieldName = nameof(Era.EraName),
                             Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
-                        },
-                        era.EraName);
+                        });
                     isChanged = true;
                 }
-                if (existingEra.WikipediaUrl != era.WikipediaUrl)
+                string? wikipediaUrlWithoutSubdomain = edit.WikipediaUrl.ChangeStringToUriToRemoveSubdomain();
+                if (existingEra.WikipediaUrl != wikipediaUrlWithoutSubdomain)
                 {
-                    existingEra.WikipediaUrl = era.WikipediaUrl;
+                    existingEra.WikipediaUrl = wikipediaUrlWithoutSubdomain;
                     isChanged = true;
                 }
                 if (isChanged)
@@ -153,7 +119,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             {
                 trackEvents.TrackException(ex, "EraProcessor.Edit: Exception occurred while editing Era.", new Dictionary<string, object>
                 {
-                    { "Era", era}
+                    { "Era", edit}
                 });
                 return (500, "Error_Error_Ocurred", 0);
             }
@@ -171,7 +137,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                     era.EraID,
                     nameof(era.EraName),
                     translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name))
-                    ?? era.EraName;
+                    ?? "";
             }
 
             return [.. eraList.OrderBy(x => x.EraName)];
@@ -188,7 +154,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                 });
                 return (404, "Error_Era_NotFound");
             }
-            if (era.CollectionItemEntityList.Count > 0)
+            if (era.CollectionItemEntityList.Count > 1)
             {
                 trackEvents.TrackError("EraProcessor.Delete: Era cannot be deleted because it is associated with collection items.", new Dictionary<string, object>
                 {
@@ -200,7 +166,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
 
             try
             {
-                TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+                using TransactionScope transactionScope = new();
 
                 processTranslations.Delete(new EntityTranslationSearchParameter
                 {
@@ -211,6 +177,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                 unitOfWork.EraRepository.Delete(era);
                 unitOfWork.Save();
 
+                transactionScope.Complete();
                 return (200, "Success_Era_Deleted");
             }
             catch (Exception ex)

@@ -1,64 +1,85 @@
 ﻿@model OrganizationCreateDTO
-@using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase
+@using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
     ViewData["Title"] = Localizer["Organization_Create"];
-    Layout = "~/Views/Shared/_LayoutSettingsParty.cshtml";
+    Layout = "~/Views/Shared/_LayoutSettingsDimensions.cshtml";
 }
 
-<h4>@ViewData["Title"]</h4>
+<h1>@ViewData["Title"]</h1>
 <hr />
 <form asp-action="Create" asp-controller="OrganizationDatabase">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input asp-for="PartyTypeInt" type="hidden" value="0" />
+    <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="Name" class="control-label"></label>
-        <input asp-for="Name" class="form-control" />
+        <input asp-for="Name" class="form-control" aria-required="true" aria-invalid="false" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="Industry" class="control-label"></label>
-        <input asp-for="Industry" class="form-control" id="industryInput">
-    </div>
-    <div class="mb-3">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">@Localizer["PlaceName"]</th>
-                    <th scope="col">@Localizer["FurtherSpecs"]</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            <tbody id="appendPlaceHere">
-            </tbody>
-        </table>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal">
-            @Localizer["Place_Add"]
-        </button>
+        <input asp-for="Industry" class="form-control"/>
     </div>
     <div class="form-group mb-3">
         <label asp-for="WikipediaUrl" class="control-label"></label>
         <input asp-for="WikipediaUrl" class="form-control" />
         <span asp-validation-for="WikipediaUrl" class="text-danger"></span>
     </div>
+    <hr />
+    <h2>@Localizer["ConnectedPlaces"]</h2>
+    <div class="mb-3">
+        <table class="table">
+            <caption class="visually-hidden">@Localizer["ConnectedPlaces"]</caption>
+            <thead>
+                <tr>
+                    <th scope="col">@Localizer["PlaceName"]</th>
+                    <th scope="col">@Localizer["FurtherSpecs"]</th>
+                    <th scope="col">@Localizer["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody id="appendPlaceHere" aria-live="polite" aria-relevant="additions">
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#placeModal" aria-haspopup="dialog" aria-controls="placeModal">
+            @Localizer["Place_Add"]
+        </button>
+    </div>
+    <hr />
+    <h2>@Localizer["ConnectedEras"]</h2>
+    <div class="mb-3">
+        <table class="table">
+            <caption class="visually-hidden">@Localizer["ConnectedEras"]</caption>
+            <thead>
+                <tr>
+                    <th scope="col">@Localizer["EraName"]</th>
+                    <th scope="col">@Localizer["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody id="appendEraHere" aria-live="polite" aria-relevant="additions">
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#EraModal" aria-haspopup="dialog" aria-controls="EraModal">
+            @Localizer["Era_Add"]
+        </button>
+    </div>
 
     <div class="mt-4 pt-3 border-top">
         <button type="submit" class="btn btn-success btn-lg px-5">
             <i class="bi bi-check-circle"></i> @Localizer["Create"]
         </button>
-        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+        <a asp-action="Index" class="btn btn-dark text-white ms-2">
             @Localizer["Cancel"]
         </a>
     </div>
 </form>
 
 <partial name="~/Views/PlaceDatabase/_ModalPlace.cshtml" />
+<partial name="~/Views/EraDatabase/_ModalEra.cshtml" />
 
+@*Hier notwendig, da dynamische asp-validation in addParticipant und addPlace durchgeführt wird*@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
-

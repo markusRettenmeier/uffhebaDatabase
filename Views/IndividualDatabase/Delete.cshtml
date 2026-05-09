@@ -1,0 +1,55 @@
+﻿@model Participant
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Sammlerplattform.Models.ParticipantDatabase
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Individual_Delete"];
+    Layout = "~/Views/Shared/_LayoutSettingsDimensions.cshtml";
+
+    var vm = ParticipantViewModelHelper.FromDomainModel(Model);
+}
+
+<h1>@ViewData["Title"]</h1>
+<h2>@Localizer["Delete_Confirm"]</h2>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.ParticipantName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.Raw(vm.Name)
+        </dd>
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.Individual!.Pseudonym)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.Raw(vm.Pseudonym)
+        </dd>
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.Individual!.Signature)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.Raw(vm.Signature)
+        </dd>
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.ParticipantNPlaceList)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.Raw(vm.Places)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ParticipantID" />
+        <div class="mt-4 pt-3 border-top">
+            <button type="submit" class="btn btn-danger btn-lg px-5">
+                <i class="bi bi-check-circle"></i> @Localizer["Delete"]
+            </button>
+            <a asp-action="Index" class="btn btn-dark text-white ms-2">
+                @Localizer["Cancel"]
+            </a>
+        </div>
+    </form>
+</div>

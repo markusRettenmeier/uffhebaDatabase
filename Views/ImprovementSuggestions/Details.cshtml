@@ -7,9 +7,9 @@
     Layout = "~/Views/Shared/_LayoutSettings.cshtml";
 }
 
-<div class="card">
+<div class="card" aria-labelledby="topicHeader">
 <div class="card-header">
-    <h2>@Model.Title</h2>
+    <h1 id="topicHeader">@Model.Title</h1>
     <small>Erstellt am @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
 </div>
 <div class="card-body">
@@ -19,9 +19,9 @@
         <button class="btn btn-outline-success btn-sm vote-btn" data-type="Up" data-topicId="@Model.Id">
             ↑ Plus (@(Model.VoteList?.Where(v => v.VoteType == VoteType.Up).Count() ?? 0))
         </button>
-        <button class="btn btn-outline-danger btn-sm vote-btn" data-type="Down" data-topicId="@Model.Id">
+        @* <button class="btn btn-outline-danger btn-sm vote-btn" data-type="Down" data-topicId="@Model.Id">
             ↓ Minus (@(Model.VoteList?.Where(v => v.VoteType == VoteType.Down).Count() ?? 0))
-        </button>
+        </button> *@
     </div>
     <div>
         <a asp-action="Edit" asp-route-id="@Model.Id">@Localizer["Edit"]</a> |
@@ -30,31 +30,3 @@
     </div>
 </div>
 
-@* @section Scripts {
-    <script>
-        // Voting für Themen
-        // document.querySelectorAll('.vote-btn').forEach(button => {
-        //     button.addEventListener('click', function() {
-        //         const topicId = this.dataset.topicid;
-        //         const voteType = this.dataset.type;
-
-        //         fetch('/api/collections/VoteTopic', {
-        //             method: 'POST',
-        //             headers: {
-        //                 'Content-Type': 'application/json',
-        //             },
-        //             body: JSON.stringify({
-        //                 topicId: topicId,
-        //                 voteType: voteType
-        //             })
-        //         })
-        //         .then(response => response.json())
-        //         .then(data => {
-        //             if (data.success) {
-        //                 location.reload();
-        //             }
-        //         });
-        //     });
-        // });
-    </script>
-} *@

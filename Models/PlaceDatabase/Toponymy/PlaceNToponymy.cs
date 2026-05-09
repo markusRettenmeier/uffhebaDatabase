@@ -9,11 +9,9 @@ namespace Sammlerplattform.Models.PlaceDatabase.Toponymy
         [Key]
         public int PlaceNToponymyID { get; set; }
 
-        [Required]
         public int PlaceID { get; set; }
         public Place Place { get; set; } = null!;
 
-        [Required]
         public int ToponymyID { get; set; }
         public Toponymy Toponymy { get; set; } = null!;
 

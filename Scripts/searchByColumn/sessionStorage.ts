@@ -1,6 +1,6 @@
-﻿import { columns } from "./columns.js";
-import { createInput, createAddButton, createListBox, createPeriodButton } from "./createElements.js";
-import { addColumn, addField } from "./addElements.js";
+﻿import { columns } from "./columns";
+import { createInput, createAddButton, createListBox, createPeriodButton } from "./createElements";
+import { addColumn, addField } from "./addElements";
 
 export function sessionStorageGetInput(index: number, columnNo: number): void {
     const column = columns[index];

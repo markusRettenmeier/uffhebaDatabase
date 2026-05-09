@@ -1,65 +1,83 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Services;
+using Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses;
 
 namespace Sammlerplattform.Controllers
 {
-    //[Authorize]
-    public class StatePreservationDatabaseController(IProcessStatePreservation processStates) : Controller
+    [Authorize]
+    public class StatePreservationDatabaseController(
+        IProcessStatePreservation processStates,
+        IProcessCollectionArea processCollectionArea) : Controller
     {
         [HandleStatus]
         public IActionResult Index(StatePreservationSearchParameterModel stateSearchParameterModel)
         {
             ViewData["CollectionAreaID"] = stateSearchParameterModel.CollectionArea_CollectionAreaID[0];
+            string? collectionAreaName = processCollectionArea.GetListWithPredicate(new CollectionAreaSearchParameterModel { CollectionAreaID = stateSearchParameterModel.CollectionArea_CollectionAreaID }).Select(x => x.CollectionAreaName).FirstOrDefault();
+            ViewData["CollectionAreaName"] = collectionAreaName ?? string.Empty;
 
             return View(processStates.GetWithPredicates(stateSearchParameterModel));
         }
 
-        [HandleStatus]
-        [HttpGet]
         public ActionResult Create(int collectionAreaID)
         {
-            StatePreservation state = new() { StatePreservationName = string.Empty, CollectionAreaID = collectionAreaID };
-            return View(state);
+            StatePreservationCreateDTO createDTO = new()
+            {
+                Name = string.Empty,
+                CollectionAreaID = collectionAreaID
+            };
+            return View(createDTO);
         }
         [HttpPost]
-        public IActionResult Create(StatePreservation state)
+        public IActionResult Create(StatePreservationCreateDTO createDTO)
         {
             if (!ModelState.IsValid)
             {
-                return View(state);
+                return View(createDTO);
             }
-            (int statusCode, string statusMessage) = processStates.Insert(state);
+            (int statusCode, string statusMessage, int id) = processStates.Insert(createDTO);
 
-            return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
+            if (id > 0)
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
+            else
+                return RedirectToAction(nameof(Index), new { statusMessage, statusCode, CollectionArea_CollectionAreaID = createDTO.CollectionAreaID });
         }
 
         [HandleStatus]
-        [HttpGet]
-        public ActionResult Edit(int statePreservationID)
+        public ActionResult Edit(int id)
         {
-            StatePreservation existingState = processStates.GetWithPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [statePreservationID] }).First();
-            return existingState == null
-                ? RedirectToAction(nameof(Index), new { statusMessage = "Error_StatePreservation_NotFound" })
-                : View(existingState);
+            StatePreservation existingState = processStates.GetWithPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [id] }).First();
+            if (existingState == null)
+                return RedirectToAction(nameof(Index), new { statusMessage = "Error_StatePreservation_NotFound" });
+
+            StatePreservationEditDTO editDTO = new()
+            {
+                Id = existingState.StatePreservationID,
+                Name = existingState.StatePreservationName,
+                CollectionAreaID = existingState.CollectionAreaID,
+                SortingOrder = existingState.SortingOrder
+            };
+            return View(editDTO);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(StatePreservation state)
+        public ActionResult Edit(StatePreservationEditDTO editDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(state);
+                return View(editDto);
             }
-            (int statusCode, string statusMessage) = processStates.Update(state);
+            (int statusCode, string statusMessage, int id) = processStates.Update(editDto);
             if (statusCode == 200)
-                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, state.CollectionAreaID });
+                return RedirectToAction(nameof(Edit), new { statusCode, statusMessage, id });
             else
-                return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
+                return RedirectToAction(nameof(Index), new { statusCode, statusMessage, CollectionArea_CollectionAreaID = editDto.CollectionAreaID });
         }
 
-        [HttpGet]
         public ActionResult Delete(int id)
         {
             StatePreservation existingState = processStates.GetWithPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [id] }).First();
@@ -67,16 +85,16 @@ namespace Sammlerplattform.Controllers
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_StatePreservation_NotFound" })
                 : View(existingState);
         }
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public ActionResult Delete(int statePreservationId, int collectionAreaId)
         {
-            if (id <= 0)
+            if (statePreservationId <= 0)
                 return RedirectToAction(nameof(Index),
                     new { statusMessage = "Error_Invalid_Id" });
-            (int statusCode, string statusMessage) = processStates.Delete(id);
+            (int statusCode, string statusMessage) = processStates.Delete(statePreservationId);
 
-            return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
+            return RedirectToAction(nameof(Index), new { statusCode, statusMessage, CollectionArea_CollectionAreaID = collectionAreaId });
         }
     }
 }

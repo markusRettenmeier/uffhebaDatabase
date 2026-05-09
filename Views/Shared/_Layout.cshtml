@@ -2,16 +2,14 @@
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-bs-theme="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="@Localizer["Meta_Description"]" />
     <title>@ViewData["Title"] - SammlerDB</title>
-    <link rel="stylesheet" href="~/lib/fancybox/fancybox.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/lib/fancybox/fancybox.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
@@ -23,12 +21,12 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Passkey" asp-action="Login">@Localizer["Login"]</a> 
+                            <a class="nav-link text-white" asp-controller="Passkey" asp-action="Login">@Localizer["Login"]</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Passkey" asp-action="Register">@Localizer["Register"]</a>
+                            <a class="nav-link text-white" asp-controller="Passkey" asp-action="Register">@Localizer["Register"]</a>
                         </li>
                     </ul>
                 </div>
@@ -39,7 +37,7 @@
     <div class="container pb-3">
         <partial name="_CookieConsentPartial" />
         <partial name="_StatusMessage" for="@ViewData["StatusMessage"]" />
-        <main role="main">
+        <main>
             @RenderBody()
         </main>
     </div>
@@ -47,13 +45,12 @@
     <partial name="_SettingsCommonFooter" />
 
     <script src="~/lib/jquery/jQuery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script type="module" src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/shared.min.js" asp-append-version="true"></script>
     <script src="~/lib/fancybox/fancybox.umd.js"></script>
-    <script type="module" src="~/js/fancybox-init.js" asp-append-version="true"></script>
-    <script type="module" src="~/js/passkey/login.js" asp-append-version="true"></script>
-    <script type="module" src="~/js/passkey/register.js" asp-append-version="true">
-        </script>
+    <script type="module" src="~/js/fancyboxInit.min.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/pages/login.min.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/pages/register.min.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

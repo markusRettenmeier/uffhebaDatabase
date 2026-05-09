@@ -1,0 +1,195 @@
+﻿@using Sammlerplattform.Models.CollectionItemDatabase
+@using Sammlerplattform.Models.ParticipantDatabase
+@using Sammlerplattform.Models.PlaceDatabase
+@model Sammlerplattform.Models.CollectionItemDatabase.CollectionItemDisplayDTO
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+<div class="row">
+    @if (Model.CollectionItemPictureList.Count > 0)
+    {
+        @for (int i = 0; i < Model.CollectionItemPictureList.Count; i++)
+        {
+            string pathPicture = @"/images/Normal/" + Model.CollectionItemPictureList[i].CollectionItemPictureID + ".webp";
+            <div class="col">
+                <div class="card" style="width: 30rem;">
+                    <img src="@pathPicture" class="card-img-top" alt="@Model.CollectionItemPictureList[i].PerspectiveDisplay @Localizer["Of"] Model.CollectionItemPictureList[i].CollectionItemPictureID">
+                    <div class="card-body">
+                        <p class="card-text" id="pictureHeader_@i">@Model.CollectionItemPictureList[i].PerspectiveDisplay</p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+<dl class="row">
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.UniqueName)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.UniqueName)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.PersonalIdentificationNumber)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.PersonalIdentificationNumber)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.FilingLocation)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.FilingLocation)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.DeliveryPrice)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.DeliveryPrice)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.DeliveryDate)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.DeliveryDate)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.DeliveryAdress)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.DeliveryAdress)
+    </dd>
+    <dt class="col-sm-10">
+        @{
+            bool isFake = Model.CollectionItemEntity.Fake;
+        }
+        <span>@(isFake ? "✔" : "✘")</span>  @Html.DisplayNameFor(model => model.CollectionItemEntity.Fake)
+    </dt>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Width)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Width)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Height)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Height)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Length)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Length)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Diameter)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Diameter)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Weight)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Weight)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Comment)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Comment)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.StatePreservation!.StatePreservationName)
+    </dt>
+    <dd class="col-sm-10">
+        @if (Model.CollectionItemEntity.StatePreservation != null)
+        {
+            string stateName = Model.CollectionItemEntity.StatePreservation.StatePreservationName;
+            @stateName
+        }
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.ExactYear)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.ExactYear)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.StartYear)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.StartYear)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.EndYear)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.EndYear)
+    </dd>
+    <dt class="col-sm-10">
+        @{bool isApproximate = Model.CollectionItemEntity.IsApproximate;}
+        <span>@(isApproximate ? "✔" : "✘")</span> @Html.DisplayNameFor(model => model.CollectionItemEntity.IsApproximate)
+    </dt>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Era)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.Era.EraName)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.Inscription)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.Inscription)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemEntity.CollectionArea)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.CollectionItemEntity.CollectionArea.CollectionAreaName)
+    </dd>
+    <dt class="col-sm-4">
+        @Localizer["Concepts"]
+    </dt>
+    @foreach (var itemValue in Model.ConceptValueList)
+    {
+        @if (itemValue.ValueBool == null)
+        {
+            <dd class="col-sm-10">
+                @itemValue.ConceptName: @itemValue.ValueDisplay
+            </dd>
+        }
+        else {
+            <dd class="col-sm-10">
+                @itemValue.ValueDisplay
+            </dd>
+        }
+    }
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemNParticipantList)
+    </dt>
+    <dd class="col-sm-10">
+        @foreach (var collItemNParticipant in Model.CollectionItemNParticipantList)
+        {
+            var vm = ParticipantViewModelHelper.FromDomainModel(collItemNParticipant.Participant);
+            var text = vm.Name + ", " + @vm.FurtherSpecs + Localizer["As"].Value + collItemNParticipant.RelationType.CollectionItemRelationshipName;
+            @Html.Raw(text)
+            <br />
+        }
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CollectionItemNPlaceList)
+    </dt>
+    <dd class="col-sm-10">
+        @foreach (var collItemNPlace in Model.CollectionItemNPlaceList)
+        {
+            var vm = PlaceViewModelHelper.FromDomainModel(collItemNPlace.Place);
+            var text = vm.Toponymy + ", " + @vm.FurtherSpecs + Localizer["As"].Value + collItemNPlace.RelationType.CollectionItemRelationshipName;
+            @Html.Raw(text)
+            <br />
+        }
+    </dd>
+</dl>

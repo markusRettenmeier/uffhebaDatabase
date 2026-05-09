@@ -1,9 +1,9 @@
-﻿import { id_count, countRemove, decreaseCountRemove, resetCounters } from "./variables.js";
-import { columns } from "./columns.js";
-import { createInput, createAddButton, createListBox, createPeriodButton } from "./createElements.js";
-import { sessionStorageGetInput } from "./sessionStorage.js";
-import { addField, addColumn } from "./addElements.js";
-import { i18n } from "../TranslationService.js";
+﻿import { id_count, countRemove, decreaseCountRemove, resetCounters } from "./variables";
+import { columns } from "./columns";
+import { createInput, createAddButton, createListBox, createPeriodButton } from "./createElements";
+import { sessionStorageGetInput } from "./sessionStorage";
+import { addField, addColumn } from "./addElements";
+import { i18n } from "../TranslationService";
 
 export let columnsSelectedBefore: string[] = [];
 export let chosenColumn: string = "";
@@ -49,7 +49,7 @@ if (window.location.href.includes("/Sammlung")) {
     if (columnNo === 0) {
         const dropdowns = document.querySelectorAll<HTMLSelectElement>("#propertyHolder_0 .columnDropDown");
         dropdowns.forEach(dropdown => {
-            dropdown.value = i18n.get("Option_Select");
+            dropdown.value = i18n.get("Column_Select");
         });
     }
 }
@@ -83,14 +83,14 @@ function changeColumnDropdown(event: Event): void {
 
     if (!parentId || !column) return;
 
-    if (chosenColumn !== i18n.get("Option_Select")) {
+    if (chosenColumn !== i18n.get("Column_Select")) {
         const index = columnsSelectedBefore.indexOf(chosenColumn);
         if (index > -1) {
             columnsSelectedBefore.splice(index, 1);
         }
     }
 
-    if (column !== i18n.get("Option_Select")) {
+    if (column !== i18n.get("Column_Select")) {
         columnsSelectedBefore.push(column);
     }
 
@@ -303,7 +303,7 @@ export function searchReset(): void {
         if (totalInput) totalInput.value = "1";
 
         const columnDropdown = baseForm.querySelector<HTMLSelectElement>(".columnDropDown");
-        if (columnDropdown) columnDropdown.value = i18n.get("Option_Select");
+        if (columnDropdown) columnDropdown.value = i18n.get("Column_Select");
     }
 
     resetCounters();

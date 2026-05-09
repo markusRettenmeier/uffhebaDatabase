@@ -1,17 +1,15 @@
 ﻿using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
-using Sammlerplattform.Models.CollectionItemDatabase.CollectionSetDatabase;
-using Sammlerplattform.Models.CollectionItemDatabase.OwnershipProofPictureDatabase;
+using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemRelationshipDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.VectorSearch;
-//using Sammlerplattform.Models.CollectionItemDatabase.ObjectLayerDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.ImprovementSuggestions;
-using Sammlerplattform.Models.PartyDatabase;
-using Sammlerplattform.Models.PartyDatabase.IndividualDatabase;
-using Sammlerplattform.Models.PartyDatabase.OrganizationDatabase;
+using Sammlerplattform.Models.ParticipantDatabase;
+using Sammlerplattform.Models.ParticipantDatabase.IndividualDatabase;
+using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase;
 using Sammlerplattform.Models.Passkey;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.Toponymy;
@@ -24,17 +22,18 @@ namespace Sammlerplattform.Data
         RelationalBaseRepository<Era> EraRepository { get; }
         RelationalBaseRepository<Industry> IndustryRepository { get; }
         RelationalBaseRepository<CollectionItemPicture> CollectionItemPictureRepository { get; }
-        RelationalBaseRepository<OwnershipProofPicture> OwnershipProofPictureRepository { get; }
         RelationalBaseRepository<StatePreservation> StateRepository { get; }
         RelationalBaseRepository<Place> PlaceRepository { get; }
         RelationalBaseRepository<Toponymy> ToponymyRepository { get; }
-        RelationalBaseRepository<PlaceNToponymy> PlaceNToponomyRepository { get; }  
+        RelationalBaseRepository<PlaceNToponymy> PlaceNToponomyRepository { get; }
         RelationalBaseRepository<PlaceNPlace> PlaceNPlaceRepository { get; }
-        RelationalBaseRepository<Party> PartyRepository { get; }
+        RelationalBaseRepository<Participant> ParticipantRepository { get; }
         RelationalBaseRepository<Individual> IndividualRepository { get; }
         RelationalBaseRepository<Organization> OrganizationRepository { get; }
+        RelationalBaseRepository<ParticipantNPlace> ParticipantNPlaceRepository { get; }
+        RelationalBaseRepository<ParticipantNEra> ParticipantNEraRepository { get; }
         RelationalBaseRepository<CollectionItemNPlace> CollectionItemNPlaceRepository { get; }
-        RelationalBaseRepository<CollectionItemNParty> CollectionItemNPartyRepository { get; }
+        RelationalBaseRepository<CollectionItemNParticipant> CollectionItemNParticipantRepository { get; }
         RelationalBaseRepository<CollectionItemEntity> CollectionItemEntityRepository { get; }
         RelationalBaseRepository<CollectionArea> CollectionAreaRepository { get; }
         RelationalBaseRepository<ConceptValue> ConceptValueRepository { get; }
@@ -42,10 +41,10 @@ namespace Sammlerplattform.Data
         RelationalBaseRepository<ConceptRelationViewModel> ConceptRelationRepository { get; }
         RelationalBaseRepository<CollectionItemEmbedding> CollectionItemEmbeddingRepository { get; }
         RelationalBaseRepository<EntityTranslation> EntityTranslationRepository { get; }
-        RelationalBaseRepository<CollectionSet> SetRepository { get; }
         RelationalBaseRepository<Topic> ForumTopicRepository { get; }
         RelationalBaseRepository<TopicVote> TopicVoteRepository { get; }
         RelationalBaseRepository<FidoCredential> FidoCredentialRepository { get; }
+        RelationalBaseRepository<CollectionItemRelationship> CppRelationshipRepository { get; }
 
         void Save();
     }
@@ -55,17 +54,18 @@ namespace Sammlerplattform.Data
         private RelationalBaseRepository<Era>? eraRepository;
         private RelationalBaseRepository<Industry>? industryRepository;
         private RelationalBaseRepository<CollectionItemPicture>? collectionItemPictureRepository;
-        private RelationalBaseRepository<OwnershipProofPicture>? ownershipProofPictureRepository;
         private RelationalBaseRepository<StatePreservation>? stateRepository;
         private RelationalBaseRepository<Place>? placeRepository;
         private RelationalBaseRepository<Toponymy>? toponymyRepository;
-        private RelationalBaseRepository<PlaceNToponymy>? placeNToponymyRepository;    
+        private RelationalBaseRepository<PlaceNToponymy>? placeNToponymyRepository;
         private RelationalBaseRepository<PlaceNPlace>? placeNPlaceRepository;
-        private RelationalBaseRepository<Party>? partyRepository;
+        private RelationalBaseRepository<Participant>? participantRepository;
         private RelationalBaseRepository<Individual>? individualRepository;
         private RelationalBaseRepository<Organization>? organizationRepository;
+        private RelationalBaseRepository<ParticipantNPlace>? participantNPlaceRepository;
+        private RelationalBaseRepository<ParticipantNEra>? participantNEraRepository;
         private RelationalBaseRepository<CollectionItemNPlace>? collectionItemNPlaceRepository;
-        private RelationalBaseRepository<CollectionItemNParty>? collectionItemNPartyRepository;
+        private RelationalBaseRepository<CollectionItemNParticipant>? collectionItemNParticipantRepository;
         private RelationalBaseRepository<CollectionItemEntity>? collectionItemEntityRepository;
         private RelationalBaseRepository<CollectionArea>? collectionAreaRepository;
         private RelationalBaseRepository<ConceptValue>? conceptValueRepository;
@@ -73,10 +73,10 @@ namespace Sammlerplattform.Data
         private RelationalBaseRepository<ConceptRelationViewModel>? conceptRelationRepository;
         private RelationalBaseRepository<CollectionItemEmbedding>? collectionItemEmbeddingRepository;
         private RelationalBaseRepository<EntityTranslation>? entityTranslationRepository;
-        private RelationalBaseRepository<CollectionSet>? setRepository;
         private RelationalBaseRepository<Topic>? forumTopicRepository;
         private RelationalBaseRepository<TopicVote>? topicVoteRepository;
         private RelationalBaseRepository<FidoCredential>? fidoCredentialRepository;
+        private RelationalBaseRepository<CollectionItemRelationship>? cppRelationshipRepository;
 
         public RelationalBaseRepository<CollectionItemEmbedding> CollectionItemEmbeddingRepository
         {
@@ -108,14 +108,6 @@ namespace Sammlerplattform.Data
             {
                 collectionItemPictureRepository ??= new RelationalBaseRepository<CollectionItemPicture>(context);
                 return collectionItemPictureRepository;
-            }
-        }
-        public RelationalBaseRepository<OwnershipProofPicture> OwnershipProofPictureRepository
-        {
-            get
-            {
-                ownershipProofPictureRepository ??= new RelationalBaseRepository<OwnershipProofPicture>(context);
-                return ownershipProofPictureRepository;
             }
         }
         public RelationalBaseRepository<StatePreservation> StateRepository
@@ -158,12 +150,12 @@ namespace Sammlerplattform.Data
                 return placeNToponymyRepository;
             }
         }
-        public RelationalBaseRepository<Party> PartyRepository
+        public RelationalBaseRepository<Participant> ParticipantRepository
         {
             get
             {
-                partyRepository ??= new RelationalBaseRepository<Party>(context);
-                return partyRepository;
+                participantRepository ??= new RelationalBaseRepository<Participant>(context);
+                return participantRepository;
             }
         }
         public RelationalBaseRepository<Individual> IndividualRepository
@@ -182,6 +174,22 @@ namespace Sammlerplattform.Data
                 return organizationRepository;
             }
         }
+        public RelationalBaseRepository<ParticipantNPlace> ParticipantNPlaceRepository
+        {
+            get
+            {
+                participantNPlaceRepository ??= new RelationalBaseRepository<ParticipantNPlace>(context);
+                return participantNPlaceRepository;
+            }
+        }
+        public RelationalBaseRepository<ParticipantNEra> ParticipantNEraRepository
+        {
+            get
+            {
+                participantNEraRepository ??= new RelationalBaseRepository<ParticipantNEra>(context);
+                return participantNEraRepository;
+            }
+        }
         public RelationalBaseRepository<CollectionItemNPlace> CollectionItemNPlaceRepository
         {
             get
@@ -190,12 +198,12 @@ namespace Sammlerplattform.Data
                 return collectionItemNPlaceRepository;
             }
         }
-        public RelationalBaseRepository<CollectionItemNParty> CollectionItemNPartyRepository
+        public RelationalBaseRepository<CollectionItemNParticipant> CollectionItemNParticipantRepository
         {
             get
             {
-                collectionItemNPartyRepository ??= new RelationalBaseRepository<CollectionItemNParty>(context);
-                return collectionItemNPartyRepository;
+                collectionItemNParticipantRepository ??= new RelationalBaseRepository<CollectionItemNParticipant>(context);
+                return collectionItemNParticipantRepository;
             }
         }
         public RelationalBaseRepository<CollectionItemEntity> CollectionItemEntityRepository
@@ -246,15 +254,6 @@ namespace Sammlerplattform.Data
                 return entityTranslationRepository;
             }
         }
-
-        public RelationalBaseRepository<CollectionSet> SetRepository
-        {
-            get
-            {
-                setRepository ??= new RelationalBaseRepository<CollectionSet>(context);
-                return setRepository;
-            }
-        }
         public RelationalBaseRepository<Topic> ForumTopicRepository
         {
             get
@@ -277,6 +276,14 @@ namespace Sammlerplattform.Data
             {
                 fidoCredentialRepository ??= new RelationalBaseRepository<FidoCredential>(context);
                 return fidoCredentialRepository;
+            }
+        }
+        public RelationalBaseRepository<CollectionItemRelationship> CppRelationshipRepository
+        {
+            get
+            {
+                cppRelationshipRepository ??= new RelationalBaseRepository<CollectionItemRelationship>(context);
+                return cppRelationshipRepository;
             }
         }
 

@@ -15,14 +15,14 @@ namespace Sammlerplattform.Controllers
 
             var keys = new[]
             {
-                "Details", "NothingFound", "RelatedGeography_Add", "Place_Add", "CookieConsent_Text ",
-                "Concept_SynonymAdd", "Concept_SubTermAdd", "Add", "Option_Select", 
+                "Details", "NothingFound", "Place_Add", "CookieConsent_Text ",
+                "Concept_SynonymAdd", "Concept_SubTermAdd", "Add", "Column_Select",
                 "Individual", "Organization", "Concept_ParentConceptAdd", "SubTermOf",
-                "Company", "Institution", "Other", "NumberRange_Change", "Remove",
-                "IsPrimaryMaterial", "Material_Select", "Side_Front", "Side_Back", "Side_Left", "Side_Right", "Side_Top", 
+                "NumberRange_Change", "Remove", "Side_Front", "Side_Back", "Side_Left", "Side_Right", "Side_Top",
                 "Side_Bottom", "to", "Toponymy", "IsCurrentName", "ToponymyName", "EnterToponymy",
                 "OwnershipProof_Type_BillOfSale", "OwnershipProof_Type_Certificate", "OwnershipProof_Type_Other",
-                "Error_DisplayName_Missing", "Error_DisplayName_StringLength", "Error_Email_NotValid"
+                "Error_DisplayName_Missing", "Error_DisplayName_StringLength", "Error_Email_NotValid",
+                "Error_Relationship_Required"
             };
 
             foreach (var key in keys)

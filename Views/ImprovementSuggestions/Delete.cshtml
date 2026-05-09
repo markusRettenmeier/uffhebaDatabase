@@ -7,8 +7,8 @@
     Layout = "~/Views/Shared/_LayoutSettings.cshtml";
 }
 
-<h3>@ViewData["Title"]</h3>
-<h4>@Localizer["Delete_Confirm"]</h4>
+<h1>@ViewData["Title"]</h1>
+<h2>@Localizer["Delete_Confirm"]</h2>
 <hr />
 <dl class="row">
     <dt class = "col-sm-2">
@@ -43,7 +43,7 @@
         <button class="btn btn-danger btn-lg px-5">
             <i class="bi bi-check-circle"></i>@Localizer["Delete"]
         </button>
-        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+        <a asp-action="Index" class="btn btn-dark text-white ms-2">
             @Localizer["Cancel"]
         </a>
     </div>

@@ -8,14 +8,15 @@
     Layout = "~/Views/Shared/_LayoutSettings.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1>@ViewData["Title"] - @ViewData["CollectionAreaName"]</h1>
 <p>@Localizer["Info_Delete_NotAllowed"]</p>
 <hr />
 
 <p>
-    <a type="button" href="/StateDatabase/Create?collectionAreaID=@ViewData["CollectionAreaID"]" class="btn btn-success">@Localizer["Create"]</a>
+    <a type="button" href="/StatePreservationDatabase/Create?collectionAreaID=@ViewData["CollectionAreaID"]" class="btn btn-success">@Localizer["Create"]</a>
 </p>
 <table class="table">
+    <caption class="visually-hidden">@Localizer["StatePreservation"]</caption>
     <thead>
         <tr>
             <th>
@@ -24,10 +25,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.SortingOrder)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsGeneralState)
-            </th>
-            <th></th>
+            <th>@Localizer["Actions"]</th>
         </tr>
     </thead>
     <tbody>
@@ -41,11 +39,12 @@
                     @Html.DisplayFor(modelItem => item.SortingOrder)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.IsGeneralState)
-                </td>
-                <td>
-                    @if(!item.IsGeneralState) {
-                        <a asp-action="Edit" asp-route-statePreservationID="@item.StatePreservationID">@Localizer["Edit"]</a>
+                    <a asp-action="Edit" asp-route-id="@item.StatePreservationID">@Localizer["Edit"]</a> |
+                    @{
+                        var isDeletable = item.CollectionItemEntityList.Count == 0;
+                        if(isDeletable){
+                            <a asp-action="Delete" asp-route-id="@item.StatePreservationID">@Localizer["Delete"]</a>
+                        }
                     }
                 </td>
             </tr>

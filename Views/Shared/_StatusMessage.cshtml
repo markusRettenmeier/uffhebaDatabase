@@ -13,7 +13,7 @@
     {
         statusMessageClass = "success";
     }
-    <div class="alert alert-@statusMessageClass alert-dismissible" role="alert">
+    <div class="alert alert-@statusMessageClass alert-dismissible" role="alert" aria-live="assertive">
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@Localizer["Close"]"></button>
         @statusMessage
     </div>
