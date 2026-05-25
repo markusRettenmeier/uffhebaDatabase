@@ -65,7 +65,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 {
                     { "CollecitonItemRelationshipId", id }
                 });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
         }
 
@@ -131,7 +131,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 {
                     { "CollecitonItemRelationship", createDTO.Name }
                 });
-                return (500, "Error_Error_Ocurred", 0);
+                return (500, "Error_Unknown", 0);
             }
         }
 
@@ -175,7 +175,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     { "CollecitonItemRelationshipId", editDto.Id },
                     { "NewName", editDto.Name }
                 });
-                return (500, "Error_Error_Ocurred", editDto.Id);
+                return (500, "Error_Unknown", editDto.Id);
             }
         }
 

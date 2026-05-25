@@ -1,6 +1,7 @@
 ﻿using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
+using Sammlerplattform.Models.ConceptualRelationshipDatabase.ConceptValueDatabase;
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Resources;
 using System.ComponentModel.DataAnnotations;

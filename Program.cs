@@ -181,6 +181,14 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     _ = app.UseHsts();
 }
+//app.MapGet("/env", (IConfiguration config, IWebHostEnvironment env) =>
+//{
+//    return Results.Json(new
+//    {
+//        Environment = env.EnvironmentName,
+//        FidoDomain = config["Fido2:ServerDomain"]
+//    });
+//});
 
 app.UseResponseCaching();
 app.UseHttpsRedirection();
@@ -193,5 +201,61 @@ app.UseAuthorization();
 app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Frontpage}");
+
+app.Use((context, next) =>
+{
+    // Füge Link-Header nur für die Startseite hinzu
+    if (context.Request.Path == "/")
+    {
+        // RFC 8288 konformer Link-Header
+        // Mehrere Links werden durch Kommas getrennt
+        context.Response.Headers.Append(
+            "Link",
+            "</.well-known/api-catalog>; rel=\"api-catalog\", " +
+            "</docs/api>; rel=\"service-doc\", " +
+            "<https://uffheba.online/Home/Details>; rel=\"contents\""
+        );
+    }
+    return next();
+});
+
+app.Use(async (context, next) =>
+{
+    // Prüfen, ob der Client Markdown möchte
+    if (context.Request.Headers.Accept.ToString().Contains("text/markdown"))
+    {
+        // Ursprünglichen Response-Stream speichern
+        var originalStream = context.Response.Body;
+        using var memoryStream = new MemoryStream();
+        context.Response.Body = memoryStream;
+
+        await next(); // HTML wird normal generiert
+
+        // HTML aus dem Stream lesen
+        memoryStream.Seek(0, SeekOrigin.Begin);
+        var html = await new StreamReader(memoryStream).ReadToEndAsync();
+
+        // HTML zu Markdown konvertieren (z. B. mit ReverseMarkdown)
+        var config = new ReverseMarkdown.Config
+        {
+            GithubFlavored = true,
+            RemoveComments = true,
+            SmartHrefHandling = true
+        };
+        var converter = new ReverseMarkdown.Converter(config);
+        var markdown = converter.Convert(html);
+
+        // Response anpassen
+        context.Response.Body = originalStream;
+        context.Response.ContentType = "text/markdown";
+        int estimateCount = markdown.Length / 4; // Grobe Schätzung: 1 Token ≈ 4 Zeichen
+        context.Response.Headers["x-markdown-tokens"] = estimateCount.ToString();
+        await context.Response.WriteAsync(markdown);
+    }
+    else
+    {
+        await next(); // Normale HTML-Antwort
+    }
+});
 
 app.Run();

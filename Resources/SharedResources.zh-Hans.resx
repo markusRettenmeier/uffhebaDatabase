@@ -195,9 +195,6 @@
   <data name="Industry" xml:space="preserve">
     <value>行业</value>
   </data>
-  <data name="to" xml:space="preserve">
-    <value>至</value>
-  </data>
   <data name="Success_Profile_Change" xml:space="preserve">
     <value>个人资料已成功修改。</value>
   </data>
@@ -392,9 +389,6 @@
   </data>
   <data name="Success_CollectionArea_Created" xml:space="preserve">
     <value>已成功创建收藏夹。</value>
-  </data>
-  <data name="Error_Error_Ocurred" xml:space="preserve">
-    <value>已发生技术故障并已记录在案。我们将尽快予以修复。</value>
   </data>
   <data name="Success_CollectionArea_Updated" xml:space="preserve">
     <value>收藏领域已成功更改。</value>
@@ -640,7 +634,7 @@
     <value>同义词</value>
   </data>
   <data name="SubTermOf" xml:space="preserve">
-    <value>子类</value>
+    <value>“的子类”</value>
   </data>
   <data name="BackToList" xml:space="preserve">
     <value>返回列表</value>
@@ -712,7 +706,7 @@
     <value>更改收藏类别</value>
   </data>
   <data name="CollectionArea_Structure" xml:space="preserve">
-    <value>收藏领域的构建</value>
+    <value>收藏领域的管理与建设</value>
   </data>
   <data name="CollectionItemEntity_Create" xml:space="preserve">
     <value>制作收藏品</value>
@@ -1100,7 +1094,7 @@
     <value>访问被拒绝</value>
   </data>
   <data name="Meta_Description" xml:space="preserve">
-    <value>适用于所有收藏领域的灵活收藏平台：创建收藏领域并动态定义其分类，清晰管理自己的收藏品，并在一处浏览其他用户的收藏。</value>
+    <value>专为收藏爱好者打造的管理平台：清晰管理您的收藏，动态定义分类，并探索其他用户的收藏——所有功能一应俱全。</value>
   </data>
   <data name="EnterToponymy" xml:space="preserve">
     <value>输入地名</value>
@@ -1121,7 +1115,7 @@
     <value>“时代”已成功删除。</value>
   </data>
   <data name="Error_CollectionAreaId_IsMissing" xml:space="preserve">
-    <value>缺少集合区域ID。</value>
+    <value>缺少收款区域 ID。</value>
   </data>
   <data name="EndYear" xml:space="preserve">
     <value>年末</value>
@@ -1320,5 +1314,162 @@
   </data>
   <data name="Error_DisplayName_StringLength" xml:space="preserve">
     <value>显示名称必须为2至100个字符。</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>用户名</value>
+  </data>
+  <data name="NoAccountYet" xml:space="preserve">
+    <value>还没有账号吗？</value>
+  </data>
+  <data name="SearchAvailablePasskeys" xml:space="preserve">
+    <value>查找可用的通行密钥</value>
+  </data>
+  <data name="AllAvailablePasskeys" xml:space="preserve">
+    <value>若要查看所有可用的通行密钥，请将该字段留空。</value>
+  </data>
+  <data name="Success_Passkey_Registered" xml:space="preserve">
+    <value>密钥已成功注册！</value>
+  </data>
+  <data name="Error_PasskeyForUser_NotFound" xml:space="preserve">
+    <value>未找到用户 {0} 的通行密钥。</value>
+  </data>
+  <data name="EnterUserNameOrAllAvailablePasskey" xml:space="preserve">
+    <value>请输入您的用户名，或点击“可用密钥”。</value>
+  </data>
+  <data name="WebAuthnNotSupported" xml:space="preserve">
+    <value>此浏览器不支持 WebAuthn</value>
+  </data>
+  <data name="Error_DisplayName_Required" xml:space="preserve">
+    <value>请输入屏幕名称。</value>
+  </data>
+  <data name="WebAuthn_Supported" xml:space="preserve">
+    <value>支持 WebAuthn / 密钥</value>
+  </data>
+  <data name="Preparing" xml:space="preserve">
+    <value>正在准备中……</value>
+  </data>
+  <data name="Error_Server_Error" xml:space="preserve">
+    <value>服务器错误</value>
+  </data>
+  <data name="Register_Completing" xml:space="preserve">
+    <value>正在完成……</value>
+  </data>
+  <data name="Register_Redirect" xml:space="preserve">
+    <value>您即将被重定向……</value>
+  </data>
+  <data name="Error_Browser_NotSupported" xml:space="preserve">
+    <value>您的浏览器或设备不支持密钥。</value>
+  </data>
+  <data name="Error_HTTPS_Required" xml:space="preserve">
+    <value>安全错误：必须通过HTTPS访问此页面。</value>
+  </data>
+  <data name="Error_Passkey_AlreadyRegistered" xml:space="preserve">
+    <value>该通行密钥已注册。</value>
+  </data>
+  <data name="Error_PasskeyRegistery_Cancelled" xml:space="preserve">
+    <value>密钥的生成已被取消。</value>
+  </data>
+  <data name="Error_Username_AlreadyTaken" xml:space="preserve">
+    <value>密钥的生成已被取消。</value>
+  </data>
+  <data name="Register_Username_File_Content" xml:space="preserve">
+    <value>请准备好这个用户名：
+
+{0}
+
+您将来登录时需要使用这个用户名！</value>
+  </data>
+  <data name="Error_WaitingResponse" xml:space="preserve">
+    <value>请稍候，上一次操作仍在进行中。</value>
+  </data>
+  <data name="Login_PleaseAuthenticate" xml:space="preserve">
+    <value>请使用您的通行密钥进行身份验证……</value>
+  </data>
+  <data name="Error_AssertionOptions_Ocurred" xml:space="preserve">
+    <value>无法获取断言选项</value>
+  </data>
+  <data name="Login_Verifizing" xml:space="preserve">
+    <value>正在验证登录信息...</value>
+  </data>
+  <data name="Success_Login" xml:space="preserve">
+    <value>注册成功！您将被重定向至下一页面...</value>
+  </data>
+  <data name="Error_VerifyAssertion_Ocurred" xml:space="preserve">
+    <value>验证断言失败。</value>
+  </data>
+  <data name="Error_UserName_Required" xml:space="preserve">
+    <value>请输入您的用户名。</value>
+  </data>
+  <data name="Error_Register_Aborted" xml:space="preserve">
+    <value>注册已取消。</value>
+  </data>
+  <data name="Error_PasskeyChallenge_Required" xml:space="preserve">
+    <value>服务器响应无效：缺少验证码</value>
+  </data>
+  <data name="Error_PasskeyUserId_Missing" xml:space="preserve">
+    <value>服务器响应无效：缺少用户 ID</value>
+  </data>
+  <data name="Login_Success" xml:space="preserve">
+    <value>注册成功。</value>
+  </data>
+  <data name="SubConceptNameList" xml:space="preserve">
+    <value>所有子概念</value>
+  </data>
+  <data name="Error_Concept_AssignedToCollectionArea" xml:space="preserve">
+    <value>该术语指代收藏领域。</value>
+  </data>
+  <data name="Concept_Select_Description" xml:space="preserve">
+    <value>选择术语以建立关联。</value>
+  </data>
+  <data name="Era_Select_Description" xml:space="preserve">
+    <value>选择时代以进行连接。</value>
+  </data>
+  <data name="Participant_Select_Description" xml:space="preserve">
+    <value>选择参与者以与其建立连接。</value>
+  </data>
+  <data name="Place_Select_Description" xml:space="preserve">
+    <value>选择要连接的位置。</value>
+  </data>
+  <data name="Error_RelationType_Required" xml:space="preserve">
+    <value>缺少关系类型。</value>
+  </data>
+  <data name="Error_RelationType_Range" xml:space="preserve">
+    <value>缺少关系类型。</value>
+  </data>
+  <data name="Error_Passkeys_NotFound" xml:space="preserve">
+    <value>未找到任何通行密钥。</value>
+  </data>
+  <data name="Error_Authentication_Failed" xml:space="preserve">
+    <value>身份验证失败。请重试。</value>
+  </data>
+  <data name="Error_Credential_NotFound" xml:space="preserve">
+    <value>未找到密码。请重新注册。</value>
+  </data>
+  <data name="Error_Authentication_Cancelled" xml:space="preserve">
+    <value>登录已中断。</value>
+  </data>
+  <data name="Error_WebAuthn_NotSupported" xml:space="preserve">
+    <value>您的浏览器不支持密钥。请使用现代浏览器。</value>
+  </data>
+  <data name="Error_Security_HTTPS_Required" xml:space="preserve">
+    <value>安全错误：登录需要HTTPS连接。</value>
+  </data>
+  <data name="Error_Timeout" xml:space="preserve">
+    <value>登录耗时过长。请重试。</value>
+  </data>
+  <data name="Error_Network" xml:space="preserve">
+    <value>网络错误。请检查您的互联网连接。</value>
+  </data>
+  <data name="Error_Unknown" xml:space="preserve">
+    <value>已发生技术故障并已记录在案。我们将尽快予以修复。</value>
+  </data>
+  <data name="Author_Contact" xml:space="preserve">
+    <value>您可以通过以下方式联系作者：</value>
+  </data>
+  <data name="Or" xml:space="preserve">
+    <value>奥德河</value>
+  </data>
+  <data name="Error_RelationId_Range" xml:space="preserve">
+    <value>关系 ID 必须大于 1。</value>
   </data>
 </root>

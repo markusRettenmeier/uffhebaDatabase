@@ -67,7 +67,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                 {
                     { "Era", createDTO}
                 });
-                return (500, "Error_Error_Ocurred", 0);
+                return (500, "Error_Unknown", 0);
             }
         }
 
@@ -121,7 +121,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                 {
                     { "Era", edit}
                 });
-                return (500, "Error_Error_Ocurred", 0);
+                return (500, "Error_Unknown", 0);
             }
         }
 
@@ -186,7 +186,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                 {
                     { "EraId", id}
                 });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
         }
     }

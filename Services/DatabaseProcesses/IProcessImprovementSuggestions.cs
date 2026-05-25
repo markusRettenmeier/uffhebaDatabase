@@ -47,7 +47,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "ImprovementSuggestionsProcessor.Insert");
-                return (500, "Error_Error_Ocurred", 0);
+                return (500, "Error_Unknown", 0);
             }
         }
 
@@ -85,7 +85,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "ImprovementSuggestionsProcessor.Update");
-                return (500, "Error_Error_Ocurred", 0);
+                return (500, "Error_Unknown", 0);
             }
         }
 
@@ -105,7 +105,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "ImprovementSuggestionsProcessor.Delete");
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
         }
     }

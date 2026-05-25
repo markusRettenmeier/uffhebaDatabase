@@ -195,9 +195,6 @@
   <data name="Industry" xml:space="preserve">
     <value>Secteur</value>
   </data>
-  <data name="to" xml:space="preserve">
-    <value>trop</value>
-  </data>
   <data name="Success_Profile_Change" xml:space="preserve">
     <value>Le profil a été modifié avec succès.</value>
   </data>
@@ -392,9 +389,6 @@
   </data>
   <data name="Success_CollectionArea_Created" xml:space="preserve">
     <value>Zone de collecte créée avec succès.</value>
-  </data>
-  <data name="Error_Error_Ocurred" xml:space="preserve">
-    <value>Une erreur technique s'est produite et a été enregistrée. Nous la corrigerons dès que possible.</value>
   </data>
   <data name="Success_CollectionArea_Updated" xml:space="preserve">
     <value>La zone de collecte a été modifiée avec succès.</value>
@@ -640,7 +634,7 @@
     <value>Synonyme de</value>
   </data>
   <data name="SubTermOf" xml:space="preserve">
-    <value>Sous-catégorie</value>
+    <value>Sous-catégorie de</value>
   </data>
   <data name="BackToList" xml:space="preserve">
     <value>Retour à la liste</value>
@@ -712,7 +706,7 @@
     <value>Modifier la zone de collecte</value>
   </data>
   <data name="CollectionArea_Structure" xml:space="preserve">
-    <value>Structure des zones de collecte</value>
+    <value>Gestion et mise en place des domaines de collecte</value>
   </data>
   <data name="CollectionItemEntity_Create" xml:space="preserve">
     <value>Créer un objet de collection</value>
@@ -1099,7 +1093,7 @@
     <value>Accès refusé</value>
   </data>
   <data name="Meta_Description" xml:space="preserve">
-    <value>Une plateforme de collection flexible pour tous les domaines de collection : créez des domaines de collection et définissez leurs critères de manière dynamique, gérez clairement vos propres objets de collection et découvrez les collections d'autres utilisateurs en un seul endroit.</value>
+    <value>Une plateforme de gestion pour les collectionneurs passionnés : gérez vos collections de manière claire, définissez des catégories de manière dynamique et découvrez les collections d'autres utilisateurs, le tout en un seul endroit.</value>
   </data>
   <data name="EnterToponymy" xml:space="preserve">
     <value>Entrer le nom du lieu</value>
@@ -1320,7 +1314,161 @@
   <data name="Error_DisplayName_StringLength" xml:space="preserve">
     <value>Le nom affiché doit comporter entre 2 et 100 caractères.</value>
   </data>
-  <data name="Error_ModelState_Invalid" xml:space="preserve">
-    <value>Entrées incorrectes.</value>
+  <data name="UserName" xml:space="preserve">
+    <value>Nom d'utilisateur</value>
+  </data>
+  <data name="NoAccountYet" xml:space="preserve">
+    <value>Vous n'avez pas encore de compte ?</value>
+  </data>
+  <data name="SearchAvailablePasskeys" xml:space="preserve">
+    <value>Rechercher les clés d'accès disponibles</value>
+  </data>
+  <data name="AllAvailablePasskeys" xml:space="preserve">
+    <value>Laissez ce champ vide pour afficher toutes les clés d'accès disponibles.</value>
+  </data>
+  <data name="Success_Passkey_Registered" xml:space="preserve">
+    <value>La clé d'accès a été enregistrée avec succès !</value>
+  </data>
+  <data name="Error_PasskeyForUser_NotFound" xml:space="preserve">
+    <value>Aucune clé d'accès n'a été trouvée pour l'utilisateur {0}.</value>
+  </data>
+  <data name="EnterUserNameOrAllAvailablePasskey" xml:space="preserve">
+    <value>Saisissez votre nom d'utilisateur ou cliquez sur « Clés d'accès disponibles ».</value>
+  </data>
+  <data name="WebAuthnNotSupported" xml:space="preserve">
+    <value>WebAuthn n'est pas pris en charge par ce navigateur</value>
+  </data>
+  <data name="Error_DisplayName_Required" xml:space="preserve">
+    <value>Vous devez saisir un nom d'écran.</value>
+  </data>
+  <data name="WebAuthn_Supported" xml:space="preserve">
+    <value>WebAuthn / Passkeys sont pris en charge</value>
+  </data>
+  <data name="Preparing" xml:space="preserve">
+    <value>En cours de préparation...</value>
+  </data>
+  <data name="Error_Server_Error" xml:space="preserve">
+    <value>Erreur serveur</value>
+  </data>
+  <data name="Register_Completing" xml:space="preserve">
+    <value>En cours de finalisation...</value>
+  </data>
+  <data name="Register_Redirect" xml:space="preserve">
+    <value>Vous allez être redirigé(e) dans quelques instants...</value>
+  </data>
+  <data name="Error_Browser_NotSupported" xml:space="preserve">
+    <value>Votre navigateur ou votre appareil ne prend pas en charge les clés d'accès.</value>
+  </data>
+  <data name="Error_HTTPS_Required" xml:space="preserve">
+    <value>Erreur de sécurité : cette page doit être consultée via HTTPS.</value>
+  </data>
+  <data name="Error_Passkey_AlreadyRegistered" xml:space="preserve">
+    <value>Ce mot de passe est déjà enregistré.</value>
+  </data>
+  <data name="Error_PasskeyRegistery_Cancelled" xml:space="preserve">
+    <value>La création de la clé d'accès a été interrompue.</value>
+  </data>
+  <data name="Error_Username_AlreadyTaken" xml:space="preserve">
+    <value>La création de la clé d'accès a été interrompue.</value>
+  </data>
+  <data name="Register_Username_File_Content" xml:space="preserve">
+    <value>Veuillez noter ce nom d'utilisateur :
+
+{0}
+
+Vous en aurez besoin pour vous connecter ultérieurement !</value>
+  </data>
+  <data name="Error_WaitingResponse" xml:space="preserve">
+    <value>Veuillez patienter, la tentative précédente est toujours en cours.</value>
+  </data>
+  <data name="Login_PleaseAuthenticate" xml:space="preserve">
+    <value>Veuillez vous authentifier à l'aide de votre mot de passe...</value>
+  </data>
+  <data name="Error_AssertionOptions_Ocurred" xml:space="preserve">
+    <value>Impossible d'obtenir les options d'assertion</value>
+  </data>
+  <data name="Login_Verifizing" xml:space="preserve">
+    <value>La connexion est en cours de vérification...</value>
+  </data>
+  <data name="Success_Login" xml:space="preserve">
+    <value>Inscription réussie ! Vous allez être redirigé...</value>
+  </data>
+  <data name="Error_VerifyAssertion_Ocurred" xml:space="preserve">
+    <value>Vérifiez qu'une erreur d'assertion s'est produite.</value>
+  </data>
+  <data name="Error_UserName_Required" xml:space="preserve">
+    <value>Veuillez saisir votre nom d'utilisateur.</value>
+  </data>
+  <data name="Error_Register_Aborted" xml:space="preserve">
+    <value>L'inscription a été annulée.</value>
+  </data>
+  <data name="Error_PasskeyChallenge_Required" xml:space="preserve">
+    <value>Réponse du serveur non valide : défi manquant</value>
+  </data>
+  <data name="Error_PasskeyUserId_Missing" xml:space="preserve">
+    <value>Réponse du serveur non valide : user.id manquant</value>
+  </data>
+  <data name="Login_Success" xml:space="preserve">
+    <value>L'inscription a été enregistrée.</value>
+  </data>
+  <data name="SubConceptNameList" xml:space="preserve">
+    <value>Tous les sous-concepts</value>
+  </data>
+  <data name="Error_Concept_AssignedToCollectionArea" xml:space="preserve">
+    <value>Ce terme fait référence à un domaine de collection.</value>
+  </data>
+  <data name="Concept_Select_Description" xml:space="preserve">
+    <value>Sélectionnez un terme pour y accéder.</value>
+  </data>
+  <data name="Era_Select_Description" xml:space="preserve">
+    <value>Sélectionnez l'époque pour vous y connecter.</value>
+  </data>
+  <data name="Participant_Select_Description" xml:space="preserve">
+    <value>Sélectionnez un participant pour vous connecter avec lui.</value>
+  </data>
+  <data name="Place_Select_Description" xml:space="preserve">
+    <value>Choisissez un emplacement pour le brancher.</value>
+  </data>
+  <data name="Error_RelationType_Required" xml:space="preserve">
+    <value>Le type de relation manque.</value>
+  </data>
+  <data name="Error_RelationType_Range" xml:space="preserve">
+    <value>Le type de relation manque.</value>
+  </data>
+  <data name="Error_Passkeys_NotFound" xml:space="preserve">
+    <value>Aucune clé d'accès n'a été trouvée.</value>
+  </data>
+  <data name="Error_Authentication_Failed" xml:space="preserve">
+    <value>L'authentification a échoué. Veuillez réessayer.</value>
+  </data>
+  <data name="Error_Credential_NotFound" xml:space="preserve">
+    <value>Le mot de passe n'a pas été trouvé. Veuillez vous réinscrire.</value>
+  </data>
+  <data name="Error_Authentication_Cancelled" xml:space="preserve">
+    <value>La connexion a été interrompue.</value>
+  </data>
+  <data name="Error_WebAuthn_NotSupported" xml:space="preserve">
+    <value>Votre navigateur ne prend pas en charge les clés d'accès. Veuillez utiliser un navigateur moderne.</value>
+  </data>
+  <data name="Error_Security_HTTPS_Required" xml:space="preserve">
+    <value>Erreur de sécurité : la connexion nécessite une connexion HTTPS.</value>
+  </data>
+  <data name="Error_Timeout" xml:space="preserve">
+    <value>La connexion a pris trop de temps. Veuillez réessayer.</value>
+  </data>
+  <data name="Error_Network" xml:space="preserve">
+    <value>Erreur réseau. Veuillez vérifier votre connexion Internet.</value>
+  </data>
+  <data name="Error_Unknown" xml:space="preserve">
+    <value>Une erreur technique s'est produite et a été enregistrée. Nous la corrigerons dès que possible.</value>
+  </data>
+  <data name="Author_Contact" xml:space="preserve">
+    <value>Vous pouvez contacter l'auteur via</value>
+  </data>
+  <data name="Or" xml:space="preserve">
+    <value>Ou</value>
+  </data>
+  <data name="Error_RelationId_Range" xml:space="preserve">
+    <value>L'identifiant de relation doit être supérieur à 1.</value>
   </data>
 </root>

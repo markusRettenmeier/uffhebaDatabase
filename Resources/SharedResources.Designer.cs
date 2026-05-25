@@ -133,11 +133,29 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Leaave this field empty for all accessible passkeys ähnelt.
+        /// </summary>
+        public static string AllAvailablePasskeys {
+            get {
+                return ResourceManager.GetString("AllAvailablePasskeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die  as  ähnelt.
         /// </summary>
         public static string As {
             get {
                 return ResourceManager.GetString("As", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die You can contact author at ähnelt.
+        /// </summary>
+        public static string Author_Contact {
+            get {
+                return ResourceManager.GetString("Author_Contact", resourceCulture);
             }
         }
         
@@ -250,7 +268,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Collection area structure ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Collection Area Management and Development ähnelt.
         /// </summary>
         public static string CollectionArea_Structure {
             get {
@@ -534,6 +552,15 @@ namespace Sammlerplattform.Resources {
         public static string Concept_Select {
             get {
                 return ResourceManager.GetString("Concept_Select", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select concept to connect it. ähnelt.
+        /// </summary>
+        public static string Concept_Select_Description {
+            get {
+                return ResourceManager.GetString("Concept_Select_Description", resourceCulture);
             }
         }
         
@@ -916,6 +943,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Enter your username or click “Available Passkeys”. ähnelt.
+        /// </summary>
+        public static string EnterUserNameOrAllAvailablePasskey {
+            get {
+                return ResourceManager.GetString("EnterUserNameOrAllAvailablePasskey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Era ähnelt.
         /// </summary>
         public static string Era {
@@ -970,6 +1006,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select era to connect it. ähnelt.
+        /// </summary>
+        public static string Era_Select_Description {
+            get {
+                return ResourceManager.GetString("Era_Select_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Era ID ähnelt.
         /// </summary>
         public static string EraID {
@@ -1011,6 +1056,42 @@ namespace Sammlerplattform.Resources {
         public static string Error_Access_Forbidden {
             get {
                 return ResourceManager.GetString("Error_Access_Forbidden", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Failed to get assertion options ähnelt.
+        /// </summary>
+        public static string Error_AssertionOptions_Ocurred {
+            get {
+                return ResourceManager.GetString("Error_AssertionOptions_Ocurred", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The registration was canceled. ähnelt.
+        /// </summary>
+        public static string Error_Authentication_Cancelled {
+            get {
+                return ResourceManager.GetString("Error_Authentication_Cancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Authentication failed. Please try again. ähnelt.
+        /// </summary>
+        public static string Error_Authentication_Failed {
+            get {
+                return ResourceManager.GetString("Error_Authentication_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your browser or device does not support passkeys. ähnelt.
+        /// </summary>
+        public static string Error_Browser_NotSupported {
+            get {
+                return ResourceManager.GetString("Error_Browser_NotSupported", resourceCulture);
             }
         }
         
@@ -1159,6 +1240,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Concept is assigned to collection area. ähnelt.
+        /// </summary>
+        public static string Error_Concept_AssignedToCollectionArea {
+            get {
+                return ResourceManager.GetString("Error_Concept_AssignedToCollectionArea", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Concept already exists. ähnelt.
         /// </summary>
         public static string Error_Concept_Exists {
@@ -1267,6 +1357,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The passkey was not found. Please register again. ähnelt.
+        /// </summary>
+        public static string Error_Credential_NotFound {
+            get {
+                return ResourceManager.GetString("Error_Credential_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Credential Id is missing ähnelt.
         /// </summary>
         public static string Error_CredentialId_Missing {
@@ -1281,6 +1380,15 @@ namespace Sammlerplattform.Resources {
         public static string Error_DisplayName_Missing {
             get {
                 return ResourceManager.GetString("Error_DisplayName_Missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Display name was required. ähnelt.
+        /// </summary>
+        public static string Error_DisplayName_Required {
+            get {
+                return ResourceManager.GetString("Error_DisplayName_Required", resourceCulture);
             }
         }
         
@@ -1357,20 +1465,20 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die A technical error has occurred and has been recorded. We will fix it as soon as possible. ähnelt.
-        /// </summary>
-        public static string Error_Error_Ocurred {
-            get {
-                return ResourceManager.GetString("Error_Error_Ocurred", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die File is empty. ähnelt.
         /// </summary>
         public static string Error_File_Empty {
             get {
                 return ResourceManager.GetString("Error_File_Empty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Security error: This page must be accessed via HTTPS. ähnelt.
+        /// </summary>
+        public static string Error_HTTPS_Required {
+            get {
+                return ResourceManager.GetString("Error_HTTPS_Required", resourceCulture);
             }
         }
         
@@ -1402,11 +1510,11 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Miussing or wrong inputs. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Network error. Please check your internet connection. ähnelt.
         /// </summary>
-        public static string Error_ModelState_Invalid {
+        public static string Error_Network {
             get {
-                return ResourceManager.GetString("Error_ModelState_Invalid", resourceCulture);
+                return ResourceManager.GetString("Error_Network", resourceCulture);
             }
         }
         
@@ -1528,6 +1636,60 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die This passkey has already been registered. ähnelt.
+        /// </summary>
+        public static string Error_Passkey_AlreadyRegistered {
+            get {
+                return ResourceManager.GetString("Error_Passkey_AlreadyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid server response: missing challenge ähnelt.
+        /// </summary>
+        public static string Error_PasskeyChallenge_Required {
+            get {
+                return ResourceManager.GetString("Error_PasskeyChallenge_Required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No Passkey found for user {0}. ähnelt.
+        /// </summary>
+        public static string Error_PasskeyForUser_NotFound {
+            get {
+                return ResourceManager.GetString("Error_PasskeyForUser_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Passkey creation was canceled. ähnelt.
+        /// </summary>
+        public static string Error_PasskeyRegistery_Cancelled {
+            get {
+                return ResourceManager.GetString("Error_PasskeyRegistery_Cancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No passkeys were found ähnelt.
+        /// </summary>
+        public static string Error_Passkeys_NotFound {
+            get {
+                return ResourceManager.GetString("Error_Passkeys_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Invalid server response: missing user.id ähnelt.
+        /// </summary>
+        public static string Error_PasskeyUserId_Missing {
+            get {
+                return ResourceManager.GetString("Error_PasskeyUserId_Missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The Perspective must be set. ähnelt.
         /// </summary>
         public static string Error_Perspective_Range {
@@ -1591,6 +1753,24 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Register was aborted. ähnelt.
+        /// </summary>
+        public static string Error_Register_Aborted {
+            get {
+                return ResourceManager.GetString("Error_Register_Aborted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The Relation ID must be bigger than 1. ähnelt.
+        /// </summary>
+        public static string Error_RelationId_Range {
+            get {
+                return ResourceManager.GetString("Error_RelationId_Range", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Id of Relationship is missing. ähnelt.
         /// </summary>
         public static string Error_RelationId_Required {
@@ -1614,6 +1794,42 @@ namespace Sammlerplattform.Resources {
         public static string Error_RelationshipName_Required {
             get {
                 return ResourceManager.GetString("Error_RelationshipName_Required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Relation type is missing. ähnelt.
+        /// </summary>
+        public static string Error_RelationType_Range {
+            get {
+                return ResourceManager.GetString("Error_RelationType_Range", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Relation type is missing. ähnelt.
+        /// </summary>
+        public static string Error_RelationType_Required {
+            get {
+                return ResourceManager.GetString("Error_RelationType_Required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Security error: The login requires an HTTPS connection. ähnelt.
+        /// </summary>
+        public static string Error_Security_HTTPS_Required {
+            get {
+                return ResourceManager.GetString("Error_Security_HTTPS_Required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Server error ähnelt.
+        /// </summary>
+        public static string Error_Server_Error {
+            get {
+                return ResourceManager.GetString("Error_Server_Error", resourceCulture);
             }
         }
         
@@ -1681,6 +1897,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Login took too long. Please try again. ähnelt.
+        /// </summary>
+        public static string Error_Timeout {
+            get {
+                return ResourceManager.GetString("Error_Timeout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Title is empty. ähnelt.
         /// </summary>
         public static string Error_Title_Empty {
@@ -1708,6 +1933,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die A technical error has occurred and has been recorded. We will fix it as soon as possible. ähnelt.
+        /// </summary>
+        public static string Error_Unknown {
+            get {
+                return ResourceManager.GetString("Error_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die User name is empty. ähnelt.
         /// </summary>
         public static string Error_User_NameEmpty {
@@ -1731,6 +1965,51 @@ namespace Sammlerplattform.Resources {
         public static string Error_UserID_Missing {
             get {
                 return ResourceManager.GetString("Error_UserID_Missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User name already taken. ähnelt.
+        /// </summary>
+        public static string Error_Username_AlreadyTaken {
+            get {
+                return ResourceManager.GetString("Error_Username_AlreadyTaken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User name is empty. ähnelt.
+        /// </summary>
+        public static string Error_UserName_Required {
+            get {
+                return ResourceManager.GetString("Error_UserName_Required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Verify assertion failure occured. ähnelt.
+        /// </summary>
+        public static string Error_VerifyAssertion_Ocurred {
+            get {
+                return ResourceManager.GetString("Error_VerifyAssertion_Ocurred", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please wait; the previous attempt is still in progress. ähnelt.
+        /// </summary>
+        public static string Error_WaitingResponse {
+            get {
+                return ResourceManager.GetString("Error_WaitingResponse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your browser does not support passkeys. Please use a modern browser. ähnelt.
+        /// </summary>
+        public static string Error_WebAuthn_NotSupported {
+            get {
+                return ResourceManager.GetString("Error_WebAuthn_NotSupported", resourceCulture);
             }
         }
         
@@ -2131,11 +2410,38 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please log in using your passkey... ähnelt.
+        /// </summary>
+        public static string Login_PleaseAuthenticate {
+            get {
+                return ResourceManager.GetString("Login_PleaseAuthenticate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Login/Register ähnelt.
         /// </summary>
         public static string Login_Register {
             get {
                 return ResourceManager.GetString("Login/Register", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Login was successful. ähnelt.
+        /// </summary>
+        public static string Login_Success {
+            get {
+                return ResourceManager.GetString("Login_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Login is being verified... ähnelt.
+        /// </summary>
+        public static string Login_Verifizing {
+            get {
+                return ResourceManager.GetString("Login_Verifizing", resourceCulture);
             }
         }
         
@@ -2204,7 +2510,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Interesting and unique collectibles: Manage your own and find those from other collectors ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die A management platform for passionate collectors: Organize your collections clearly, dynamically define categories, and discover other users&apos; collections—all in one place. ähnelt.
         /// </summary>
         public static string Meta_Description {
             get {
@@ -2227,6 +2533,15 @@ namespace Sammlerplattform.Resources {
         public static string No {
             get {
                 return ResourceManager.GetString("No", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No account yet? ähnelt.
+        /// </summary>
+        public static string NoAccountYet {
+            get {
+                return ResourceManager.GetString("NoAccountYet", resourceCulture);
             }
         }
         
@@ -2272,6 +2587,15 @@ namespace Sammlerplattform.Resources {
         public static string OnlyforNotifications {
             get {
                 return ResourceManager.GetString("OnlyforNotifications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Or ähnelt.
+        /// </summary>
+        public static string Or {
+            get {
+                return ResourceManager.GetString("Or", resourceCulture);
             }
         }
         
@@ -2425,6 +2749,15 @@ namespace Sammlerplattform.Resources {
         public static string Participant_Select {
             get {
                 return ResourceManager.GetString("Participant_Select", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select participant to connect it. ähnelt.
+        /// </summary>
+        public static string Participant_Select_Description {
+            get {
+                return ResourceManager.GetString("Participant_Select_Description", resourceCulture);
             }
         }
         
@@ -2653,6 +2986,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select place to connect it. ähnelt.
+        /// </summary>
+        public static string Place_Select_Description {
+            get {
+                return ResourceManager.GetString("Place_Select_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Place ID ähnelt.
         /// </summary>
         public static string PlaceID {
@@ -2694,6 +3036,15 @@ namespace Sammlerplattform.Resources {
         public static string PlaceSearchParameters_Select {
             get {
                 return ResourceManager.GetString("PlaceSearchParameters_Select", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Preparing... ähnelt.
+        /// </summary>
+        public static string Preparing {
+            get {
+                return ResourceManager.GetString("Preparing", resourceCulture);
             }
         }
         
@@ -2743,6 +3094,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Completing... ähnelt.
+        /// </summary>
+        public static string Register_Completing {
+            get {
+                return ResourceManager.GetString("Register_Completing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die You can register here ähnelt.
         /// </summary>
         public static string Register_Here {
@@ -2757,6 +3117,28 @@ namespace Sammlerplattform.Resources {
         public static string Register_Passkey {
             get {
                 return ResourceManager.GetString("Register_Passkey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die You will be redirected shortly... ähnelt.
+        /// </summary>
+        public static string Register_Redirect {
+            get {
+                return ResourceManager.GetString("Register_Redirect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please have this username ready:
+        ///
+        ///{0}
+        ///
+        ///You will need this username to log in later! ähnelt.
+        /// </summary>
+        public static string Register_Username_File_Content {
+            get {
+                return ResourceManager.GetString("Register_Username_File_Content", resourceCulture);
             }
         }
         
@@ -2856,6 +3238,15 @@ namespace Sammlerplattform.Resources {
         public static string Search_TypeIn {
             get {
                 return ResourceManager.GetString("Search_TypeIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Search available passkeys ähnelt.
+        /// </summary>
+        public static string SearchAvailablePasskeys {
+            get {
+                return ResourceManager.GetString("SearchAvailablePasskeys", resourceCulture);
             }
         }
         
@@ -3067,7 +3458,16 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Subterm ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die All subconcepts ähnelt.
+        /// </summary>
+        public static string SubConceptNameList {
+            get {
+                return ResourceManager.GetString("SubConceptNameList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Subterm of ähnelt.
         /// </summary>
         public static string SubTermOf {
             get {
@@ -3355,6 +3755,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Registration successful! You will be redirected... ähnelt.
+        /// </summary>
+        public static string Success_Login {
+            get {
+                return ResourceManager.GetString("Success_Login", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Logged out successfully. ähnelt.
         /// </summary>
         public static string Success_Logout {
@@ -3441,6 +3850,15 @@ namespace Sammlerplattform.Resources {
         public static string Success_Participant_Updated {
             get {
                 return ResourceManager.GetString("Success_Participant_Updated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Passkey registered successfully! ähnelt.
+        /// </summary>
+        public static string Success_Passkey_Registered {
+            get {
+                return ResourceManager.GetString("Success_Passkey_Registered", resourceCulture);
             }
         }
         
@@ -3571,15 +3989,6 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die to ähnelt.
-        /// </summary>
-        public static string to {
-            get {
-                return ResourceManager.GetString("to", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Unique name ähnelt.
         /// </summary>
         public static string UniqueName {
@@ -3607,6 +4016,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die User name ähnelt.
+        /// </summary>
+        public static string UserName {
+            get {
+                return ResourceManager.GetString("UserName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die User ähnelt.
         /// </summary>
         public static string UsingIdentityUser {
@@ -3621,6 +4039,24 @@ namespace Sammlerplattform.Resources {
         public static string UsingIdentityUsersID {
             get {
                 return ResourceManager.GetString("UsingIdentityUsersID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die WebAuthn and passkeys are supported ähnelt.
+        /// </summary>
+        public static string WebAuthn_Supported {
+            get {
+                return ResourceManager.GetString("WebAuthn_Supported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die WebAuthn is not supported by this browser ähnelt.
+        /// </summary>
+        public static string WebAuthnNotSupported {
+            get {
+                return ResourceManager.GetString("WebAuthnNotSupported", resourceCulture);
             }
         }
         

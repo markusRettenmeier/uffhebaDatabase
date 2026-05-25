@@ -70,7 +70,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 {
                     { "PartyID", particpantID  }
                 });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
         }
 
@@ -130,7 +130,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                     if (statusCode != 200)
                     {
                         scope.Dispose();
-                        return (statusCode, "Error_Error_Ocurred", 0);
+                        return (statusCode, "Error_Unknown", 0);
                     }
                 }
 
@@ -143,7 +143,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 {
                     { "OrganizationCreateDTO", createDTO }
                 });
-                return (500, "Error_Error_Ocurred", 0);
+                return (500, "Error_Unknown", 0);
             }
         }
 
@@ -182,7 +182,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 if (statusCode != 200)
                 {
                     scope.Dispose();
-                    return (statusCode, "Error_Error_Ocurred", 0);
+                    return (statusCode, "Error_Unknown", 0);
                 }
 
                 scope.Complete();
@@ -194,7 +194,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 {
                     { "OrganizationEditDTO", editDTO }
                 });
-                return (500, "Error_Error_Ocurred", 0);
+                return (500, "Error_Unknown", 0);
             }
         }
 

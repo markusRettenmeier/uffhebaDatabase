@@ -51,7 +51,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     { "Place", createDTO},
                     { "ToponymyList", createDTO.ToponymyList }
                 });
-                return (500, "Error_Error_Ocurred", new());
+                return (500, "Error_Unknown", new());
             }
         }
 
@@ -103,7 +103,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                 {
                     { "PlaceID", placeID}
                 });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
         }
 
@@ -156,7 +156,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
                     { "Place", editDTO},
                     { "ToponymyList", editDTO.ToponymyList}
                 });
-                return (500, "Error_Error_Ocurred", new());
+                return (500, "Error_Unknown", new());
             }
         }
 

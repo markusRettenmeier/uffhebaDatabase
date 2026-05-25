@@ -9,9 +9,11 @@
     <div class="col-md-8 col-lg-6">
         <div class="card" aria-labelledby="registerHeader">
             <div class="card-header bg-primary text-white">
-                <h2 class="mb-0" id="registerHeader"><i class="bi bi-shield-check me-2"></i>@ViewData["Title"]</h2>
+                <h1 class="mb-0" id="registerHeader"><i class="bi bi-shield-check me-2"></i>@ViewData["Title"]</h1>
             </div>
             <div class="card-body">
+                <!-- WebAuthn Support Status -->
+                <div id="webauthnStatus" class="mb-3"></div>
                 <!-- Status Messages -->
                 <div id="registerStatus" class="mb-3"></div>
 
@@ -28,8 +30,7 @@
                         <div class="form-text">@Localizer["OnlyforNotifications"]</div>
                     </div>
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-primary btn-lg"
-                                id="btnRegister" onclick="register()">
+                        <button type="button" class="btn btn-primary btn-lg" id="btnRegister">
                             <i class="bi bi-shield-check me-2"></i>@Localizer["Register"]
                         </button>
                     </div>

@@ -87,14 +87,14 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 {
                     { "Concept", createDto }
                 });
-                return (createDto.RootConceptID ?? 0, null, 500, "Error_Error_Ocurred");
+                return (createDto.RootConceptID ?? 0, null, 500, "Error_Unknown");
             }
         }
 
         public (int Statuscode, string StatusMessage) Delete(int conceptID)
         {
-            ConceptViewModel? existingConcept = Get(new ConceptualRelationshipSearchParameterModel { Id = [conceptID] }).FirstOrDefault()?.ConceptViewModel;
-            if (existingConcept == null)
+            ConceptViewModel? conceptViewModel = Get(new ConceptualRelationshipSearchParameterModel { Id = [conceptID] }).FirstOrDefault()?.ConceptViewModel;
+            if (conceptViewModel == null)
             {
                 trackEvents.TrackError("ConceptualRelationshipProcessor/DeleteConcept: Concept not found.", new Dictionary<string, object>
                 {
@@ -102,35 +102,33 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 });
                 return (404, "Error_Concept_NotFound");
             }
-            if (existingConcept.RootConceptID != null)
-            {
-                trackEvents.TrackError("ConceptualRelationshipProcessor/DeleteConcept: Concept is not a root concept.", new Dictionary<string, object>
-                {
-                    {"ConceptID", conceptID },
-                    {"RootConceptID", existingConcept.RootConceptID }
-                });
-                return (400, "Error_Only_Root_Concept_Can_Be_Deleted");
-            }
-            if (existingConcept.CollectionAreaID != null)
+            if (conceptViewModel.CollectionAreaID != null && conceptViewModel.RootConceptID == null)
             {
                 trackEvents.TrackError("ConceptualRelationshipProcessor/DeleteConcept: Concept is assigned to a collection area.", new Dictionary<string, object>
                 {
                     {"ConceptID", conceptID },
-                    {"CollectionAreaID", existingConcept.CollectionAreaID }
+                    {"CollectionAreaID", conceptViewModel.CollectionAreaID }
                 });
-                return (400, "Error_Concept_Assigned_To_CollectionArea");
+                return (400, "Error_Concept_AssignedToCollectionArea");
             }
 
             try
             {
                 using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-                List<ConceptRelationViewModel> existingRelations = processConceptRelation.GetByRootConceptID(existingConcept.Id);
+                List<ConceptRelationViewModel> existingRelations = processConceptRelation.GetByRootConceptID(conceptViewModel.Id);
                 for (int i = 0; i < existingRelations.Count; i++)
                 {
                     _ = processConceptRelation.Delete(existingRelations[i]);
                 }
 
+                Concept existingConcept = new()
+                {
+                    Id = conceptViewModel.Id,
+                    CollectionAreaID = conceptViewModel.CollectionAreaID,
+                    ConceptTypeInt = (int)conceptViewModel.ConceptType,
+                    RootConceptID = conceptViewModel.RootConceptID
+                };
                 unitOfWork.ConceptRepository.Delete(existingConcept);
                 unitOfWork.Save();
 
@@ -143,12 +141,15 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 {
                     { "ConceptID", conceptID }
                 });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
         }
 
         public List<ConceptDisplayDTO> Get(ConceptualRelationshipSearchParameterModel conceptSearchParameter)
         {
+            List<string> conceptNameList = conceptSearchParameter.ConceptName ?? [];
+            bool comingFromIndexGeneral = conceptSearchParameter.RootConceptID.Count == 1 && conceptSearchParameter.RootConceptID[0] == null; // In IndexGeneral, RootConceptID is explicitly set to null, in IndexSpecific it is not set at all (and thus also null, but the count is 0)
+
             var predicate = PredicateBuilder.New<ConceptViewModel>(true);
             List<ConceptViewModel> cvmList = [.. context.Concept
                             .AsGraphNode(c => new Concept
@@ -199,11 +200,16 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 }
                 predicate = predicate.Or(c => c.CollectionAreaID == null);
             }
+            if(conceptSearchParameter.ConceptName != null && conceptSearchParameter.ConceptName.Count > 0)
+            {
+                // ConceptName filter will be applied at the end, after the translations are applied, because otherwise the search term might not match due to missing translations
+                conceptNameList = conceptSearchParameter.ConceptName;
+            }
             if (predicate.IsStarted)
             {
                 cvmList = [.. cvmList.Where(predicate)];
             }
-
+            
             foreach (ConceptViewModel concept in cvmList)
             {
                 EntityTranslation? translation = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
@@ -217,6 +223,62 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 {
                     concept.Abbreviation = translation.Abbreviation;
                     concept.Name = translation.TranslatedText;
+                }
+
+                if (concept.RootConceptID == null)
+                {
+                    ConceptualRelationshipSearchParameterModel secondSearchParameters = new() { RootConceptID = [concept.Id] }; // Must be this way, cause otherwise conceptSearchParameter is reinitialted with the new parameters
+                    var subConceptList = Get(secondSearchParameters);
+                    concept.SubConceptNameList.AddRange(subConceptList.Select(x => x.ConceptViewModel.Name));
+                }
+                // Im Code dann:
+                //if (concept.RootConceptID == null)
+                //{
+                //    var subConceptNames = GetSubConceptNames(concept.Id, conceptSearchParameter);
+                //    concept.SubConceptNameList.AddRange(subConceptNames);
+                //}
+                //if (concept.RootConceptID == null)
+                //{
+                //    // Speichere die aktuellen ConceptName-Werte
+                //    var originalConceptNames = conceptSearchParameter.ConceptName?.ToList();
+
+                //    ConceptualRelationshipSearchParameterModel secondSearchParameters = new()
+                //    {
+                //        RootConceptID = [concept.Id]
+                //    };
+
+                //    // Optionale: Falls Sie andere Filter beibehalten wollen
+                //    if (conceptSearchParameter.CollectionAreaID?.Count > 0)
+                //        secondSearchParameters.CollectionAreaID = [.. conceptSearchParameter.CollectionAreaID];
+                //    if (conceptSearchParameter.ConceptTypeInt?.Count > 0)
+                //        secondSearchParameters.ConceptTypeInt = [.. conceptSearchParameter.ConceptTypeInt];
+
+                //    var subConceptList = Get(secondSearchParameters);
+                //    concept.SubConceptNameList.AddRange(subConceptList.Select(x => x.ConceptViewModel.Name));
+
+                //    // Stelle die originalen ConceptName-Werte wieder her
+                //    if (originalConceptNames != null)
+                //        conceptSearchParameter.ConceptName = originalConceptNames;
+                //}
+            }
+
+            //if(conceptSearchParameter.ConceptName.Count > 0)
+            //{
+            //    foreach (string conceptName in conceptSearchParameter.ConceptName)
+            //    {
+            //        cvmList = [.. cvmList.Where(c => (conceptSearchParameter.RootConceptID != null) 
+            //        ? c.Name.Contains(conceptName, StringComparison.CurrentCultureIgnoreCase) // In IndexGeneral, search for concept name in all concepts
+            //        : c.IsRootConcept || c.Name.Contains(conceptName, StringComparison.CurrentCultureIgnoreCase))]; // In IndexSpecific, also the rootconcept must be taken into account, even if the rootconcept name does not match the search term
+            //    }
+            //}
+
+            if (conceptNameList.Count > 0)
+            {
+                foreach (string conceptName in conceptNameList)
+                {
+                    cvmList = [.. cvmList.Where(c => (comingFromIndexGeneral)
+                        ? c.Name.Contains(conceptName, StringComparison.CurrentCultureIgnoreCase) // In IndexGeneral, search for concept name in all concepts
+                        : c.IsRootConcept || c.Name.Contains(conceptName, StringComparison.CurrentCultureIgnoreCase))]; // In IndexSpecific, also the rootconcept must be taken into account, even if the rootconcept name does not match the search term
                 }
             }
 
@@ -267,7 +329,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 {
                     { "Concept", editDto }
                 });
-                return (existingConcept.GetRootConceptId(), null, 500, "Error_Error_Ocurred");
+                return (existingConcept.GetRootConceptId(), null, 500, "Error_Unknown");
             }
         }
 
@@ -286,7 +348,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
             {
                 FromConceptID = conceptId,
                 ToConceptID = relation.ToConceptId,
-                RelationTypeInt = relation.RelationTypeInt
+                RelationTypeInt = relation.RelationTypeInt,
+                IsDirected = relation.RelationTypeInt == 1 // if RelationTypeInt is SubTermOf, the relation is directed; if it's Synonym, it's undirected
             };
             if (relation.RelationTypeInt is 0)
             {
@@ -297,7 +360,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
         }
         private void SyncRelationConnections(ConceptViewModel existingConcept, List<ConceptRelationEditDTO> newConnections)
         {
-            List<ConceptRelationViewModel> currentConnections = processConceptRelation.GetByRootConceptID(existingConcept.Id);
+            List<ConceptRelationViewModel> currentConnections = processConceptRelation.GetByConceptID(existingConcept.Id);
 
             foreach (ConceptRelationViewModel current in currentConnections)
             {
@@ -314,7 +377,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                         FromConceptID = current.FromConceptID,
                         ToConceptID = current.ToConceptID,
                         RelationTypeInt = updated.RelationTypeInt,
-                        IsDirected = updated.RelationTypeInt != 0 && current.IsDirected
+                        IsDirected = updated.RelationTypeInt == 1 // if RelationTypeInt is SubTermOf, the relation is directed; if it's Synonym, it's undirected
                     };
                     _ = processConceptRelation.Update(updatedConceptRelation);
                 }
@@ -328,11 +391,26 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                     ConceptRelationCreateDTO createDTO = new()
                     {
                         ToConceptId = newItem.ToConceptId,
-                        RelationTypeInt = newItem.RelationTypeInt
+                        RelationTypeInt = newItem.RelationTypeInt                        
                     };
                     ConnectRelationToConcept(existingConcept.Id, createDTO);
                 }
             }
         }
+
+        //private List<string> GetSubConceptNames(int conceptId, ConceptualRelationshipSearchParameterModel originalParams)
+        //{
+        //    var searchParams = new ConceptualRelationshipSearchParameterModel
+        //    {
+        //        RootConceptID = [conceptId],
+        //        // Übernehmen Sie nur die Filter, die auch für Sub-Konzepte gelten sollen
+        //        CollectionAreaID = originalParams.CollectionAreaID,
+        //        ConceptTypeInt = originalParams.ConceptTypeInt
+        //        // ConceptName explizit NICHT übernehmen
+        //    };
+
+        //    var subConceptList = Get(searchParams);
+        //    return [.. subConceptList.Select(x => x.ConceptViewModel.Name)];
+        //}
     }
 }

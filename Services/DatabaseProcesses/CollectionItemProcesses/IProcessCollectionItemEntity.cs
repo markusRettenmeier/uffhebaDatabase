@@ -4,6 +4,7 @@ using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDataba
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemRelationshipDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
+using Sammlerplattform.Models.ConceptualRelationshipDatabase.ConceptValueDatabase;
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.ParticipantDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
@@ -156,7 +157,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     {
                         CollectionItemEntityID = newCollectionItemEntity.CollectionItemEntityID,
                         IFormFile = collectionItemPicture.IFormFile,
-                        PerspectiveInt = collectionItemPicture.Perspective
+                        PerspectiveInt = collectionItemPicture.PerspectiveInt
                     };
                     (int code, string returnMessage, int pictureId) = processCollectionItemPicture.Insert(newCollectionItemPicture);
                     collectionItemPictureList.Add((collectionItemPicture, pictureId));
@@ -186,7 +187,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 {
                     { "CollectionItemEntityCreateDTO", createDTO }
                 });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
         }
 
@@ -249,7 +250,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     PictureToCollectionItemCreateDTO pictureToCollectionItemCreateDTO = new()
                     {
                         IFormFile = collectionItemPicture.IFormFile,
-                        Perspective = collectionItemPicture.PerspectiveInt
+                        PerspectiveInt = collectionItemPicture.PerspectiveInt
                     };
                     //(statuscode, statusmessage) = processPicturePhysically.SaveCollectionItemPic(pictureToCollectionItemCreateDTO, pictureId, false, existingEntity.UsingIdentityUser.DisplayName); 
                     (statuscode, statusmessage) = processPicturePhysically.SaveCollectionItemPic(pictureToCollectionItemCreateDTO, pictureId, "Testuser");
@@ -284,7 +285,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     {
                         { "CollectionItemEntity", editDto }
                     });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
 
             List<string> ChangeEntity(CollectionItemEditDTO editDto, CollectionItemEntity existingEntity)
@@ -585,7 +586,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 {
                     { "CollectionItemEntityId", id }
                 });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
         }
 

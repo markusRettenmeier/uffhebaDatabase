@@ -4,7 +4,7 @@
 
 @{ 
     ViewData["Title"] = @Localizer["ConceptRelation_Administration_General"];
-    Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+    Layout = "~/Views/Shared/_LayoutSettingsConceptualRelationship.cshtml";
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -38,13 +38,20 @@
                     @Html.DisplayFor(modelItem => item.Abbreviation)
                 </td>
                 <td>
-                    <a asp-action="IndexSpecific" asp-route-id="@item.Id" asp-route-rootConceptId="@item.Id">@Localizer["SpecificView"]</a> 
+                    <a asp-action="IndexSpecific" asp-route-id="@item.Id" asp-route-rootConceptId="@item.Id">@Localizer["SpecificView"]</a> | 
+                    @{
+                        bool isDeletable = item.SubConceptNameList.Count == 0 && item.CollectionAreaID == null;
+                        if (isDeletable)
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.Id">@Localizer["Delete"]</a>
+                        }
+                    }
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
-<form asp-controller="CollectionAreaDatabase" asp-action="Index">
+<form asp-controller="ConceptualRelationshipDatabase" asp-action="IndexGeneral">
     <partial name="~/Views/ConceptualRelationshipDatabase/_SearchByColumn.cshtml" />
 </form>

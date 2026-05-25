@@ -1,35 +1,66 @@
-﻿ @using Microsoft.AspNetCore.Mvc.Localization
+﻿@using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
     ViewData["Title"] = @Localizer["Login_Passkey"];
 }
-<h1 hidden>ViewData["Title"]</h1>
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-        <div class="card" aria-labelledby="loginHeader">
+        <div class="card shadow">
             <div class="card-header bg-primary text-white">
-                <h2 class="mb-0" id="loginHeader"><i class="bi bi-key me-2"></i>@ViewData["Title"]</h2>
+                <h1 class="mb-0"><i class="bi bi-key me-2"></i>@ViewData["Title"]</h1>
             </div>
             <div class="card-body">
+                <!-- WebAuthn Support Status -->
+                <div id="webauthnStatus" class="mb-3"></div>
+
+                <!-- Login Status Messages -->
                 <div id="loginStatus" class="mb-3"></div>
 
-                <!-- Login Form -->
-                <form id="loginForm" onsubmit="return false;">
-                    <div class="d-grid gap-2 mb-4">
-                        <button type="button" class="btn btn-primary btn-lg"
-                                id="btnLogin" onclick="login()">
-                            <i class="bi bi-key me-2"></i>@Localizer["Login"]
-                        </button>
+                <!-- Info Box -->
+                <div class="alert alert-info mb-4">
+                    <strong>@Localizer["Login"]</strong><br>
+                    @Localizer["EnterUserNameOrAllAvailablePasskey"]
+                </div>
+
+                <!-- Username Input -->
+                <div class="mb-4">
+                    <label for="Username" class="form-label fw-bold">@Localizer["UserName"]</label>
+                    <input type="text" class="form-control form-control-lg"
+                           id="Username"
+                           name="Username"
+                           autocomplete="username webauthn"
+                           autofocus>
+                    <div class="form-text text-muted">
+                        <i class="bi bi-question-circle me-1"></i>
+                        @Localizer["AllAvailablePasskeys"]
                     </div>
-                    <div class="text-center">
-                        <hr class="my-4">
-                        <p class="text-muted">Noch keinen Account?</p>
-                        <a href="@Url.Action("Register", "Passkey")" class="btn btn-success">
-                            <i class="bi bi-person-plus me-2"></i>@Localizer["Register"]
-                        </a>
-                    </div>
-                </form>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-grid gap-3 mb-4">
+                    <button type="button" class="btn btn-primary btn-lg" id="btnLogin">
+                        <i class="bi bi-key me-2"></i>@Localizer["Login"]
+                    </button>
+                        
+                    <button type="button" class="btn btn-outline-primary btn-lg" id="btnSearchPasskeys">
+                        <i class="bi bi-search me-2"></i>@Localizer["SearchAvailablePasskeys"]
+                    </button>
+                </div>
+
+                <!-- Register Link -->
+                <div class="text-center">
+                    <hr class="my-4">
+                    <p class="text-muted">@Localizer["NoAccountYet"]</p>
+                    <a href="@Url.Action("Register", "Passkey")" class="btn btn-success">
+                        <i class="bi bi-person-plus me-2"></i>@Localizer["Register"]
+                    </a>
+                </div>
+
+                <!-- Security Info -->
+                <div class="alert alert-info mt-4">
+                    @Localizer["Passkey_Information"]
+                </div>
             </div>
         </div>
     </div>

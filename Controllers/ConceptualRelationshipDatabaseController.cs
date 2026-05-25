@@ -8,24 +8,32 @@ namespace Sammlerplattform.Controllers
 {
     [Authorize]
     public class ConceptualRelationshipDatabaseController(
-        IProcessConcept processConcept) : Controller
+        IProcessConcept processConcept,
+        IProcessConceptValue processConceptValue) : Controller
     {
         [HandleStatus]
-        public ActionResult IndexGeneral(ConceptualRelationshipSearchParameterModel searchParameterModel)
+        public ActionResult IndexGeneral(ConceptualRelationshipSearchParameterModel searchParameters)
         {
-            searchParameterModel.RootConceptID = [null];
-            List<ConceptViewModel> conceptList = [.. processConcept.Get(searchParameterModel).Select(x => x.ConceptViewModel)];
-            return View(conceptList);
+            searchParameters.RootConceptID = [null];
+            List<ConceptViewModel> conceptDisplayList = [.. processConcept.Get(searchParameters).Select(x => x.ConceptViewModel)];
+            return View(conceptDisplayList);
         }
         [HandleStatus]
-        public ActionResult IndexSpecific(ConceptualRelationshipSearchParameterModel searchParameters)
+        public IActionResult IndexSpecific(ConceptualRelationshipSearchParameterModel searchParameters)
         {
-            List<ConceptViewModel> conceptList = [.. processConcept.Get(searchParameters).Select(x => x.ConceptViewModel)];
+            ViewData["ConceptValueConceptIdList"] = processConceptValue.Get(new Models.ConceptualRelationshipDatabase.ConceptValueDatabase.ConceptValueSearchParameterModel
+            {
+                ConceptID = searchParameters.Id
+            }).Select(x => x.ConceptID).ToList();
+            List<ConceptViewModel> conceptList = [.. processConcept
+                .Get(searchParameters)                
+                .Select(x => x.ConceptViewModel)];
             return View(conceptList);
         }
 
         public ActionResult Create(int rootConceptID, int collectionAreaID, int conceptTypeInt)
         {
+            @ViewData["RootConceptID"] = rootConceptID;
             ConceptCreateDTO createDTO = new()
             {
                 RootConceptID = rootConceptID > 0 ? rootConceptID : null,
@@ -61,6 +69,7 @@ namespace Sammlerplattform.Controllers
             {
                 return RedirectToAction(nameof(Index), new { statusMessage = "Error_CollectionArea_NotFound", id });
             }
+            @ViewData["RootConceptID"] = displayDto.ConceptViewModel.RootConceptID;
 
             ConceptEditDTO conceptEditDTO = new()
             {
@@ -88,7 +97,6 @@ namespace Sammlerplattform.Controllers
                 return View(editDto);
             }
             (int rootConceptID, int? collectionAreaID, int statusCode, string statusMessage) = processConcept.Update(editDto);
-
             if (rootConceptID > 0)
             {
                 return RedirectToAction(nameof(IndexSpecific), new { statusCode, statusMessage, Id = rootConceptID, rootConceptID });
@@ -103,18 +111,17 @@ namespace Sammlerplattform.Controllers
                 new ConceptualRelationshipSearchParameterModel { Id = [id] }).FirstOrDefault();
             return displayDto == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_ConceptualRelation_NotFound", id })
-                : View(displayDto);
+                : View(displayDto.ConceptViewModel);
         }
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(ConceptDisplayDTO displayDto)
+        public IActionResult DeleteConfirmed(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(displayDto);
-            }
-            (int _, string statusMessage) = processConcept.Delete(displayDto.ConceptViewModel.Id);
-            return RedirectToAction(nameof(Index), new { statusMessage });
+            if (id <= 0)
+                return RedirectToAction(nameof(Index),
+                    new { statusMessage = "Error_Invalid_Id" });
+            (int statusCode, string statusMessage) = processConcept.Delete(id);
+            return RedirectToAction(nameof(IndexGeneral), new { statusCode, statusMessage });
         }
     }
 }

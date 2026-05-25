@@ -68,7 +68,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
                 {
                     { "CollectionAreaName", createDTO.Name }
                 });
-                return (500, "Error_Error_Ocurred", 0);
+                return (500, "Error_Unknown", 0);
             }
         }
 
@@ -128,7 +128,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
                 {
                     {"CollectionArea", editDTO }
                 });
-                return (500, "Error_Error_Ocurred", 0);
+                return (500, "Error_Unknown", 0);
             }
         }
 
@@ -236,7 +236,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionAreaProcesses
                 {
                     { "CollectionAreaID", id }
                 });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
         }
     }

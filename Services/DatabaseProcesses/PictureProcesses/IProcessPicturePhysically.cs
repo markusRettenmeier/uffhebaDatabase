@@ -34,7 +34,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "PhysicalPictureProcessor", new Dictionary<string, object> { { "ID", id } });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
 
             }
         }
@@ -53,7 +53,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "PhysicalPictureProcessor", new Dictionary<string, object> { { "ID", id } });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
         }
 
@@ -119,34 +119,71 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
                 image.Write(pathesPng.pathThumbnail, MagickFormat.Png);
             }
         }
+        //private static void ImageSetWatermark(string displayName, MagickImage image)
+        //{
+        //    MagickReadSettings readSettings = new()
+        //    {
+        //        Font = "Calibri",
+        //        TextGravity = Gravity.Center,
+        //        BackgroundColor = MagickColors.Transparent,
+        //        FillColor = MagickColors.LightGray,
+        //        Height = 200,
+        //        Width = 400
+        //    };
+        //    MagickImage watermark = new($"caption:{displayName}", readSettings);
+        //    watermark.Rotate(315.00);
+
+        //    // Normal Version                        
+        //    if (image.Width > image.Height)
+        //    {
+        //        image.Composite(watermark, Gravity.Center, 600, 350, CompositeOperator.Over);
+        //        image.Composite(watermark, Gravity.Center, -600, -350, CompositeOperator.Over);
+        //    }
+        //    else if (image.Height > image.Width)
+        //    {
+        //        image.Composite(watermark, Gravity.Center, 420, 680, CompositeOperator.Over);
+        //        image.Composite(watermark, Gravity.Center, -420, -680, CompositeOperator.Over);
+        //    }
+        //    else
+        //    {
+        //        image.Composite(watermark, Gravity.Center, 0, 0, CompositeOperator.Over);
+        //    }
+        //}
         private static void ImageSetWatermark(string displayName, MagickImage image)
         {
+            // Dynamische Größenberechnung
+            uint? watermarkHeight = Math.Max(50, image.Height / 6);  // Minimum 50px
+            uint? watermarkWidth = Math.Max(100, image.Width / 3);
+
             MagickReadSettings readSettings = new()
             {
                 Font = "Calibri",
                 TextGravity = Gravity.Center,
                 BackgroundColor = MagickColors.Transparent,
-                FillColor = MagickColors.LightGray,
-                Height = 200,
-                Width = 400
+                FillColor = MagickColors.LightGray, // Deutliches Grau
+                Height = watermarkHeight,
+                Width = watermarkWidth
             };
-            MagickImage watermark = new($"caption:{displayName}", readSettings);
-            watermark.Rotate(315.00);
 
-            // Normal Version                        
-            if (image.Width > image.Height)
+            using MagickImage watermark = new($"caption:{displayName}", readSettings);
+            watermark.Rotate(315);
+            //watermark.Alpha(AlphaOption.Opaque);
+
+            // Intelligente Positionierung basierend auf Bildtyp
+            if (Math.Abs(image.Width - image.Height) < Math.Min(image.Width, image.Height) * 0.1)
             {
-                image.Composite(watermark, Gravity.Center, 600, 350, CompositeOperator.Over);
-                image.Composite(watermark, Gravity.Center, -600, -350, CompositeOperator.Over);
-            }
-            else if (image.Height > image.Width)
-            {
-                image.Composite(watermark, Gravity.Center, 420, 680, CompositeOperator.Over);
-                image.Composite(watermark, Gravity.Center, -420, -680, CompositeOperator.Over);
+                // Quadratisch: Nur in die Mitte
+                image.Composite(watermark, Gravity.Center, 0, 0, CompositeOperator.Over);
             }
             else
             {
-                image.Composite(watermark, Gravity.Center, 0, 0, CompositeOperator.Over);
+                // Rechteckig: In die Ecken
+                int padding = (int)Math.Min(20, Math.Min(image.Width, image.Height) / 20);
+
+                image.Composite(watermark, Gravity.Northwest, padding, padding, CompositeOperator.Over);
+                image.Composite(watermark, Gravity.Northeast, padding, padding, CompositeOperator.Over);
+                image.Composite(watermark, Gravity.Southwest, padding, padding, CompositeOperator.Over);
+                image.Composite(watermark, Gravity.Southeast, padding, padding, CompositeOperator.Over);
             }
         }
         private (string pathNormal, string pathSmall, string pathThumbnail) Pathes(string imgName)

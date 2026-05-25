@@ -234,7 +234,7 @@ namespace Sammlerplattform.Controllers
                 From = cr.FromConceptID,
                 To = cr.ToConceptID,
                 Label = cr.RelationType.GetDisplayName(),
-                Arrows = cr.IsDirected ? stringLocalizer["to"] : ""
+                Arrows = cr.IsDirected ? "to" : ""
             }))];
             var result = new
             {
@@ -294,9 +294,9 @@ namespace Sammlerplattform.Controllers
                             .Get(new ConceptualRelationshipSearchParameterModel {Id = [x.ConceptViewModel.GetRootConceptId()]})
                             .FirstOrDefault()?.ConceptViewModel.Name);
                     }
-                    if(x.ConceptViewModel.SubConceptList.Count > 0)
+                    if(x.ConceptViewModel.SubConceptNameList.Count > 0)
                     {
-                        specs.Add(stringLocalizer["SubConcepts"] + ": " + string.Join(", ", x.ConceptViewModel.SubConceptList.Select(sc => sc.Name)));
+                        specs.Add(stringLocalizer["SubConcepts"] + ": " + string.Join(", ", x.ConceptViewModel.SubConceptNameList));
                     }
 
                     return new ConceptDTO

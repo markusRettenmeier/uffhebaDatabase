@@ -1,10 +1,13 @@
 ﻿@model IEnumerable<Sammlerplattform.Models.ConceptualRelationshipDatabase.ConceptViewModel>
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+@using System.Linq
 
 @{
     ViewData["Title"] = @Localizer["ConceptRelation_Administration_Specific"];
     Layout = "~/Views/Shared/_LayoutSettingsConceptualRelationship.cshtml";
+
+    var connectedConceptIdList = ViewData["ConceptValueConceptIdList"] as List<int>;
 }
 
 <h1>@ViewData["Title"] @Model.First(x => x.IsRootConcept).Name</h1>
@@ -41,7 +44,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.Where(x => x.RootConceptID != null))
                         {
                             <tr>
                                 <td>
@@ -54,7 +57,14 @@
                                     @Html.DisplayFor(modelItem => item.ConceptType)
                                 </td>
                                 <td>
-                                    <a asp-action="Edit" asp-route-id="@item.Id">@Localizer["Edit"]</a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id">@Localizer["Edit"]</a> | 
+                                    @{
+                                        bool isDeletable = connectedConceptIdList == null || connectedConceptIdList.Where(x => x == item.Id).ToList().Count == 0;
+                                        if (isDeletable)
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@item.Id">@Localizer["Delete"]</a>
+                                        }
+                                    }
                                 </td>
                             </tr>
                         }
@@ -65,7 +75,9 @@
     </div>
 </div>
 
-<form asp-controller="CollectionAreaDatabase" asp-action="Index">
+<form asp-controller="ConceptualRelationshipDatabase" asp-action="IndexSpecific">
+    <input type="hidden" name="id" value="@Model.First(x => x.IsRootConcept).Id" />
+    <input type="hidden" name="rootConceptId" value="@Model.First(x => x.IsRootConcept).Id" />
     <partial name="~/Views/ConceptualRelationshipDatabase/_SearchByColumn.cshtml" />
 </form>
 

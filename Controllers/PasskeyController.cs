@@ -55,24 +55,34 @@ namespace Sammlerplattform.Controllers
                 if (!result.Succeeded)
                 {
                     trackEvents.TrackError("User creation failed: ", new Dictionary<string, object> { { "Errors", result.Errors } }, user.Id);
-                    return BadRequest(stringLocalizer["Error_Error_Ocurred"]);
+                    return BadRequest(stringLocalizer["Error_Unknown"]);
                 }
 
                 // Fido2User erstellen
                 CreateFido2User(user, Request.Host.Host, out CredentialCreateOptions options, out string sessionKey);
+
+                // Nach StoreInSession
+                var test = GetFromSession<RegistrationSessionData>(sessionKey);
+                Console.WriteLine($"Session saved successfully: {test != null}");
+                Console.WriteLine($"Session key: {sessionKey}");
+                Console.WriteLine($"User ID in session: {test?.UserId}");
+
+                // Füge nach dem Speichern in Session hinzu
+                HttpContext.Session.SetString("test", "working"); // Test-Eintrag
 
                 return Ok(new
                 {
                     success = true,
                     options,
                     sessionKey,
-                    userId = user.Id
+                    userId = user.Id,
+                    userName = user.UserName
                 });
             }
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "Error StartRegistration");
-                return BadRequest(stringLocalizer["Error_Error_Ocurred"]);
+                return BadRequest(stringLocalizer["Error_Unknown"]);
             }
         }
 
@@ -83,19 +93,21 @@ namespace Sammlerplattform.Controllers
             var sessionData = GetFromSession<RegistrationSessionData>(request.SessionKey);
             if (sessionData == null)
             {
-                var userToDelete = await userManager.GetUserAsync(User);
-                if (userToDelete != null)
-                {
-                    await userManager.DeleteAsync(userToDelete);
-                }
-                trackEvents.TrackError("Session data not found for session key {SessionKey} during MakeCredential", new Dictionary<string, object> { { "SessionKey", request.SessionKey } });
+                trackEvents.TrackError("Session data not found for session key {SessionKey} during MakeCredential",
+                    new Dictionary<string, object> { { "SessionKey", request.SessionKey } });
+
+                // KEIN Benutzer-Löschen hier! Der Benutzer muss über sessionData.UserId gefunden werden
                 return BadRequest(stringLocalizer["Error_Session_Expired"]);
             }
 
+            // RICHTIG: User über sessionData.UserId finden, nicht über User.Identity
             var user = await userManager.FindByIdAsync(sessionData.UserId);
             if (user == null)
             {
-                trackEvents.TrackError("User with ID {UserId} not found during MakeCredential", new Dictionary<string, object> { { "UserId", sessionData.UserId } });
+                trackEvents.TrackError("User with ID {UserId} not found during MakeCredential",
+                    new Dictionary<string, object> { { "UserId", sessionData.UserId } });
+
+                // Lösche den Benutzer, wenn er nicht existiert? Nein, er existiert ja nicht.
                 return BadRequest(stringLocalizer["Error_User_NotFound"]);
             }
 
@@ -112,12 +124,10 @@ namespace Sammlerplattform.Controllers
                             var existingCredential = processFidoCredential.GetCredentialById(args.CredentialId);
                             if (existingCredential != null)
                             {
-                                trackEvents.TrackError("Credential ID {CredentialId} already exists for user {UserId}",
-                                    new Dictionary<string, object> { { "args", args } },
-                                    existingCredential.UserId);
+                                trackEvents.TrackError("Credential ID {CredentialId} already exists",
+                                    new Dictionary<string, object> { { "CredentialId", args.CredentialId } });
                                 return false;
                             }
-
                             return true;
                         }
                         catch (Exception ex)
@@ -127,10 +137,13 @@ namespace Sammlerplattform.Controllers
                         }
                     }
                 }, CancellationToken.None);
+
                 if (result == null)
                 {
                     await userManager.DeleteAsync(user);
-                    return BadRequest(stringLocalizer["Error_Error_Ocurred"]);
+                    trackEvents.TrackError("MakeNewCredentialAsync returned null or error status",
+                        new Dictionary<string, object> { { "UserId", user.Id } });
+                    return BadRequest(stringLocalizer["Error_Unknown"]);
                 }
 
                 (int statuscode, string statusMessage) = StoreCredential(
@@ -142,34 +155,33 @@ namespace Sammlerplattform.Controllers
                     result.Type.ToString(),
                     result.AaGuid
                 );
+
                 if (statuscode != 201)
                 {
                     await userManager.DeleteAsync(user);
-                    trackEvents.TrackError("Storing credential failed: {StatusMessage}", new Dictionary<string, object> { { "StatusMessage", statusMessage } }, user.Id);
-                    return BadRequest(stringLocalizer["Error_Error_Ocurred"]);
+                    trackEvents.TrackError("Storing credential failed: {StatusMessage}",
+                        new Dictionary<string, object> { { "StatusMessage", statusMessage } }, user.Id);
+                    return BadRequest(stringLocalizer["Error_Unknown"]);
                 }
 
                 // Session aufräumen
                 httpContextAccessor.HttpContext?.Session.Remove(request.SessionKey);
 
-                // Bei neuer Benutzerregistrierung direkt anmelden
-                if (!User.Identity?.IsAuthenticated == true)
-                {
-                    await signInManager.SignInAsync(user, isPersistent: false);
-                }
+                // Benutzer anmelden
+                await signInManager.SignInAsync(user, isPersistent: false);
 
                 return Ok(new
                 {
                     success = true,
-                    message = "Passkey erfolgreich registriert!",
-                    redirectUrl = Url.Action("Login", "Passkey")
+                    message = stringLocalizer["Success_Passkey_Registered"],
+                    redirectUrl = Url.Action("Index", "CollectionAreaDatabase")
                 });
             }
             catch (Exception ex)
             {
                 await userManager.DeleteAsync(user);
                 trackEvents.TrackException(ex, "Error MakeCredential");
-                return BadRequest(stringLocalizer["Error_Error_Ocurred"]);
+                return BadRequest($"{stringLocalizer["Error_Unknown"]}: {ex.Message}");
             }
         }
 
@@ -181,10 +193,44 @@ namespace Sammlerplattform.Controllers
         }
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> MakeAssertionOptions()
+        public async Task<IActionResult> MakeAssertionOptions([FromBody] MakeAssertionOptionsRequest request)
         {
             try
             {
+                List<PublicKeyCredentialDescriptor> allowedCredentials = [];
+                string? username = request?.Username;
+                bool hasCredentials = false;
+
+                if (!string.IsNullOrEmpty(username))
+                {
+                    // Mit Username: Nur Credentials dieses Users erlauben
+                    var user = await userManager.FindByNameAsync(username);
+                    if (user != null)
+                    {
+                        allowedCredentials = GetCredentialsByUserId(user.Id);
+                        hasCredentials = allowedCredentials.Count != 0;
+
+                        if (!hasCredentials)
+                        {
+                            return Ok(new
+                            {
+                                success = false,
+                                error = stringLocalizer["Error_PasskeyForUser_NotFound", username],
+                                hasCredentials = false
+                            });
+                        }
+                    }
+                    else
+                    {
+                        return Ok(new
+                        {
+                            success = false,
+                            error = stringLocalizer["Error_User_NotFound"],
+                            hasCredentials = false
+                        });
+                    }
+                }
+
                 var options = fido2.GetAssertionOptions(
                     [],
                     UserVerificationRequirement.Required,
@@ -207,7 +253,7 @@ namespace Sammlerplattform.Controllers
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "MakeAssertionOptions");
-                return BadRequest(stringLocalizer["Error_Error_Ocurred"]);
+                return BadRequest(new { error = stringLocalizer["Error_Unknown"] });
             }
         }
 
@@ -219,7 +265,7 @@ namespace Sammlerplattform.Controllers
             if (json == null)
             {
                 trackEvents.TrackError("Session key {SessionKey} not found for assertion verification", new Dictionary<string, object> { { "SessionKey", clientResponse.SessionKey } });
-                return BadRequest(stringLocalizer["Error_Error_Ocurred"]);
+                return BadRequest(stringLocalizer["Error_Unknown"]);
             }
 
             var options = JsonSerializer.Deserialize<AssertionOptions>(json)!;
@@ -229,7 +275,7 @@ namespace Sammlerplattform.Controllers
             if (credential == null)
             {
                 trackEvents.TrackError("Credential with ID {CredentialId} not found during assertion verification", new Dictionary<string, object> { { "CredentialId", credentialId } });
-                return Unauthorized(stringLocalizer["Error_Error_Ocurred"]);
+                return Unauthorized(stringLocalizer["Error_Unknown"]);
             }
 
             var result = await fido2.MakeAssertionAsync(new MakeAssertionParams
@@ -255,7 +301,7 @@ namespace Sammlerplattform.Controllers
             if (Statuscode != 200)
             {
                 trackEvents.TrackError("Failed to update signature counter for credential ID {CredentialId}: {StatusMessage}", new Dictionary<string, object> { { "CredentialId", credential.CredentialId }, { "StatusMessage", Statusmessage } });
-                return BadRequest(stringLocalizer["Error_Error_Ocurred"]);
+                return BadRequest(stringLocalizer["Error_Unknown"]);
             }
 
             // 🔐 LOGIN ERFOLGREICH
@@ -263,7 +309,7 @@ namespace Sammlerplattform.Controllers
             if (user == null)
             {
                 trackEvents.TrackError("User with ID {UserId} not found during assertion verification", new Dictionary<string, object> { { "UserId", credential.UserId } });
-                return BadRequest(stringLocalizer["Error_Error_Ocurred"]);
+                return BadRequest(stringLocalizer["Error_Unknown"]);
             }
 
             // Addditonal claims for DeleteAccount, to verify that the user recently authenticated with a passkey. This claim is checked in the DeleteAccount action and must be present and not older than 5 minutes.
@@ -322,7 +368,7 @@ namespace Sammlerplattform.Controllers
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "Error deleting credential");
-                return BadRequest(stringLocalizer["Error_Error_Ocurred"]);
+                return BadRequest(stringLocalizer["Error_Unknown"]);
             }
         }
         [Authorize]
@@ -394,6 +440,12 @@ namespace Sammlerplattform.Controllers
                 Options = options,
                 Username = user.UserName ?? "Unknown"
             });
+
+            // Nach StoreInSession
+            var test = GetFromSession<RegistrationSessionData>(sessionKey);
+            Console.WriteLine($"Session saved successfully: {test != null}");
+            Console.WriteLine($"Session key: {sessionKey}");
+            Console.WriteLine($"User ID in session: {test?.UserId}");
         }
 
         private List<PublicKeyCredentialDescriptor> GetCredentialsByUserId(string userId)
@@ -412,16 +464,40 @@ namespace Sammlerplattform.Controllers
             var protectedData = _dataProtector.Protect(json);
 
             httpContextAccessor.HttpContext?.Session.SetString(key, protectedData);
+
+            // Debug: Prüfen ob gespeichert wurde
+            var testGet = httpContextAccessor.HttpContext?.Session.GetString(key);
+            Console.WriteLine($"Stored session key: {key}, Data length: {protectedData.Length}, Retrieved: {testGet != null}");
+
             return key;
         }
         private T? GetFromSession<T>(string key)
         {
+            if (string.IsNullOrEmpty(key))
+            {
+                Console.WriteLine("GetFromSession: key is null or empty");
+                return default;
+            }
+
             var protectedData = httpContextAccessor.HttpContext?.Session.GetString(key);
             if (string.IsNullOrEmpty(protectedData))
+            {
+                Console.WriteLine($"GetFromSession: No data found for key {key}");
                 return default;
+            }
 
-            var json = _dataProtector.Unprotect(protectedData);
-            return JsonSerializer.Deserialize<T>(json);
+            try
+            {
+                var json = _dataProtector.Unprotect(protectedData);
+                var result = JsonSerializer.Deserialize<T>(json);
+                Console.WriteLine($"GetFromSession: Success for key {key}, Type: {typeof(T).Name}");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetFromSession: Error decrypting key {key}: {ex.Message}");
+                return default;
+            }
         }
 
         private (int Statuscode, string Statusmessage) StoreCredential(string userId, Fido2User user, byte[] credentialId, byte[] publicKey, uint signCount, string? credType, Guid aaguid)
@@ -435,10 +511,15 @@ namespace Sammlerplattform.Controllers
                 CredType = credType,
                 RegDate = DateTime.UtcNow,
                 AaGuid = aaguid,
-                DeviceName = user.DisplayName ?? "Unknown Device"
+                DeviceName = user.DisplayName
             };
 
             return processFidoCredential.Insert(fidoCredential);
+        }
+
+        public class MakeAssertionOptionsRequest
+        {
+            public string? Username { get; set; }
         }
     }
 }

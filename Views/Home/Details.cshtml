@@ -1,6 +1,4 @@
 ﻿@using Sammlerplattform.Models.CollectionItemDatabase
-@using Sammlerplattform.Models.ParticipantDatabase
-@using Sammlerplattform.Models.PlaceDatabase
 @model CollectionItemDisplayDTO
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
@@ -21,5 +19,5 @@
 <partial name="/Views/CollectionItemDatabase/_Details.cshtml" model="Model" />
 
 <div>
-    <a asp-action="Frontpage">@Localizer["BackToList"]</a>
+    <a asp-action="Frontpage" class="btn btn-secondary ms-2">@Localizer["BackToList"]</a>
 </div>

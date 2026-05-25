@@ -38,13 +38,13 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
 
     public class ConceptRelationCreateDTO
     {
-        [Required(ErrorMessageResourceName = "Error_Concept_IdRequired", ErrorMessageResourceType = typeof(SharedResources))]
-        [Range(1, int.MaxValue, ErrorMessageResourceName = "Error_Concept_IdRequired", ErrorMessageResourceType = typeof(SharedResources))]
+        [Required(ErrorMessageResourceName = "Error_ConceptId_Required", ErrorMessageResourceType = typeof(SharedResources))]
+        [Range(1, int.MaxValue, ErrorMessageResourceName = "Error_ConceptId_Range", ErrorMessageResourceType = typeof(SharedResources))]
         public int ToConceptId { get; set; }
 
         [Display(Name = "RelationType", ResourceType = typeof(SharedResources))]
         [Required(ErrorMessageResourceName = "Error_RelationType_Required", ErrorMessageResourceType = typeof(SharedResources))]
-        [Range(0, 1, ErrorMessageResourceName = "Error_RelationType_Required", ErrorMessageResourceType = typeof(SharedResources))]
+        [Range(0, 1, ErrorMessageResourceName = "Error_RelationType_Range", ErrorMessageResourceType = typeof(SharedResources))]
         public int RelationTypeInt { get; set; }
     }
 }

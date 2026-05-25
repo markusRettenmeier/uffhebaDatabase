@@ -1,21 +1,109 @@
-﻿import { i18n } from './TranslationService';
+﻿// Event Listener
+// wwwroot/js/shared.ts
+import { i18n } from './TranslationService';
 import { getAndSetConceptualRelationshipGraph, getCollectionAreaList, initializePlaceSearch, initializeParticipantSearch, initializeConceptSearch, initializeEraSearch } from './api';
 import { hideModal } from './helperFunctions';
 
-// Event Listener
-document.addEventListener("DOMContentLoaded", (): void => {
-  handlePageLoad();
-});
-async function handlePageLoad(): Promise<void> {
-  await i18n.loadTranslations();
-  initializePlaceSearch();
-  initializeParticipantSearch();
-  initializeConceptSearch();
-  initializeEraSearch();
+// Globale Variablen
+let isI18nReady = false;
+
+// Zentrale Initialisierung
+async function initializeShared(): Promise<void> {
+  if (!isI18nReady) {
+    await i18n.loadTranslations();
+    isI18nReady = true;
+  }
+}
+
+// WebAuthn Support prüfen (zentral)
+export async function checkWebAuthnSupport(): Promise<boolean> {
+  await initializeShared();
+
+  const isSupported = typeof window.PublicKeyCredential !== 'undefined' &&
+    typeof navigator.credentials !== 'undefined' &&
+    typeof navigator.credentials.get === 'function';
+
+  const statusDiv = document.getElementById('webauthnStatus');
+  if (statusDiv) {
+    if (isSupported) {
+      statusDiv.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>${i18n.get('WebAuthn_Supported')}</div>`;
+    } else {
+      statusDiv.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>${i18n.get('WebAuthn_Not_Supported')}</div>`;
+      const btnLogin = document.getElementById('btnLogin') as HTMLButtonElement;
+      const btnSearch = document.getElementById('btnSearchPasskeys') as HTMLButtonElement;
+      const btnRegister = document.getElementById('btnRegister') as HTMLButtonElement;
+      if (btnLogin) btnLogin.disabled = true;
+      if (btnSearch) btnSearch.disabled = true;
+      if (btnRegister) btnRegister.disabled = true;
+      return false;
+    }
+  }
+  return isSupported;
+}
+
+// Zentrale Status-Funktionen
+export function showStatus(containerId: string, html: string): void {
+  const statusDiv = document.getElementById(containerId);
+  if (statusDiv) statusDiv.innerHTML = html;
+}
+
+export function showError(containerId: string, message: string): void {
+  showStatus(containerId, `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="${i18n.get('Close')}"></button>
+        </div>
+    `);
+}
+
+export function showLoading(containerId: string, message: string): void {
+  showStatus(containerId, `
+        <div class="alert alert-info">
+            <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-2" role="status">
+                    <span class="visually-hidden">${i18n.get('Loading')}</span>
+                </div>
+                <span>${message}</span>
+            </div>
+        </div>
+    `);
+}
+
+export function showSuccess(containerId: string, message: string): void {
+  showStatus(containerId, `
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle me-2"></i>
+            ${message}
+        </div>
+    `);
+}
+
+// Helper Funktionen
+export function getTranslation(key: string, ...args: any[]): string {
+  let text = i18n.get(key);
+  if (args.length > 0) {
+    text = text.replace(/{(\d+)}/g, (_, i) => args[i] || '');
+  }
+  return text;
+}
+
+// Page Load Handler
+document.addEventListener("DOMContentLoaded", async (): Promise<void> => {
+  await initializeShared();
+
+  // Suchfunktionen (falls vorhanden)
+  if (typeof initializePlaceSearch === 'function') initializePlaceSearch();
+  if (typeof initializeParticipantSearch === 'function') initializeParticipantSearch();
+  if (typeof initializeConceptSearch === 'function') initializeConceptSearch();
+  if (typeof initializeEraSearch === 'function') initializeEraSearch();
 
   const url = window.location.href;
-  if (url.includes("/Login")) window.checkWebAuthnSupport();
-  if (url.includes("/ConceptualRelationshipDatabase/IndexSpecific")) getAndSetConceptualRelationshipGraph();
+
+  // Weitere Seiten
+  if (url.includes("/ConceptualRelationshipDatabase/IndexSpecific")) {
+    if (typeof getAndSetConceptualRelationshipGraph === 'function') getAndSetConceptualRelationshipGraph();
+  }
 
   if (url.includes("Database") || url.includes("Settings")) {
     let stored = sessionStorage.getItem('collectionAreasList');
@@ -26,7 +114,10 @@ async function handlePageLoad(): Promise<void> {
       setCollectionAreasIntoOptions(stored);
     }
   }
-}
+});
+
+// Globale Exporte für window
+(window as any).checkWebAuthnSupport = checkWebAuthnSupport;
 function setCollectionAreasIntoOptions(stored: string): void {
   const select = document.getElementById("appendCollectionAreasHere");
   if (!select) return;

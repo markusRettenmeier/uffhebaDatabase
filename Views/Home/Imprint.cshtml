@@ -1,13 +1,12 @@
-﻿<h2 class="ImprintPartial">Impressum</h2>
-<p>
-    Markus Rettenmeier
-    <br />
-    Gotthilf-Dorn-Str. 25
-    <br />
-    89143 Blaubeuren
-</p>
-<p>
-    Tel.: 015141970883
-<br />
-    E-mail: markus.rettenmeier@web.de
-</p>
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+<h2 class="ImprintPartial">@Localizer["Imprint"]</h2>
+<address>
+    @Localizer["Author_Contact"]:
+    <a href="mailto:markus.rettenmeier@web.de">markus.rettenmeier@web.de</a>.<br />
+    @Localizer["Or"]:<br />
+    Markus Rettenmeier<br />
+    Gotthilf-Dorn-Str. 25<br />
+    D-89143 Blaubeuren
+</address>

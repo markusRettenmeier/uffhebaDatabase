@@ -1,0 +1,11 @@
+﻿# robots.txt für uffheba.online
+# Stand: 2026-05-19
+
+User-agent: *
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+# Alles erlauben
+Disallow:
+
+# Sitemap bekannt geben
+Sitemap: https://uffheba.online/sitemap.xml

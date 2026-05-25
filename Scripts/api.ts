@@ -25,8 +25,7 @@ export async function getAndSetConceptualRelationshipGraph(): Promise<void> {
       edges: {
         arrows: "to",
         font: { align: "middle" },
-        length: 200,
-        label: i18n.get("to")
+        length: 200
       },
       nodes: {
         shape: "box",

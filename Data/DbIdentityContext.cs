@@ -7,6 +7,7 @@ using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemRelationshipD
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.VectorSearch;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
+using Sammlerplattform.Models.ConceptualRelationshipDatabase.ConceptValueDatabase;
 using Sammlerplattform.Models.ImprovementSuggestions;
 using Sammlerplattform.Models.ParticipantDatabase;
 using Sammlerplattform.Models.ParticipantDatabase.IndividualDatabase;

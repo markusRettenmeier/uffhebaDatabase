@@ -32,7 +32,7 @@ function addConceptToConcept(idx: number, relation: ConceptRelation): void {
   const inputRelationship = document.createElement('input');
   inputRelationship.type = 'hidden';
   inputRelationship.classList.add('form-control', 'conceptResultTableRelationship');
-  inputRelationship.name = `ConceptRelationList[${index}].RelationType`;
+  inputRelationship.name = `ConceptRelationList[${index}].RelationTypeInt`;
   inputRelationship.setAttribute("data-val", "true");
   inputRelationship.setAttribute("data-val-required", i18n.get("Error_Relationship_Required"));
   inputRelationship.setAttribute("aria-required", "true");

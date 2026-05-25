@@ -16,7 +16,7 @@ namespace Sammlerplattform.Services.Translation
         {
             var client = new DeepLClient(_apiKey);
             List<(string culture, string translatedText, string? abbreviation)> translations = [];
-            string[] supportedCultures = [LanguageCode.German, LanguageCode.EnglishAmerican, LanguageCode.French, LanguageCode.Spanish];
+            string[] supportedCultures = [LanguageCode.German, LanguageCode.EnglishAmerican, LanguageCode.French, LanguageCode.Spanish, LanguageCode.ChineseSimplified, LanguageCode.Japanese];
             foreach (var targetLang in supportedCultures.Where(x => !string.IsNullOrEmpty(exceptOfCulture) && !x.Equals(exceptOfCulture)))
             {
                 var result = await client.TranslateTextAsync(text, null, targetLang);
@@ -39,12 +39,6 @@ namespace Sammlerplattform.Services.Translation
                 "es" or "es-ES" => LanguageCode.Spanish,
                 "zh-Hans" or "zh-CN" => LanguageCode.ChineseSimplified,
                 "ja" or "ja-JP" => LanguageCode.Japanese,
-                //"de" => LanguageCode.German,
-                //"en" => LanguageCode.EnglishAmerican,
-                //"fr" => LanguageCode.French,
-                //"es" => LanguageCode.Spanish,
-                //"zh-Hans" => LanguageCode.ChineseSimplified,
-                //"ja" => LanguageCode.Japanese,
                 _ => LanguageCode.EnglishAmerican.ToString()
             };
         }

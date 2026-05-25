@@ -74,14 +74,14 @@ namespace Sammlerplattform.Controllers
                     {
                         trackEvents.TrackError("ProfileChange: DisplayName change failed" + identityResult.Errors
                             , new Dictionary<string, object> { { "IdentityeResult", identityResult } }, user.Id);
-                        return RedirectToAction(nameof(Profile), new { statusMessage = "Error_Error_Ocurred" });
+                        return RedirectToAction(nameof(Profile), new { statusMessage = "Error_Unknown" });
                     }
                 }
             }
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, nameof(ProfileChange), null, user.Id);
-                return RedirectToAction(nameof(Profile), new { statusMessage = "Error_Error_Ocurred" });
+                return RedirectToAction(nameof(Profile), new { statusMessage = "Error_Unknown" });
             }
 
             await _signInManager.RefreshSignInAsync(user);
@@ -166,7 +166,7 @@ namespace Sammlerplattform.Controllers
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, nameof(DeletePersonalDataSubmit), null);
-                return RedirectToAction("Profile", "Home", new { statusMessage = "Error_Error_Ocurred" });
+                return RedirectToAction("Profile", "Home", new { statusMessage = "Error_Unknown" });
             }
 
             return RedirectToAction("Frontpage", "Home", new { statusMessage = "Success_Account_Deleted" });

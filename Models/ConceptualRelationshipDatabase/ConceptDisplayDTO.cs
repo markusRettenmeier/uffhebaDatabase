@@ -36,7 +36,8 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
                 return (int)RootConceptID;
             }
         }
-        public List<ConceptViewModel> SubConceptList { get; set; } = [];
+        [Display(Name = "SubConceptNameList", ResourceType = typeof(SharedResources))]
+        public List<string> SubConceptNameList { get; set; } = [];
 
         [Display(Name = "CollectionAreaID", ResourceType = typeof(SharedResources))]
         public int? CollectionAreaID { get; set; }

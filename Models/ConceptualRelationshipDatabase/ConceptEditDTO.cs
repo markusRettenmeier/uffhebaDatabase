@@ -5,7 +5,7 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
 {
     public class ConceptEditDTO
     {
-        [Required(ErrorMessageResourceName = "Error_ConceptId_IsMissing", ErrorMessageResourceType = typeof(SharedResources))]
+        [Required(ErrorMessageResourceName = "Error_ConceptId_Required", ErrorMessageResourceType = typeof(SharedResources))]
         [Range(1, int.MaxValue, ErrorMessageResourceName = "Error_ConceptId_Range", ErrorMessageResourceType = typeof(SharedResources))]
         public int Id { get; set; }
 
@@ -51,13 +51,13 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
     }
     public class ConceptRelationEditDTO
     {
-        [Required(ErrorMessageResourceName = "Error_Concept_IdRequired", ErrorMessageResourceType = typeof(SharedResources))]
+        [Required(ErrorMessageResourceName = "Error_ConceptId_Required", ErrorMessageResourceType = typeof(SharedResources))]
         [Range(1, int.MaxValue, ErrorMessageResourceName = "Error_ConceptId_Required", ErrorMessageResourceType = typeof(SharedResources))]
         public int ToConceptId { get; set; }
 
         [Display(Name = "RelationType", ResourceType = typeof(SharedResources))]
         [Required(ErrorMessageResourceName = "Error_RelationType_Required", ErrorMessageResourceType = typeof(SharedResources))]
-        [Range(0, 1, ErrorMessageResourceName = "Error_RelationType_Required", ErrorMessageResourceType = typeof(SharedResources))]
+        [Range(0, 1, ErrorMessageResourceName = "Error_RelationType_Range", ErrorMessageResourceType = typeof(SharedResources))]
         public int RelationTypeInt { get; set; }
         public string? ToName { get; set; } // Optionaler ToName der Beziehung, z. B. "ist Teil von", "verwandt mit"
     }

@@ -61,9 +61,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 c2.Id AS ToConceptID, 
                 r.RelationTypeInt, 
                 r.IsDirected 
-                FROM Concept c1, ConceptRelation r, Concept c2 
-                WHERE MATCH (c1-(r)->c2)
-                AND c1.RootConceptID = @p0",
+                FROM Concept c1, ConceptRelation r, Concept c2
+                WHERE c1.RootConceptID = @p0",
                 rootConceptID
             );
         }
@@ -107,11 +106,12 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
         public int Update(ConceptRelationViewModel conceptRelation)
         {
             string sql = @"
-                UPDATE ConceptRelation r
+                UPDATE CR
                 SET RelationTypeInt = @p2, IsDirected = @p3
-                WHERE MATCH ((c1)-[r]->(c2))
-                  AND c1.Id = @p0
-                  AND c2.Id = @p1";
+                FROM ConceptRelation CR, Concept c1, Concept c2
+                WHERE MATCH(c1-(CR)->c2)
+                    AND c1.Id = @p0
+                    AND c2.Id = @p1";
             int returncode = dbIdentityContext.Database.ExecuteSqlRaw(sql,
                 conceptRelation.FromConceptID,
                 conceptRelation.ToConceptID,

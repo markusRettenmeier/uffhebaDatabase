@@ -1,5 +1,5 @@
 ﻿using Sammlerplattform.Data;
-using Sammlerplattform.Models.ConceptualRelationshipDatabase;
+using Sammlerplattform.Models.ConceptualRelationshipDatabase.ConceptValueDatabase;
 using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Services.Translation;
 using System.Globalization;
@@ -10,6 +10,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
     {
         (int Statuscode, string Statusmessage, List<string>) Insert(ConceptValue conceptValue, int collectionItemID);
         (int Statuscode, string Statusmessage, List<string>) Update(ConceptValue conceptValue);
+        List<ConceptValue> Get(ConceptValueSearchParameterModel searchParameters);
         (int Statuscode, string Statusmessage) Delete(int conceptValueID);
     }
 
@@ -115,6 +116,13 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
             unitOfWork.Save();
 
             return (200, "Success_ConceptValue_Deleted");
+        }
+
+        public List<ConceptValue> Get(ConceptValueSearchParameterModel searchParameters)
+        {
+            List<ConceptValue> conceptValueList = [.. unitOfWork.ConceptValueRepository.Get(
+                filter: SearchPredicateBuilder.BuildPredicate<ConceptValue>(searchParameters))];
+            return conceptValueList;
         }
     }
 }

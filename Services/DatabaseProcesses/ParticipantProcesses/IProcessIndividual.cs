@@ -61,7 +61,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 {
                     {"IndividualCreateDTO", createDTO }
                 });
-                return (500, "Error_Error_Ocurred", 0);
+                return (500, "Error_Unknown", 0);
             }
         }
 
@@ -147,7 +147,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 {
                     { "IndividualEditDTO", editDTO  }
                 });
-                return (500, "Error_Error_Ocurred", 0);
+                return (500, "Error_Unknown", 0);
             }
         }
 
@@ -203,7 +203,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 {
                     { "PartyID", id  }
                 });
-                return (500, "Error_Error_Ocurred");
+                return (500, "Error_Unknown");
             }
         }
     }

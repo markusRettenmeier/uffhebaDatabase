@@ -93,13 +93,13 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
     {
         [Display(Name = "Perspective", ResourceType = typeof(SharedResources))]
         [Range(0, int.MaxValue, ErrorMessageResourceName = "Error_Perspective_Range", ErrorMessageResourceType = typeof(SharedResources))]
-        public int Perspective { get; set; }
+        public int PerspectiveInt { get; set; }
 
         [Required(ErrorMessageResourceName = "Error_CollectionItemPicture_IsMissing", ErrorMessageResourceType = typeof(SharedResources))]
         [Display(Name = "IFormFile", ResourceType = typeof(SharedResources))]
         public IFormFile? IFormFile { get; set; }
 
-        public bool Frontside => Perspective == 0;
+        public bool Frontside => PerspectiveInt == 0;
     }
     public class StatePreservationViewDTO
     {

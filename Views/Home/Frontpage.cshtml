@@ -1,5 +1,4 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Localization
-@using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase
 @using Sammlerplattform.Models.ParticipantDatabase
 @using Sammlerplattform.Models.PlaceDatabase
 @model IEnumerable<Sammlerplattform.Models.CollectionItemDatabase.CollectionItemDisplayDTO>
@@ -7,13 +6,128 @@
 
 @{
     ViewData["Title"] = Localizer["Frontpage"];
-    
+
     int count = 0;
     int? topK = ViewData["TopK"] as int?;
     int? maxRows = ViewData["maxRows"] as int?;
     int? lastAmountRows = ViewData["lastAmountRows"] as int?;
 }
+
+<style>
+    /* Responsive Anpassungen */
+    .item-card {
+        border-radius: 8px;
+        margin-bottom: 20px;
+        padding: 15px;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .item-image {
+        text-align: center;
+        margin-bottom: 15px;
+        width: 100%; /* Volle Breite auf Mobilgeräten */
+    }
+
+        .item-image img {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            border-radius: 4px;
+        }
+
+    .item-details {
+        width: 100%; /* Volle Breite auf Mobilgeräten */
+        overflow-x: auto; /* Bei sehr langen Wörtern horizontal scrollen */
+    }
+
+        .item-details ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .item-details li {
+            margin-bottom: 8px;
+            word-wrap: break-word;
+            overflow-wrap: break-word; /* Moderne Alternative */
+            word-break: break-word; /* Bricht lange Wörter um */
+        }
+
+    .participant-list, .place-list {
+        padding-left: 20px;
+        margin-top: 5px;
+    }
+
+        .participant-list li, .place-list li {
+            margin-bottom: 4px;
+        }
+
+    .btn-details {
+        width: 100%;
+        margin-top: 15px; /* Mehr Abstand nach oben */
+    }
+
+    /* Desktop-Anpassungen */
+    @@media (min-width: 768px) {
+        .item-card {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .item-image {
+            flex: 0 0 250px;
+            margin-bottom: 0;
+            width: auto; /* Reset für Desktop */
+        }
+
+        .item-details {
+            flex: 1;
+            width: auto; /* Reset für Desktop */
+            overflow-x: visible;
+        }
+
+        .btn-details {
+            width: auto;
+            margin-top: 0;
+            flex: 0 0 150px;
+            align-self: center;
+        }
+    }
+
+    /* Für sehr kleine Bildschirme (unter 480px) */
+    @@media (max-width: 480px) {
+        .item-card {
+            padding: 12px;
+        }
+
+        .item-details ul {
+            padding-left: 15px;
+        }
+
+        .item-details li {
+            font-size: 14px;
+        }
+
+        .btn-details {
+            margin-top: 12px;
+        }
+    }
+
+    /* Optional: Für sehr große Smartphones im Querformat */
+    @@media (min-width: 481px) and (max-width: 767px) {
+        .item-card {
+            padding: 15px;
+        }
+
+        .item-details li {
+            font-size: 15px;
+        }
+    }
+</style>
+
 <h1 hidden>@Localizer["CollectionItem_AllPublic"]</h1>
+
 <form asp-for="Frontpage">
     <div class="position-relative mb-4 mt-4">
         <label for="searchFrontpage" class="visually-hidden">@Localizer["Search"]</label>
@@ -24,81 +138,95 @@
 
 @foreach (var item in Model)
 {
-    <div class="row align-items-start pt-3" id="row_@count">
-        @{
-            <div class="col me-1" id="indexSimplePicColumn_@count">
-                @for (int i = 0; i < item.CollectionItemPictureList.Count; i++)
+    <div class="item-card" id="row_@count">
+        <!-- Bildbereich -->
+        <div class="item-image">
+            @for (int i = 0; i < item.CollectionItemPictureList.Count; i++)
+            {
+                string imageNormal = $"/images/Normal/{item.CollectionItemPictureList[i].CollectionItemPictureID}.webp";
+                string imageSmall = $"/images/Klein/{item.CollectionItemPictureList[i].CollectionItemPictureID}.webp";
+                @if (i == 0)
                 {
-                    string imageNormal = $"/images/Normal/{item.CollectionItemPictureList[i].CollectionItemPictureID}.webp";
-                    string imageSmall = $"/images/Klein/{item.CollectionItemPictureList[i].CollectionItemPictureID}.webp";
-                    @if (i == 0)
-                    {
-                        <a class="photo" data-fancybox="gallery_@item.CollectionItemEntity.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntity.CollectionItemEntityID">
-                            <img src="@imageSmall" width="498" height="322" alt="@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]" id="simplePic_@count" class="indexMobile-Picture">
-                            <span hidden>@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]</span>
-                        </a>
-                    }
-                    else
-                    {
-                        <a class="photo" data-fancybox="gallery_@item.CollectionItemEntity.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntity.CollectionItemEntityID">
-                            <span hidden>@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]</span>
-                        </a>
-                    }
+                    <a class="photo" data-fancybox="gallery_@item.CollectionItemEntity.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntity.CollectionItemEntityID">
+                        <img src="@imageSmall" alt="@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]" class="img-fluid" loading="lazy">
+                        <span hidden>@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]</span>
+                    </a>
                 }
-            </div>
-            <div class="col indexSimple2ndColumns" id="IndexSimple2ndColumn_@count">
-                <ul>
-                    <li>
-                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.CollectionArea): @Html.DisplayFor(modelItem => item.CollectionItemEntity.CollectionArea.CollectionAreaName)
-                    </li>                    
-                    <li>
-                        @Html.DisplayNameFor(modelItem => item.DisplayName): @Html.DisplayFor(modelItem => item.DisplayName)
-                    </li>
-                    <li>
-                        @{
-                            var statenameValue = item.CollectionItemEntity.StatePreservation != null ? item.CollectionItemEntity.StatePreservation.StatePreservationName : "N/A";
+                else
+                {
+                    <a class="photo d-none" data-fancybox="gallery_@item.CollectionItemEntity.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntity.CollectionItemEntityID">
+                        <span hidden>@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]</span>
+                    </a>
+                }
+            }
+        </div>
+
+        <!-- Detailsbereich -->
+        <div class="item-details">
+            <ul>
+                <li>
+                    <strong>@Html.DisplayNameFor(modelItem => item.CollectionItemEntity.CollectionArea):</strong>
+                    @Html.DisplayFor(modelItem => item.CollectionItemEntity.CollectionArea.CollectionAreaName)
+                </li>
+                <li>
+                    <strong>@Html.DisplayNameFor(modelItem => item.DisplayName):</strong>
+                    @Html.DisplayFor(modelItem => item.DisplayName)
+                </li>
+                <li>
+                    @{
+                        var statenameValue = item.CollectionItemEntity.StatePreservation != null ? item.CollectionItemEntity.StatePreservation.StatePreservationName : "N/A";
+                    }
+                    <strong>@Html.DisplayNameFor(modelItem => item.CollectionItemEntity.StatePreservation!.StatePreservationName):</strong>
+                    @statenameValue
+                </li>
+                <li>
+                    <strong>@Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Time):</strong>
+                    @Html.DisplayFor(modelItem => item.CollectionItemEntity.Time),
+                    <strong>@Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Era):</strong>
+                    @Html.DisplayFor(modelItem => item.Era.EraName)
+                </li>
+                <li>
+                    <strong>@Html.DisplayNameFor(modelItem => item.CollectionItemNParticipantList):</strong>
+                    <ul class="participant-list">
+                        @foreach (var participant in item.CollectionItemNParticipantList)
+                        {
+                            var vm = ParticipantViewModelHelper.FromDomainModel(participant.Participant);
+                            string content = $"{vm.Name}, {vm.FurtherSpecs} {Localizer["As"].Value} {participant.RelationType.CollectionItemRelationshipName}";
+                            <li>@Html.Raw(content)</li>
                         }
-                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.StatePreservation!.StatePreservationName): @statenameValue
-                    </li>
-                    <li>
-                        @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Time): @Html.DisplayFor(modelItem => item.CollectionItemEntity.Time), @Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Era): @Html.DisplayFor(modelItem => item.Era.EraName)
-                    </li>
-                    <li>
-                        @Html.DisplayNameFor(modelItem => item.CollectionItemNParticipantList):
-                        <ul>
-                            @foreach (var participant in item.CollectionItemNParticipantList)
-                            {
-                                var vm = ParticipantViewModelHelper.FromDomainModel(participant.Participant);
-                                string content = vm.Name + ", " + vm.FurtherSpecs + Localizer["As"].Value + participant.RelationType.CollectionItemRelationshipName;
-                                <li>@Html.Raw(content)</li>
-                            }
-                        </ul>
-                    </li>
-                    <li>
-                        @Html.DisplayNameFor(modelItem => item.CollectionItemNPlaceList):
-                        <ul>
-                            @foreach (var place in item.CollectionItemNPlaceList)
-                            {
-                                var vm = PlaceViewModelHelper.FromDomainModel(place.Place);
-                                var content = vm.Toponymy + Localizer["As"].Value + place.RelationType.CollectionItemRelationshipName;
-                                <li>@Html.Raw(content)</li>
-                            }
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-            <div class="col col-2">
-                <a class="btn btn-primary" asp-action="Details" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID">@Localizer["Details"]: @item.DisplayName</a>
-            </div>
-            count++;
-        }
+                    </ul>
+                </li>
+                <li>
+                    <strong>@Html.DisplayNameFor(modelItem => item.CollectionItemNPlaceList):</strong>
+                    <ul class="place-list">
+                        @foreach (var place in item.CollectionItemNPlaceList)
+                        {
+                            var vm = PlaceViewModelHelper.FromDomainModel(place.Place);
+                            var content = $"{vm.Toponymy} {Localizer["As"].Value} {place.RelationType.CollectionItemRelationshipName}";
+                            <li>@Html.Raw(content)</li>
+                        }
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Buttonbereich -->
+        <div class="btn-details">
+            <a class="btn btn-primary w-100" asp-action="Details" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID">
+                @Localizer["Details"]: @item.DisplayName
+            </a>
+        </div>
     </div>
+    count++;
 }
 
 @if (count == 0)
 {
-    @Localizer["Message_NothingFound"]
+    <div class="alert alert-info text-center mt-4">
+        @Localizer["Message_NothingFound"]
+    </div>
 }
+
 @if (topK is not null && topK < maxRows)
 {
     <form asp-controller="Sammlung" asp-action="Kurzansicht">
@@ -107,7 +235,7 @@
         <input id="indexSimpleLastRows" value="@lastAmountRows" style="display: none">
         <div class="d-grid gap-2 mt-4 mb-4">
             <div class="transmitData" hidden></div>
-            <button id="btnIndexSimpleMore" class="btn btn-primary" onclick="getMoreData()">Mehr Bilder anzeigen</button>
+            <button id="btnIndexSimpleMore" class="btn btn-primary btn-lg" onclick="getMoreData()">Mehr Bilder anzeigen</button>
         </div>
     </form>
 }

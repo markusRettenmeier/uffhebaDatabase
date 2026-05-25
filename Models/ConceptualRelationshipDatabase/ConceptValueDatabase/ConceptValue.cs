@@ -3,7 +3,7 @@ using Sammlerplattform.Resources;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
+namespace Sammlerplattform.Models.ConceptualRelationshipDatabase.ConceptValueDatabase
 {
     public class ConceptValue
     {
