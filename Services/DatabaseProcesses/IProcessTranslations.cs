@@ -177,7 +177,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses
         {
             // 1. Primäre Sprache
             List<EntityTranslation> result = [.. unitOfWork.EntityTranslationRepository.Get(
-                filter: SearchPredicateBuilder.BuildPredicate<EntityTranslation>(searchParameter)
+                filter: x => x.TranslatedText == searchParameter.TranslatedText.FirstOrDefault() &&
+                             x.EntityType == searchParameter.EntityType.FirstOrDefault() &&
+                             x.FieldName == searchParameter.FieldName.FirstOrDefault() &&
+                             searchParameter.Culture.Contains(x.Culture)
             )];
             if (result.Count != 0)
                 return result;

@@ -14,7 +14,7 @@
     <WebStackScaffolding_IsPartialViewSelected>False</WebStackScaffolding_IsPartialViewSelected>
     <WebStackScaffolding_IsReferencingScriptLibrariesSelected>False</WebStackScaffolding_IsReferencingScriptLibrariesSelected>
     <WebStackScaffolding_DbContextTypeFullName>Sammlerplattform.Data.DbIdentityContext</WebStackScaffolding_DbContextTypeFullName>
-    <NameOfLastUsedPublishProfile>C:\Users\User\Documents\plattformcode\Properties\PublishProfiles\FTPProfile2.pubxml</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>C:\Users\User\source\repos\uffhebaDatabase\Properties\PublishProfiles\FTPProfile3.pubxml</NameOfLastUsedPublishProfile>
     <WebStackScaffolding_LayoutPageFile>~/Views/Shared/_LayoutSettingsDimensions.cshtml</WebStackScaffolding_LayoutPageFile>
     <ActiveDebugProfile>Sammlerplattform</ActiveDebugProfile>
     <ShouldLintJavaScript>False</ShouldLintJavaScript>

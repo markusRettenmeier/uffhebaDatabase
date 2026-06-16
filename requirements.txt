@@ -1,0 +1,3 @@
+﻿nuget install -OutputDirectory packages
+# This file is used by Visual Studio to restore NuGet packages.
+# For more information about NuGet, see http://docs.nuget.org/consume/nuget-faq

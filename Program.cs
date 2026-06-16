@@ -20,6 +20,7 @@ using Sammlerplattform.Services.EMail;
 using Sammlerplattform.Services.ML.VectorSearch;
 using Sammlerplattform.Services.Passkey;
 using Sammlerplattform.Services.Translation;
+using System.Globalization;
 using System.Text.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -197,13 +198,18 @@ if (!app.Environment.IsDevelopment())
     _ = app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     _ = app.UseHsts();
+    
 }
 
-app.UseResponseCaching();
+var localizationOptions =
+    app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
+app.UseRequestLocalization(localizationOptions.Value);
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCookiePolicy();
 app.UseRouting();
+
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -268,5 +274,7 @@ if (builder.Environment.IsProduction())
         }
     });
 }
+
+app.UseResponseCaching();
 
 app.Run();
