@@ -99,7 +99,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
 
             List<string> translatedTexts = [];
             bool hasChanges = false;
-            
+
             var target = existingTranslations.FirstOrDefault(x => x.Culture == editDTO.Culture);
             if (target == null)
             {

@@ -78,7 +78,7 @@ namespace Sammlerplattform.Controllers
                 return RedirectToAction(nameof(Index), new { statusCode, statusMessage });
         }
 
-        // GET: CollectionItemRelationship/Delete/5
+        // GET: CollectionItemRelationship/DeleteRangeByUserId/5
         public async Task<IActionResult> Delete(int id)
         {
             CollectionItemRelationship? ciRelationship = processCIRelationship.GetListWithPredicates(
@@ -88,7 +88,7 @@ namespace Sammlerplattform.Controllers
                 : View(ciRelationship);
         }
 
-        // POST: CollectionItemRelationship/Delete/5
+        // POST: CollectionItemRelationship/DeleteRangeByUserId/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int CollectionItemRelationshipId)

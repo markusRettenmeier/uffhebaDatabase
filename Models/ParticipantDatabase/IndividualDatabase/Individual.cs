@@ -1,5 +1,4 @@
-﻿using Sammlerplattform.Models.ParticipantDatabase;
-using Sammlerplattform.Resources;
+﻿using Sammlerplattform.Resources;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

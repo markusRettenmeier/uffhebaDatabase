@@ -1,0 +1,15 @@
+﻿namespace Sammlerplattform.Services.ML.VectorSearch
+{
+    public enum ExecutionProvider
+    {
+        /// <summary>
+        /// CPU execution provider (default, always available)
+        /// </summary>
+        CPU,
+
+        /// <summary>
+        /// CUDA execution provider (requires CUDA-enabled GPU and CUDA runtime)
+        /// </summary>
+        CUDA
+    }
+}

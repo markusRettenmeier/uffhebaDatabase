@@ -519,7 +519,7 @@
   <data name="Error_Place_Exists" xml:space="preserve">
     <value>Le lieu existe déjà.</value>
   </data>
-  <data name="Error_PlaceID_Missing" xml:space="preserve">
+  <data name="Error_PlaceID_Required" xml:space="preserve">
     <value>ID du lieu manquant.</value>
   </data>
   <data name="Error_ParentPlace_ParentOfItsOwn" xml:space="preserve">
@@ -1093,7 +1093,7 @@
     <value>Accès refusé</value>
   </data>
   <data name="Meta_Description" xml:space="preserve">
-    <value>Une plateforme de gestion pour les collectionneurs passionnés : gérez vos collections de manière claire, définissez des catégories de manière dynamique et découvrez les collections d'autres utilisateurs, le tout en un seul endroit.</value>
+    <value>Plateforme internationale gratuite dédiée aux collectionneurs : gérez vos collections, définissez des caractéristiques de manière dynamique et découvrez les objets de collection d'autres utilisateurs.</value>
   </data>
   <data name="EnterToponymy" xml:space="preserve">
     <value>Entrer le nom du lieu</value>
@@ -1332,8 +1332,8 @@
   <data name="Error_PasskeyForUser_NotFound" xml:space="preserve">
     <value>Aucune clé d'accès n'a été trouvée pour l'utilisateur {0}.</value>
   </data>
-  <data name="EnterUserNameOrAllAvailablePasskey" xml:space="preserve">
-    <value>Saisissez votre nom d'utilisateur ou cliquez sur « Clés d'accès disponibles ».</value>
+  <data name="Login_Description" xml:space="preserve">
+    <value>S'il s'agit de votre appareil habituel, cliquez sur « Rechercher les clés d'accès disponibles ». Si vous êtes déjà inscrit mais que vous utilisez un autre appareil ou navigateur, cliquez sur « Clé d'accès indisponible ? ».</value>
   </data>
   <data name="WebAuthnNotSupported" xml:space="preserve">
     <value>WebAuthn n'est pas pris en charge par ce navigateur</value>
@@ -1371,12 +1371,20 @@
   <data name="Error_Username_AlreadyTaken" xml:space="preserve">
     <value>La création de la clé d'accès a été interrompue.</value>
   </data>
-  <data name="Register_Username_File_Content" xml:space="preserve">
-    <value>Veuillez noter ce nom d'utilisateur :
+  <data name="BackupCode_File_Content" xml:space="preserve">
+    <value>uffheba - CODES DE SAUVEGARDE
+===============================
 
+Conservez ces codes en lieu sûr !
+Chaque code ne peut être utilisé qu'une seule fois.
 {0}
 
-Vous en aurez besoin pour vous connecter ultérieurement !</value>
+Veuillez vous munir de ce nom d'utilisateur :
+{1}
+
+Créé le : {2}
+
+Lorsque vous utilisez un code, de nouveaux codes sont automatiquement générés.</value>
   </data>
   <data name="Error_WaitingResponse" xml:space="preserve">
     <value>Veuillez patienter, la tentative précédente est toujours en cours.</value>
@@ -1407,9 +1415,6 @@ Vous en aurez besoin pour vous connecter ultérieurement !</value>
   </data>
   <data name="Error_PasskeyUserId_Missing" xml:space="preserve">
     <value>Réponse du serveur non valide : user.id manquant</value>
-  </data>
-  <data name="Login_Success" xml:space="preserve">
-    <value>L'inscription a été enregistrée.</value>
   </data>
   <data name="SubConceptNameList" xml:space="preserve">
     <value>Tous les sous-concepts</value>
@@ -1470,5 +1475,93 @@ Vous en aurez besoin pour vous connecter ultérieurement !</value>
   </data>
   <data name="Error_RelationId_Range" xml:space="preserve">
     <value>L'identifiant de relation doit être supérieur à 1.</value>
+  </data>
+  <data name="BackupCode" xml:space="preserve">
+    <value>CODES DE SAUVEGARDE</value>
+  </data>
+  <data name="Error_BackupCode_NotFound" xml:space="preserve">
+    <value>Le code de secours n'a pas été trouvé.</value>
+  </data>
+  <data name="Success_BackupCode_Deleted" xml:space="preserve">
+    <value>Le code de secours a été supprimé avec succès.</value>
+  </data>
+  <data name="Success_BackupCode_MarkedAsUsed" xml:space="preserve">
+    <value>Le code de secours a été marqué comme utilisé.</value>
+  </data>
+  <data name="Success_Registration" xml:space="preserve">
+    <value>Votre inscription a été enregistrée ! Voici vos codes de secours :</value>
+  </data>
+  <data name="Success_Passkey_Removed" xml:space="preserve">
+    <value>La clé d'accès a été supprimée.</value>
+  </data>
+  <data name="Error_Passkey_RemoveFailed" xml:space="preserve">
+    <value>Échec de la suppression de la clé d'accès.</value>
+  </data>
+  <data name="Device_unknown" xml:space="preserve">
+    <value>Appareil inconnu</value>
+  </data>
+  <data name="BackupCodes_OnlyUseOnce" xml:space="preserve">
+    <value>Conservez ces codes en lieu sûr ! Chaque code ne peut être utilisé qu'une seule fois.</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>Copié !</value>
+  </data>
+  <data name="YourSafetyIsImportant" xml:space="preserve">
+    <value>uffheba - Votre sécurité nous tient à cœur</value>
+  </data>
+  <data name="OldBackupCodesInvalid" xml:space="preserve">
+    <value>Vos anciens codes de secours ne sont plus valides. Voici vos nouveaux codes :</value>
+  </data>
+  <data name="Passkey_ConfirmNew" xml:space="preserve">
+    <value>Veuillez confirmer en saisissant votre nouveau mot de passe...</value>
+  </data>
+  <data name="Passkey_Saving" xml:space="preserve">
+    <value>Le mot de passe est en cours d'enregistrement...</value>
+  </data>
+  <data name="PasskeyCount" xml:space="preserve">
+    <value>Vous disposez désormais de {0} clés d'accès.</value>
+  </data>
+  <data name="Passkey_NotAvailable" xml:space="preserve">
+    <value>Clé d'accès indisponible.</value>
+  </data>
+  <data name="BackupCodes_AlreadyReceived" xml:space="preserve">
+    <value>&lt;p&gt;Vous pouvez vous connecter à l'aide de votre &lt;strong&gt;code de secours&lt;/strong&gt;.&lt;/p&gt;
+&lt;p class="text-muted small"&gt;Vous avez reçu vos codes de secours lors de votre inscription.&lt;br /&gt;
+Si vous n'en avez pas, contactez le service d'assistance.&lt;/p&gt;</value>
+  </data>
+  <data name="BackupCodes_MarkedAsUsed" xml:space="preserve">
+    <value>Une fois la connexion effectuée, vous pouvez enregistrer un nouveau mot de passe.
+&lt;strong&gt;Cela désactivera vos anciens codes de secours. Vous en recevrez de nouveaux.&lt;/strong&gt;</value>
+  </data>
+  <data name="BackupCodes_Title" xml:space="preserve">
+    <value>Vos codes de secours</value>
+  </data>
+  <data name="BackupCodes_Warning" xml:space="preserve">
+    <value>&lt;strong&gt;⚠️ IMPORTANTE:&lt;/strong&gt;
+¡Estos códigos solo se muestran UNA VEZ!
+Guárdelos en un lugar seguro.</value>
+  </data>
+  <data name="BackupCodes_Instructions" xml:space="preserve">
+    <value>&lt;label class="form-label"&gt;Comment utiliser les codes :&lt;/label&gt;
+&lt;ul&gt;
+    &lt;li&gt;Chaque code ne peut être utilisé qu'UNE SEULE FOIS&lt;/li&gt;
+    &lt;li&gt;Utilisez un code si vous ne disposez pas d'une clé d'accès&lt;/li&gt;
+    &lt;li&gt;Une fois un code utilisé, vous en recevrez de nouveaux&lt;/li&gt;
+&lt;/ul&gt;</value>
+  </data>
+  <data name="Download_TXT" xml:space="preserve">
+    <value>Télécharger (TXT)</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Imprimer</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copier</value>
+  </data>
+  <data name="Passkeys_Saved_Close" xml:space="preserve">
+    <value>J'ai enregistré les codes.</value>
+  </data>
+  <data name="Error_BackupCodeUsername_Invalid" xml:space="preserve">
+    <value>Le code de secours ou le nom d'utilisateur n'est pas valide.</value>
   </data>
 </root>

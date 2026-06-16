@@ -1,0 +1,42 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+<dialog class="modal fade" id="backupCodesModal" tabindex="-1" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    @Localizer["BackupCodes_Title"]
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="backupCodesMessage"></div>
+                <div class="alert alert-danger">
+                    @Localizer["BackupCodes_Warning"]                    
+                </div>
+                <input type="hidden" id="backupCodesUsername" />
+                <div id="backupCodesList" class="backup-codes-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-family: monospace;">
+                </div>
+                <div class="mt-4">
+                    @Localizer["BackupCodes_Instructions"]                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="downloadBackupCodes()">
+                    <i class="bi bi-download"></i> @Localizer["Download_TXT"]
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="printBackupCodes()">
+                    <i class="bi bi-printer"></i> @Localizer["Print"]
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="copyBackupCodes()">
+                    <i class="bi bi-clipboard"></i> @Localizer["Copy"]
+                </button>
+                <a href="/collectionAreaDatabase/Index" type="button" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i> @Localizer["Passkeys_Saved_Close"]
+                </a>
+            </div>
+        </div>
+    </div>
+</dialog>

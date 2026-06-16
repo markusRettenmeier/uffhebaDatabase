@@ -200,7 +200,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 }
                 predicate = predicate.Or(c => c.CollectionAreaID == null);
             }
-            if(conceptSearchParameter.ConceptName != null && conceptSearchParameter.ConceptName.Count > 0)
+            if (conceptSearchParameter.ConceptName != null && conceptSearchParameter.ConceptName.Count > 0)
             {
                 // ConceptName filter will be applied at the end, after the translations are applied, because otherwise the search term might not match due to missing translations
                 conceptNameList = conceptSearchParameter.ConceptName;
@@ -209,7 +209,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
             {
                 cvmList = [.. cvmList.Where(predicate)];
             }
-            
+
             foreach (ConceptViewModel concept in cvmList)
             {
                 EntityTranslation? translation = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
@@ -391,7 +391,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                     ConceptRelationCreateDTO createDTO = new()
                     {
                         ToConceptId = newItem.ToConceptId,
-                        RelationTypeInt = newItem.RelationTypeInt                        
+                        RelationTypeInt = newItem.RelationTypeInt
                     };
                     ConnectRelationToConcept(existingConcept.Id, createDTO);
                 }

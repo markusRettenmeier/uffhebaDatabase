@@ -5,11 +5,11 @@ namespace Sammlerplattform.Models.ParticipantDatabase.IndividualDatabase
 {
     public class IndividualEditDTO
     {
-        [Required(ErrorMessageResourceName = "Error_PartyID_Required", ErrorMessageResourceType = typeof(SharedResources))]
+        [Required(ErrorMessageResourceName = "Error_ParticipantID_Required", ErrorMessageResourceType = typeof(SharedResources))]
         [Range(1, int.MaxValue, ErrorMessageResourceName = "Error_IndividualId_Range", ErrorMessageResourceType = typeof(SharedResources))]
         public int Id { get; set; }
 
-        [Required(ErrorMessageResourceName = "Error_PartyName_Required", ErrorMessageResourceType = typeof(SharedResources))]
+        [Required(ErrorMessageResourceName = "Error_ParticipantName_Required", ErrorMessageResourceType = typeof(SharedResources))]
         [Display(Name = "Name", ResourceType = typeof(SharedResources))]
         public required string Name { get; set; }
 

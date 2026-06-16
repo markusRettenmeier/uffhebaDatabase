@@ -1,4 +1,5 @@
 ﻿import { TdOptions } from "./types";
+import { getTranslation } from "./shared";
 
 export function hideModal(modalName: string): void {
   const modal = document.getElementById(modalName);
@@ -6,6 +7,15 @@ export function hideModal(modalName: string): void {
   if (modal?.classList.contains('modal')) {
     const modalInstance = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
     modalInstance.hide();
+  }
+}
+
+export function showModalFunction(modalName: string): void {
+  const modalElement = document.getElementById(modalName);
+
+  if (modalElement && typeof (window as any).bootstrap !== 'undefined') {
+    const modal = new (window as any).bootstrap.Modal(modalElement);
+    modal.show();
   }
 }
 

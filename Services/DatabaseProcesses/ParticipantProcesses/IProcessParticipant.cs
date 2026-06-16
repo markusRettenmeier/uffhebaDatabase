@@ -10,7 +10,7 @@ using System.Globalization;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
 {
-    public interface IProcessParticpant
+    public interface IProcessParticipant
     {
         List<Participant> GetListWithPredicate(ParticipantSearchParameterModel participantSearchParameterModel);
         (int Statuscode, string Message, Participant Participant) Insert(ParticipantOperationParameterModel participantOperationParameterModel);
@@ -23,7 +23,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
         , IProcessEra processEra
         , IProcessTranslations processTranslations
         , IDeeplTranslationService deeplTranslationService
-        , ITrackEventsCSV trackEvents) : IProcessParticpant
+        , ITrackEventsCSV trackEvents) : IProcessParticipant
     {
         public (int Statuscode, string Message, Participant Participant) Insert(ParticipantOperationParameterModel participantOperationParameterModel)
         {
@@ -56,7 +56,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
 
             for (int i = participant.ParticipantNPlaceList.Count - 1; i > 0; i--)
             {
-                DisconnectPlaceFromParticipant(participant.ParticipantNPlaceList[i].ParticpantID, participant.ParticipantNPlaceList[i].PlaceID);
+                DisconnectPlaceFromParticipant(participant.ParticipantNPlaceList[i].ParticipantID, participant.ParticipantNPlaceList[i].PlaceID);
             }
             for (int i = participant.ParticipantNEraList.Count - 1; i > 0; i--)
             {
@@ -180,7 +180,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
 
             ParticipantNPlace participantNPlace = new()
             {
-                ParticpantID = participant.ParticipantID,
+                ParticipantID = participant.ParticipantID,
                 PlaceID = place.PlaceID
             };
             unitOfWork.ParticipantNPlaceRepository.Insert(participantNPlace);
@@ -191,7 +191,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
             List<ParticipantNPlace> pNpToRemove = [.. participant.ParticipantNPlaceList.Where(p => !newPlaceIDList.Contains(p.PlaceID))];
             for (int i = pNpToRemove.Count - 1; i == 0; i--)
             {
-                DisconnectPlaceFromParticipant(pNpToRemove[i].ParticpantID, pNpToRemove[i].PlaceID);
+                DisconnectPlaceFromParticipant(pNpToRemove[i].ParticipantID, pNpToRemove[i].PlaceID);
             }
             List<int> placesToAdd = [.. newPlaceIDList.Where(np => !participant.ParticipantNPlaceList.Any(p => p.PlaceID == np))];
             foreach (int id in placesToAdd)
@@ -202,7 +202,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
         private void DisconnectPlaceFromParticipant(int participantID, int placeID)
         {
             ParticipantNPlace? participantNPlace = unitOfWork.ParticipantNPlaceRepository.Get(
-                filter: p => p.ParticpantID == participantID && p.PlaceID == placeID
+                filter: p => p.ParticipantID == participantID && p.PlaceID == placeID
                 ).FirstOrDefault();
             if (participantNPlace == null)
             {

@@ -12,8 +12,8 @@
 <hr />
 <form asp-action="Edit" enctype="multipart/form-data">
     <div asp-validation-summary="All" class="text-danger"></div>
-    <input asp-for="CollectionAreaID" class="form-control" type="hidden" />
-    <input asp-for="Id" class="form-control" type="hidden" />
+    <input asp-for="CollectionAreaID" type="hidden" />
+    <input asp-for="Id" type="hidden" />
     <div class="form-group">
         <label asp-for="Name" class="control-label"></label>
         <input asp-for="Name" class="form-control" aria-required="true" aria-invalid="false" />
@@ -65,8 +65,8 @@
                             <td>@Localizer["SubTermOf"] @Model.ConceptRelationList[i].ToName</td>
                         }
                         <td>
-                            <input type="hidden" class="form-control conceptResultTableId" asp-for="ConceptRelationList[@i].ToConceptId" />
-                            <input type="hidden" class="form-control conceptResultTableRelationship" asp-for="ConceptRelationList[@i].RelationTypeInt" />
+                            <input type="hidden" class="conceptResultTableId" asp-for="ConceptRelationList[@i].ToConceptId" />
+                            <input type="hidden" class="conceptResultTableRelationship" asp-for="ConceptRelationList[@i].RelationTypeInt" />
                             <button type="button" class="btn btn-danger btn-sm removeConceptRow">@Localizer["Remove"]</button>
                         </td>
                     </tr>

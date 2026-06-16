@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.ML.OnnxRuntime;
 using Sammlerplattform.Data;
 using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Services;
@@ -116,10 +117,9 @@ services.AddScoped<IProcessEra, EraProcessor>();
 services.AddScoped<IProcessCollectionItemEntity, CollectionItemEntityProcessor>();
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 services.AddScoped<IProcessCollectionItemPicture, CollectionItemPictureProcessor>();
-//services.AddScoped<IProcessOwnershipProofPicture, OwnershipProofPictureProcessor>();
 services.AddScoped<IProcessPlace, PlaceProcessor>();
 services.AddScoped<IProcessToponymy, ToponymyProcessor>();
-services.AddScoped<IProcessParticpant, ParticipantProcessor>();
+services.AddScoped<IProcessParticipant, ParticipantProcessor>();
 services.AddScoped<IProcessIndividual, IndividualProcessor>();
 services.AddScoped<IProcessOrganization, OrganizationProcessor>();
 services.AddScoped<IProcessIndustry, IndustryProcessor>();
@@ -129,7 +129,6 @@ services.AddScoped<IProcessConcept, ConceptualRelationshipProcessor>();
 services.AddScoped<IProcessConceptRelation, ConceptRelationProcessor>();
 services.AddScoped<IProcessStatePreservation, StatePreservationProcessor>();
 services.AddScoped<IProcessPicturePhysically, PhysicalPictureProcessor>();
-services.AddSingleton<IEmbeddingService, SimpleEmbeddingService>();
 services.AddScoped<IProcessCollectionItemEmbedding, CollectionItemEmbeddingProcessor>();
 services.AddScoped<IDeeplTranslationService, DeeplTranslationService>();
 services.AddScoped<IProcessTranslations, ProcessTranslations>();
@@ -139,6 +138,24 @@ services.AddScoped<IProcessImprovementSuggestions, ImprovementSuggestionsProcess
 services.AddScoped<IProcessFidoCredential, FidoCredentialProcessor>();
 services.AddSingleton<IAuthorizationHandler, RecentPasskeyHandler>();
 services.AddScoped<IProcessCIRelationship, CIRelationshipProcessor>();
+services.AddScoped<IProcessBackupCode, BackupCodeProcessor>();
+
+services.AddSingleton<M3Embedder>(provider =>
+{
+    var modelPath = Path.Combine(AppContext.BaseDirectory, "Models", "bge_m3_model_quantized.onnx");
+    var tokenizerPath = Path.Combine(AppContext.BaseDirectory, "Models", "bge_m3_tokenizer.onnx");
+
+    try
+    {
+        using var session = new InferenceSession(modelPath);
+    }
+    catch (Exception ex)
+    {
+        System.IO.File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "onnx_error.txt"), ex.ToString());
+    }
+
+    return new M3Embedder(tokenizerPath, modelPath);
+});
 
 services.AddIdentity<UsingIdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<DbIdentityContext>()
@@ -181,14 +198,6 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     _ = app.UseHsts();
 }
-//app.MapGet("/env", (IConfiguration config, IWebHostEnvironment env) =>
-//{
-//    return Results.Json(new
-//    {
-//        Environment = env.EnvironmentName,
-//        FidoDomain = config["Fido2:ServerDomain"]
-//    });
-//});
 
 app.UseResponseCaching();
 app.UseHttpsRedirection();
@@ -202,60 +211,62 @@ app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Frontpage}");
 
-app.Use((context, next) =>
+if (builder.Environment.IsProduction())
 {
-    // Füge Link-Header nur für die Startseite hinzu
-    if (context.Request.Path == "/")
+    app.Use((context, next) =>
     {
-        // RFC 8288 konformer Link-Header
-        // Mehrere Links werden durch Kommas getrennt
-        context.Response.Headers.Append(
-            "Link",
-            "</.well-known/api-catalog>; rel=\"api-catalog\", " +
-            "</docs/api>; rel=\"service-doc\", " +
-            "<https://uffheba.online/Home/Details>; rel=\"contents\""
-        );
-    }
-    return next();
-});
-
-app.Use(async (context, next) =>
-{
-    // Prüfen, ob der Client Markdown möchte
-    if (context.Request.Headers.Accept.ToString().Contains("text/markdown"))
-    {
-        // Ursprünglichen Response-Stream speichern
-        var originalStream = context.Response.Body;
-        using var memoryStream = new MemoryStream();
-        context.Response.Body = memoryStream;
-
-        await next(); // HTML wird normal generiert
-
-        // HTML aus dem Stream lesen
-        memoryStream.Seek(0, SeekOrigin.Begin);
-        var html = await new StreamReader(memoryStream).ReadToEndAsync();
-
-        // HTML zu Markdown konvertieren (z. B. mit ReverseMarkdown)
-        var config = new ReverseMarkdown.Config
+        // Füge Link-Header nur für die Startseite hinzu
+        if (context.Request.Path == "/")
         {
-            GithubFlavored = true,
-            RemoveComments = true,
-            SmartHrefHandling = true
-        };
-        var converter = new ReverseMarkdown.Converter(config);
-        var markdown = converter.Convert(html);
-
-        // Response anpassen
-        context.Response.Body = originalStream;
-        context.Response.ContentType = "text/markdown";
-        int estimateCount = markdown.Length / 4; // Grobe Schätzung: 1 Token ≈ 4 Zeichen
-        context.Response.Headers["x-markdown-tokens"] = estimateCount.ToString();
-        await context.Response.WriteAsync(markdown);
-    }
-    else
+            // RFC 8288 konformer Link-Header
+            // Mehrere Links werden durch Kommas getrennt
+            context.Response.Headers.Append(
+                "Link",
+                "</.well-known/api-catalog>; rel=\"api-catalog\", " +
+                "</docs/api>; rel=\"service-doc\", " +
+                "<https://uffheba.online/Home/Details>; rel=\"contents\""
+            );
+        }
+        return next();
+    });
+    app.Use(async (context, next) =>
     {
-        await next(); // Normale HTML-Antwort
-    }
-});
+        // Prüfen, ob der Client Markdown möchte
+        if (context.Request.Headers.Accept.ToString().Contains("text/markdown"))
+        {
+            // Ursprünglichen Response-Stream speichern
+            var originalStream = context.Response.Body;
+            using var memoryStream = new MemoryStream();
+            context.Response.Body = memoryStream;
+
+            await next(); // HTML wird normal generiert
+
+            // HTML aus dem Stream lesen
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            var html = await new StreamReader(memoryStream).ReadToEndAsync();
+
+            // HTML zu Markdown konvertieren (z. B. mit ReverseMarkdown)
+            var config = new ReverseMarkdown.Config
+            {
+                GithubFlavored = true,
+                RemoveComments = true,
+                SmartHrefHandling = true
+            };
+            var converter = new ReverseMarkdown.Converter(config);
+            var markdown = converter.Convert(html);
+
+            // Response anpassen
+            context.Response.Body = originalStream;
+            context.Response.ContentType = "text/markdown";
+            int estimateCount = markdown.Length / 4; // Grobe Schätzung: 1 Token ≈ 4 Zeichen
+            context.Response.Headers["x-markdown-tokens"] = estimateCount.ToString();
+            await context.Response.WriteAsync(markdown);
+        }
+        else
+        {
+            await next(); // Normale HTML-Antwort
+        }
+    });
+}
 
 app.Run();

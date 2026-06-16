@@ -1,4 +1,5 @@
 ﻿using Sammlerplattform.Data;
+using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemRelationshipDatabase;
@@ -22,8 +23,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
     public interface IProcessCollectionItemEntity
     {
         List<CollectionItemDisplayDTO> GetWithPredicates(CollectionItemSearchParameterModel model);
-        List<CollectionItemDisplayDTO> GetWithVector(CollectionItemSearchParameterModel model);
-        List<CollectionItemDisplayDTO> GetTraditionalTextSearch(CollectionItemSearchParameterModel model);
+        Task<List<CollectionItemDisplayDTO>> GetWithVector(CollectionItemSearchParameterModel model);
+        //List<CollectionItemDisplayDTO> GetTraditionalTextSearch(CollectionItemSearchParameterModel model);
         (int statusCode, string statusMessage) Insert(CollectionItemCreateDTO createDto, UsingIdentityUser user);
         (int statusCode, string statusMessage) Update(CollectionItemEditDTO editDTO);
         (int statusCode, string statusMessage) Delete(int id);
@@ -117,11 +118,11 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                         }));
                 }
 
-                foreach (ParticipantToCollectionItemCreateDTO createDto in createDTO.ParticipantctionItemList)
+                foreach (ParticipantToCollectionItemCreateDTO createDto in createDTO.ConnectedParticipantList)
                 {
                     translationList.AddRange(ConnectParticipantToCollectionItemEntity(newCollectionItemEntity, createDto.Id, createDto.Relationship));
                 }
-                foreach (PlaceToCollectionItemCreateDTO place in createDTO.PlaceToCollectionItemList)
+                foreach (PlaceToCollectionItemCreateDTO place in createDTO.ConnectedPlaceList)
                 {
                     translationList.AddRange(ConnectPlaceToCollectionItemEntity(newCollectionItemEntity, place.Id, place.Relationship));
                 }
@@ -175,7 +176,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                         scope.Dispose();
                         return (code, returnMessage);
                     }
-                }                
+                }
 
                 scope.Complete();
 
@@ -273,7 +274,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                         return (statuscode, statusmessage);
                     }
                 }
-                
+
                 scope.Complete();
 
                 return (200, "Success_CollectionItemEntity_Changed");
@@ -562,6 +563,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                         return (statuscode, statusmessage);
                     }
                 }
+                processCollectionItemEmbedding.Delete(id);
 
                 unitOfWork.CollectionItemEntityRepository.Delete(existingOperationParameterModel.CollectionItemEntity);
                 unitOfWork.Save();
@@ -603,42 +605,45 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 
             return [.. collectionItemList.OrderBy(x => x.CollectionItemEntity.PersonalIdentificationNumber).ThenBy(x => x.CollectionItemEntity.CollectionItemEntityID)];
         }
-        public List<CollectionItemDisplayDTO> GetTraditionalTextSearch(CollectionItemSearchParameterModel model)
-        {
-            trackEvents.TrackInfo("GetTraditionalTextSearch_Started", new Dictionary<string, object>
-            {
-                { "SemanticSearchQuery", model.SemanticSearchQuery ?? "null" }
-            });
+        //public List<CollectionItemDisplayDTO> GetTraditionalTextSearch(CollectionItemSearchParameterModel model)
+        //{
+        //    trackEvents.TrackInfo("GetTraditionalTextSearch_Started", new Dictionary<string, object>
+        //    {
+        //        { "SemanticSearchQuery", model.SemanticSearchQuery ?? "null" }
+        //    });
 
-            if (string.IsNullOrEmpty(model.SemanticSearchQuery))
-                return GetWithPredicates(model);
+        //    if (string.IsNullOrEmpty(model.SemanticSearchQuery))
+        //        return GetWithPredicates(model);
 
-            var searchTerms = model.SemanticSearchQuery.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        //    string[] allTerms = model.SemanticSearchQuery.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            var results = unitOfWork.CollectionItemEntityRepository.Get(
-                includeProperties: GetIncludeProperties(),
-                filter: item =>
-                    searchTerms.Any(term =>
-                        (item.SerialNumber != null && item.SerialNumber.Contains(term)) ||
-                        (item.PersonalIdentificationNumber != null && item.PersonalIdentificationNumber.Contains(term)) ||
-                        (item.CollectionItemEntityID == translationStore.GetId<CollectionItemEntity>(term)) ||
-                        (item.StatePreservationID == translationStore.GetId<StatePreservation>(term)) ||
-                        (item.Inscription != null && item.Inscription.Contains(term)) ||
-                        item.CollectionItemNPlaceList.Any(p =>
-                            p.Place != null && p.Place.PlaceID == translationStore.GetId<Place>(term)) ||
-                        item.CollectionItemNParticipantList.Any(p =>
-                            p.Participant != null && p.Participant.ParticipantID == translationStore.GetId<Participant>(term)) ||
-                        (item.Era != null && item.Era.EraID == translationStore.GetId<Era>(term))
-                    )
-            );
+        //    List<int> searchTermsInt = [.. allTerms
+        //        .Where(term => int.TryParse(term, out _))
+        //        .Select(int.Parse)];
 
-            return [.. from b in results
-               select SetMembersofEntity(b)];
-        }
+        //    List<string> searchTermsString = [.. allTerms
+        //        .Where(term => !int.TryParse(term, out _))];
+        //    Dictionary<string, int> translationIds = translationStore.GetIdFromAllEntityTypes(searchTermsString);
+
+        //    //Notwendig, da sonst Abfrage zu verzeigt für GenericSearch
+        //    var placeList = processPlace.GetListWithPredicate(new PlaceSearchParameterModel { PlaceNToponymyList_Toponymy_ToponymyName = searchTermsString });
+
+        //    var baseSearchModel = new CollectionItemSearchParameterModel
+        //    {
+        //        UniqueName = searchTermsString,
+        //        CollectionAreaID = translationIds.TryGetValue("CollectionArea", out int value5) ? [value5] : [],
+        //        EraID = translationIds.TryGetValue("Era", out int value) ? [value] : [],
+        //        StatePreservationID = translationIds.TryGetValue("StatePreservation", out int value1) ? [value1] : [],
+        //        CollectionItemNParticipantList_ParticipantID = translationIds.TryGetValue("Participant", out int value2) ? [value2] : [],
+        //        CollectionItemNPlaceList_PlaceID = [.. placeList.Select(p => p.PlaceID)],
+        //        CollectionItemEntityID = searchTermsInt
+        //    };
+
+        //    return GetWithPredicates(baseSearchModel);
+        //}
         private static string GetIncludeProperties()
         {
             return nameof(CollectionItemEntity.CollectionItemPictureList) + "," +
-                   //Für test ausgenommen
                    nameof(CollectionItemEntity.UsingIdentityUser) + "," +
                    nameof(CollectionItemEntity.CollectionArea) + "," +
                    nameof(CollectionItemEntity.CollectionItemNPlaceList) + "." + nameof(CollectionItemNPlace.Place) +
@@ -673,6 +678,12 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             List<CollectionItemDisplayDTO> ciopList = operationParameterList;
             foreach (var ciop in operationParameterList)
             {
+                ciop.CollectionItemEntity.CollectionArea.CollectionAreaName = translationStore.GetTranslation(
+                    nameof(CollectionArea),
+                    ciop.CollectionItemEntity.CollectionAreaID,
+                    nameof(CollectionArea.CollectionAreaName),
+                    translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
+                    ?? string.Empty;
                 ciop.CollectionItemEntity.UniqueName = translationStore.GetTranslation(
                     nameof(CollectionItemEntity),
                     ciop.CollectionItemEntity.CollectionItemEntityID,
@@ -739,18 +750,12 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             return ciopList;
         }
 
-        public List<CollectionItemDisplayDTO> GetWithVector(CollectionItemSearchParameterModel model)
+        public async Task<List<CollectionItemDisplayDTO>> GetWithVector(CollectionItemSearchParameterModel model)
         {
             if (string.IsNullOrEmpty(model.SemanticSearchQuery))
                 return GetWithPredicates(model);
 
-            var vectorResults = processCollectionItemEmbedding.Search(model.SemanticSearchQuery);
-
-            //// Filtern nach Minimum Similarity Score
-            //if (createDTO.MinimumSimilarityScore.HasValue)
-            //{
-            //    vectorResults = [.. vectorResults.Where(x => x.SimilarityScore >= createDTO.MinimumSimilarityScore.Value)];
-            //}
+            var vectorResults = await processCollectionItemEmbedding.SearchAsync(model.SemanticSearchQuery);
             if (vectorResults.Count == 0)
             {
                 return [];
@@ -759,6 +764,14 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             model.CollectionItemEntityID = [.. vectorResults.Select(x => x.CollectionItemEntityID)];
             return GetWithPredicates(model);
         }
+
+        /// <summary>
+        /// Connects a participant to a collection item entity with a specific relationship. Returns the translation of the connected participant.
+        /// </summary>
+        /// <param name="collectionItemEntity"></param>
+        /// <param name="participantID"></param>
+        /// <param name="relationship"></param>
+        /// <returns></returns>
 
         private List<string> ConnectParticipantToCollectionItemEntity(CollectionItemEntity collectionItemEntity, int participantID, string relationship)
         {
@@ -834,8 +847,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             }
 
             CollectionItemNParticipant? collectionItemNParticipant = (from bep in unitOfWork.CollectionItemNParticipantRepository.Get(includeProperties: nameof(Participant))
-                                                          where bep.ParticipantID == updated.Id && bep.CollectionItemEntity == existingCollectionItemEntity
-                                                          select bep).FirstOrDefault();
+                                                                      where bep.ParticipantID == updated.Id && bep.CollectionItemEntity == existingCollectionItemEntity
+                                                                      select bep).FirstOrDefault();
 
             if (collectionItemNParticipant != null)
             {
@@ -851,8 +864,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             if (collectionItemEntity.CollectionItemEntityID > 0 && personID > 0)
             {
                 CollectionItemNParticipant? collectionItemNParticipant = (from bep in unitOfWork.CollectionItemNParticipantRepository.Get(includeProperties: nameof(Participant))
-                                                              where bep.ParticipantID == personID && bep.CollectionItemEntity == collectionItemEntity
-                                                              select bep).FirstOrDefault();
+                                                                          where bep.ParticipantID == personID && bep.CollectionItemEntity == collectionItemEntity
+                                                                          select bep).FirstOrDefault();
 
                 if (collectionItemNParticipant != null)
                 {

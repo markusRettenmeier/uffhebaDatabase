@@ -41,7 +41,6 @@
                 <tr>
                     <th scope="col">@Localizer["Name"]</th>
                     <th scope="col">@Localizer["FurtherSpecs"]</th>
-                    @* <th scope="col">@Localizer["Relationship"]</th> *@
                     <th scope="col">@Localizer["Actions"]</th>
                 </tr>
             </thead>
@@ -58,12 +57,8 @@
                             <td>
                                 @Html.Raw(vm.FurtherSpecs)
                             </td>
-                            @* <td>
-                                <label for="connectPlace_@i" class="visually-hidden">@Localizer["Relationship"]</label>
-                                <input class="form-control" asp-for="ConnectedPlaceList[@i].Relationship" id="connectPlace_@i"/>
-                            </td> *@
                             <td>
-                                <input class="form-control" type="hidden" name="ConnectedPlaceList[@i].PlaceID" value="@vm.PlaceID" />
+                                <input type="hidden" name="ConnectedPlaceList[@i].PlaceID" value="@vm.PlaceID" />
                                 <button type="button" class="btn btn-danger btn-sm removePlace">@Localizer["Remove"]</button>
                             </td>
                         </tr>
@@ -96,7 +91,7 @@
                                 @Html.Raw(connectedEraList[i].EraName)
                             </td>
                             <td>
-                                <input class="form-control" type="hidden" name="ConnectedEraList[@i].EraID" value="@connectedEraList[@i].EraID" />
+                                <input type="hidden" name="ConnectedEraList[@i].EraID" value="@connectedEraList[@i].EraID" />
                                 <button type="button" class="btn btn-danger btn-sm removeEra">@Localizer["Remove"]</button>
                             </td>
                         </tr>

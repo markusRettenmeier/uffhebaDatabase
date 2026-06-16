@@ -6,7 +6,7 @@ namespace Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase
 {
     public class OrganizationCreateDTO
     {
-        [Required(ErrorMessageResourceName = "Error_PartyName_Required", ErrorMessageResourceType = typeof(SharedResources))]
+        [Required(ErrorMessageResourceName = "Error_ParticipantName_Required", ErrorMessageResourceType = typeof(SharedResources))]
         [Display(Name = "Name", ResourceType = typeof(SharedResources))]
         public required string Name { get; set; }
 

@@ -9,20 +9,28 @@ namespace Sammlerplattform.Models.CollectionItemDatabase.VectorSearch
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public int CollectionItemEmbeddingID { get; set; }
+        public string DenseEmbeddingJson { get; set; } = string.Empty;
 
-        public int CollectionItemEntityID { get; set; }
-        public CollectionItemEntity CollectionItemEntity { get; set; } = null!;
+        [NotMapped]
+        public float[] DenseEmbedding
+        {
+            get => JsonSerializer.Deserialize<float[]>(DenseEmbeddingJson) ?? [];
+            set => DenseEmbeddingJson = JsonSerializer.Serialize(value);
+        }
 
         // Für SQL Server: Vektor als JSON oder binary speichern
         [Column(TypeName = "nvarchar(max)")] // Oder varbinary(max) für kompakte Speicherung
-        public string CombinedEmbeddingJson { get; set; } = string.Empty;
+        public string SparseWeightsJson { get; set; } = string.Empty;
 
         [NotMapped]
-        public float[] CombinedEmbedding
+        public Dictionary<int, float> HandleSparseWeigths
         {
-            get => JsonSerializer.Deserialize<float[]>(CombinedEmbeddingJson) ?? [];
-            set => CombinedEmbeddingJson = JsonSerializer.Serialize(value);
+            get => JsonSerializer.Deserialize<Dictionary<int, float>>(SparseWeightsJson) ?? [];
+            set => SparseWeightsJson = JsonSerializer.Serialize(value);
         }
+
+        public int CollectionItemEntityID { get; set; }
+        public CollectionItemEntity CollectionItemEntity { get; set; } = null!;
 
         public DateTime LastUpdated { get; set; }
     }

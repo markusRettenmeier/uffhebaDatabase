@@ -237,5 +237,11 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .HasMany(rt => rt.CollectionItemNPlaceList)
             .WithOne(cip => cip.RelationType)
             .HasForeignKey(cip => cip.RelationTypeId);
+
+        _ = builder.Entity<UsingIdentityUser>()
+            .HasMany(u => u.BackupCodeList)
+            .WithOne(bc => bc.User)
+            .HasForeignKey(bc => bc.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

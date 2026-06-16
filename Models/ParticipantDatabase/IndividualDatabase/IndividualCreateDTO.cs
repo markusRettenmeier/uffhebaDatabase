@@ -5,7 +5,7 @@ namespace Sammlerplattform.Models.ParticipantDatabase.IndividualDatabase
 {
     public class IndividualCreateDTO
     {
-        [Required(ErrorMessageResourceName = "Error_PartyName_Required", ErrorMessageResourceType = typeof(SharedResources))]
+        [Required(ErrorMessageResourceName = "Error_ParticipantName_Required", ErrorMessageResourceType = typeof(SharedResources))]
         [Display(Name = "Name", ResourceType = typeof(SharedResources))]
         public required string Name { get; set; }
 
@@ -28,7 +28,7 @@ namespace Sammlerplattform.Models.ParticipantDatabase.IndividualDatabase
     }
     public class ConnectedPlaceDTO
     {
-        [Required(ErrorMessageResourceName = "Error_PlaceID_Missing", ErrorMessageResourceType = typeof(SharedResources))]
+        [Required(ErrorMessageResourceName = "Error_PlaceID_Required", ErrorMessageResourceType = typeof(SharedResources))]
         public int Id { get; set; }
 
         //[Required(ErrorMessageResourceName = "Error_Relationship_Required", ErrorMessageResourceType = typeof(SharedResources))]

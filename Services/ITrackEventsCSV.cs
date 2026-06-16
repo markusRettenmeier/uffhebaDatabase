@@ -36,12 +36,7 @@ namespace Sammlerplattform.Services
                 Timestamp = DateTime.Now.ToString("O"),
                 UserId = userId ?? "anonymous",
                 Context = context,
-                //Exception = new
-                //{
-                //    Type = exception.GetType().ToName,
-                //    exception.Message,
-                //    exception.StackTrace
-                //},
+                exception.Message,
                 exception.StackTrace,
                 ExceptionType = exception.GetType().Name,
                 InnerException = exception.InnerException != null ? new

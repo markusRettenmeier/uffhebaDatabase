@@ -85,8 +85,8 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         public List<PictureToCollectionItemCreateDTO> CollectionItemPictureList { get; set; } = [];
         public List<ConceptValueToCollectionItemCreateDTO> ConceptValueList { get; set; } = [];
         //public List<OwnershipProofPictureToCollectionItemCreateDTO> OwnershipProofPictureList { get; set; } = [];
-        public List<ParticipantToCollectionItemCreateDTO> ParticipantctionItemList { get; set; } = [];
-        public List<PlaceToCollectionItemCreateDTO> PlaceToCollectionItemList { get; set; } = [];
+        public List<ParticipantToCollectionItemCreateDTO> ConnectedParticipantList { get; set; } = [];
+        public List<PlaceToCollectionItemCreateDTO> ConnectedPlaceList { get; set; } = [];
     }
 
     public class PictureToCollectionItemCreateDTO

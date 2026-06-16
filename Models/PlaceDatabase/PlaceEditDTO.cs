@@ -5,7 +5,7 @@ namespace Sammlerplattform.Models.PlaceDatabase
 {
     public class PlaceEditDTO
     {
-        [Required(ErrorMessageResourceName = "Error_PlaceID_Missing", ErrorMessageResourceType = typeof(SharedResources))]
+        [Required(ErrorMessageResourceName = "Error_PlaceID_Required", ErrorMessageResourceType = typeof(SharedResources))]
         [Range(1, int.MaxValue, ErrorMessageResourceName = "Error_PlaceId_Range", ErrorMessageResourceType = typeof(SharedResources))]
         public int PlaceID { get; set; }
         [Display(Name = "FurtherSpecs", ResourceType = typeof(SharedResources))]

@@ -64,7 +64,7 @@ export function showLoading(containerId: string, message: string): void {
                 <div class="spinner-border spinner-border-sm me-2" role="status">
                     <span class="visually-hidden">${i18n.get('Loading')}</span>
                 </div>
-                <span>${message}</span>
+                ${message}
             </div>
         </div>
     `);

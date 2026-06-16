@@ -45,13 +45,12 @@ interface Window {
   initializePlaceAndToponymyHandlers: () => void;
   addConceptToCollectionItem(buttonId: number): void;
   addFormFileCollectionItem(sourcePage: SourcePage): void;
-  //addFormFileOwnershipProof(sourcePage: SourcePage): void;
   removePicture(pictureCount: number): void;
   register: () => Promise<void>;
-  login: () => Promise<void>;
   verifyForDeletePersonalDataSubmit: () => Promise<void>;
   checkWebAuthnSupport: () => void;
   openNav: () => void;
   closeNav: () => void;
   autocomplete: (input: HTMLInputElement, dataList: string[]) => void;
+  useBackupCode: () => Promise<void>;
 }

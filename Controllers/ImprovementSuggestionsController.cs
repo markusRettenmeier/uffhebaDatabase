@@ -42,7 +42,7 @@ namespace Sammlerplattform.Controllers
         public ActionResult Edit(int id)
         {
             Topic? topic = processImprovementSuggestions.GetWithPredicate(new TopicSearchParameterModel { Id = [id] }).FirstOrDefault();
-            if(topic == null)
+            if (topic == null)
                 return RedirectToAction(nameof(Index), new { statusMessage = "Error_ImprovementSuggestion_NotFound" });
 
             TopicEditDto topicEditDto = new()

@@ -7,7 +7,7 @@ namespace Sammlerplattform.Services.Translation
     {
         string? GetTranslation(string entityType, int entityId, string field, string culture);
         List<string> GetById<T>(int entityId);
-        int GetId<T>(string translatedText);
+        Dictionary<string, int> GetIdFromAllEntityTypes(List<string> translatedText);
     }
 
     public class TranslationStore(IProcessTranslations processTranslations) : ITranslationStore
@@ -40,16 +40,15 @@ namespace Sammlerplattform.Services.Translation
                 ? value
                 : null;
         }
-        public int GetId<T>(string translatedText)
+        public Dictionary<string, int> GetIdFromAllEntityTypes(List<string> translatedText)
         {
             // Sucht in der DB nach der Übersetzung und gibt die zugehörige EntityId zurück
             var searchParameter = new Models.Translations.EntityTranslationSearchParameter
             {
-                EntityType = [nameof(T)],
-                TranslatedText = [translatedText]
+                TranslatedText = translatedText
             };
             var translations = processTranslations.GetWithFallback(searchParameter);
-            return translations.FirstOrDefault()?.EntityId ?? 0;
+            return translations.GroupBy(t => t.EntityType).ToDictionary(g => g.Key, g => g.First().EntityId);
         }
     }
 }

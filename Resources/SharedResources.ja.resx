@@ -519,7 +519,7 @@
   <data name="Error_Place_Exists" xml:space="preserve">
     <value>その場所はすでに存在しています。</value>
   </data>
-  <data name="Error_PlaceID_Missing" xml:space="preserve">
+  <data name="Error_PlaceID_Required" xml:space="preserve">
     <value>場所IDがありません。</value>
   </data>
   <data name="Error_ParentPlace_ParentOfItsOwn" xml:space="preserve">
@@ -1093,7 +1093,7 @@
     <value>アクセス拒否</value>
   </data>
   <data name="Meta_Description" xml:space="preserve">
-    <value>熱心なコレクターのための管理プラットフォーム：コレクションを整理して管理し、カテゴリを柔軟に設定し、他のユーザーのコレクションを発見――すべてを一か所で。</value>
+    <value>無料の国際的なコレクター向けプラットフォーム：コレクションを管理し、特徴を柔軟に定義し、他のユーザーのコレクションを発見しましょう。</value>
   </data>
   <data name="EnterToponymy" xml:space="preserve">
     <value>地名を入力してください</value>
@@ -1332,8 +1332,8 @@
   <data name="Error_PasskeyForUser_NotFound" xml:space="preserve">
     <value>ユーザー {0} のパスキーが見つかりませんでした。</value>
   </data>
-  <data name="EnterUserNameOrAllAvailablePasskey" xml:space="preserve">
-    <value>ユーザー名を入力するか、「利用可能なパスキー」をクリックしてください。</value>
+  <data name="Login_Description" xml:space="preserve">
+    <value>普段お使いの端末の場合は、「利用可能なパスキーを検索」をクリックしてください。すでに登録済みですが、別の端末やブラウザをご利用の場合は、「パスキーが見つかりませんか？」をクリックしてください。</value>
   </data>
   <data name="WebAuthnNotSupported" xml:space="preserve">
     <value>このブラウザではWebAuthnがサポートされていません</value>
@@ -1371,12 +1371,20 @@
   <data name="Error_Username_AlreadyTaken" xml:space="preserve">
     <value>パスキーの作成が中止されました。</value>
   </data>
-  <data name="Register_Username_File_Content" xml:space="preserve">
-    <value>以下のユーザー名を控えておいてください：
+  <data name="BackupCode_File_Content" xml:space="preserve">
+    <value>uffheba - バックアップコード
+===============================
 
+これらのコードは大切に保管してください！
+各コードは1回のみ使用可能です。
 {0}
 
-今後のログイン時にこのユーザー名が必要になります！</value>
+以下のユーザー名をご用意ください：
+{1}
+
+作成日：{2}
+
+コードを使用すると、自動的に新しいコードが生成されます。</value>
   </data>
   <data name="Error_WaitingResponse" xml:space="preserve">
     <value>しばらくお待ちください。前回の処理がまだ実行中です。</value>
@@ -1407,9 +1415,6 @@
   </data>
   <data name="Error_PasskeyUserId_Missing" xml:space="preserve">
     <value>サーバーからの応答が無効です：ユーザーIDが指定されていません</value>
-  </data>
-  <data name="Login_Success" xml:space="preserve">
-    <value>登録が完了しました。</value>
   </data>
   <data name="SubConceptNameList" xml:space="preserve">
     <value>すべてのサブコンセプト</value>
@@ -1470,5 +1475,93 @@
   </data>
   <data name="Error_RelationId_Range" xml:space="preserve">
     <value>リレーションIDは1より大きくなければなりません。</value>
+  </data>
+  <data name="BackupCode" xml:space="preserve">
+    <value>バックアップコード</value>
+  </data>
+  <data name="Error_BackupCode_NotFound" xml:space="preserve">
+    <value>バックアップコードが見つかりませんでした。</value>
+  </data>
+  <data name="Success_BackupCode_Deleted" xml:space="preserve">
+    <value>バックアップコードは正常に削除されました。</value>
+  </data>
+  <data name="Success_BackupCode_MarkedAsUsed" xml:space="preserve">
+    <value>バックアップコードは「使用済み」としてマークされました。</value>
+  </data>
+  <data name="Success_Registration" xml:space="preserve">
+    <value>登録が完了しました！バックアップコードは以下の通りです：</value>
+  </data>
+  <data name="Success_Passkey_Removed" xml:space="preserve">
+    <value>パスキーの削除に成功しました。</value>
+  </data>
+  <data name="Error_Passkey_RemoveFailed" xml:space="preserve">
+    <value>パスキーの削除に失敗しました。</value>
+  </data>
+  <data name="Device_unknown" xml:space="preserve">
+    <value>不明なデバイス</value>
+  </data>
+  <data name="BackupCodes_OnlyUseOnce" xml:space="preserve">
+    <value>これらのコードは大切に保管してください！各コードは1回しか使用できません。</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>コピーしました！</value>
+  </data>
+  <data name="YourSafetyIsImportant" xml:space="preserve">
+    <value>uffheba - お客様の安全を第一に考えています</value>
+  </data>
+  <data name="OldBackupCodesInvalid" xml:space="preserve">
+    <value>以前のバックアップコードは無効になりました。新しいコードは以下の通りです：</value>
+  </data>
+  <data name="Passkey_ConfirmNew" xml:space="preserve">
+    <value>新しいパスキーを入力して確認してください...</value>
+  </data>
+  <data name="Passkey_Saving" xml:space="preserve">
+    <value>パスキーを保存中...</value>
+  </data>
+  <data name="PasskeyCount" xml:space="preserve">
+    <value>現在、{0}個のパスキーをお持ちです。</value>
+  </data>
+  <data name="Passkey_NotAvailable" xml:space="preserve">
+    <value>パスキーが利用できません。</value>
+  </data>
+  <data name="BackupCodes_AlreadyReceived" xml:space="preserve">
+    <value>&lt;p&gt;&lt;strong&gt;バックアップコード&lt;/strong&gt;を使用してログインできます。&lt;/p&gt;
+&lt;p class="text-muted small"&gt;バックアップコードは登録時に発行されています。&lt;br /&gt;
+お持ちでない場合は、サポートまでお問い合わせください。&lt;/p&gt;</value>
+  </data>
+  <data name="BackupCodes_MarkedAsUsed" xml:space="preserve">
+    <value>登録が完了すると、新しいパスキーを登録できます。
+&lt;strong&gt;これにより、古いバックアップコードは無効になります。新しいコードが発行されます。&lt;/strong&gt;</value>
+  </data>
+  <data name="BackupCodes_Title" xml:space="preserve">
+    <value>バックアップコード</value>
+  </data>
+  <data name="BackupCodes_Warning" xml:space="preserve">
+    <value>&lt;strong&gt;⚠️ 重要：&lt;/strong&gt;
+これらのコードは一度しか表示されません！
+大切に保管してください。</value>
+  </data>
+  <data name="BackupCodes_Instructions" xml:space="preserve">
+    <value>&lt;label class="form-label"&gt;コードの使用方法：&lt;/label&gt;
+&lt;ul&gt;
+    &lt;li&gt;各コードは1回のみ使用可能です&lt;/li&gt;
+    &lt;li&gt;パスキーをお持ちでない場合は、コードをご利用ください&lt;/li&gt;
+    &lt;li&gt;コードを使用すると、新しいコードが発行されます&lt;/li&gt;
+&lt;/ul&gt;</value>
+  </data>
+  <data name="Download_TXT" xml:space="preserve">
+    <value>ダウンロード（TXT）</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>印刷</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>コピー</value>
+  </data>
+  <data name="Passkeys_Saved_Close" xml:space="preserve">
+    <value>コードを保存しました。</value>
+  </data>
+  <data name="Error_BackupCodeUsername_Invalid" xml:space="preserve">
+    <value>バックアップコードまたはユーザー名が不正です。</value>
   </data>
 </root>

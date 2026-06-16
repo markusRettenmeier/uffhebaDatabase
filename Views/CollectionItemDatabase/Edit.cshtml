@@ -270,8 +270,7 @@
                                                     <td>
                                                         <input type="hidden" name="ConceptValueList[@conceptCount].ConceptId" value="@conceptValue.ConceptId" class="conceptId" />
                                                         <input type="hidden" name="ConceptValueList[@conceptCount].ConceptValueId" value="@conceptValue.ConceptValueId" class="conceptValueId" />
-                                                            @* <input type="hidden" name="ConceptValueList[@conceptCount].ValueBool" class="form-check-input" @((bool)conceptValue.ValueBool ? "checked" : "") /> *@
-                                                        <input type="hidden" name="ConceptValueList[@conceptCount].ValueBool" class="form-check-input conceptValueBool" value="true" />
+                                                        <input type="hidden" name="ConceptValueList[@conceptCount].ValueBool" class="conceptValueBool" value="true" />
                                                         <button type="button" class="btn btn-danger btn-sm removeConceptRow">@Localizer["Remove"]</button>
                                                     </td>
                                                 </tr>
@@ -404,7 +403,7 @@
                                                             <input asp-for="ConnectedPlaceList[@i].Relationship" class="form-control placeResultTableRelationship" aria-label="@Localizer["Relationship"]" />
                                                         </td>
                                                         <td>
-                                                            <input type="hidden" name="PlaceToCollectionItemList[@i].PlaceID" value="@Model.ConnectedPlaceList[i].Id" />
+                                                            <input type="hidden" asp-for="ConnectedPlaceList[@i].Id" />
                                                             <button type="button" class="btn btn-danger btn-sm removePlaceRow">@Localizer["Remove"]</button>
                                                         </td>
                                                     </tr>
@@ -449,7 +448,7 @@
                                                             <input asp-for="ConnectedParticipantList[@i].Relationship" required class="form-control participantResultTableRelationship" aria-label="@Localizer["Relationship"]" />
                                                         </td>
                                                         <td>
-                                                            <input type="hidden" class="form-control participantResultTableId" asp-for="ConnectedParticipantList[@i].Id" />
+                                                            <input type="hidden" class="participantResultTableId" asp-for="ConnectedParticipantList[@i].Id" />
                                                             <button type="button" class="btn btn-danger btn-sm removeParticipantRow">@Localizer["Remove"]</button>
                                                         </td>
                                                     </tr>

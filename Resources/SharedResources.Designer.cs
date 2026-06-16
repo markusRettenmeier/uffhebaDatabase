@@ -169,6 +169,99 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Backup Code ähnelt.
+        /// </summary>
+        public static string BackupCode {
+            get {
+                return ResourceManager.GetString("BackupCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die uffheba - BACKUP CODES
+        ///===============================
+        ///
+        ///Keep these codes in a safe place!
+        ///Each code can only be used once.
+        ///{0}
+        ///
+        ///Please have this username ready:
+        ///{1}
+        ///
+        ///Created on: {2}
+        ///
+        ///When a code is used, new ones are automatically generated. ähnelt.
+        /// </summary>
+        public static string BackupCode_File_Content {
+            get {
+                return ResourceManager.GetString("BackupCode_File_Content", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die &lt;p&gt;You can sign in using your &lt;strong&gt;backup code&lt;/strong&gt;.&lt;/p&gt;&lt;p class=&quot;text-muted small&quot;&gt;You received backup codes when you registered.&lt;br /&gt;
+        ///If you don&apos;t have any, please contact support.&lt;/p&gt; ähnelt.
+        /// </summary>
+        public static string BackupCodes_AlreadyReceived {
+            get {
+                return ResourceManager.GetString("BackupCodes_AlreadyReceived", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die &lt;label class=&quot;form-label&quot;&gt;How to use the codes:&lt;/label&gt;
+        ///&lt;ul&gt;
+        ///    &lt;li&gt;Each code can be used ONLY ONCE&lt;/li&gt;
+        ///    &lt;li&gt;Use a code if you don&apos;t have a passkey&lt;/li&gt;
+        ///    &lt;li&gt;After using a code, you will receive new ones&lt;/li&gt;
+        ///&lt;/ul&gt; ähnelt.
+        /// </summary>
+        public static string BackupCodes_Instructions {
+            get {
+                return ResourceManager.GetString("BackupCodes_Instructions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Once you have successfully logged in, you can register a new passkey.
+        ///&lt;strong&gt;This will deactivate your old backup codes. You will receive new ones.&lt;/strong&gt; ähnelt.
+        /// </summary>
+        public static string BackupCodes_MarkedAsUsed {
+            get {
+                return ResourceManager.GetString("BackupCodes_MarkedAsUsed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Keep these codes in a safe place! Each code can only be used once. ähnelt.
+        /// </summary>
+        public static string BackupCodes_OnlyUseOnce {
+            get {
+                return ResourceManager.GetString("BackupCodes_OnlyUseOnce", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your backup codes ähnelt.
+        /// </summary>
+        public static string BackupCodes_Title {
+            get {
+                return ResourceManager.GetString("BackupCodes_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die &lt;strong&gt;⚠️ IMPORTANT:&lt;/strong&gt;
+        ///These codes are displayed only ONCE!
+        ///Keep them in a safe place. ähnelt.
+        /// </summary>
+        public static string BackupCodes_Warning {
+            get {
+                return ResourceManager.GetString("BackupCodes_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Belongs to ähnelt.
         /// </summary>
         public static string BelongsTo {
@@ -736,6 +829,24 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Copied! ähnelt.
+        /// </summary>
+        public static string Copied {
+            get {
+                return ResourceManager.GetString("Copied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Copy ähnelt.
+        /// </summary>
+        public static string Copy {
+            get {
+                return ResourceManager.GetString("Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Create ähnelt.
         /// </summary>
         public static string Create {
@@ -844,6 +955,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unknown device. ähnelt.
+        /// </summary>
+        public static string Device_unknown {
+            get {
+                return ResourceManager.GetString("Device_unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Diameter ähnelt.
         /// </summary>
         public static string Diameter {
@@ -898,6 +1018,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Download (TXT) ähnelt.
+        /// </summary>
+        public static string Download_TXT {
+            get {
+                return ResourceManager.GetString("Download_TXT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Edit ähnelt.
         /// </summary>
         public static string Edit {
@@ -939,15 +1068,6 @@ namespace Sammlerplattform.Resources {
         public static string EnterToponymy {
             get {
                 return ResourceManager.GetString("EnterToponymy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Enter your username or click “Available Passkeys”. ähnelt.
-        /// </summary>
-        public static string EnterUserNameOrAllAvailablePasskey {
-            get {
-                return ResourceManager.GetString("EnterUserNameOrAllAvailablePasskey", resourceCulture);
             }
         }
         
@@ -1083,6 +1203,24 @@ namespace Sammlerplattform.Resources {
         public static string Error_Authentication_Failed {
             get {
                 return ResourceManager.GetString("Error_Authentication_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Backup code was not found. ähnelt.
+        /// </summary>
+        public static string Error_BackupCode_NotFound {
+            get {
+                return ResourceManager.GetString("Error_BackupCode_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Backup code is invalid. ähnelt.
+        /// </summary>
+        public static string Error_BackupCodeUsername_Invalid {
+            get {
+                return ResourceManager.GetString("Error_BackupCodeUsername_Invalid", resourceCulture);
             }
         }
         
@@ -1600,7 +1738,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Party not found. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Participant not found. ähnelt.
         /// </summary>
         public static string Error_Participant_NotFound {
             get {
@@ -1641,6 +1779,15 @@ namespace Sammlerplattform.Resources {
         public static string Error_Passkey_AlreadyRegistered {
             get {
                 return ResourceManager.GetString("Error_Passkey_AlreadyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Passkey deletion failed. ähnelt.
+        /// </summary>
+        public static string Error_Passkey_RemoveFailed {
+            get {
+                return ResourceManager.GetString("Error_Passkey_RemoveFailed", resourceCulture);
             }
         }
         
@@ -1717,20 +1864,20 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Place ID is missing. ähnelt.
-        /// </summary>
-        public static string Error_PlaceID_Missing {
-            get {
-                return ResourceManager.GetString("Error_PlaceID_Missing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Id of collection item must be bigger than 0. ähnelt.
         /// </summary>
         public static string Error_PlaceId_Range {
             get {
                 return ResourceManager.GetString("Error_PlaceId_Range", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Place ID is missing. ähnelt.
+        /// </summary>
+        public static string Error_PlaceID_Required {
+            get {
+                return ResourceManager.GetString("Error_PlaceID_Required", resourceCulture);
             }
         }
         
@@ -2401,6 +2548,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die If this is your usual device, click “Search for available passkeys.” If you&apos;re already registered but are using a different device or browser, click “Passkey not available?” ähnelt.
+        /// </summary>
+        public static string Login_Description {
+            get {
+                return ResourceManager.GetString("Login_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Login with Passkey ähnelt.
         /// </summary>
         public static string Login_Passkey {
@@ -2424,15 +2580,6 @@ namespace Sammlerplattform.Resources {
         public static string Login_Register {
             get {
                 return ResourceManager.GetString("Login/Register", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Login was successful. ähnelt.
-        /// </summary>
-        public static string Login_Success {
-            get {
-                return ResourceManager.GetString("Login_Success", resourceCulture);
             }
         }
         
@@ -2510,7 +2657,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die A management platform for passionate collectors: Organize your collections clearly, dynamically define categories, and discover other users&apos; collections—all in one place. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Free international management platform for collectors: Organize your collections clearly, dynamically define categories, and discover other users&apos; collections—all in one place. ähnelt.
         /// </summary>
         public static string Meta_Description {
             get {
@@ -2578,6 +2725,15 @@ namespace Sammlerplattform.Resources {
         public static string Of {
             get {
                 return ResourceManager.GetString("Of", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your old backup codes are no longer valid. Here are your new ones: ähnelt.
+        /// </summary>
+        public static string OldBackupCodesInvalid {
+            get {
+                return ResourceManager.GetString("OldBackupCodesInvalid", resourceCulture);
             }
         }
         
@@ -2807,6 +2963,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please confirm with your new passkey... ähnelt.
+        /// </summary>
+        public static string Passkey_ConfirmNew {
+            get {
+                return ResourceManager.GetString("Passkey_ConfirmNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die &lt;h2&gt;&lt;i class=&quot;bi bi-info-circle me-2&quot;&gt;What is a passkey?&lt;/i&gt;&lt;/h2&gt;
         ///&lt;p class=&quot;mb-1&quot;&gt;A passkey is a secure and convenient alternative to passwords.&lt;/p&gt;
         ///&lt;ul class=&quot;mb-0&quot;&gt;
@@ -2829,6 +2994,42 @@ namespace Sammlerplattform.Resources {
         public static string Passkey_Login {
             get {
                 return ResourceManager.GetString("Passkey_Login", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Passkey not available ähnelt.
+        /// </summary>
+        public static string Passkey_NotAvailable {
+            get {
+                return ResourceManager.GetString("Passkey_NotAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Passkey is getting saved... ähnelt.
+        /// </summary>
+        public static string Passkey_Saving {
+            get {
+                return ResourceManager.GetString("Passkey_Saving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die You got now {0} passkeys. ähnelt.
+        /// </summary>
+        public static string PasskeyCount {
+            get {
+                return ResourceManager.GetString("PasskeyCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die I&apos;ve saved the codes ähnelt.
+        /// </summary>
+        public static string Passkeys_Saved_Close {
+            get {
+                return ResourceManager.GetString("Passkeys_Saved_Close", resourceCulture);
             }
         }
         
@@ -3058,6 +3259,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Print ähnelt.
+        /// </summary>
+        public static string Print {
+            get {
+                return ResourceManager.GetString("Print", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Privacy &amp; Imprint ähnelt.
         /// </summary>
         public static string PrivacyImprint {
@@ -3126,19 +3336,6 @@ namespace Sammlerplattform.Resources {
         public static string Register_Redirect {
             get {
                 return ResourceManager.GetString("Register_Redirect", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Please have this username ready:
-        ///
-        ///{0}
-        ///
-        ///You will need this username to log in later! ähnelt.
-        /// </summary>
-        public static string Register_Username_File_Content {
-            get {
-                return ResourceManager.GetString("Register_Username_File_Content", resourceCulture);
             }
         }
         
@@ -3481,6 +3678,24 @@ namespace Sammlerplattform.Resources {
         public static string Success_Account_Deleted {
             get {
                 return ResourceManager.GetString("Success_Account_Deleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Backup code was successfully deleted. ähnelt.
+        /// </summary>
+        public static string Success_BackupCode_Deleted {
+            get {
+                return ResourceManager.GetString("Success_BackupCode_Deleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Backup code was marked as used. ähnelt.
+        /// </summary>
+        public static string Success_BackupCode_MarkedAsUsed {
+            get {
+                return ResourceManager.GetString("Success_BackupCode_MarkedAsUsed", resourceCulture);
             }
         }
         
@@ -3863,6 +4078,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Passkey removed successfully. ähnelt.
+        /// </summary>
+        public static string Success_Passkey_Removed {
+            get {
+                return ResourceManager.GetString("Success_Passkey_Removed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Physical picture deleted sucessfully. ähnelt.
         /// </summary>
         public static string Success_PhysicalPicture_Deleted {
@@ -3913,6 +4137,15 @@ namespace Sammlerplattform.Resources {
         public static string Success_Profile_Change {
             get {
                 return ResourceManager.GetString("Success_Profile_Change", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Registration was successful. Here are your Backup-Codes: ähnelt.
+        /// </summary>
+        public static string Success_Registration {
+            get {
+                return ResourceManager.GetString("Success_Registration", resourceCulture);
             }
         }
         
@@ -4093,6 +4326,15 @@ namespace Sammlerplattform.Resources {
         public static string Yes {
             get {
                 return ResourceManager.GetString("Yes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die uffheba - your safety is important to us! ähnelt.
+        /// </summary>
+        public static string YourSafetyIsImportant {
+            get {
+                return ResourceManager.GetString("YourSafetyIsImportant", resourceCulture);
             }
         }
     }

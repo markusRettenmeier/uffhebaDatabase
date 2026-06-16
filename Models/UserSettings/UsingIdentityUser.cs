@@ -17,5 +17,18 @@ public class UsingIdentityUser : IdentityUser
     public List<CollectionItemEntity> CollectionItemEntityList { get; set; } = [];
     public List<Topic> TopicList { get; set; } = [];
     public List<TopicVote> TopicVoteList { get; set; } = [];
+    public List<BackupCode> BackupCodeList { get; set; } = [];
 }
 
+public class BackupCode
+{
+    public int Id { get; set; }
+    public required string UserId { get; set; }
+    public required string HashedCode { get; set; }
+    public bool IsUsed { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UsedAt { get; set; }
+
+    //[ForeignKey("UserId")]
+    public UsingIdentityUser User { get; set; } = null!;
+}

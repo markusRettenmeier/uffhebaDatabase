@@ -26,7 +26,7 @@ namespace Sammlerplattform.Controllers
                 ConceptID = searchParameters.Id
             }).Select(x => x.ConceptID).ToList();
             List<ConceptViewModel> conceptList = [.. processConcept
-                .Get(searchParameters)                
+                .Get(searchParameters)
                 .Select(x => x.ConceptViewModel)];
             return View(conceptList);
         }

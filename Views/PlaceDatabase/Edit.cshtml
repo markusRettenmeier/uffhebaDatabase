@@ -61,7 +61,7 @@
                                 @Html.Raw(vm.FurtherSpecs)
                             </td>
                             <td>
-                                <input class="form-control" type="hidden" name="ConnectedPlaceList[@i].PlaceID" value="@vm.PlaceID" />
+                                <input type="hidden" name="ConnectedPlaceList[@i].PlaceID" value="@vm.PlaceID" />
                                 <button type="button" class="btn btn-danger removePlace">@Localizer["Remove"]</button>
                             </td>
                         </tr>

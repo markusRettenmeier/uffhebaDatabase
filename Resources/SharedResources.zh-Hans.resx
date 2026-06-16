@@ -519,7 +519,7 @@
   <data name="Error_Place_Exists" xml:space="preserve">
     <value>该地点已存在。</value>
   </data>
-  <data name="Error_PlaceID_Missing" xml:space="preserve">
+  <data name="Error_PlaceID_Required" xml:space="preserve">
     <value>缺少地点ID。</value>
   </data>
   <data name="Error_ParentPlace_ParentOfItsOwn" xml:space="preserve">
@@ -1094,7 +1094,7 @@
     <value>访问被拒绝</value>
   </data>
   <data name="Meta_Description" xml:space="preserve">
-    <value>专为收藏爱好者打造的管理平台：清晰管理您的收藏，动态定义分类，并探索其他用户的收藏——所有功能一应俱全。</value>
+    <value>免费的国际收藏平台：管理收藏集、动态定义特征，并发现其他用户的收藏品。</value>
   </data>
   <data name="EnterToponymy" xml:space="preserve">
     <value>输入地名</value>
@@ -1333,8 +1333,8 @@
   <data name="Error_PasskeyForUser_NotFound" xml:space="preserve">
     <value>未找到用户 {0} 的通行密钥。</value>
   </data>
-  <data name="EnterUserNameOrAllAvailablePasskey" xml:space="preserve">
-    <value>请输入您的用户名，或点击“可用密钥”。</value>
+  <data name="Login_Description" xml:space="preserve">
+    <value>如果这是您常用的设备，请点击“查找可用密钥”。如果您已注册，但正在使用其他设备或浏览器，请点击“找不到密钥？”。</value>
   </data>
   <data name="WebAuthnNotSupported" xml:space="preserve">
     <value>此浏览器不支持 WebAuthn</value>
@@ -1372,12 +1372,20 @@
   <data name="Error_Username_AlreadyTaken" xml:space="preserve">
     <value>密钥的生成已被取消。</value>
   </data>
-  <data name="Register_Username_File_Content" xml:space="preserve">
-    <value>请准备好这个用户名：
+  <data name="BackupCode_File_Content" xml:space="preserve">
+    <value>uffheba - 备份代码
+===============================
 
+请妥善保管这些代码！
+每个代码仅限使用一次。
 {0}
 
-您将来登录时需要使用这个用户名！</value>
+请准备好此用户名：
+{1}
+
+创建于：{2}
+
+使用代码后，系统会自动生成新的代码。</value>
   </data>
   <data name="Error_WaitingResponse" xml:space="preserve">
     <value>请稍候，上一次操作仍在进行中。</value>
@@ -1408,9 +1416,6 @@
   </data>
   <data name="Error_PasskeyUserId_Missing" xml:space="preserve">
     <value>服务器响应无效：缺少用户 ID</value>
-  </data>
-  <data name="Login_Success" xml:space="preserve">
-    <value>注册成功。</value>
   </data>
   <data name="SubConceptNameList" xml:space="preserve">
     <value>所有子概念</value>
@@ -1471,5 +1476,93 @@
   </data>
   <data name="Error_RelationId_Range" xml:space="preserve">
     <value>关系 ID 必须大于 1。</value>
+  </data>
+  <data name="BackupCode" xml:space="preserve">
+    <value>备份代码</value>
+  </data>
+  <data name="Error_BackupCode_NotFound" xml:space="preserve">
+    <value>未找到备份码。</value>
+  </data>
+  <data name="Success_BackupCode_Deleted" xml:space="preserve">
+    <value>备份码已成功删除。</value>
+  </data>
+  <data name="Success_BackupCode_MarkedAsUsed" xml:space="preserve">
+    <value>备份码已被标记为已使用。</value>
+  </data>
+  <data name="Success_Registration" xml:space="preserve">
+    <value>您的注册已成功！以下是您的备用验证码：</value>
+  </data>
+  <data name="Success_Passkey_Removed" xml:space="preserve">
+    <value>密钥已成功删除。</value>
+  </data>
+  <data name="Error_Passkey_RemoveFailed" xml:space="preserve">
+    <value>密钥删除失败。</value>
+  </data>
+  <data name="Device_unknown" xml:space="preserve">
+    <value>未知设备</value>
+  </data>
+  <data name="BackupCodes_OnlyUseOnce" xml:space="preserve">
+    <value>请妥善保管这些代码！每个代码仅限使用一次。</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>已复制！</value>
+  </data>
+  <data name="YourSafetyIsImportant" xml:space="preserve">
+    <value>uffheba——您的安全对我们至关重要</value>
+  </data>
+  <data name="OldBackupCodesInvalid" xml:space="preserve">
+    <value>您的旧备份码已失效。以下是您的新备份码：</value>
+  </data>
+  <data name="Passkey_ConfirmNew" xml:space="preserve">
+    <value>请使用您的新密码进行确认……</value>
+  </data>
+  <data name="Passkey_Saving" xml:space="preserve">
+    <value>正在保存密钥...</value>
+  </data>
+  <data name="PasskeyCount" xml:space="preserve">
+    <value>您现在拥有 {0} 个通行密钥。</value>
+  </data>
+  <data name="Passkey_NotAvailable" xml:space="preserve">
+    <value>密钥不可用。</value>
+  </data>
+  <data name="BackupCodes_AlreadyReceived" xml:space="preserve">
+    <value>&lt;p&gt;您可以使用您的 &lt;strong&gt;备用验证码&lt;/strong&gt; 登录。&lt;/p&gt;
+&lt;p class="text-muted small"&gt;您在注册时已收到备用验证码。&lt;br /&gt;
+如果您没有备用验证码，请联系客服。&lt;/p&gt;</value>
+  </data>
+  <data name="BackupCodes_MarkedAsUsed" xml:space="preserve">
+    <value>登录成功后，您可以注册一个新的密码密钥。
+&lt;strong&gt;此操作将停用旧的备份码。您将收到新的备份码。&lt;/strong&gt;</value>
+  </data>
+  <data name="BackupCodes_Title" xml:space="preserve">
+    <value>您的备用验证码</value>
+  </data>
+  <data name="BackupCodes_Warning" xml:space="preserve">
+    <value>&lt;strong&gt;⚠️ 重要提示：&lt;/strong&gt;
+这些验证码仅显示一次！
+请妥善保管。</value>
+  </data>
+  <data name="BackupCodes_Instructions" xml:space="preserve">
+    <value>&lt;label class="form-label"&gt;如何使用代码：&lt;/label&gt;
+&lt;ul&gt;
+    &lt;li&gt;每个代码仅限使用一次&lt;/li&gt;
+    &lt;li&gt;如果您没有通行密钥，请使用代码&lt;/li&gt;
+    &lt;li&gt;使用代码后，您将获得新的代码&lt;/li&gt;
+&lt;/ul&gt;</value>
+  </data>
+  <data name="Download_TXT" xml:space="preserve">
+    <value>下载 (TXT)</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>打印</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="Passkeys_Saved_Close" xml:space="preserve">
+    <value>我已经保存了这些代码。</value>
+  </data>
+  <data name="Error_BackupCodeUsername_Invalid" xml:space="preserve">
+    <value>备用代码或用户名无效。</value>
   </data>
 </root>

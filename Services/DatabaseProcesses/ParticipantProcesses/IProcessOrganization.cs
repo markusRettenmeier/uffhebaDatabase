@@ -13,7 +13,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
         (int Statuscode, string StatusMessage, int ParticipantID) Update(OrganizationEditDTO editDto);
         (int Statuscode, string StatusMessage) Delete(int participantID);
     }
-    public class OrganizationProcessor(IProcessParticpant processParty
+    public class OrganizationProcessor(IProcessParticipant processParticipant
         , IUnitOfWork unitOfWork
         , ITrackEventsCSV trackEvents
         , IProcessTranslations processTranslations
@@ -21,14 +21,14 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
     {
         public (int Statuscode, string StatusMessage) Delete(int particpantID)
         {
-            Participant? party = processParty
+            Participant? party = processParticipant
                 .GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [particpantID] })
                 .FirstOrDefault();
             if (party == null || party.Organization == null)
             {
                 trackEvents.TrackError("OrganizationProcessor.Delete: Organization not found.", new Dictionary<string, object>
                 {
-                    { "PartyID", particpantID  }
+                    { "ParticipantID", particpantID  }
                 });
                 return (404, "Error_Organization_NotFound");
             }
@@ -40,14 +40,14 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 unitOfWork.OrganizationRepository.Delete(party.Organization);
                 unitOfWork.Save();
 
-                (int statuscode, string message) = processParty.Delete(party);
+                (int statuscode, string message) = processParticipant.Delete(party);
                 if (statuscode != 200)
                 {
                     trackEvents.TrackError("OrganizationProcessor.Delete: Error occurred in party deletion.", new Dictionary<string, object>
                     {
-                        { "PartyID", particpantID  },
-                        { "ProcessPartyStatuscode", statuscode },
-                        { "ProcessPartyMessage", message }
+                        { "ParticipantID", particpantID  },
+                        { "ProcessParticipantStatuscode", statuscode },
+                        { "ProcessParticipantMessage", message }
                     });
                     scope.Dispose();
                     return (statuscode, message);
@@ -56,19 +56,11 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 scope.Complete();
                 return (200, "Success_Organization_Deleted");
             }
-            //catch (SqlException sqlEx)
-            //{
-            //    trackEvents.TrackException(sqlEx, "OrganizationProcessor.Delete: SQL Exception occurred, likely due to foreign key constraints.", new Dictionary<string, object>
-            //    {
-            //        { "ParticipantID", particpantID  }
-            //    });
-            //    return (500, "Error_Organization_Delete_Failed_ForeignKeyConstraint");
-            //}
             catch (Exception ex)
             {
                 trackEvents.TrackException(ex, "OrganizationProcessor.Delete: Exception occurred.", new Dictionary<string, object>
                 {
-                    { "PartyID", particpantID  }
+                    { "ParticipantID", particpantID  }
                 });
                 return (500, "Error_Unknown");
             }
@@ -90,14 +82,14 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                         TranslatedText = [createDTO.Industry]
                     }).Select(x => x.EntityId)];
             }
-            Participant? existingParty = processParty.GetListWithPredicate(partySearchParameterModel).FirstOrDefault();
-            if (existingParty != null)
+            Participant? existingParticipant = processParticipant.GetListWithPredicate(partySearchParameterModel).FirstOrDefault();
+            if (existingParticipant != null)
             {
-                trackEvents.TrackError("OrganizationProcessor.Insert: Party already exists.", new Dictionary<string, object>
+                trackEvents.TrackError("OrganizationProcessor.Insert: Participant already exists.", new Dictionary<string, object>
                 {
                     { "OrganizationCreateDTO", createDTO }
                 });
-                return (409, "Error_Party_Exists", 0);
+                return (409, "Error_Participant_Exists", 0);
             }
 
             try
@@ -115,11 +107,11 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                     ConnectedPlaceIdList = [.. createDTO.ConnectedPlaceList.Select(p => p.Id)],
                     ConnectedEraIdList = [.. createDTO.ConnectedEraList.Select(p => p.Id)]
                 };
-                Participant newParty = processParty.Insert(partyOperationParameterModel).Participant;
+                Participant newParticipant = processParticipant.Insert(partyOperationParameterModel).Participant;
 
                 Organization organization = new()
                 {
-                    ParticipantID = newParty.ParticipantID
+                    ParticipantID = newParticipant.ParticipantID
                 };
                 Organization newOrganization = unitOfWork.OrganizationRepository.Insert(organization);
                 unitOfWork.Save();
@@ -149,7 +141,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
 
         public (int Statuscode, string StatusMessage, int ParticipantID) Update(OrganizationEditDTO editDTO)
         {
-            Organization? existingOrganization = processParty.GetListWithPredicate(
+            Organization? existingOrganization = processParticipant.GetListWithPredicate(
                 new ParticipantSearchParameterModel { ParticipantID = [editDTO.Id] })
                 .FirstOrDefault()?.Organization;
             if (existingOrganization == null)
@@ -158,7 +150,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 {
                     { "OrganizationEditDTO", editDTO }
                 });
-                return (404, "Error_Party_NotFound", 0);
+                return (404, "Error_Participant_NotFound", 0);
             }
 
             try
@@ -176,7 +168,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                     ConnectedPlaceIdList = [.. editDTO.ConnectedPlaceList.Select(p => p.Id)],
                     ConnectedEraIdList = [.. editDTO.ConnectedEraList.Select(p => p.Id)]
                 };
-                Participant editedParty = processParty.Update(partyOperationParameterModel).Participant;
+                Participant editedParticipant = processParticipant.Update(partyOperationParameterModel).Participant;
 
                 int statusCode = SyncIndustry(existingOrganization, editDTO.Industry);
                 if (statusCode != 200)
@@ -186,7 +178,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 }
 
                 scope.Complete();
-                return (200, "Success_Organization_Updated", editedParty.ParticipantID);
+                return (200, "Success_Organization_Updated", editedParticipant.ParticipantID);
             }
             catch (Exception ex)
             {

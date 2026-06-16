@@ -9,7 +9,7 @@ namespace Sammlerplattform.Controllers
 {
     [Authorize]
     public class OrganizationDatabaseController(IProcessOrganization processOrganization
-        , IProcessParticpant processParticipant) : Controller
+        , IProcessParticipant processParticipant) : Controller
     {
         [HandleStatus]
         public ActionResult Index(ParticipantSearchParameterModel participantSearchParameter)

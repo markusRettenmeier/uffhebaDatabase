@@ -519,7 +519,7 @@
   <data name="Error_Place_Exists" xml:space="preserve">
     <value>Lugar ya existe.</value>
   </data>
-  <data name="Error_PlaceID_Missing" xml:space="preserve">
+  <data name="Error_PlaceID_Required" xml:space="preserve">
     <value>Falta el ID del lugar.</value>
   </data>
   <data name="Error_ParentPlace_ParentOfItsOwn" xml:space="preserve">
@@ -1093,7 +1093,7 @@
     <value>Acceso denegado</value>
   </data>
   <data name="Meta_Description" xml:space="preserve">
-    <value>Plataforma de gestión para coleccionistas apasionados: gestiona tus colecciones de forma clara, define categorías de forma dinámica y descubre las colecciones de otros usuarios, todo en un mismo lugar.</value>
+    <value>Plataforma internacional gratuita para coleccionistas: gestiona colecciones, define características de forma dinámica y descubre objetos de colección de otros usuarios.</value>
   </data>
   <data name="EnterToponymy" xml:space="preserve">
     <value>Introducir nombre de localidad</value>
@@ -1332,8 +1332,8 @@
   <data name="Error_PasskeyForUser_NotFound" xml:space="preserve">
     <value>No se han encontrado claves de acceso para el usuario {0}.</value>
   </data>
-  <data name="EnterUserNameOrAllAvailablePasskey" xml:space="preserve">
-    <value>Introduzca su nombre de usuario o haga clic en «Claves de acceso disponibles».</value>
+  <data name="Login_Description" xml:space="preserve">
+    <value>Si se trata de su dispositivo habitual, haga clic en «Buscar claves de acceso disponibles». Si ya está registrado, pero está utilizando otro dispositivo o navegador, haga clic en «¿No encuentra su clave de acceso?».</value>
   </data>
   <data name="WebAuthnNotSupported" xml:space="preserve">
     <value>Este navegador no es compatible con WebAuthn</value>
@@ -1371,12 +1371,20 @@
   <data name="Error_Username_AlreadyTaken" xml:space="preserve">
     <value>Se ha cancelado la creación de la clave de acceso.</value>
   </data>
-  <data name="Register_Username_File_Content" xml:space="preserve">
-    <value>Por favor, tenga a mano este nombre de usuario:
+  <data name="BackupCode_File_Content" xml:space="preserve">
+    <value>uffheba - CÓDIGOS DE RESPALDO
+===============================
 
+¡Guarde estos códigos en un lugar seguro!
+Cada código solo se puede utilizar una vez.
 {0}
 
-¡Necesitará este nombre de usuario para iniciar sesión más adelante!</value>
+Tenga a mano este nombre de usuario:
+{1}
+
+Creado el: {2}
+
+Al utilizar un código, se generan automáticamente otros nuevos.</value>
   </data>
   <data name="Error_WaitingResponse" xml:space="preserve">
     <value>Por favor, espere, el intento anterior aún se está procesando.</value>
@@ -1407,9 +1415,6 @@
   </data>
   <data name="Error_PasskeyUserId_Missing" xml:space="preserve">
     <value>Respuesta del servidor no válida: falta el identificador de usuario</value>
-  </data>
-  <data name="Login_Success" xml:space="preserve">
-    <value>El registro se ha realizado correctamente.</value>
   </data>
   <data name="SubConceptNameList" xml:space="preserve">
     <value>Todos subtérminos</value>
@@ -1470,5 +1475,93 @@
   </data>
   <data name="Error_RelationId_Range" xml:space="preserve">
     <value>El ID de la relación debe ser mayor que 1.</value>
+  </data>
+  <data name="BackupCode" xml:space="preserve">
+    <value>CÓDIGOS DE RESPALDO</value>
+  </data>
+  <data name="Error_BackupCode_NotFound" xml:space="preserve">
+    <value>No se encontró el código de respaldo.</value>
+  </data>
+  <data name="Success_BackupCode_Deleted" xml:space="preserve">
+    <value>El código de respaldo se ha eliminado correctamente.</value>
+  </data>
+  <data name="Success_BackupCode_MarkedAsUsed" xml:space="preserve">
+    <value>El código de respaldo se ha marcado como utilizado.</value>
+  </data>
+  <data name="Success_Registration" xml:space="preserve">
+    <value>¡Tu registro se ha realizado correctamente! Aquí tienes tus códigos de seguridad:</value>
+  </data>
+  <data name="Success_Passkey_Removed" xml:space="preserve">
+    <value>La clave de acceso se ha eliminado correctamente.</value>
+  </data>
+  <data name="Error_Passkey_RemoveFailed" xml:space="preserve">
+    <value>Error al borrar la clave de acceso.</value>
+  </data>
+  <data name="Device_unknown" xml:space="preserve">
+    <value>Dispositivo desconocido</value>
+  </data>
+  <data name="BackupCodes_OnlyUseOnce" xml:space="preserve">
+    <value>¡Guarde estos códigos en un lugar seguro! Cada código solo se puede utilizar una vez.</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>¡Copiado!</value>
+  </data>
+  <data name="YourSafetyIsImportant" xml:space="preserve">
+    <value>uffheba: su seguridad es importante para nosotros</value>
+  </data>
+  <data name="OldBackupCodesInvalid" xml:space="preserve">
+    <value>Tus códigos de respaldo anteriores ya no son válidos. Aquí están los nuevos:</value>
+  </data>
+  <data name="Passkey_ConfirmNew" xml:space="preserve">
+    <value>Confirme con su nueva clave de acceso...</value>
+  </data>
+  <data name="Passkey_Saving" xml:space="preserve">
+    <value>Se está guardando la clave de acceso...</value>
+  </data>
+  <data name="PasskeyCount" xml:space="preserve">
+    <value>Ahora tiene {0} claves de acceso.</value>
+  </data>
+  <data name="Passkey_NotAvailable" xml:space="preserve">
+    <value>La clave de acceso no está disponible.</value>
+  </data>
+  <data name="BackupCodes_AlreadyReceived" xml:space="preserve">
+    <value>&lt;p&gt;Puede iniciar sesión con su &lt;strong&gt;código de seguridad&lt;/strong&gt;.&lt;/p&gt;
+&lt;p class="text-muted small"&gt;Recibió los códigos de seguridad al registrarse.&lt;br /&gt;
+Si no tiene ninguno, póngase en contacto con el servicio de asistencia.&lt;/p&gt;</value>
+  </data>
+  <data name="BackupCodes_MarkedAsUsed" xml:space="preserve">
+    <value>Una vez completado el registro, podrá registrar una nueva clave de acceso.
+&lt;strong&gt;Esto desactivará los códigos de seguridad antiguos. Recibirá unos nuevos.&lt;/strong&gt;</value>
+  </data>
+  <data name="BackupCodes_Title" xml:space="preserve">
+    <value>Tus códigos de seguridad</value>
+  </data>
+  <data name="BackupCodes_Warning" xml:space="preserve">
+    <value>&lt;strong&gt;⚠️ IMPORTANTE:&lt;/strong&gt;
+¡Estos códigos solo se muestran UNA VEZ!
+Guárdelos en un lugar seguro.</value>
+  </data>
+  <data name="BackupCodes_Instructions" xml:space="preserve">
+    <value>&lt;label class="form-label"&gt;Cómo utilizar los códigos:&lt;/label&gt;
+&lt;ul&gt;
+    &lt;li&gt;Cada código SOLO se puede utilizar UNA VEZ&lt;/li&gt;
+    &lt;li&gt;Utilice un código si no dispone de una clave de acceso&lt;/li&gt;
+    &lt;li&gt;Una vez utilizado un código, recibirá otros nuevos&lt;/li&gt;
+&lt;/ul&gt;</value>
+  </data>
+  <data name="Download_TXT" xml:space="preserve">
+    <value>Descargar (TXT)</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Imprimir</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copiar</value>
+  </data>
+  <data name="Passkeys_Saved_Close" xml:space="preserve">
+    <value>He guardado los códigos.</value>
+  </data>
+  <data name="Error_BackupCodeUsername_Invalid" xml:space="preserve">
+    <value>El código de seguridad o el nombre de usuario no es válido.</value>
   </data>
 </root>

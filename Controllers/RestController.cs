@@ -25,7 +25,7 @@ namespace Sammlerplattform.Controllers
     public class RestController(
         IProcessEra processEra,
         IProcessPlace processPlace,
-        IProcessParticpant processParticpant,
+        IProcessParticipant processParticipant,
         IUnitOfWork unitOfWork,
         IProcessConcept processConcept,
         IProcessCollectionArea processCollectionArea,
@@ -97,7 +97,7 @@ namespace Sammlerplattform.Controllers
                     model.ParticipantTypeInt = [(int)participantSearchDTO.Type];
                 }
             }
-            List<Participant> participantList = processParticpant.GetListWithPredicate(model);
+            List<Participant> participantList = processParticipant.GetListWithPredicate(model);
 
             List<ParticipantDTO> participantDTOList = [.. participantList.Select(x =>
             {
@@ -124,7 +124,7 @@ namespace Sammlerplattform.Controllers
 
                 return new ParticipantDTO
                 {
-                    ParticpantID = x.ParticipantID,
+                    ParticipantID = x.ParticipantID,
                     Name = x.ParticipantName,
                     Type = x.ParticipantTypeEnum.GetDisplayName(),
                     FurtherSpecs = string.Join("; ", specs)
@@ -140,7 +140,7 @@ namespace Sammlerplattform.Controllers
         }
         public class ParticipantDTO
         {
-            public int ParticpantID { get; set; }
+            public int ParticipantID { get; set; }
             public string Name { get; set; } = "";
             public string? Type { get; set; }
             public string FurtherSpecs { get; set; } = "";

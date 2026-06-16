@@ -12,13 +12,13 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
         (int Statuscode, string StatusMessage, int ParticipantID) Update(IndividualEditDTO editDTO);
         (int Statuscode, string StatusMessage) Delete(int participantID);
     }
-    public class IndividualProcessor(IProcessParticpant processParticipant
+    public class IndividualProcessor(IProcessParticipant processParticipant
         , IUnitOfWork unitOfWork
         , ITrackEventsCSV trackEvents) : IProcessIndividual
     {
         public (int Statuscode, string StatusMessage, int ParticipantID) Insert(IndividualCreateDTO createDTO)
         {
-            (bool flowControl, (int Statuscode, string StatusMessage, int PartyID) value) = IsPartyExistingProcessCreate(createDTO);
+            (bool flowControl, (int Statuscode, string StatusMessage, int ParticipantID) value) = IsParticipantExistingProcessCreate(createDTO);
             if (!flowControl)
             {
                 return value;
@@ -65,7 +65,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
             }
         }
 
-        private (bool flowControl, (int Statuscode, string StatusMessage, int ParticipantID) value) IsPartyExistingProcessCreate(IndividualCreateDTO createDTO)
+        private (bool flowControl, (int Statuscode, string StatusMessage, int ParticipantID) value) IsParticipantExistingProcessCreate(IndividualCreateDTO createDTO)
         {
             ParticipantSearchParameterModel searchParamters = new()
             {
@@ -83,7 +83,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 {
                     {"IndividualCreateDTO", createDTO }
                 });
-                return (flowControl: false, value: (409, "Error_Party_Exists", 0));
+                return (flowControl: false, value: (409, "Error_Participant_Exists", 0));
             }
 
             return (flowControl: true, value: default);
@@ -136,10 +136,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                     ConnectedPlaceIdList = [.. editDTO.ConnectedPlaceList.Select(p => p.Id)],
                     ConnectedEraIdList = [.. editDTO.ConnectedEraList.Select(p => p.Id)]
                 };
-                Participant editedParty = processParticipant.Update(partyOperationParameter).Participant;
+                Participant editedParticipant = processParticipant.Update(partyOperationParameter).Participant;
 
                 scope.Complete();
-                return (200, "Success_Individual_Updated", editedParty.ParticipantID);
+                return (200, "Success_Individual_Updated", editedParticipant.ParticipantID);
             }
             catch (Exception ex)
             {
@@ -160,7 +160,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
             {
                 trackEvents.TrackError("IndividualProcessor.Delete: Individual not found.", new Dictionary<string, object>
                 {
-                    { "PartyID", id  }
+                    { "ParticipantID", id  }
                 });
                 return (404, "Error_Individual_NotFound");
             }
@@ -168,7 +168,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
             {
                 trackEvents.TrackError("IndividualProcessor.Delete: Individual is connected to collection items.", new Dictionary<string, object>
                 {
-                    { "PartyID", id  },
+                    { "ParticipantID", id  },
                     { "ConnectedCollectionItemsCount", party.CollectionItemNParticipantList.Count }
                 });
                 return (400, "Error_Individual_ConnectedToCollectionItems");
@@ -186,9 +186,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 {
                     trackEvents.TrackError("IndividualProcessor.Delete: Error occurred in party deletion.", new Dictionary<string, object>
                     {
-                        { "PartyID", id  },
-                        { "ProcessPartyStatuscode", statuscode },
-                        { "ProcessPartyMessage", message }
+                        { "ParticipantID", id  },
+                        { "ProcessParticipantStatuscode", statuscode },
+                        { "ProcessParticipantMessage", message }
                     });
                     scope.Dispose();
                     return (statuscode, message);
@@ -201,7 +201,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
             {
                 trackEvents.TrackException(ex, "IndividualProcessor.Delete: Exception occurred.", new Dictionary<string, object>
                 {
-                    { "PartyID", id  }
+                    { "ParticipantID", id  }
                 });
                 return (500, "Error_Unknown");
             }

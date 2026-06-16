@@ -9,7 +9,7 @@ namespace Sammlerplattform.Models.ParticipantDatabase
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public int ParticipantNPlaceId { get; set; }
-        public int ParticpantID { get; set; }
+        public int ParticipantID { get; set; }
         public Participant Participant { get; set; } = null!;
         public int PlaceID { get; set; }
         public Place Place { get; set; } = null!;

@@ -15,6 +15,7 @@ using Sammlerplattform.Models.Passkey;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.Toponymy;
 using Sammlerplattform.Models.Translations;
+using Sammlerplattform.Models.UserSettings;
 
 namespace Sammlerplattform.Data
 {
@@ -46,6 +47,7 @@ namespace Sammlerplattform.Data
         RelationalBaseRepository<TopicVote> TopicVoteRepository { get; }
         RelationalBaseRepository<FidoCredential> FidoCredentialRepository { get; }
         RelationalBaseRepository<CollectionItemRelationship> CppRelationshipRepository { get; }
+        RelationalBaseRepository<BackupCode> BackupCodeRepository { get; }
 
         void Save();
     }
@@ -78,7 +80,7 @@ namespace Sammlerplattform.Data
         private RelationalBaseRepository<TopicVote>? topicVoteRepository;
         private RelationalBaseRepository<FidoCredential>? fidoCredentialRepository;
         private RelationalBaseRepository<CollectionItemRelationship>? cppRelationshipRepository;
-
+        private RelationalBaseRepository<BackupCode>? backupCodeRepository;
         public RelationalBaseRepository<CollectionItemEmbedding> CollectionItemEmbeddingRepository
         {
             get
@@ -285,6 +287,14 @@ namespace Sammlerplattform.Data
             {
                 cppRelationshipRepository ??= new RelationalBaseRepository<CollectionItemRelationship>(context);
                 return cppRelationshipRepository;
+            }
+        }
+        public RelationalBaseRepository<BackupCode> BackupCodeRepository
+        {
+            get
+            {
+                backupCodeRepository ??= new RelationalBaseRepository<BackupCode>(context);
+                return backupCodeRepository;
             }
         }
 

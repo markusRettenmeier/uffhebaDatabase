@@ -13,10 +13,10 @@ namespace Sammlerplattform.Controllers
     public class HomeController(IProcessCollectionItemEntity processCollectionItemEntity) : Controller
     {
         [HandleStatus]
-        public IActionResult Frontpage(CollectionItemSearchParameterModel itemSearchParameterModel, int topK)
+        public async Task<IActionResult> Frontpage(CollectionItemSearchParameterModel itemSearchParameterModel, int topK)
         {
-            List<CollectionItemDisplayDTO> entities = [.. processCollectionItemEntity.GetTraditionalTextSearch(itemSearchParameterModel)
-                .Where(x => x.CollectionItemEntity.IsCollectionItemPublic)];
+            List<CollectionItemDisplayDTO> entities = await processCollectionItemEntity.GetWithVector(itemSearchParameterModel);
+
             int maxRows = entities.Count;
             if (maxRows > 24)
             {

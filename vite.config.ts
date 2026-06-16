@@ -34,6 +34,7 @@ export default defineConfig({
         // passkey
         pageslogin: resolve(__dirname, 'Scripts/pages/login.ts'),
         pagesregister: resolve(__dirname, 'Scripts/pages/register.ts'),
+        pagesbackup: resolve(__dirname, 'Scripts/pages/backup.ts'),
       },
 
       output: {

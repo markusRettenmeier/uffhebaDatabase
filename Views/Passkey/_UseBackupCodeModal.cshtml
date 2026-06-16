@@ -1,0 +1,36 @@
+﻿@model Sammlerplattform.Models.Passkey.VerifyBackupCodeRequest
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
+
+<dialog class="modal" tabindex="-1" id="useBackupCodeModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">@Localizer["Passkey_NotAvailable"]</h5>
+            </div>
+            <div class="modal-body">
+                @Localizer["BackupCodes_AlreadyReceived"]
+                <div class="mb-3">
+                    <label asp-for="BackupCode"></label>
+                    <input asp-for="BackupCode" class="form-control">
+                    <span asp-validation-for="BackupCode" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Username"></label>
+                    <input asp-for="Username" class="form-control">
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    @Localizer["BackupCodes_MarkedAsUsed"]
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="useBackupCode()" class="btn btn-warning">
+                    @Localizer["Login_Passkey"]
+                </button>
+            </div>
+        </div>
+    </div>
+</dialog>

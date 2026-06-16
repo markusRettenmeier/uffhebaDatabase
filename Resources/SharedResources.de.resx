@@ -519,7 +519,7 @@
   <data name="Error_Place_Exists" xml:space="preserve">
     <value>Ort existiert bereits.</value>
   </data>
-  <data name="Error_PlaceID_Missing" xml:space="preserve">
+  <data name="Error_PlaceID_Required" xml:space="preserve">
     <value>OrtsID fehlt.</value>
   </data>
   <data name="Error_ParentPlace_ParentOfItsOwn" xml:space="preserve">
@@ -1094,7 +1094,7 @@
     <value>Zugang verwehrt</value>
   </data>
   <data name="Meta_Description" xml:space="preserve">
-    <value>Verwaltungsplattform für begeisterte Sammler: Verwalte deine Sammlungen übersichtlich, definiere Kategorien dynamisch und entdecke Sammlungen anderer Nutzer – alles an einem Ort.</value>
+    <value>Kostenlose internationale Sammlerplattform: Verwalte Sammlungen, definiere Merkmale dynamisch und entdecke Sammlerstücke anderer Nutzer.</value>
   </data>
   <data name="EnterToponymy" xml:space="preserve">
     <value>Ortsname eingeben</value>
@@ -1333,8 +1333,8 @@
   <data name="Error_PasskeyForUser_NotFound" xml:space="preserve">
     <value>Keine Passkeys für Benutzer {0} gefunden.</value>
   </data>
-  <data name="EnterUserNameOrAllAvailablePasskey" xml:space="preserve">
-    <value>Geben Sie Ihren Benutzernamen ein oder klicken Sie auf "Verfügbare Passkeys".</value>
+  <data name="Login_Description" xml:space="preserve">
+    <value>Ist es ihr übliches Gerät, dann klicken Sie auf "Verfügbare Passkeys suchen". Falls Sie bereits registriert, aber auf einem anderen Gerät oder Browser sind, dann klicken Sie auf "Passkey nicht verfügbar?".</value>
   </data>
   <data name="WebAuthnNotSupported" xml:space="preserve">
     <value>WebAuthn wird von diesem Browser nicht unterstützt</value>
@@ -1372,12 +1372,20 @@
   <data name="Error_Username_AlreadyTaken" xml:space="preserve">
     <value>Dieser Benutzername ist bereits vergeben.</value>
   </data>
-  <data name="Register_Username_File_Content" xml:space="preserve">
-    <value>Bitte halten Sie diesen Username bereit:
+  <data name="BackupCode_File_Content" xml:space="preserve">
+    <value>uffheba - BACKUP CODES
+===============================
 
+Bewahren Sie diese Codes sicher auf!
+Jeder Code kann nur einmal verwendet werden.
 {0}
 
-Sie benötigen diesen Username für die zukünftige Anmeldung!</value>
+Bitte halten Sie diesen Username bereit:
+{1}
+
+Erstellt am: {2}
+
+Bei Verwendung eines Codes werden automatisch neue generiert.</value>
   </data>
   <data name="Error_WaitingResponse" xml:space="preserve">
     <value>Bitte warten Sie, der vorherige Versuch läuft noch.</value>
@@ -1408,9 +1416,6 @@ Sie benötigen diesen Username für die zukünftige Anmeldung!</value>
   </data>
   <data name="Error_PasskeyUserId_Missing" xml:space="preserve">
     <value>Ungültige Serverantwort: user.id fehlt</value>
-  </data>
-  <data name="Login_Success" xml:space="preserve">
-    <value>Anmeldung war erfolgreich.</value>
   </data>
   <data name="SubConceptNameList" xml:space="preserve">
     <value>Alle Unterkonzepte</value>
@@ -1471,5 +1476,93 @@ Sie benötigen diesen Username für die zukünftige Anmeldung!</value>
   </data>
   <data name="Error_RelationId_Range" xml:space="preserve">
     <value>Die BeziehungsID muss größer als 1 sein.</value>
+  </data>
+  <data name="BackupCode" xml:space="preserve">
+    <value>Backupcode</value>
+  </data>
+  <data name="Error_BackupCode_NotFound" xml:space="preserve">
+    <value>Backup-Code wurde nicht gefunden.</value>
+  </data>
+  <data name="Success_BackupCode_Deleted" xml:space="preserve">
+    <value>Backup-Code wurde erfolgreich gelöscht.</value>
+  </data>
+  <data name="Success_BackupCode_MarkedAsUsed" xml:space="preserve">
+    <value>Backup-Code wurde als genutzt markiert.</value>
+  </data>
+  <data name="Success_Registration" xml:space="preserve">
+    <value>Ihre Registrierung war erfolgreich! Hier sind Ihre Backup-Codes:</value>
+  </data>
+  <data name="Success_Passkey_Removed" xml:space="preserve">
+    <value>Passkey erfolgreich gelöscht.</value>
+  </data>
+  <data name="Error_Passkey_RemoveFailed" xml:space="preserve">
+    <value>Passkeylöschung gescheitert.</value>
+  </data>
+  <data name="Device_unknown" xml:space="preserve">
+    <value>Unbekanntes Gerät</value>
+  </data>
+  <data name="BackupCodes_OnlyUseOnce" xml:space="preserve">
+    <value>Bewahren Sie diese Codes sicher auf! Jeder Code kann nur einmal verwendet werden.</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>Kopiert!</value>
+  </data>
+  <data name="YourSafetyIsImportant" xml:space="preserve">
+    <value>uffheba - Ihre Sicherheit ist uns wichtig</value>
+  </data>
+  <data name="OldBackupCodesInvalid" xml:space="preserve">
+    <value>Ihre alten Backup-Codes sind ungültig. Hier sind Ihre neuen:</value>
+  </data>
+  <data name="Passkey_ConfirmNew" xml:space="preserve">
+    <value>Bitte bestätigen Sie mit Ihrem neuen Passkey...</value>
+  </data>
+  <data name="Passkey_Saving" xml:space="preserve">
+    <value>Passkey wird gespeichert...</value>
+  </data>
+  <data name="PasskeyCount" xml:space="preserve">
+    <value>Sie haben nun {0} Passkeys.</value>
+  </data>
+  <data name="Passkey_NotAvailable" xml:space="preserve">
+    <value>Passkey nicht verfügbar?</value>
+  </data>
+  <data name="BackupCodes_AlreadyReceived" xml:space="preserve">
+    <value>&lt;p&gt;Sie können sich mit Ihrem &lt;strong&gt;Backup-Code&lt;/strong&gt; anmelden.&lt;/p&gt;
+&lt;p class="text-muted small"&gt;Backup-Codes haben Sie bei der Registrierung erhalten.&lt;br /&gt;
+Wenn Sie keinen haben, kontaktieren Sie den Support.&lt;/p&gt;</value>
+  </data>
+  <data name="BackupCodes_MarkedAsUsed" xml:space="preserve">
+    <value>Nach erfolgreicher Anmeldung können Sie einen neuen Passkey registrieren.
+&lt;strong&gt;Damit werden alte BackupCodes deaktiviert. Sie erhalten Neue.&lt;/strong&gt;</value>
+  </data>
+  <data name="BackupCodes_Title" xml:space="preserve">
+    <value>Ihre Backup-Codes</value>
+  </data>
+  <data name="BackupCodes_Warning" xml:space="preserve">
+    <value>&lt;strong&gt;⚠️ WICHTIG:&lt;/strong&gt;
+Diese Codes werden nur EINMAL angezeigt!
+Bewahren Sie sie sicher auf.</value>
+  </data>
+  <data name="BackupCodes_Instructions" xml:space="preserve">
+    <value>&lt;label class="form-label"&gt;So verwenden Sie die Codes:&lt;/label&gt;
+&lt;ul&gt;
+    &lt;li&gt;Jeder Code kann NUR EINMAL verwendet werden&lt;/li&gt;
+    &lt;li&gt;Verwenden Sie einen Code, wenn Sie keinen Passkey haben&lt;/li&gt;
+    &lt;li&gt;Nach Verwendung eines Codes erhalten Sie neue&lt;/li&gt;
+&lt;/ul&gt;</value>
+  </data>
+  <data name="Download_TXT" xml:space="preserve">
+    <value>Herunterladen (TXT)</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Drucken</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="Passkeys_Saved_Close" xml:space="preserve">
+    <value>Ich habe die Codes gespeichert.</value>
+  </data>
+  <data name="Error_BackupCodeUsername_Invalid" xml:space="preserve">
+    <value>Backupcode oder Nutzername ist ungültig.</value>
   </data>
 </root>
