@@ -20,7 +20,7 @@ namespace Sammlerplattform.Models.Translations
         public int EntityId { get; set; }
 
         [Index("IX_EntityTranslations_Lookup", IsUnique = true, Order = 3)]
-        public required string FieldName { get; set; }
+        public required string PropertyName { get; set; }
 
         [Index("IX_EntityTranslations_Lookup", IsUnique = true, Order = 4)]
         public required string Culture { get; set; }
