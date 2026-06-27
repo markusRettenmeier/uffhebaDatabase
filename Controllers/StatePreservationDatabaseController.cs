@@ -17,10 +17,10 @@ namespace Sammlerplattform.Controllers
         public IActionResult Index(StatePreservationSearchParameterModel stateSearchParameterModel)
         {
             ViewData["CollectionAreaID"] = stateSearchParameterModel.CollectionArea_CollectionAreaID[0];
-            string? collectionAreaName = processCollectionArea.GetListWithPredicate(new CollectionAreaSearchParameterModel { CollectionAreaID = stateSearchParameterModel.CollectionArea_CollectionAreaID }).Select(x => x.CollectionAreaName).FirstOrDefault();
+            string? collectionAreaName = processCollectionArea.GetWithTranslationsListViaPredicate(new CollectionAreaSearchParameterModel { CollectionAreaID = stateSearchParameterModel.CollectionArea_CollectionAreaID }).Select(x => x.CollectionAreaName).FirstOrDefault();
             ViewData["CollectionAreaName"] = collectionAreaName ?? string.Empty;
 
-            return View(processStates.GetWithPredicates(stateSearchParameterModel));
+            return View(processStates.GetWithTranslationsListViaPredicates(stateSearchParameterModel));
         }
 
         public ActionResult Create(int collectionAreaID)
@@ -50,14 +50,14 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public ActionResult Edit(int id)
         {
-            StatePreservation existingState = processStates.GetWithPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [id] }).First();
+            StatePreservationDisplayDTO existingState = processStates.GetWithTranslationsListViaPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [id] }).First();
             if (existingState == null)
                 return RedirectToAction(nameof(Index), new { statusMessage = "Error_StatePreservation_NotFound" });
 
             StatePreservationEditDTO editDTO = new()
             {
-                Id = existingState.StatePreservationID,
-                Name = existingState.StatePreservationName,
+                Id = existingState.Id,
+                Name = existingState.Name,
                 CollectionAreaID = existingState.CollectionAreaID,
                 SortingOrder = existingState.SortingOrder
             };
@@ -80,7 +80,11 @@ namespace Sammlerplattform.Controllers
 
         public ActionResult Delete(int id)
         {
-            StatePreservation existingState = processStates.GetWithPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [id] }).First();
+            StatePreservationDisplayDTO existingState = processStates.GetWithTranslationsListViaPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [id] }).First();
+            
+            string? collectionAreaName = processCollectionArea.GetWithTranslationsListViaPredicate(new CollectionAreaSearchParameterModel { CollectionAreaID = [existingState.CollectionAreaID] }).Select(x => x.CollectionAreaName).FirstOrDefault();
+            ViewData["CollectionAreaName"] = collectionAreaName ?? string.Empty;
+            
             return existingState == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_StatePreservation_NotFound" })
                 : View(existingState);

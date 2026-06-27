@@ -12,8 +12,8 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public ActionResult Index(CollectionAreaSearchParameterModel collectionSearchParameterModel)
         {
-            List<CollectionArea> collectionList = processCollection
-                .GetListWithPredicate(collectionSearchParameterModel);
+            List<CollectionAreaDisplayDTO> collectionList = processCollection
+                .GetWithTranslationsListViaPredicate(collectionSearchParameterModel);
 
             return View(collectionList);
         }
@@ -43,15 +43,15 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public ActionResult Edit(int id)
         {
-            CollectionArea? existingCollection = processCollection.
-                GetListWithPredicate(new CollectionAreaSearchParameterModel { CollectionAreaID = [id] })
+            CollectionAreaDisplayDTO? existingCollection = processCollection.
+                GetWithTranslationsListViaPredicate(new CollectionAreaSearchParameterModel { CollectionAreaID = [id] })
                 .FirstOrDefault();
             if (existingCollection == null)
                 return RedirectToAction(nameof(Index), new { statusMessage = "Error_CollectionArea_NotFound" });
 
             CollectionAreaEditDTO editDTO = new()
             {
-                Id = existingCollection.CollectionAreaID,
+                Id = existingCollection.Id,
                 Name = existingCollection.CollectionAreaName,
                 WikipediaUrl = existingCollection.WikipediaUrl
             };
@@ -75,8 +75,8 @@ namespace Sammlerplattform.Controllers
 
         public ActionResult Delete(int id)
         {
-            CollectionArea? existingCollection = processCollection.
-                GetListWithPredicate(new CollectionAreaSearchParameterModel { CollectionAreaID = [id] })
+            CollectionAreaDisplayDTO? existingCollection = processCollection.
+                GetWithTranslationsListViaPredicate(new CollectionAreaSearchParameterModel { CollectionAreaID = [id] })
                 .FirstOrDefault();
             return existingCollection == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_CollectionArea_NotFound" })

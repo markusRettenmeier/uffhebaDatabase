@@ -13,7 +13,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PasskeyProcessees
     }
 
     public class BackupCodeProcessor(IUnitOfWork unitOfWork
-        , ITrackEventsCSV trackEvents) : IProcessBackupCode
+        , ITrackEventsText trackEvents) : IProcessBackupCode
     {
         public (int Statuscode, string Statusmessage) DeleteRangeByUserId(string userId)
         {

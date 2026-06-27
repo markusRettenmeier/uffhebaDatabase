@@ -361,7 +361,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Collection Area Management and Development ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Administer collection areas ähnelt.
         /// </summary>
         public static string CollectionArea_Structure {
             get {
@@ -388,7 +388,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Collectionareas ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Collection areas ähnelt.
         /// </summary>
         public static string CollectionAreas {
             get {
@@ -1495,6 +1495,15 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Consent to the use of cookies is required. ähnelt.
+        /// </summary>
+        public static string Error_CookieConsent_Required {
+            get {
+                return ResourceManager.GetString("Error_CookieConsent_Required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The passkey was not found. Please register again. ähnelt.
         /// </summary>
         public static string Error_Credential_NotFound {
@@ -1504,7 +1513,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Credential Id is missing ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Credential Id is missing. ähnelt.
         /// </summary>
         public static string Error_CredentialId_Missing {
             get {
@@ -1936,7 +1945,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Name is missing. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die CollectionItemRelationshipName is missing. ähnelt.
         /// </summary>
         public static string Error_RelationshipName_Required {
             get {
@@ -2035,7 +2044,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Name of state preservation is missing. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die CollectionItemRelationshipName of state preservation is missing. ähnelt.
         /// </summary>
         public static string Error_StatePreservationName_IsMissing {
             get {
@@ -2666,7 +2675,7 @@ namespace Sammlerplattform.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Name ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die CollectionItemRelationshipName ähnelt.
         /// </summary>
         public static string Name {
             get {

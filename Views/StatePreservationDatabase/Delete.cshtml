@@ -1,4 +1,4 @@
-﻿@model StatePreservation
+﻿@model StatePreservationDisplayDTO
 @using Microsoft.AspNetCore.Mvc.Localization
 @using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
@@ -6,6 +6,8 @@
 @{
     ViewData["Title"] = Localizer["StatePreservation_Delete"];
     Layout = "~/Views/Shared/_LayoutSettings.cshtml";
+
+    string? collectionAreaName = ViewData["CollectionAreaName"] as string; 
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -13,16 +15,16 @@
 <hr />
 <dl class="row">
     <dt class = "col-sm-2">
-        @Html.DisplayNameFor(model => model.StatePreservationName)
+        @Html.DisplayNameFor(model => model.Name)
     </dt>
     <dd class = "col-sm-10">
-        @Html.DisplayFor(model => model.StatePreservationName)
+        @Html.DisplayFor(model => model.Name)
     </dd>
     <dt class = "col-sm-2">
-        @Html.DisplayNameFor(model => model.CollectionArea)
+        @Localizer["CollectionArea"]
     </dt>
     <dd class = "col-sm-10">
-        @Html.DisplayFor(model => model.CollectionArea.CollectionAreaName)
+        @collectionAreaName
     </dd>
     <dt class = "col-sm-2">
         @Html.DisplayNameFor(model => model.SortingOrder)
@@ -34,7 +36,7 @@
     
 <form asp-action="Delete">
     <input type="hidden" asp-for="CollectionAreaID" />
-    <input type="hidden" asp-for="StatePreservationID" />
+    <input type="hidden" asp-for="Id" />
     <div class="mt-4 pt-3 border-top">
         <button type="submit" class="btn btn-danger btn-lg px-5">
             <i class="bi bi-check-circle"></i> @Localizer["Delete"]

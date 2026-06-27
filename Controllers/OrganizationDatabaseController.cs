@@ -16,7 +16,7 @@ namespace Sammlerplattform.Controllers
         {
             ViewData["Participant"] = "Organization";
 
-            List<Participant> participantList = [.. processParticipant.GetListWithPredicate(participantSearchParameter).Where(x => x.Organization != null)];
+            List<ParticipantDisplayDTO> participantList = [.. processParticipant.GetTranslationsListViaPredicate(participantSearchParameter)];
             return View(participantList);
         }
 
@@ -42,22 +42,21 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public ActionResult Edit(int id)
         {
-            Participant? existingParticipant = processParticipant.GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
-
-            if (existingParticipant == null || existingParticipant.Organization == null)
+            ParticipantDisplayDTO? existingParticipant = processParticipant.GetTranslationsListViaPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
+            if (existingParticipant == null)
             {
                 return RedirectToAction(nameof(Index), new { statusMessage = "Error_Participant_NotFound" });
             }
 
-            ViewData["ConnectedPlaces"] = existingParticipant.ParticipantNPlaceList.Select(x => x.Place).ToList();
-            ViewData["ConnectedEras"] = existingParticipant.ParticipantNEraList.Select(x => x.Era).ToList();
+            ViewData["ConnectedPlaces"] = existingParticipant.ConnectedPlaceList.ToList();
+            ViewData["ConnectedEras"] = existingParticipant.ConnectedEraList.ToList();
 
             OrganizationEditDTO organizationEditDTO = new()
             {
                 Id = existingParticipant.ParticipantID,
-                Name = existingParticipant.ParticipantName,
+                Name = existingParticipant.Name,
                 WikipediaUrl = existingParticipant.WikipediaUrl,
-                Industry = existingParticipant.Organization!.Industry?.IndustryName
+                Industry = existingParticipant.IndustryName
             };
             return View(organizationEditDTO);
         }
@@ -78,9 +77,9 @@ namespace Sammlerplattform.Controllers
 
         public ActionResult Delete(int id)
         {
-            Participant? existingParticipant = processParticipant.GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
+            ParticipantDisplayDTO? existingParticipant = processParticipant.GetTranslationsListViaPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
 
-            return existingParticipant == null || existingParticipant.Organization == null
+            return existingParticipant == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Participant_NotFound" })
                 : View(existingParticipant);
         }

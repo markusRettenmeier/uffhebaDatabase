@@ -14,7 +14,7 @@ namespace Sammlerplattform.Models.Translations
 
         // Composite Index für Performance
         [Index("IX_EntityTranslations_Lookup", IsUnique = true, Order = 1)]
-        public required string EntityType { get; set; } //Tabellenname
+        public required string EntityName { get; set; } //Tabellenname
 
         [Index("IX_EntityTranslations_Lookup", IsUnique = true, Order = 2)]
         public int EntityId { get; set; }

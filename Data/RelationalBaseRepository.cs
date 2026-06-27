@@ -10,7 +10,7 @@ namespace Sammlerplattform.Data
         internal DbIdentityContext context = context;
         internal DbSet<TEntity> dbSet = context.Set<TEntity>();
 
-        public virtual IEnumerable<TEntity> Get(
+        public virtual IQueryable<TEntity> Get(
             Expression<Func<TEntity, bool>>? filter = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
             string includeProperties = "")
@@ -28,7 +28,7 @@ namespace Sammlerplattform.Data
                 query = query.Include(includeProperty);
             }
 
-            return orderBy != null ? [.. orderBy(query)] : [.. query];
+            return orderBy != null ? orderBy(query) : query;
         }
 
         public virtual TEntity? GetByID(object id)

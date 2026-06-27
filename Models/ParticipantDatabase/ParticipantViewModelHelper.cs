@@ -2,23 +2,22 @@
 {
     public class ParticipantViewModelHelper
     {
-        public static ParticipantViewModel FromDomainModel(Participant participant)
+        public static ParticipantViewModel FromDomainModel(ParticipantDisplayDTO participant)
         {
-            string places = participant.ParticipantNPlaceList != null ?
-                        string.Join(", ", participant.ParticipantNPlaceList
-                        .Select(x => x.Place.PlaceNToponymyList.Where(t => t.IsCurrentName)
-                        .Select(t => t.Toponymy.ToponymyName).FirstOrDefault())) : "Keine Orte zugewiesen";
-            string industry = participant.Organization?.Industry != null ?
-                        participant.Organization.Industry.IndustryName : string.Empty;
+            string places = participant.ConnectedPlaceList != null ?
+                        string.Join(", ", participant.ConnectedPlaceList
+                        .Select(x => x.ToponymyList.Where(t => t.IsCurrentName)
+                        .Select(t => t.Name).FirstOrDefault())) : "Keine Orte zugewiesen";
+            string industry = participant.IndustryName ?? string.Empty;
 
             ParticipantViewModel particpantViewModel = new()
             {
-                Name = participant.ParticipantName,
-                Pseudonym = participant.Individual?.Pseudonym ?? string.Empty,
-                Signature = participant.Individual?.Signature ?? string.Empty,
+                Name = participant.Name,
+                Pseudonym = participant.Pseudonym ?? string.Empty,
+                Signature = participant.Signature ?? string.Empty,
                 Places = string.Join(", ", places),
                 Industry = industry,
-                IsDeletable = participant.CollectionItemNParticipantList.Count == 0
+                IsDeletable = participant.CollectionItemNParticipantList.ToList().Count == 0
             };
 
             if (!string.IsNullOrEmpty(particpantViewModel.Pseudonym))

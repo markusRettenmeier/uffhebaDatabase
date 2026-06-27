@@ -664,7 +664,7 @@
     <value>Privacy &amp; Imprint</value>
   </data>
   <data name="CollectionAreas" xml:space="preserve">
-    <value>Collectionareas</value>
+    <value>Collection areas</value>
   </data>
   <data name="Create" xml:space="preserve">
     <value>Create</value>
@@ -706,7 +706,7 @@
     <value>Edit collection area</value>
   </data>
   <data name="CollectionArea_Structure" xml:space="preserve">
-    <value>Collection Area Management and Development</value>
+    <value>Administer collection areas</value>
   </data>
   <data name="CollectionItemEntity_Create" xml:space="preserve">
     <value>Create collection item</value>
@@ -1049,7 +1049,7 @@
     <value>We only use cookies to enable users to access the site.</value>
   </data>
   <data name="Error_CredentialId_Missing" xml:space="preserve">
-    <value>Credential Id is missing</value>
+    <value>Credential Id is missing.</value>
   </data>
   <data name="Error_PublicKey_Missing" xml:space="preserve">
     <value>Public key is missing.</value>
@@ -1562,5 +1562,8 @@ Keep them in a safe place.</value>
   </data>
   <data name="Error_BackupCodeUsername_Invalid" xml:space="preserve">
     <value>Backup code is invalid.</value>
+  </data>
+  <data name="Error_CookieConsent_Required" xml:space="preserve">
+    <value>Consent to the use of cookies is required.</value>
   </data>
 </root>

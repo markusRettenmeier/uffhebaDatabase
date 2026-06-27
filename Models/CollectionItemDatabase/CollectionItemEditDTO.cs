@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase;
 using Sammlerplattform.Resources;
-using Sammlerplattform.Services;
 using Sammlerplattform.Services.Extensions;
+using Sammlerplattform.Services.Translation;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sammlerplattform.Models.CollectionItemDatabase
@@ -113,12 +113,4 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         public DateTime? ValueDate { get; set; }
         public bool? ValueBool { get; set; }
     }
-    //public class OwnershipProofPictureToCollectionItemEditDTO
-    //{
-    //    public int? Id { get; set; }
-
-    //    [Display(Name = "IFormFile", ResourceType = typeof(SharedResources))]
-    //    public IFormFile? FormFile { get; set; }
-    //    public OwnershipProofPictureType Type { get; set; }
-    //}
 }

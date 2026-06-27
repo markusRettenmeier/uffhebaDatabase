@@ -13,7 +13,7 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public IActionResult Index(CIRelationshipSearchParameterModel searchParameterModel)
         {
-            return View(processCIRelationship.GetListWithPredicates(searchParameterModel));
+            return View(processCIRelationship.GetWithTranslationsListViaPredicates(searchParameterModel));
         }
 
         public IActionResult Create()
@@ -44,7 +44,7 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public async Task<IActionResult> Edit(int id)
         {
-            CollectionItemRelationship? ciRelationship = processCIRelationship.GetListWithPredicates(
+            CIRelationshipDisplayDTO? ciRelationship = processCIRelationship.GetWithTranslationsListViaPredicates(
                 new CIRelationshipSearchParameterModel { CollectionItemRelationshipId = [id] }).FirstOrDefault();
             if (ciRelationship == null)
             {
@@ -53,7 +53,7 @@ namespace Sammlerplattform.Controllers
 
             CIRelationshipEditDTO editDTO = new()
             {
-                Id = ciRelationship.CollectionItemRelationshipId,
+                Id = ciRelationship.Id,
                 Name = ciRelationship.CollectionItemRelationshipName
             };
             return View(editDTO);
@@ -81,7 +81,7 @@ namespace Sammlerplattform.Controllers
         // GET: CollectionItemRelationship/DeleteRangeByUserId/5
         public async Task<IActionResult> Delete(int id)
         {
-            CollectionItemRelationship? ciRelationship = processCIRelationship.GetListWithPredicates(
+            CIRelationshipDisplayDTO? ciRelationship = processCIRelationship.GetWithTranslationsListViaPredicates(
                 new CIRelationshipSearchParameterModel { CollectionItemRelationshipId = [id] }).FirstOrDefault();
             return ciRelationship == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_CIRelationship_NotFound" })

@@ -12,7 +12,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
     }
 
     public class ImprovementSuggestionsProcessor(IUnitOfWork unitOfWork
-        , ITrackEventsCSV trackEvents) : IProcessImprovementSuggestions
+        , ITrackEventsText trackEvents) : IProcessImprovementSuggestions
     {
         public List<Topic> GetWithPredicate(TopicSearchParameterModel searchParameterModel, int count = 20)
         {

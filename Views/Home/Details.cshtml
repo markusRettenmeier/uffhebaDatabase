@@ -6,12 +6,12 @@
 @{
     ViewData["Title"] = Localizer["Details"];
     string displayName = string.Empty;
-    if (!string.IsNullOrEmpty(Model.CollectionItemEntity.UniqueName))
-        displayName = Model.CollectionItemEntity.UniqueName;
-    else if (!string.IsNullOrEmpty(Model.CollectionItemEntity.PersonalIdentificationNumber))
-        displayName = Model.CollectionItemEntity.PersonalIdentificationNumber;
+    if (!string.IsNullOrEmpty(Model.UniqueName))
+        displayName = Model.UniqueName;
+    else if (!string.IsNullOrEmpty(Model.PersonalIdentificationNumber))
+        displayName = Model.PersonalIdentificationNumber;
     else
-        displayName = Model.CollectionItemEntity.CollectionItemEntityID.ToString();
+        displayName = Model.CollectionItemEntityID.ToString();
 }
 
 <h1>@ViewData["Title"]: @displayName</h1>

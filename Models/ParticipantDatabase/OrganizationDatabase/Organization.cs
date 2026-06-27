@@ -1,4 +1,5 @@
-﻿using Sammlerplattform.Resources;
+﻿using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase.IndustryDatabase;
+using Sammlerplattform.Resources;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,7 +13,6 @@ namespace Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase
         public int ParticipantID { get; set; }
         public Participant Participant { get; set; } = null!;
         public int? IndustryID { get; set; }
-        [Display(Name = "Industry", ResourceType = typeof(SharedResources))]
         public Industry? Industry { get; set; }
     }
 }

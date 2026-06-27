@@ -1,12 +1,7 @@
-﻿@using Microsoft.AspNetCore.Localization
-@using Sammlerplattform.Models.CollectionAreaDatabase
-@using Sammlerplattform.Models.CollectionItemDatabase
-@using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemPictureDatabase
-@using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase
+﻿@using Sammlerplattform.Models.CollectionItemDatabase
 @using Sammlerplattform.Models.ConceptualRelationshipDatabase
 @using Sammlerplattform.Models.ParticipantDatabase
 @using Sammlerplattform.Models.PlaceDatabase
-@using Sammlerplattform.Services
 @model Sammlerplattform.Models.CollectionItemDatabase.CollectionItemEditDTO
 @using Microsoft.AspNetCore.Mvc.Localization
 @using System.Globalization
@@ -24,8 +19,8 @@
     else
         displayName = Model.Id.ToString();
 
-    List<Participant>? participantList = ViewData["ParticipantList"] as List<Participant>;
-    List<Place>? placeList = ViewData["PlaceList"] as List<Place>;
+    List<CollectionItemNParticipantDisplayDTO>? participantList = ViewData["ParticipantList"] as List<CollectionItemNParticipantDisplayDTO>;
+    List<CollectionItemNPlaceDisplayDTO>? placeList = ViewData["PlaceList"] as List<CollectionItemNPlaceDisplayDTO>;
     List<ConceptViewModel>? conceptViewList = ViewData["ConceptList"] as List<ConceptViewModel>;
     List<StatePreservationViewDTO>? statePreservationViewList = ViewData["StatePreservationSchemaList"] as List<StatePreservationViewDTO>;
 

@@ -30,9 +30,6 @@ namespace Sammlerplattform.Models.ParticipantDatabase.IndividualDatabase
     {
         [Required(ErrorMessageResourceName = "Error_PlaceID_Required", ErrorMessageResourceType = typeof(SharedResources))]
         public int Id { get; set; }
-
-        //[Required(ErrorMessageResourceName = "Error_Relationship_Required", ErrorMessageResourceType = typeof(SharedResources))]
-        //public required string Relationship { get; set; }
     }
     public class ConnectedEraDTO
     {

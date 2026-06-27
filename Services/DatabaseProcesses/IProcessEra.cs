@@ -2,29 +2,28 @@
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Services.Extensions;
-using Sammlerplattform.Services.Translation;
+using System.Data.Entity;
 using System.Transactions;
 
 namespace Sammlerplattform.Services.DatabaseProcesses
 {
     public interface IProcessEra
     {
-        List<Era> GetWithPredicates(EraSearchParameterModel eraSearchParameter);
+        List<Era> GetEntityListViaPredicates(EraSearchParameterModel eraSearchParameter);
+        List<EraDisplayDTO> GetTranslationsListViaPredicates(EraSearchParameterModel eraSearchParameter);
         (int statuscode, string message, int EraId) Insert(EraCreateDTO createDto);
         (int statuscode, string message, int EraId) Update(EraEditDTO editDto);
         (int statusCode, string message) Delete(int id);
     }
     public class EraProcessor(IUnitOfWork unitOfWork,
-        IDeeplTranslationService translationService,
         IProcessTranslations processTranslations,
-        ITranslationStore translationStore,
-        ITrackEventsCSV trackEvents) : IProcessEra
+        ITrackEventsText trackEvents) : IProcessEra
     {
         public (int statuscode, string message, int EraId) Insert(EraCreateDTO createDTO)
         {
             int? eraID = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
             {
-                EntityType = [nameof(Era)],
+                EntityName = [nameof(Era)],
                 TranslatedText = [createDTO.Name]
             }).Select(x => x.EntityId).FirstOrDefault();
             if (eraID > 0)
@@ -42,7 +41,6 @@ namespace Sammlerplattform.Services.DatabaseProcesses
 
                 Era newEra = new()
                 {
-                    EraName = createDTO.Name,
                     WikipediaUrl = createDTO.WikipediaUrl.ChangeStringToUriToRemoveSubdomain()
                 };
                 newEra = unitOfWork.EraRepository.Insert(newEra);
@@ -52,10 +50,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                     new TranslationDTO
                     {
                         TextToTranslate = createDTO.Name,
-                        EntityType = nameof(Era),
+                        EntityName = nameof(Era),
                         EntityId = newEra.EraID,
-                        FieldName = nameof(Era.EraName),
-                        Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
+                        PropertyName = nameof(EraDisplayDTO.EraName)
                     });
 
                 transactionScope.Complete();
@@ -73,8 +70,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
 
         public (int statuscode, string message, int EraId) Update(EraEditDTO edit)
         {
-            Era? existingEra = (from e in unitOfWork.EraRepository.Get()
-                                select e).Where(x => x.EraID == edit.Id).FirstOrDefault();
+            Era? existingEra = GetEntityListViaPredicates(new EraSearchParameterModel { EraID = [edit.Id] }).FirstOrDefault();
             if (existingEra == null)
             {
                 trackEvents.TrackError("EraProcessor.Edit: Era not found.", new Dictionary<string, object>
@@ -88,16 +84,22 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             {
                 using TransactionScope transactionScope = new();
                 bool isChanged = false;
-                if (existingEra.EraName != edit.Name)
+
+                var translation = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
+                {
+                    TranslatedText = [edit.Name],
+                    EntityName = [nameof(Era)],
+                    PropertyName = [nameof(EraDisplayDTO.EraName)]
+                }).First();
+                if (translation.EntityId != existingEra.EraID)
                 {
                     processTranslations.Update(
                         new TranslationDTO
                         {
                             TextToTranslate = edit.Name,
-                            EntityType = nameof(Era),
+                            EntityName = nameof(Era),
                             EntityId = existingEra.EraID,
-                            FieldName = nameof(Era.EraName),
-                            Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
+                            PropertyName = nameof(EraDisplayDTO.EraName)
                         });
                     isChanged = true;
                 }
@@ -125,27 +127,43 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             }
         }
 
-        public List<Era> GetWithPredicates(EraSearchParameterModel eraSearchParameter)
+        public List<Era> GetEntityListViaPredicates(EraSearchParameterModel eraSearchParameter)
         {
             List<Era> eraList = [.. unitOfWork.EraRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<Era>(eraSearchParameter))];
-
-            foreach (Era era in eraList)
-            {
-                era.EraName = translationStore.GetTranslation(
-                    nameof(Era),
-                    era.EraID,
-                    nameof(era.EraName),
-                    translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name))
-                    ?? "";
-            }
+            return eraList;
+        }
+        public List<EraDisplayDTO> GetTranslationsListViaPredicates(EraSearchParameterModel eraSearchParameter)
+        {
+            List<EraDisplayDTO> eraList = [.. unitOfWork.EraRepository.Get(
+                filter: SearchPredicateBuilder.BuildPredicate<Era>(eraSearchParameter))
+                .AsNoTracking()
+                .Select(e => new EraDisplayDTO
+                {
+                    EraID = e.EraID,
+                    WikipediaUrl = e.WikipediaUrl
+                })];
+            SetTranslations(eraList);
 
             return [.. eraList.OrderBy(x => x.EraName)];
         }
 
+        private void SetTranslations(List<EraDisplayDTO> eraList)
+        {
+            var allTranslations = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
+            {
+                EntityName = [nameof(Era)],
+                PropertyName = [nameof(EraDisplayDTO.EraName)]
+            }).ToList();
+            foreach (EraDisplayDTO era in eraList)
+            {
+                era.EraName = allTranslations.FirstOrDefault(t => t.EntityId == era.EraID)?.TranslatedText ?? string.Empty;
+            }
+        }
+
         public (int statusCode, string message) Delete(int id)
         {
-            Era? era = GetWithPredicates(new EraSearchParameterModel { EraID = [id] }).FirstOrDefault();
+            Era? era = GetEntityListViaPredicates(new EraSearchParameterModel { EraID = [id] }).FirstOrDefault();
             if (era == null)
             {
                 trackEvents.TrackError("EraProcessor.Delete: Era not found.", new Dictionary<string, object>
@@ -170,7 +188,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
 
                 processTranslations.Delete(new EntityTranslationSearchParameter
                 {
-                    EntityType = [nameof(Era)],
+                    EntityName = [nameof(Era)],
                     EntityId = [id]
                 });
 

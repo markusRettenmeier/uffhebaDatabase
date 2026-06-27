@@ -1,10 +1,16 @@
 ﻿import { startRegistration } from '@simplewebauthn/browser';
-import { checkWebAuthnSupport, showError, showLoading, showStatus, showSuccess, getTranslation } from '../shared';
+import { checkWebAuthnSupport, checkIfCookieConsentGiven, showError, showLoading, showStatus, showSuccess, getTranslation } from '../shared';
 import { setBackupCodes, generateBackupCodes, showBackupCodesModal } from './backup'
 
 // Register-spezifische Initialisierung
 async function initializeRegisterPage(): Promise<void> {
   await checkWebAuthnSupport();
+  if(!checkIfCookieConsentGiven()) {
+    showError('registerStatus', getTranslation('Error_CookieConsent_Required'));
+
+    const btnRegister = document.getElementById('btnRegister') as HTMLButtonElement;
+    if (btnRegister) btnRegister.disabled = true;
+  }
 
   const btnRegister = document.getElementById('btnRegister');
   if (btnRegister) {
@@ -167,7 +173,6 @@ async function loadMyPasskeys() {
 
 // Globale Exporte
 window.register = register;
-window.checkWebAuthnSupport = checkWebAuthnSupport;
 
 // Starte Register-Initialisierung
 initializeRegisterPage();

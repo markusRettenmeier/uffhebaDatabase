@@ -10,16 +10,12 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
     }
 
     public partial class PhysicalPictureProcessor(IWebHostEnvironment hostEnvironment
-        , ITrackEventsCSV trackEvents) : IProcessPicturePhysically
+        , ITrackEventsText trackEvents) : IProcessPicturePhysically
     {
         public (int Statuscode, string Statusmessage) SaveCollectionItemPic(PictureToCollectionItemCreateDTO pic, int id, string displayName)
         {
             try
             {
-                //if (update)
-                //{
-                //    DeleteCollectionItemPic(Id);
-                //}
                 string pathFile = SaveFileForOCR(pic.IFormFile, hostEnvironment);
                 var fileStream = new FileStream(pathFile, FileMode.Open);
                 MagickImage image = new(fileStream)
@@ -119,36 +115,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
                 image.Write(pathesPng.pathThumbnail, MagickFormat.Png);
             }
         }
-        //private static void ImageSetWatermark(string displayName, MagickImage image)
-        //{
-        //    MagickReadSettings readSettings = new()
-        //    {
-        //        Font = "Calibri",
-        //        TextGravity = Gravity.Center,
-        //        BackgroundColor = MagickColors.Transparent,
-        //        FillColor = MagickColors.LightGray,
-        //        Height = 200,
-        //        Width = 400
-        //    };
-        //    MagickImage watermark = new($"caption:{displayName}", readSettings);
-        //    watermark.Rotate(315.00);
-
-        //    // Normal Version                        
-        //    if (image.Width > image.Height)
-        //    {
-        //        image.Composite(watermark, Gravity.Center, 600, 350, CompositeOperator.Over);
-        //        image.Composite(watermark, Gravity.Center, -600, -350, CompositeOperator.Over);
-        //    }
-        //    else if (image.Height > image.Width)
-        //    {
-        //        image.Composite(watermark, Gravity.Center, 420, 680, CompositeOperator.Over);
-        //        image.Composite(watermark, Gravity.Center, -420, -680, CompositeOperator.Over);
-        //    }
-        //    else
-        //    {
-        //        image.Composite(watermark, Gravity.Center, 0, 0, CompositeOperator.Over);
-        //    }
-        //}
+        
         private static void ImageSetWatermark(string displayName, MagickImage image)
         {
             // Dynamische Größenberechnung

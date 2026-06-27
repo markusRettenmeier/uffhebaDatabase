@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Sammlerplattform.Models.CollectionAreaDatabase.CollectionArea>
+﻿@model IEnumerable<Sammlerplattform.Models.CollectionAreaDatabase.CollectionAreaDisplayDTO>
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
@@ -34,15 +34,15 @@
                     @Html.DisplayFor(modelItem => item.CollectionAreaName)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.CollectionAreaID">@Localizer["CollectionArea_Edit"]</a> |
+                    <a asp-action="Edit" asp-route-id="@item.Id">@Localizer["CollectionArea_Edit"]</a> |
                     @{
                         bool isDeletable = item.CollectionItemEntityList.Count == 0 && item.ConceptList.Count == 1 && item.StatePreservationList.Count == 0;
                         if(isDeletable)
                         {
-                            <a asp-action="Delete" asp-route-id="@item.CollectionAreaID">@Localizer["CollectionArea_Delete"]</a> <text>|</text>
+                            <a asp-action="Delete" asp-route-id="@item.Id">@Localizer["CollectionArea_Delete"]</a> <text>|</text>
                         }
                     }
-                    <a asp-action="Index" asp-controller="StatePreservationDatabase" asp-route-CollectionArea_CollectionAreaID="@item.CollectionAreaID">@Localizer["StatePreservation_Administration"]</a>
+                    <a asp-action="Index" asp-controller="StatePreservationDatabase" asp-route-CollectionArea_CollectionAreaID="@item.Id">@Localizer["StatePreservation_Administration"]</a>
                 </td>
             </tr>
         }

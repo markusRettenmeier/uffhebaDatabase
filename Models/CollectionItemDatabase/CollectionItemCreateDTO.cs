@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sammlerplattform.Resources;
-using Sammlerplattform.Services;
+using Sammlerplattform.Services.Translation;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sammlerplattform.Models.CollectionItemDatabase
@@ -84,7 +84,6 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
 
         public List<PictureToCollectionItemCreateDTO> CollectionItemPictureList { get; set; } = [];
         public List<ConceptValueToCollectionItemCreateDTO> ConceptValueList { get; set; } = [];
-        //public List<OwnershipProofPictureToCollectionItemCreateDTO> OwnershipProofPictureList { get; set; } = [];
         public List<ParticipantToCollectionItemCreateDTO> ConnectedParticipantList { get; set; } = [];
         public List<PlaceToCollectionItemCreateDTO> ConnectedPlaceList { get; set; } = [];
     }
@@ -119,13 +118,6 @@ namespace Sammlerplattform.Models.CollectionItemDatabase
         public DateTime? ValueDate { get; set; }
         public bool ValueBool { get; set; }
     }
-    //public class OwnershipProofPictureToCollectionItemCreateDTO
-    //{
-    //    [Required(ErrorMessageResourceName = "Error_OwnershipProofPicture_IsMissing", ErrorMessageResourceType = typeof(SharedResources))]
-    //    [Display(Name = "IFormFile", ResourceType = typeof(SharedResources))]
-    //    public IFormFile FormFile { get; set; } = null!;
-    //    public OwnershipProofPictureType Type { get; set; }
-    //}
     public class ParticipantToCollectionItemCreateDTO
     {
         [Required(ErrorMessageResourceName = "Error_ParticipantID_Required", ErrorMessageResourceType = typeof(SharedResources))]

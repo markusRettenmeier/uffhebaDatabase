@@ -22,7 +22,12 @@
             var button = document.querySelector("#cookieConsent button[data-cookie-string]");
             button.addEventListener("click", function (event) {
                 document.cookie = button.dataset.cookieString;
-                $('#cookieConsent').hide()
+                $('#cookieConsent').hide();
+
+                const url = window.location.href;
+                if(url.includes("Login") || url.includes("Register")) {
+                    document.location.reload();
+                }
             }, false);
         })();
     </script>

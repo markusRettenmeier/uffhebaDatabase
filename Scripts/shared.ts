@@ -25,9 +25,7 @@ export async function checkWebAuthnSupport(): Promise<boolean> {
 
   const statusDiv = document.getElementById('webauthnStatus');
   if (statusDiv) {
-    if (isSupported) {
-      statusDiv.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>${i18n.get('WebAuthn_Supported')}</div>`;
-    } else {
+    if (!isSupported) {
       statusDiv.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>${i18n.get('WebAuthn_Not_Supported')}</div>`;
       const btnLogin = document.getElementById('btnLogin') as HTMLButtonElement;
       const btnSearch = document.getElementById('btnSearchPasskeys') as HTMLButtonElement;
@@ -39,6 +37,25 @@ export async function checkWebAuthnSupport(): Promise<boolean> {
     }
   }
   return isSupported;
+}
+// Cookie Consent prüfen (zentral), sonst funktionieren passkey cookies nicht
+export function checkIfCookieConsentGiven(): boolean {
+  const consent = getCookie('.AspNet.Consent');
+  return consent != "";
+}
+function getCookie(cname: string) {
+  let name = cname + "=";
+  let ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 }
 
 // Zentrale Status-Funktionen
@@ -115,9 +132,6 @@ document.addEventListener("DOMContentLoaded", async (): Promise<void> => {
     }
   }
 });
-
-// Globale Exporte für window
-(window as any).checkWebAuthnSupport = checkWebAuthnSupport;
 function setCollectionAreasIntoOptions(stored: string): void {
   const select = document.getElementById("appendCollectionAreasHere");
   if (!select) return;

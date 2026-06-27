@@ -1,8 +1,7 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.CollectionItemDatabase.CollectionItemRelationshipDatabase;
 using Sammlerplattform.Models.Translations;
-using Sammlerplattform.Services.Translation;
-using System.Globalization;
+using System.Data.Entity;
 using System.Transactions;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
@@ -12,14 +11,13 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         (int StatusCode, string StatusMessage, int Id) Insert(CIRelationshipCreateDTO createDTO);
         (int StatusCode, string StatusMessage, int Id) Update(CIRelationshipEditDTO editDto);
         (int StatusCode, string StatusMessage) Delete(int id);
-        List<CollectionItemRelationship> GetListWithPredicates(CIRelationshipSearchParameterModel cppRelationshipSearchParameterModel);
+        List<CollectionItemRelationship> GetEntityListViaPredicates(CIRelationshipSearchParameterModel cppRelationshipSearchParameterModel);
+        List<CIRelationshipDisplayDTO> GetWithTranslationsListViaPredicates(CIRelationshipSearchParameterModel cppRelationshipSearchParameterModel);
     }
 
     public class CIRelationshipProcessor(IUnitOfWork unitOfWork,
-        IDeeplTranslationService translationService,
         IProcessTranslations processTranslations,
-        ITranslationStore translationStore,
-        ITrackEventsCSV trackEvents) : IProcessCIRelationship
+        ITrackEventsText trackEvents) : IProcessCIRelationship
     {
         public (int StatusCode, string StatusMessage) Delete(int id)
         {
@@ -27,7 +25,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             {
                 CollectionItemRelationshipId = [id]
             };
-            CollectionItemRelationship? relationshipToDelete = GetListWithPredicates(searchParameterModel).FirstOrDefault();
+            CollectionItemRelationship? relationshipToDelete = GetEntityListViaPredicates(searchParameterModel).FirstOrDefault();
             if (relationshipToDelete == null)
             {
                 return (404, "Error_CIRelationship_NotFound");
@@ -48,9 +46,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 
                 processTranslations.Delete(new EntityTranslationSearchParameter
                 {
-                    EntityType = [nameof(CollectionItemRelationship)],
+                    EntityName = [nameof(CollectionItemRelationship)],
                     EntityId = [relationshipToDelete.CollectionItemRelationshipId],
-                    FieldName = [nameof(CollectionItemRelationship.CollectionItemRelationshipName)]
+                    PropertyName = [nameof(CIRelationshipDisplayDTO.CollectionItemRelationshipName)]
                 });
 
                 unitOfWork.CppRelationshipRepository.Delete(relationshipToDelete);
@@ -69,7 +67,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             }
         }
 
-        public List<CollectionItemRelationship> GetListWithPredicates(CIRelationshipSearchParameterModel cppRelationshipSearchParameterModel)
+        public List<CIRelationshipDisplayDTO> GetWithTranslationsListViaPredicates(CIRelationshipSearchParameterModel cppRelationshipSearchParameterModel)
         {
             foreach (string name in cppRelationshipSearchParameterModel.CollectionItemRelationshipName)
             {
@@ -81,19 +79,49 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             }
             cppRelationshipSearchParameterModel.CollectionItemRelationshipName = [];
 
-            IEnumerable<CollectionItemRelationship> cppRelationships = unitOfWork.CppRelationshipRepository.Get(
-                filter: SearchPredicateBuilder.BuildPredicate<CollectionItemRelationship>(cppRelationshipSearchParameterModel));
-            foreach (CollectionItemRelationship cppRelationship in cppRelationships)
-            {
-                cppRelationship.CollectionItemRelationshipName = translationStore.GetTranslation(
-                    nameof(CollectionItemRelationship),
-                    cppRelationship.CollectionItemRelationshipId,
-                    nameof(CollectionItemRelationship.CollectionItemRelationshipName),
-                    translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                    ?? string.Empty;
-            }
+            List<CIRelationshipDisplayDTO> cppRelationshipList = [.. unitOfWork.CppRelationshipRepository.Get(
+                filter: SearchPredicateBuilder.BuildPredicate<CollectionItemRelationship>(cppRelationshipSearchParameterModel))
+                .AsNoTracking()
+                .Select(c => new CIRelationshipDisplayDTO
+                {
+                    Id = c.CollectionItemRelationshipId,
+                    CollectionItemNParticipantList = c.CollectionItemNParticipantList,
+                    CollectionItemNPlaceList = c.CollectionItemNPlaceList
+                })];
+            SetTranslations(cppRelationshipList);
 
-            return [.. cppRelationships.OrderBy(c => c.CollectionItemRelationshipName)];
+            return [.. cppRelationshipList.OrderBy(c => c.CollectionItemRelationshipName)];
+        }
+
+        private void SetTranslations(List<CIRelationshipDisplayDTO> cppRelationshipList)
+        {
+            var allTranslations = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
+            {
+                EntityName = [nameof(CollectionItemRelationship)],
+                PropertyName = [nameof(CIRelationshipDisplayDTO.CollectionItemRelationshipName)]
+            }).ToList();
+            foreach (CIRelationshipDisplayDTO cppRelationship in cppRelationshipList)
+            {
+                cppRelationship.CollectionItemRelationshipName = allTranslations.FirstOrDefault(t => t.EntityId == cppRelationship.Id)?.TranslatedText ?? string.Empty;
+            }
+        }
+
+        public List<CollectionItemRelationship> GetEntityListViaPredicates(CIRelationshipSearchParameterModel cppRelationshipSearchParameterModel)
+        {
+            foreach (string name in cppRelationshipSearchParameterModel.CollectionItemRelationshipName)
+            {
+                int cppRelationshipId = CheckIfNameExists(name);
+                if (cppRelationshipId > 0)
+                {
+                    cppRelationshipSearchParameterModel.CollectionItemRelationshipId.Add(cppRelationshipId);
+                }
+            }
+            cppRelationshipSearchParameterModel.CollectionItemRelationshipName = [];
+
+            IQueryable<CollectionItemRelationship> cppRelationships = unitOfWork.CppRelationshipRepository.Get(
+                filter: SearchPredicateBuilder.BuildPredicate<CollectionItemRelationship>(cppRelationshipSearchParameterModel));
+
+            return [.. cppRelationships];
         }
 
         public (int StatusCode, string StatusMessage, int Id) Insert(CIRelationshipCreateDTO createDTO)
@@ -116,10 +144,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     new TranslationDTO
                     {
                         TextToTranslate = createDTO.Name,
-                        EntityType = nameof(CollectionItemRelationship),
+                        EntityName = nameof(CollectionItemRelationship),
                         EntityId = cppRelationship.CollectionItemRelationshipId,
-                        FieldName = nameof(CollectionItemRelationship.CollectionItemRelationshipName),
-                        Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
+                        PropertyName = nameof(CIRelationshipDisplayDTO.CollectionItemRelationshipName)
                     });
 
                 scope.Complete();
@@ -142,7 +169,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             {
                 CollectionItemRelationshipId = [editDto.Id]
             };
-            CollectionItemRelationship? relationshipToUpdate = GetListWithPredicates(searchParameterModel).FirstOrDefault();
+            CollectionItemRelationship? relationshipToUpdate = GetEntityListViaPredicates(searchParameterModel).FirstOrDefault();
             if (relationshipToUpdate == null)
             {
                 trackEvents.TrackError("Attempted to update non existing CollecitonItemParticipantPlaceRelationship", new Dictionary<string, object>
@@ -159,10 +186,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 processTranslations.Update(new TranslationDTO
                 {
                     TextToTranslate = editDto.Name,
-                    EntityType = nameof(CollectionItemRelationship),
+                    EntityName = nameof(CollectionItemRelationship),
                     EntityId = relationshipToUpdate.CollectionItemRelationshipId,
-                    FieldName = nameof(CollectionItemRelationship.CollectionItemRelationshipName),
-                    Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
+                    PropertyName = nameof(CIRelationshipDisplayDTO.CollectionItemRelationshipName)
                 });
 
                 scope.Complete();
@@ -183,8 +209,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         {
             int? cppRelationshipId = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
             {
-                EntityType = [nameof(CollectionItemRelationship)],
-                FieldName = [nameof(CollectionItemRelationship.CollectionItemRelationshipName)],
+                EntityName = [nameof(CollectionItemRelationship)],
+                PropertyName = [nameof(CIRelationshipDisplayDTO.CollectionItemRelationshipName)],
                 TranslatedText = [name]
             }).Select(et => et.EntityId).FirstOrDefault();
 

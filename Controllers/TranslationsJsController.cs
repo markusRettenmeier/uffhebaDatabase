@@ -28,13 +28,13 @@ namespace Sammlerplattform.Controllers
                 "Success_Login", "Login_Failed", "Error_Authentication_Ocurred", "Error_Registration_Ocurred",
                 "Error_UserName_Required", "Error_DisplayName_Required", "Error_DisplayName_StringLength", "Error_Email_Invalid",
                 "Error_Server_Error", "Success_Passkey_Registered", "Register_Redirect", "Passkey_ConfirmNew",
-                "Error_Register_Aborted", "Register_Completing", "Error_PasskeyUserId_Missing", "Error_PasskeyChallenge_Ocurred"
-                , "Error_PasskeyChallenge_Invalid", "Error_PasskeyChallenge_Expired", "Error_Passkeys_NotFound",
+                "Error_Register_Aborted", "Register_Completing", "Error_PasskeyUserId_Missing", "Error_PasskeyChallenge_Ocurred",
+                "Error_PasskeyChallenge_Invalid", "Error_PasskeyChallenge_Expired", "Error_Passkeys_NotFound",
                 "Error_Authentication_Failed", "Error_Session_Expired", "Error_Credential_NotFound", "Error_Authentication_Cancelled",
                 "Error_WebAuthn_NotSupported", "Error_Timeout", "Error_Network", "Error_Unknown", "Error_Security_HTTPS_Required",
                 "BackupCode_File_Content", "Device_unknown", "Success_Passkey_Removed", "Error_Passkey_RemoveFailed",
                 "UserName", "BackupCodes", "CreatedAt", "PasskeyCount", "Error_BackupCodeUsername_Invalid",
-                "Error_PasskeyChallenge_Required", "Passkey_Saving"
+                "Error_PasskeyChallenge_Required", "Passkey_Saving", "Error_CookieConsent_Required"
             };
 
             foreach (var key in keys)

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Globalization;
 
-namespace Sammlerplattform.Services
+namespace Sammlerplattform.Services.Translation
 {
     public class CultureAwareDecimalBinder : IModelBinder
     {

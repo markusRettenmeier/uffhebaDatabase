@@ -15,8 +15,8 @@
 <partial name="_Details" model="Model" />
 
 <form asp-action="Delete">
-    <input type="hidden" name="CollectionItemEntityID" value="@Model.CollectionItemEntity.CollectionItemEntityID" />
-    <input type="hidden" name="CollectionAreaID" value="@Model.CollectionItemEntity.CollectionAreaID" />
+    <input type="hidden" name="CollectionItemEntityID" value="@Model.CollectionItemEntityID" />
+    <input type="hidden" name="CollectionAreaID" value="@Model.CollectionAreaID" />
     <div class="mt-4 pt-3 border-top">
         <button type="submit" class="btn btn-danger btn-lg px-5">
             <i class="bi bi-check-circle"></i> @Localizer["Delete"]

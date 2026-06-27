@@ -20,7 +20,6 @@ using Sammlerplattform.Services.EMail;
 using Sammlerplattform.Services.ML.VectorSearch;
 using Sammlerplattform.Services.Passkey;
 using Sammlerplattform.Services.Translation;
-using System.Globalization;
 using System.Text.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -133,8 +132,7 @@ services.AddScoped<IProcessPicturePhysically, PhysicalPictureProcessor>();
 services.AddScoped<IProcessCollectionItemEmbedding, CollectionItemEmbeddingProcessor>();
 services.AddScoped<IDeeplTranslationService, DeeplTranslationService>();
 services.AddScoped<IProcessTranslations, ProcessTranslations>();
-services.AddScoped<ITranslationStore, TranslationStore>();
-services.AddScoped<ITrackEventsCSV, EventTracker>();
+services.AddScoped<ITrackEventsText, EventTracker>();
 services.AddScoped<IProcessImprovementSuggestions, ImprovementSuggestionsProcessor>();
 services.AddScoped<IProcessFidoCredential, FidoCredentialProcessor>();
 services.AddSingleton<IAuthorizationHandler, RecentPasskeyHandler>();

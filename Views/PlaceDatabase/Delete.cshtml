@@ -1,10 +1,13 @@
-﻿@model Sammlerplattform.Models.PlaceDatabase.Place
+﻿@model PlaceDisplayDTO
+@using Sammlerplattform.Models.PlaceDatabase
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
     ViewData["Title"] = Localizer["Place_Delete"];
     Layout = "~/Views/Shared/_LayoutSettingsDimensions.cshtml";
+
+    var vm = PlaceViewModelHelper.FromDomainModel(Model);
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -22,13 +25,7 @@
             @Localizer["Name"]
         </dt>
         <dd class = "col-sm-10">
-            @foreach(var toponymy in Model.PlaceNToponymyList)
-            {
-                if (toponymy.IsCurrentName)
-                {
-                    @Html.DisplayFor(model => toponymy.Toponymy.ToponymyName)
-                }
-            }
+            @vm.Toponymy
         </dd>
         <dt class = "col-sm-4">
             @Html.DisplayNameFor(model => model.FurtherSpecs)

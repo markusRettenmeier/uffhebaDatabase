@@ -1,7 +1,26 @@
 ﻿import { startAuthentication } from '@simplewebauthn/browser';
-import { checkWebAuthnSupport, showError, showLoading, showSuccess, getTranslation } from '../shared';
+import { checkWebAuthnSupport, checkIfCookieConsentGiven, showError, showLoading, showSuccess, getTranslation } from '../shared';
 
 let loginInProgress = false;
+
+// Login-spezifische Initialisierung
+async function initializeLoginPage(): Promise<void> {
+  await checkWebAuthnSupport();
+  if(!checkIfCookieConsentGiven()) {
+    showError('loginStatus', getTranslation('Error_CookieConsent_Required'));
+
+    const loginBtn = document.getElementById('btnSearchPasskeys') as HTMLButtonElement;
+    if (loginBtn) loginBtn.disabled = true;
+
+    const backupcodeBtn = document.getElementById('btnBackupCodeLogin') as HTMLButtonElement;
+    if (backupcodeBtn) backupcodeBtn.disabled = true;
+  }
+
+  const btnSearch = document.getElementById('btnSearchPasskeys') as HTMLButtonElement;
+  if (btnSearch) {
+    btnSearch.addEventListener('click', loginWithoutUsername);
+  }
+}
 
 // Login without username (conditional UI)
 async function loginWithoutUsername(): Promise<void> {
@@ -103,16 +122,6 @@ async function verifyForDeletePersonalDataSubmit(): Promise<void> {
     setTimeout(() => {
       window.location.href = '/userSettings/DeletePersonalDataSubmit';
     }, 1500);
-  }
-}
-
-// Login-spezifische Initialisierung
-async function initializeLoginPage(): Promise<void> {
-  await checkWebAuthnSupport();
-
-  const btnSearch = document.getElementById('btnSearchPasskeys') as HTMLButtonElement;
-  if (btnSearch) {
-    btnSearch.addEventListener('click', loginWithoutUsername);
   }
 }
 

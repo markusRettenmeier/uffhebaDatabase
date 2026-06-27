@@ -12,7 +12,7 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public ActionResult Index(EraSearchParameterModel eraSearchParameterModel)
         {
-            return View(processEra.GetWithPredicates(eraSearchParameterModel));
+            return View(processEra.GetTranslationsListViaPredicates(eraSearchParameterModel));
         }
 
         public ActionResult Create()
@@ -38,7 +38,7 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public ActionResult Edit(int id)
         {
-            Era? era = processEra.GetWithPredicates(new EraSearchParameterModel { EraID = [id] })
+            EraDisplayDTO? era = processEra.GetTranslationsListViaPredicates(new EraSearchParameterModel { EraID = [id] })
                        .FirstOrDefault();
             if (era == null)
                 return RedirectToAction(nameof(Index), new { statusMessage = "Error_Era_NotFound" });
@@ -68,7 +68,7 @@ namespace Sammlerplattform.Controllers
 
         public ActionResult Delete(int id)
         {
-            Era? era = processEra.GetWithPredicates(new EraSearchParameterModel { EraID = [id] })
+            EraDisplayDTO? era = processEra.GetTranslationsListViaPredicates(new EraSearchParameterModel { EraID = [id] })
                        .FirstOrDefault();
             return era == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Era_NotFound" })

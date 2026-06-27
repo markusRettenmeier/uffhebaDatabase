@@ -16,7 +16,7 @@ namespace Sammlerplattform.Controllers
         {
             ViewData["Participant"] = "Individual";
 
-            List<Participant> participantList = [.. processParticipant.GetListWithPredicate(participantSearchParameter).Where(x => x.Individual != null)];
+            List<ParticipantDisplayDTO> participantList = [.. processParticipant.GetTranslationsListViaPredicate(participantSearchParameter)];
             return View(participantList);
         }
 
@@ -43,9 +43,9 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public ActionResult Edit(int id)
         {
-            Participant? existingParticipant = processParticipant
-                .GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
-            if (existingParticipant == null || existingParticipant.Individual == null)
+            ParticipantDisplayDTO? existingParticipant = processParticipant
+                .GetTranslationsListViaPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
+            if (existingParticipant == null)
             {
                 return RedirectToAction(nameof(Index), new { statusMessage = "Error_Participant_NotFound" });
             }
@@ -53,20 +53,19 @@ namespace Sammlerplattform.Controllers
             IndividualEditDTO individualEditDTO = new()
             {
                 Id = existingParticipant.ParticipantID,
-                Name = existingParticipant.ParticipantName,
+                Name = existingParticipant.Name,
                 WikipediaUrl = existingParticipant.WikipediaUrl,
-                Pseudonym = existingParticipant.Individual.Pseudonym,
-                Signature = existingParticipant.Individual.Signature,
+                Pseudonym = existingParticipant.Pseudonym,
+                Signature = existingParticipant.Signature,
                 BirthYear = existingParticipant.StartYear,
                 DeathYear = existingParticipant.EndYear,
-                ConnectedPlaceList = [.. existingParticipant.ParticipantNPlaceList.Select(x => new ConnectedPlaceDTO {
-                    Id = x.PlaceID,
-                    //Relationship = x.
+                ConnectedPlaceList = [.. existingParticipant.ConnectedPlaceList.Select(x => new ConnectedPlaceDTO {
+                    Id = x.PlaceID
                 })]
             };
 
-            ViewData["ConnectedPlaces"] = existingParticipant.ParticipantNPlaceList.Select(x => x.Place).ToList();
-            ViewData["ConnectedEras"] = existingParticipant.ParticipantNEraList.Select(x => x.Era).ToList();
+            ViewData["ConnectedPlaces"] = existingParticipant.ConnectedPlaceList.ToList();
+            ViewData["ConnectedEras"] = existingParticipant.ConnectedEraList.ToList();
 
             return View(individualEditDTO);
         }
@@ -87,9 +86,9 @@ namespace Sammlerplattform.Controllers
 
         public ActionResult Delete(int id)
         {
-            Participant? existingParticipant = processParticipant
-                .GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
-            return existingParticipant == null || existingParticipant.Individual == null
+            ParticipantDisplayDTO? existingParticipant = processParticipant
+                .GetTranslationsListViaPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] }).FirstOrDefault();
+            return existingParticipant == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Participant_NotFound" })
                 : View(existingParticipant);
         }

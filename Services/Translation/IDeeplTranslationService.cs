@@ -8,7 +8,7 @@ namespace Sammlerplattform.Services.Translation
         string NetCultureToDeeplLanguage(string netCulture);
     }
 
-    public class DeeplTranslationService(IConfiguration configuration, ITrackEventsCSV trackEvents) : IDeeplTranslationService
+    public class DeeplTranslationService(IConfiguration configuration, ITrackEventsText trackEvents) : IDeeplTranslationService
     {
         private readonly string _apiKey = configuration["DeepL:ApiKey"] ?? throw new Exception("DeepL API key not configured");
 

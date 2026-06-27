@@ -1,14 +1,12 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Services.Translation;
+using System.Globalization;
 
 namespace Sammlerplattform.Services.DatabaseProcesses
 {
     public interface IProcessTranslations
     {
-        Dictionary<string, string> GetTranslationDictionary(
-            string entityType,
-            int entityId);
         List<EntityTranslation> GetWithFallback(EntityTranslationSearchParameter searchParameter);
         List<string> Insert(TranslationDTO createDTO);
         List<string> Update(TranslationDTO editDTO);
@@ -17,39 +15,29 @@ namespace Sammlerplattform.Services.DatabaseProcesses
     public class ProcessTranslations(IUnitOfWork unitOfWork
         , IDeeplTranslationService deeplTranslationService) : IProcessTranslations
     {
-        public Dictionary<string, string> GetTranslationDictionary(
-            string entityType,
-            int entityId)
-        {
-            var translations = unitOfWork.EntityTranslationRepository.Get(
-                filter: et => et.EntityType == entityType && et.EntityId == entityId);
-            return translations.ToDictionary(
-                t => $"{t.FieldName}:{t.Culture}",
-                t => t.TranslatedText);
-        }
-
         public List<string> Insert(TranslationDTO createDTO)
-        {
+        {            
             if (string.IsNullOrWhiteSpace(createDTO.TextToTranslate))
                 return [];
+            string culture = deeplTranslationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name);
 
             List<string> translatedTexts = [];
             if (createDTO.IsTranslateable)
             {
                 //Damit weniger Traffic entsteht, wird der Originaltext direkt als Originalsprache gespeichert
-                List<(string Culture, string TranslatedText, string? Abbreviation)> translationList = createDTO.Culture != null
-                    ? new() { (createDTO.Culture, createDTO.TextToTranslate, createDTO.Abbreviation) }
+                List<(string Culture, string TranslatedText, string? Abbreviation)> translationList = culture != null
+                    ? new() { (culture, createDTO.TextToTranslate, createDTO.Abbreviation) }
                     : [];
                 // Alle anderen Sprachen werden via Deepl übersetzt
-                translationList.AddRange(deeplTranslationService.TranslateTextDifferentCulturesAsync(createDTO.TextToTranslate, createDTO.Culture).Result);
+                translationList.AddRange(deeplTranslationService.TranslateTextDifferentCulturesAsync(createDTO.TextToTranslate, culture).Result);
 
                 foreach (var (Culture, TranslatedText, Abbreviation) in translationList)
                 {
                     var newEntityTranslation = new EntityTranslation
                     {
-                        EntityType = createDTO.EntityType,
+                        EntityName = createDTO.EntityName,
                         EntityId = createDTO.EntityId,
-                        FieldName = createDTO.FieldName,
+                        PropertyName = createDTO.PropertyName,
                         Culture = Culture,
                         TranslatedText = TranslatedText,
                         Abbreviation = Abbreviation
@@ -65,9 +53,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             {
                 var newEntityTranslation = new EntityTranslation
                 {
-                    EntityType = createDTO.EntityType,
+                    EntityName = createDTO.EntityName,
                     EntityId = createDTO.EntityId,
-                    FieldName = createDTO.FieldName,
+                    PropertyName = createDTO.PropertyName,
                     TranslatedText = createDTO.TextToTranslate,
                     Abbreviation = createDTO.Abbreviation,
                     Culture = "iv" // invariant
@@ -84,12 +72,13 @@ namespace Sammlerplattform.Services.DatabaseProcesses
         public List<string> Update(TranslationDTO editDTO)
         {
             if (string.IsNullOrWhiteSpace(editDTO.TextToTranslate))
-                return [];
+                return []; 
+            string culture = deeplTranslationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name);
 
             List<EntityTranslation> existingTranslations = GetWithFallback(new EntityTranslationSearchParameter
             {
-                EntityType = [editDTO.EntityType],
-                FieldName = [editDTO.FieldName],
+                EntityName = [editDTO.EntityName],
+                PropertyName = [editDTO.PropertyName],
                 EntityId = [editDTO.EntityId]
             });
             if (existingTranslations.Count == 0)
@@ -100,7 +89,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
             List<string> translatedTexts = [];
             bool hasChanges = false;
 
-            var target = existingTranslations.FirstOrDefault(x => x.Culture == editDTO.Culture);
+            var target = existingTranslations.FirstOrDefault(x => x.Culture == culture);
             if (target == null)
             {
                 return [];
@@ -117,7 +106,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
                 {
                     var translationList =
                         deeplTranslationService
-                            .TranslateTextDifferentCulturesAsync(editDTO.TextToTranslate, editDTO.Culture).Result;
+                            .TranslateTextDifferentCulturesAsync(editDTO.TextToTranslate, culture).Result;
 
                     // Dictionary für schnellen Zugriff
                     var translationDict = translationList
@@ -125,7 +114,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses
 
                     foreach (var translation in existingTranslations)
                     {
-                        if (translation.Culture == editDTO.Culture)
+                        if (translation.Culture == culture)
                             continue;
 
                         if (translationDict.TryGetValue(translation.Culture, out var newTranslation))
@@ -175,12 +164,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses
 
         public List<EntityTranslation> GetWithFallback(EntityTranslationSearchParameter searchParameter)
         {
-            // 1. Primäre Sprache
+            string culture = deeplTranslationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name);
+            searchParameter.Culture = [culture];
             List<EntityTranslation> result = [.. unitOfWork.EntityTranslationRepository.Get(
-                filter: x => x.TranslatedText == searchParameter.TranslatedText.FirstOrDefault() &&
-                             x.EntityType == searchParameter.EntityType.FirstOrDefault() &&
-                             x.FieldName == searchParameter.FieldName.FirstOrDefault() &&
-                             searchParameter.Culture.Contains(x.Culture)
+                filter: SearchPredicateBuilder.BuildPredicate<EntityTranslation>(searchParameter)
             )];
             if (result.Count != 0)
                 return result;

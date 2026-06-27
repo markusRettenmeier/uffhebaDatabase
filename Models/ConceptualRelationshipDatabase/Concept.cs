@@ -12,10 +12,7 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        [Display(Name = "ConceptID", ResourceType = typeof(SharedResources))]
         public int Id { get; set; }
-
-        [Display(Name = "RootConceptID", ResourceType = typeof(SharedResources))]
         public int? RootConceptID { get; set; }
         public int GetRootConceptId()
         {
@@ -28,11 +25,7 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase
                 return (int)RootConceptID;
             }
         }
-
-        [Display(Name = "CollectionAreaID", ResourceType = typeof(SharedResources))]
         public int? CollectionAreaID { get; set; }
-
-        [Display(Name = "ConceptType", ResourceType = typeof(SharedResources))]
         public int ConceptTypeInt { get; set; } = 0;
     }
 

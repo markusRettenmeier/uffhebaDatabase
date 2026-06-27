@@ -9,9 +9,7 @@ namespace Sammlerplattform.Models.ParticipantDatabase.IndividualDatabase
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public int IndividualID { get; set; }
-        [Display(Name = "Pseudonym", ResourceType = typeof(SharedResources))]
         public string? Pseudonym { get; set; }
-        [Display(Name = "Signature", ResourceType = typeof(SharedResources))]
         public string? Signature { get; set; }
         public int ParticipantID { get; set; }
         public Participant Participant { get; set; } = null!;

@@ -1,30 +1,22 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase.ConceptValueDatabase;
 using Sammlerplattform.Models.Translations;
-using Sammlerplattform.Services.Translation;
-using System.Globalization;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses
 {
     public interface IProcessConceptValue
     {
-        (int Statuscode, string Statusmessage, List<string>) Insert(ConceptValue conceptValue, int collectionItemID);
-        (int Statuscode, string Statusmessage, List<string>) Update(ConceptValue conceptValue);
+        List<string> Insert(ConceptValue conceptValue, int collectionItemID);
+        List<string> Update(ConceptValue conceptValue);
         List<ConceptValue> Get(ConceptValueSearchParameterModel searchParameters);
-        (int Statuscode, string Statusmessage) Delete(int conceptValueID);
+        void Delete(int conceptValueID);
     }
 
     public class ConceptValueProcessor(IUnitOfWork unitOfWork,
-        IDeeplTranslationService translationService,
         IProcessTranslations processTranslations) : IProcessConceptValue
     {
-        public (int Statuscode, string Statusmessage, List<string>) Insert(ConceptValue conceptValue, int collectionItemEntityID)
+        public List<string> Insert(ConceptValue conceptValue, int collectionItemEntityID)
         {
-            if (collectionItemEntityID <= 0)
-            {
-                return (400, "Error_CollectionItemEntity_IDMissing", []);
-            }
-
             conceptValue.CollectionItemEntityID = collectionItemEntityID;
             _ = unitOfWork.ConceptValueRepository.Insert(conceptValue);
             unitOfWork.Save();
@@ -36,24 +28,19 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                     new TranslationDTO
                     {
                         TextToTranslate = conceptValue.ValueString,
-                        EntityType = nameof(ConceptValue),
+                        EntityName = nameof(ConceptValue),
                         EntityId = conceptValue.ConceptValueID,
-                        FieldName = nameof(ConceptValue.ValueString),
-                        Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
+                        PropertyName = nameof(ConceptValue.ValueString)
                     });
             }
 
-            return (200, "Success_ConceptValue_Created", translationList);
+            return translationList;
         }
 
-        public (int Statuscode, string Statusmessage, List<string>) Update(ConceptValue conceptValue)
+        public List<string> Update(ConceptValue conceptValue)
         {
             ConceptValue? existingConceptValue = unitOfWork.ConceptValueRepository.Get(ci =>
-                ci.ConceptValueID == conceptValue.ConceptValueID).FirstOrDefault();
-            if (existingConceptValue == null)
-            {
-                return (404, "Error_ConceptValue_NotFound", []);
-            }
+                ci.ConceptValueID == conceptValue.ConceptValueID).First();
 
             bool hasChanges = false;
             List<string> translationList = [];
@@ -65,10 +52,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                         new TranslationDTO
                         {
                             TextToTranslate = conceptValue.ValueString,
-                            EntityType = nameof(ConceptValue),
+                            EntityName = nameof(ConceptValue),
                             EntityId = existingConceptValue.ConceptValueID,
-                            FieldName = nameof(ConceptValue.ValueString),
-                            Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
+                            PropertyName = nameof(ConceptValue.ValueString)
                         });
                     hasChanges = true;
                 }
@@ -96,26 +82,15 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
             if (hasChanges)
                 unitOfWork.Save();
 
-            return (200, "Success_ConceptValue_Updated", translationList);
+            return translationList;
         }
 
-        public (int Statuscode, string Statusmessage) Delete(int conceptValueID)
+        public void Delete(int conceptValueID)
         {
-            if (conceptValueID <= 0)
-            {
-                return (400, "Error_ConceptValueId_Required");
-            }
-
-            ConceptValue? existingConceptValue = unitOfWork.ConceptValueRepository.Get(ci =>
-                ci.ConceptValueID == conceptValueID).FirstOrDefault();
-            if (existingConceptValue == null)
-            {
-                return (404, "Error_ConceptValue_NotFound");
-            }
+            ConceptValue existingConceptValue = unitOfWork.ConceptValueRepository.Get(ci =>
+                ci.ConceptValueID == conceptValueID).First();
             unitOfWork.ConceptValueRepository.Delete(existingConceptValue);
-            unitOfWork.Save();
-
-            return (200, "Success_ConceptValue_Deleted");
+            unitOfWork.Save();;
         }
 
         public List<ConceptValue> Get(ConceptValueSearchParameterModel searchParameters)

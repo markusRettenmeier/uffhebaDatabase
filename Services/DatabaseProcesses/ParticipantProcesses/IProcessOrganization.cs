@@ -1,6 +1,7 @@
 ﻿using Sammlerplattform.Data;
 using Sammlerplattform.Models.ParticipantDatabase;
 using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase;
+using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase.IndustryDatabase;
 using Sammlerplattform.Models.Translations;
 using Sammlerplattform.Services.Extensions;
 using System.Transactions;
@@ -15,14 +16,14 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
     }
     public class OrganizationProcessor(IProcessParticipant processParticipant
         , IUnitOfWork unitOfWork
-        , ITrackEventsCSV trackEvents
+        , ITrackEventsText trackEvents
         , IProcessTranslations processTranslations
         , IProcessIndustry processIndustry) : IProcessOrganization
     {
         public (int Statuscode, string StatusMessage) Delete(int particpantID)
         {
             Participant? party = processParticipant
-                .GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [particpantID] })
+                .GetEntityListViaPredicate(new ParticipantSearchParameterModel { ParticipantID = [particpantID] })
                 .FirstOrDefault();
             if (party == null || party.Organization == null)
             {
@@ -75,14 +76,24 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
             };
             if (createDTO.Industry != null)
             {
-                partySearchParameterModel.Organization_Industry_Id = [.. processTranslations
-                    .GetWithFallback(new EntityTranslationSearchParameter
+                int? industryId = GetIndustryId(createDTO.Industry);
+                if(industryId == null)
+                {
+                    (int statusCode, string stringMessage, industryId) = processIndustry.Insert(new IndustryCreateDTO { IndustryName = createDTO.Industry });
+                    if (statusCode != 201)
                     {
-                        EntityType = [nameof(Industry)],
-                        TranslatedText = [createDTO.Industry]
-                    }).Select(x => x.EntityId)];
+                        trackEvents.TrackError("OrganizationProcessor.Insert: Error occurred in industry insertion.", new Dictionary<string, object>
+                        {
+                            { "OrganizationCreateDTO", createDTO },
+                            { "ProcessIndustryStatuscode", statusCode },
+                            { "ProcessIndustryMessage", stringMessage }
+                        });
+                        return (statusCode, "Error_Unknown", 0);
+                    }
+                }
+                partySearchParameterModel.Organization_Industry_Id = [industryId.Value];
             }
-            Participant? existingParticipant = processParticipant.GetListWithPredicate(partySearchParameterModel).FirstOrDefault();
+            Participant? existingParticipant = processParticipant.GetEntityListViaPredicate(partySearchParameterModel).FirstOrDefault();
             if (existingParticipant != null)
             {
                 trackEvents.TrackError("OrganizationProcessor.Insert: Participant already exists.", new Dictionary<string, object>
@@ -141,7 +152,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
 
         public (int Statuscode, string StatusMessage, int ParticipantID) Update(OrganizationEditDTO editDTO)
         {
-            Organization? existingOrganization = processParticipant.GetListWithPredicate(
+            Organization? existingOrganization = processParticipant.GetEntityListViaPredicate(
                 new ParticipantSearchParameterModel { ParticipantID = [editDTO.Id] })
                 .FirstOrDefault()?.Organization;
             if (existingOrganization == null)
@@ -195,7 +206,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
             int? industryId = GetIndustryId(name);
             if (industryId != null)
             {
-                (int statusCode, string stringMessage, industryId) = processIndustry.Insert(new Industry { IndustryName = name });
+                (int statusCode, string stringMessage, industryId) = processIndustry.Insert(new IndustryCreateDTO { IndustryName = name });
                 if (statusCode != 201)
                 {
                     trackEvents.TrackError("OrganizationProcessor.ConnectIndustryToOrganization: Error occurred in industry insertion.", new Dictionary<string, object>
@@ -241,7 +252,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
         {
             return processTranslations.GetWithFallback(new EntityTranslationSearchParameter
             {
-                EntityType = [nameof(Industry)],
+                EntityName = [nameof(Industry)],
                 TranslatedText = [name],
             }).Select(x => x.EntityId).FirstOrDefault();
         }

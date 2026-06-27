@@ -1,4 +1,4 @@
-﻿@model Participant
+﻿@model ParticipantDisplayDTO
 @using Microsoft.AspNetCore.Mvc.Localization
 @using Sammlerplattform.Models.ParticipantDatabase
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
@@ -16,25 +16,25 @@
     <hr />
     <dl class="row">
         <dt class="col-sm-4">
-            @Html.DisplayNameFor(model => model.ParticipantName)
+            @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd class="col-sm-10">
             @Html.Raw(vm.Name)
         </dd>
         <dt class = "col-sm-4">
-            @Html.DisplayNameFor(model => model.Individual!.Pseudonym)
+            @Html.DisplayNameFor(model => model.Pseudonym)
         </dt>
         <dd class = "col-sm-10">
             @Html.Raw(vm.Pseudonym)
         </dd>
         <dt class = "col-sm-4">
-            @Html.DisplayNameFor(model => model.Individual!.Signature)
+            @Html.DisplayNameFor(model => model.Signature)
         </dt>
         <dd class = "col-sm-10">
             @Html.Raw(vm.Signature)
         </dd>
         <dt class = "col-sm-4">
-            @Html.DisplayNameFor(model => model.ParticipantNPlaceList)
+            @Html.DisplayNameFor(model => model.ConnectedPlaceList)
         </dt>
         <dd class = "col-sm-10">
             @Html.Raw(vm.Places)

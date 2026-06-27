@@ -2,8 +2,7 @@
 using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase;
 using Sammlerplattform.Models.Translations;
-using Sammlerplattform.Services.Translation;
-using System.Globalization;
+using System.Data.Entity;
 using System.Transactions;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
@@ -13,21 +12,20 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         (int StatusCode, string StatusMessage, int Id) Insert(StatePreservationCreateDTO createDTO);
         (int StatusCode, string StatusMessage, int Id) Update(StatePreservationEditDTO editDto);
         (int StatusCode, string StatusMessage) Delete(int id);
-        List<StatePreservation> GetWithPredicates(StatePreservationSearchParameterModel stateSearchParameterModel);
+        List<StatePreservation> GetEntityListViaPredicates(StatePreservationSearchParameterModel stateSearchParameterModel);
+        List<StatePreservationDisplayDTO> GetWithTranslationsListViaPredicates(StatePreservationSearchParameterModel stateSearchParameterModel);
     }
 
     public class StatePreservationProcessor(IUnitOfWork unitOfWork,
-        IDeeplTranslationService translationService,
         IProcessTranslations processTranslations,
-        ITranslationStore translationStore,
-        ITrackEventsCSV trackEvents) : IProcessStatePreservation
+        ITrackEventsText trackEvents) : IProcessStatePreservation
     {
         public (int StatusCode, string StatusMessage, int Id) Insert(StatePreservationCreateDTO createDto)
         {
             int? statePreservationID = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
             {
-                EntityType = [nameof(StatePreservation)],
-                FieldName = [nameof(StatePreservation.StatePreservationName)],
+                EntityName = [nameof(StatePreservation)],
+                PropertyName = [nameof(StatePreservationDisplayDTO.Name)],
                 TranslatedText = [createDto.Name]
             }).Select(x => x.EntityId).FirstOrDefault();
             if (statePreservationID > 0)
@@ -55,10 +53,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     new TranslationDTO
                     {
                         TextToTranslate = createDto.Name,
-                        EntityType = nameof(StatePreservation),
+                        EntityName = nameof(StatePreservation),
                         EntityId = statePreservation.StatePreservationID,
-                        FieldName = nameof(StatePreservation.StatePreservationName),
-                        Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name),
+                        PropertyName = nameof(StatePreservationDisplayDTO.Name)
                     });
 
                 scope.Complete();
@@ -76,7 +73,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 
         public (int StatusCode, string StatusMessage, int Id) Update(StatePreservationEditDTO editDto)
         {
-            var existingState = unitOfWork.StateRepository.GetByID(editDto.Id);
+            var existingState = GetWithTranslationsListViaPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [editDto.Id] }).FirstOrDefault();
             if (existingState == null)
             {
                 return (400, "Error_StatePreservation_NotFound", 0);
@@ -86,19 +83,18 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             {
                 using TransactionScope scope = new();
 
-                if (existingState.StatePreservationName != editDto.Name
+                if (existingState.Name != editDto.Name
                     || existingState.SortingOrder != editDto.SortingOrder)
                 {
-                    if (existingState.StatePreservationName != editDto.Name)
+                    if (existingState.Name != editDto.Name)
                     {
                         processTranslations.Update(
                             new TranslationDTO
                             {
                                 TextToTranslate = editDto.Name,
-                                EntityType = nameof(StatePreservation),
-                                EntityId = existingState.StatePreservationID,
-                                FieldName = nameof(StatePreservation.StatePreservationName),
-                                Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name),
+                                EntityName = nameof(StatePreservation),
+                                EntityId = existingState.Id,
+                                PropertyName = nameof(StatePreservationDisplayDTO.Name)
                             });
                     }
                     existingState.SortingOrder = editDto.SortingOrder;
@@ -106,7 +102,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 }
 
                 scope.Complete();
-                return (200, "Success_StatePreservation_Updated", existingState.StatePreservationID);
+                return (200, "Success_StatePreservation_Updated", existingState.Id);
             }
             catch (Exception ex)
             {
@@ -120,7 +116,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 
         public (int StatusCode, string StatusMessage) Delete(int id)
         {
-            var existingState = GetWithPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [id] }).FirstOrDefault();
+            var existingState = GetEntityListViaPredicates(new StatePreservationSearchParameterModel { StatePreservationID = [id] }).FirstOrDefault();
             if (existingState == null)
             {
                 return (400, "Error_StatePreservation_NotFound");
@@ -133,8 +129,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             processTranslations.Delete(
                 new EntityTranslationSearchParameter
                 {
-                    EntityType = [nameof(StatePreservation)],
-                    FieldName = [nameof(StatePreservation.StatePreservationName)],
+                    EntityName = [nameof(StatePreservation)],
+                    PropertyName = [nameof(StatePreservationDisplayDTO.Name)],
                     EntityId = [id]
                 });
 
@@ -144,29 +140,44 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             return (200, "Success_StatePreservation_Deleted");
         }
 
-        public List<StatePreservation> GetWithPredicates(StatePreservationSearchParameterModel stateSearchParameterModel)
+        public List<StatePreservation> GetEntityListViaPredicates(StatePreservationSearchParameterModel stateSearchParameterModel)
         {
             IEnumerable<StatePreservation> stateIEnumberable = unitOfWork.StateRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<StatePreservation>(stateSearchParameterModel),
+                orderBy: q => q.OrderBy(x => x.SortingOrder),
                 includeProperties: nameof(StatePreservation.CollectionArea));
-            List<StatePreservation> stateList = [.. stateIEnumberable];
+
+            return [.. stateIEnumberable];
+        }
+
+        public List<StatePreservationDisplayDTO> GetWithTranslationsListViaPredicates(StatePreservationSearchParameterModel stateSearchParameterModel)
+        {
+            List<StatePreservationDisplayDTO> stateList = [.. unitOfWork.StateRepository.Get(
+                filter: SearchPredicateBuilder.BuildPredicate<StatePreservation>(stateSearchParameterModel),
+                orderBy: q => q.OrderBy(x => x.SortingOrder),
+                includeProperties: nameof(StatePreservation.CollectionItemEntityList))
+                .AsNoTracking()
+                .Select(s => new StatePreservationDisplayDTO
+                {
+                    Id = s.StatePreservationID,
+                    CollectionAreaID = s.CollectionAreaID,
+                })];
+            SetTranslations(stateList);
+
+            return stateList;
+        }
+
+        private void SetTranslations(List<StatePreservationDisplayDTO> stateList)
+        {
+            var allStateOfPreservationTranslations = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
+            {
+                EntityName = [nameof(StatePreservation)],
+                PropertyName = [nameof(StatePreservationDisplayDTO.Name)]
+            }).ToList();
             foreach (var state in stateList)
             {
-                state.StatePreservationName = translationStore.GetTranslation(
-                    nameof(StatePreservation),
-                    state.StatePreservationID,
-                    nameof(StatePreservation.StatePreservationName),
-                    translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                    ?? string.Empty;
-                state.CollectionArea.CollectionAreaName = translationStore.GetTranslation(
-                    nameof(CollectionArea),
-                    state.CollectionArea.CollectionAreaID,
-                    nameof(CollectionArea.CollectionAreaName),
-                    translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                    ?? string.Empty;
+                state.Name = allStateOfPreservationTranslations.FirstOrDefault(t => t.EntityId == state.Id)?.TranslatedText ?? string.Empty;
             }
-
-            return [.. stateIEnumberable.OrderBy(x => x.SortingOrder)];
         }
     }
 }

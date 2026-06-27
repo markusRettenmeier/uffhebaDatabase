@@ -11,6 +11,7 @@ using Sammlerplattform.Models.ImprovementSuggestions;
 using Sammlerplattform.Models.ParticipantDatabase;
 using Sammlerplattform.Models.ParticipantDatabase.IndividualDatabase;
 using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase;
+using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase.IndustryDatabase;
 using Sammlerplattform.Models.Passkey;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.Toponymy;

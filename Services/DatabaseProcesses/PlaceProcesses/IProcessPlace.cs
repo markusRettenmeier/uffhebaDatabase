@@ -8,7 +8,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
 {
     public interface IProcessPlace
     {
-        List<Place> GetListWithPredicate(PlaceSearchParameterModel placeSearchParameter);
+        List<Place> GetEntityListViaPredicate(PlaceSearchParameterModel placeSearchParameter);
+        List<PlaceDisplayDTO> GetWithTranslationsListViaPredicate(PlaceSearchParameterModel placeSearchParameter);
         (int Statuscode, string Message, int PlaceID) Insert(PlaceCreateDTO createDTO);
         (int Statuscode, string Message, int PlaceID) Update(PlaceEditDTO operationParameter);
         (int Statuscode, string Message) Delete(int placeID);
@@ -16,7 +17,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
 
     public class PlaceProcessor(IUnitOfWork unitOfWork
         , IProcessToponymy processToponymy
-        , ITrackEventsCSV trackEvents) : IProcessPlace
+        , ITrackEventsText trackEvents) : IProcessPlace
     {
         public (int Statuscode, string Message, int PlaceID) Insert(PlaceCreateDTO createDTO)
         {
@@ -57,7 +58,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
 
         public (int Statuscode, string Message) Delete(int placeID)
         {
-            Place? placeToDelete = GetListWithPredicate(new PlaceSearchParameterModel { PlaceID = [placeID] }).FirstOrDefault();
+            Place? placeToDelete = GetEntityListViaPredicate(new PlaceSearchParameterModel { PlaceID = [placeID] }).FirstOrDefault();
             if (placeToDelete == null)
             {
                 trackEvents.TrackError("PlaceProcessor.Delete: Place not found.", new Dictionary<string, object>
@@ -113,7 +114,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
             {
                 PlaceID = [editDTO.PlaceID]
             };
-            Place? existingPlace = GetListWithPredicate(placeSearchParameter).FirstOrDefault();
+            Place? existingPlace = GetEntityListViaPredicate(placeSearchParameter).FirstOrDefault();
             if (existingPlace == null)
             {
                 trackEvents.TrackError("PlaceProcessor.Edit: Place not found.", new Dictionary<string, object>
@@ -160,16 +161,40 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
             }
         }
 
-        public List<Place> GetListWithPredicate(PlaceSearchParameterModel placeSearchParameter)
+        public List<Place> GetEntityListViaPredicate(PlaceSearchParameterModel placeSearchParameter)
         {
-            IEnumerable<Place> placeIEnumerable = unitOfWork.PlaceRepository.Get(
+            IQueryable<Place> placeIQueryable = unitOfWork.PlaceRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<Place>(placeSearchParameter),
                 includeProperties: GetPlaceIncludeProperties());
+            return [.. placeIQueryable];
+        }
 
-            return [.. placeIEnumerable.OrderBy(p => p.PlaceNToponymyList
-                .Where(t => t.IsCurrentName)
-                .Select(t => t.Toponymy.ToponymyName)
-                .FirstOrDefault())];
+        public List<PlaceDisplayDTO> GetWithTranslationsListViaPredicate(PlaceSearchParameterModel placeSearchParameter)
+        {
+            List<PlaceDisplayDTO> placeList = [.. unitOfWork.PlaceRepository.Get(
+                filter: SearchPredicateBuilder.BuildPredicate<Place>(placeSearchParameter),
+                orderBy: p => p.OrderBy(y => y.PlaceNToponymyList.First(y => y.IsCurrentName).Toponymy.ToponymyName),
+                includeProperties: GetPlaceIncludeProperties())
+                .Select(p => new PlaceDisplayDTO
+                {
+                    PlaceID = p.PlaceID,
+                    FurtherSpecs = p.FurtherSpecs,
+                    WikipediaUrl = p.WikipediaUrl,
+                    ConnectionsAsFirst = p.ConnectionsAsFirst,
+                    ConnectionsAsSecond = p.ConnectionsAsSecond,
+                    ParticipantNPlaceList = p.ParticipantNPlaceList,
+                    CollectionItemNPlaceList = p.CollectionItemNPlaceList,
+                    ToponymyList = p.PlaceNToponymyList.Select(x => new ToponymyDisplayDTO
+                    {
+                        Id = x.ToponymyID,
+                        Name = x.Toponymy.ToponymyName,
+                        IsCurrentName = x.IsCurrentName
+                    }).ToList()
+                })];
+
+            //return [.. placeList.OrderBy(p => p.ToponymyList
+            //    .First(t => t.IsCurrentName).Name)];
+            return placeList;
         }
         private static string GetPlaceIncludeProperties()
         {

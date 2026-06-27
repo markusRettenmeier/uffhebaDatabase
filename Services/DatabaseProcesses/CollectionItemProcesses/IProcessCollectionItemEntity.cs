@@ -8,6 +8,7 @@ using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase.ConceptValueDatabase;
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.ParticipantDatabase;
+using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase.IndustryDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.Toponymy;
 using Sammlerplattform.Models.Translations;
@@ -15,6 +16,8 @@ using Sammlerplattform.Models.UserSettings;
 using Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses;
 using Sammlerplattform.Services.DatabaseProcesses.PictureProcesses;
 using Sammlerplattform.Services.Translation;
+using System.Data.Entity;
+using System.Diagnostics;
 using System.Globalization;
 using System.Transactions;
 
@@ -22,9 +25,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 {
     public interface IProcessCollectionItemEntity
     {
-        List<CollectionItemDisplayDTO> GetWithPredicates(CollectionItemSearchParameterModel model);
-        Task<List<CollectionItemDisplayDTO>> GetWithVector(CollectionItemSearchParameterModel model);
-        //List<CollectionItemDisplayDTO> GetTraditionalTextSearch(CollectionItemSearchParameterModel model);
+        List<CollectionItemDisplayDTO> GetWithTranslationsListViaPredicates(CollectionItemSearchParameterModel model, int? topK = null);
+        List<CollectionItemEntity> GetEntityListViaPredicates(CollectionItemSearchParameterModel model, int? topK = null);
+        Task<List<CollectionItemDisplayDTO>> GetWithVector(CollectionItemSearchParameterModel model, int? topK = null);
         (int statusCode, string statusMessage) Insert(CollectionItemCreateDTO createDto, UsingIdentityUser user);
         (int statusCode, string statusMessage) Update(CollectionItemEditDTO editDTO);
         (int statusCode, string statusMessage) Delete(int id);
@@ -34,12 +37,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         IProcessCollectionItemPicture processCollectionItemPicture,
         IProcessPicturePhysically processPicturePhysically,
         IProcessConceptValue processConceptValue,
-        IProcessConcept processConcept,
         IProcessCollectionItemEmbedding processCollectionItemEmbedding,
         IDeeplTranslationService translationService,
         IProcessTranslations processTranslations,
-        ITranslationStore translationStore,
-        ITrackEventsCSV trackEvents,
+        ITrackEventsText trackEvents,
         IProcessCIRelationship processRelationship) : IProcessCollectionItemEntity
     {
         public (int statusCode, string statusMessage) Insert(CollectionItemCreateDTO createDTO, UsingIdentityUser user)
@@ -48,14 +49,13 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 
             try
             {
+                //hier using verwenden, da sonst bei Fehlern in der Mitte des Prozesses teilweise Daten in der DB sind, die nicht mehr mit den physischen Bildern übereinstimmen oder teilweise Verbindungen zu anderen Entities bestehen, die nicht mehr existieren
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
 
                 CollectionItemEntity newCollectionItemEntity = new()
                 {
                     CollectionAreaID = createDTO.CollectionAreaID,
-                    UniqueName = createDTO.UniqueName,
                     Fake = createDTO.Fake,
-                    Comment = createDTO.Comment,
                     StatePreservationID = createDTO.StatePreservationID,
                     Inscription = createDTO.Inscription,
                     SerialNumber = createDTO.SerialNumber,
@@ -80,51 +80,48 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 newCollectionItemEntity = unitOfWork.CollectionItemEntityRepository.Insert(newCollectionItemEntity);
                 unitOfWork.Save();
 
-                List<string> translationList = []; //For Vector Search
+                Dictionary<string, string> translationList = []; //For Vector Search
                 if (!string.IsNullOrEmpty(createDTO.Comment))
                 {
-                    translationList.AddRange(processTranslations.Insert(
+                    translationList.Add(nameof(CollectionItemDisplayDTO.Comment), string.Join(", ", processTranslations.Insert(
                     new TranslationDTO
                     {
                         TextToTranslate = createDTO.Comment,
-                        EntityType = nameof(CollectionItemEntity),
+                        EntityName = nameof(CollectionItemEntity),
                         EntityId = newCollectionItemEntity.CollectionItemEntityID,
-                        FieldName = nameof(CollectionItemEntity.Comment),
-                        Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
-                    }));
+                        PropertyName = nameof(CollectionItemDisplayDTO.Comment)
+                    })));
                 }
                 if (!string.IsNullOrEmpty(createDTO.Inscription))
                 {
-                    translationList.AddRange(processTranslations.Insert(
+                    translationList.Add(nameof(CollectionItemDisplayDTO.Inscription), string.Join(", ", processTranslations.Insert(
                     new TranslationDTO
                     {
                         TextToTranslate = createDTO.Inscription,
-                        EntityType = nameof(CollectionItemEntity),
+                        EntityName = nameof(CollectionItemEntity),
                         EntityId = newCollectionItemEntity.CollectionItemEntityID,
-                        FieldName = nameof(CollectionItemEntity.Inscription),
-                        Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
-                    }));
+                        PropertyName = nameof(CollectionItemDisplayDTO.Inscription)
+                    })));
                 }
                 if (!string.IsNullOrEmpty(createDTO.UniqueName))
                 {
-                    translationList.AddRange(processTranslations.Insert(
+                    translationList.Add(nameof(CollectionItemDisplayDTO.UniqueName), string.Join(", ", processTranslations.Insert(
                         new TranslationDTO
                         {
                             TextToTranslate = createDTO.UniqueName,
-                            EntityType = nameof(CollectionItemEntity),
+                            EntityName = nameof(CollectionItemEntity),
                             EntityId = newCollectionItemEntity.CollectionItemEntityID,
-                            FieldName = nameof(CollectionItemEntity.UniqueName),
-                            Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
-                        }));
+                            PropertyName = nameof(CollectionItemDisplayDTO.UniqueName)
+                        })));
                 }
 
                 foreach (ParticipantToCollectionItemCreateDTO createDto in createDTO.ConnectedParticipantList)
                 {
-                    translationList.AddRange(ConnectParticipantToCollectionItemEntity(newCollectionItemEntity, createDto.Id, createDto.Relationship));
+                    translationList.Add(nameof(Participant.ParticipantName), ConnectParticipantToCollectionItemEntity(newCollectionItemEntity, createDto.Id, createDto.Relationship));
                 }
                 foreach (PlaceToCollectionItemCreateDTO place in createDTO.ConnectedPlaceList)
                 {
-                    translationList.AddRange(ConnectPlaceToCollectionItemEntity(newCollectionItemEntity, place.Id, place.Relationship));
+                    translationList.Add(nameof(Toponymy.ToponymyName), string.Join(", ", ConnectPlaceToCollectionItemEntity(newCollectionItemEntity, place.Id, place.Relationship)));
                 }
                 foreach (ConceptValueToCollectionItemCreateDTO coneptValue in createDTO.ConceptValueList)
                 {
@@ -136,16 +133,12 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                         ValueDecimal = coneptValue.ValueDecimal,
                         ValueDate = coneptValue.ValueDate
                     };
-                    (int code, string returnMessage, List<string> coneptValueTranslationList) = processConceptValue.Insert(newConceptValue, newCollectionItemEntity.CollectionItemEntityID);
-                    if (code != 200)
-                    {
-                        scope.Dispose();
-                        return (code, returnMessage);
-                    }
-                    translationList.AddRange(coneptValueTranslationList);
+                    List<string> coneptValueTranslationList = processConceptValue.Insert(newConceptValue, newCollectionItemEntity.CollectionItemEntityID);
+                    translationList.Add(nameof(ConceptValue.ValueString), string.Join(", ", coneptValueTranslationList));
                 }
 
-                (int statuscode, string statusmessage) = processCollectionItemEmbedding.Insert(newCollectionItemEntity, translationList);
+                CollectionItemDisplayDTO displayDTO = EntityToDiplayDTO(newCollectionItemEntity);
+                (int statuscode, string statusmessage) = processCollectionItemEmbedding.Insert(displayDTO, translationList);
                 if (statuscode != 200)
                 {
                     scope.Dispose();
@@ -196,7 +189,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         {
             CollectionItemSearchParameterModel collectionItemSearchParameterModel = new();
             collectionItemSearchParameterModel.CollectionItemEntityID.Add(editDto.Id);
-            CollectionItemEntity? existingEntity = GetWithPredicates(collectionItemSearchParameterModel).FirstOrDefault()?.CollectionItemEntity;
+            CollectionItemEntity? existingEntity = GetEntityListViaPredicates(collectionItemSearchParameterModel).FirstOrDefault();
             if (existingEntity == null)
             {
                 trackEvents.TrackError("UpdateCollectionItemEntity_Failed_NotFound", new Dictionary<string, object>
@@ -210,13 +203,16 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             {
                 using TransactionScope scope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-                List<string> translationList = [];
+                Dictionary<string, string> translationList = [];
                 int statuscode = 0;
                 string statusmessage = "";
 
-                translationList.AddRange(ChangeEntity(editDto, existingEntity));
-                translationList.AddRange(SyncParticipantConnections(existingEntity, editDto.ConnectedParticipantList));
-                translationList.AddRange(SyncPlaceConnections(existingEntity, editDto.ConnectedPlaceList));
+                foreach (var kvp in ChangeEntity(editDto, existingEntity))
+                    translationList.TryAdd(kvp.Key, kvp.Value);
+                foreach (var kvp in SyncParticipantConnections(existingEntity, editDto.ConnectedParticipantList))
+                    translationList.TryAdd(kvp.Key, kvp.Value);
+                foreach (var kvp in SyncPlaceConnections(existingEntity, editDto.ConnectedPlaceList))
+                    translationList.TryAdd(kvp.Key, kvp.Value);
                 List<ConceptValue> conceptValueList = [.. editDto.ConceptValueList.Select(x => new ConceptValue
                 {
                     ConceptValueID = x.ConceptValueId,
@@ -227,18 +223,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     ValueDate = x.ValueDate,
                     ValueBool = x.ValueBool
                 })];
-                (statuscode, statusmessage, translationList) = SyncConceptValueConnections(existingEntity, conceptValueList);
-                if (statuscode != 200)
-                {
-                    scope.Dispose();
-                    return (statuscode, statusmessage);
-                }
-                (statuscode, statusmessage) = processCollectionItemEmbedding.Update(existingEntity, translationList);
-                if (statuscode != 200)
-                {
-                    scope.Dispose();
-                    return (statuscode, statusmessage);
-                }
+                translationList.Add(nameof(ConceptValue.ValueString), string.Join(", ", SyncConceptValueConnections(existingEntity, conceptValueList)));
+                CollectionItemDisplayDTO displayDTO = EntityToDiplayDTO(existingEntity);
+                processCollectionItemEmbedding.Update(displayDTO, translationList);
 
                 (List<(PictureToCollectionItemEditDTO collectionItemPicture, int pictureId, string process)> collectionItemPictureList, statuscode, statusmessage) = SyncCollectionItemPictureConnections(existingEntity, editDto.CollectionItemPictureList, editDto.DeletedPictureIds);
                 if (statuscode != 200)
@@ -253,8 +240,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                         IFormFile = collectionItemPicture.IFormFile,
                         PerspectiveInt = collectionItemPicture.PerspectiveInt
                     };
-                    //(statuscode, statusmessage) = processPicturePhysically.SaveCollectionItemPic(pictureToCollectionItemCreateDTO, pictureId, false, existingEntity.UsingIdentityUser.DisplayName); 
-                    (statuscode, statusmessage) = processPicturePhysically.SaveCollectionItemPic(pictureToCollectionItemCreateDTO, pictureId, "Testuser");
+                    (statuscode, statusmessage) = processPicturePhysically.SaveCollectionItemPic(pictureToCollectionItemCreateDTO, pictureId, existingEntity.UsingIdentityUser.DisplayName);
                     if (statuscode != 200)
                     {
                         foreach (var pic in collectionItemPictureList)
@@ -289,54 +275,52 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 return (500, "Error_Unknown");
             }
 
-            List<string> ChangeEntity(CollectionItemEditDTO editDto, CollectionItemEntity existingEntity)
+            Dictionary<string, string> ChangeEntity(CollectionItemEditDTO editDto, CollectionItemEntity existingEntity)
             {
                 bool hasChanges = false;
-                List<string> translationList = [];
+                Dictionary<string, string> translationList = [];
 
                 var existingTranslations = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
                 {
-                    EntityType = [nameof(CollectionItemEntity)],
+                    EntityName = [nameof(CollectionItemEntity)],
                     EntityId = [existingEntity.CollectionItemEntityID]
                 });
 
-                string? translatedComment = existingTranslations.FirstOrDefault(x => x.FieldName == nameof(CollectionItemEntity.Comment))?.TranslatedText;
+                string? translatedComment = existingTranslations.FirstOrDefault(x => x.PropertyName == nameof(CollectionItemDisplayDTO.Comment))?.TranslatedText;
                 if (!string.IsNullOrEmpty(editDto.Comment))
                 {
                     if (translatedComment != null)
                     {
                         if (translatedComment != editDto.Comment)
                         {
-                            translationList.AddRange(processTranslations.Update(
+                            translationList.Add(nameof(CollectionItemDisplayDTO.Comment), string.Join(", ", processTranslations.Update(
                                 new TranslationDTO
                                 {
                                     TextToTranslate = editDto.Comment,
-                                    EntityType = nameof(CollectionItemEntity),
+                                    EntityName = nameof(CollectionItemEntity),
                                     EntityId = existingEntity.CollectionItemEntityID,
-                                    FieldName = nameof(CollectionItemEntity.Comment),
-                                    Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
-                                }));
+                                    PropertyName = nameof(CollectionItemDisplayDTO.Comment)
+                                })));
                         }
                     }
                     else
                     {
-                        translationList.AddRange(processTranslations.Insert(
+                        translationList.Add(nameof(CollectionItemDisplayDTO.Comment), string.Join(", ", processTranslations.Insert(
                             new TranslationDTO
                             {
                                 TextToTranslate = editDto.Comment,
-                                EntityType = nameof(CollectionItemEntity),
+                                EntityName = nameof(CollectionItemEntity),
                                 EntityId = existingEntity.CollectionItemEntityID,
-                                FieldName = nameof(CollectionItemEntity.Comment),
-                                Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
-                            }));
+                                PropertyName = nameof(CollectionItemDisplayDTO.Comment)
+                            })));
                     }
                 }
                 else if (translatedComment != null)
                 {
                     processTranslations.Delete(new EntityTranslationSearchParameter
                     {
-                        EntityType = [nameof(CollectionItemEntity)],
-                        FieldName = [nameof(CollectionItemEntity.Comment)],
+                        EntityName = [nameof(CollectionItemEntity)],
+                        PropertyName = [nameof(CollectionItemDisplayDTO.Comment)],
                         EntityId = [existingEntity.CollectionItemEntityID]
                     });
                 }
@@ -416,35 +400,33 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     hasChanges = true;
                 }
 
-                string? translatedUniqueName = existingTranslations.FirstOrDefault(x => x.FieldName == nameof(CollectionItemEntity.UniqueName))?.TranslatedText;
+                string? translatedUniqueName = existingTranslations.FirstOrDefault(x => x.PropertyName == nameof(CollectionItemDisplayDTO.UniqueName))?.TranslatedText;
                 if (!string.IsNullOrEmpty(editDto.UniqueName))
                 {
                     if (translatedUniqueName != null)
                     {
                         if (translatedUniqueName != editDto.UniqueName)
                         {
-                            translationList.AddRange(processTranslations.Update(
+                            translationList.Add(nameof(CollectionItemDisplayDTO.UniqueName), string.Join(", ", processTranslations.Update(
                             new TranslationDTO
                             {
                                 TextToTranslate = editDto.UniqueName,
-                                EntityType = nameof(CollectionItemEntity),
+                                EntityName = nameof(CollectionItemEntity),
                                 EntityId = existingEntity.CollectionItemEntityID,
-                                FieldName = nameof(CollectionItemEntity.UniqueName),
-                                Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
-                            }));
+                                PropertyName = nameof(CollectionItemDisplayDTO.UniqueName)
+                            })));
                         }
                     }
                     else
                     {
-                        translationList.AddRange(processTranslations.Insert(
+                        translationList.Add(nameof(CollectionItemDisplayDTO.UniqueName), string.Join(", ", processTranslations.Insert(
                             new TranslationDTO
                             {
                                 TextToTranslate = editDto.UniqueName,
-                                EntityType = nameof(CollectionItemEntity),
+                                EntityName = nameof(CollectionItemEntity),
                                 EntityId = existingEntity.CollectionItemEntityID,
-                                FieldName = nameof(CollectionItemEntity.UniqueName),
-                                Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
-                            }));
+                                PropertyName = nameof(CollectionItemDisplayDTO.UniqueName)
+                            })));
                     }
                 }
                 else if (translatedUniqueName != null)
@@ -452,8 +434,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                     processTranslations.Delete(
                         new EntityTranslationSearchParameter
                         {
-                            EntityType = [nameof(CollectionItemEntity)],
-                            FieldName = [nameof(CollectionItemEntity.UniqueName)],
+                            EntityName = [nameof(CollectionItemEntity)],
+                            PropertyName = [nameof(CollectionItemDisplayDTO.UniqueName)],
                             EntityId = [existingEntity.CollectionItemEntityID]
                         });
                 }
@@ -465,41 +447,39 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 
                     if (!string.IsNullOrEmpty(editDto.Inscription))
                     {
-                        string? translatedInscription = existingTranslations.FirstOrDefault(x => x.FieldName == nameof(CollectionItemEntity.InscriptionTranslated))?.TranslatedText;
+                        string? translatedInscription = existingTranslations.FirstOrDefault(x => x.PropertyName == nameof(CollectionItemDisplayDTO.InscriptionTranslated))?.TranslatedText;
                         if (translatedInscription != null)
                         {
                             if (translatedInscription != editDto.InscriptionTranslated)
                             {
-                                translationList.AddRange(processTranslations.Update(
+                                translationList.Add(nameof(CollectionItemDisplayDTO.Inscription), string.Join(", ", processTranslations.Update(
                                     new TranslationDTO
                                     {
                                         TextToTranslate = editDto.Inscription,
-                                        EntityType = nameof(CollectionItemEntity),
+                                        EntityName = nameof(CollectionItemEntity),
                                         EntityId = existingEntity.CollectionItemEntityID,
-                                        FieldName = nameof(CollectionItemEntity.Inscription),
-                                        Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
-                                    }));
+                                        PropertyName = nameof(CollectionItemDisplayDTO.Inscription)
+                                    })));
                             }
                         }
                         else
                         {
-                            translationList.AddRange(processTranslations.Insert(
+                            translationList.Add(nameof(CollectionItemDisplayDTO.Inscription), string.Join(", ", processTranslations.Insert(
                                 new TranslationDTO
                                 {
                                     TextToTranslate = editDto.Inscription,
-                                    EntityType = nameof(CollectionItemEntity),
+                                    EntityName = nameof(CollectionItemEntity),
                                     EntityId = existingEntity.CollectionItemEntityID,
-                                    FieldName = nameof(CollectionItemEntity.Inscription),
-                                    Culture = translationService.NetCultureToDeeplLanguage(System.Globalization.CultureInfo.CurrentCulture.Name)
-                                }));
+                                    PropertyName = nameof(CollectionItemDisplayDTO.Inscription)
+                                })));
                         }
                     }
                     else
                     {
                         processTranslations.Delete(new EntityTranslationSearchParameter
                         {
-                            EntityType = [nameof(CollectionItemEntity)],
-                            FieldName = [nameof(CollectionItemEntity.InscriptionTranslated)],
+                            EntityName = [nameof(CollectionItemEntity)],
+                            PropertyName = [nameof(CollectionItemDisplayDTO.InscriptionTranslated)],
                             EntityId = [existingEntity.CollectionItemEntityID],
                         });
                     }
@@ -523,10 +503,38 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             }
         }
 
+        private static CollectionItemDisplayDTO EntityToDiplayDTO(CollectionItemEntity existingEntity)
+        {
+            return new()
+            {
+                CollectionItemEntityID = existingEntity.CollectionItemEntityID,
+                CollectionAreaID = existingEntity.CollectionAreaID,
+                Fake = existingEntity.Fake,
+                StatePreservationID = existingEntity.StatePreservationID,
+                Inscription = existingEntity.Inscription,
+                SerialNumber = existingEntity.SerialNumber,
+                ExactYear = existingEntity.ExactYear,
+                StartYear = existingEntity.StartYear,
+                EndYear = existingEntity.EndYear,
+                IsApproximate = existingEntity.IsApproximate,
+                EraID = existingEntity.EraID,
+                Width = existingEntity.Width,
+                Height = existingEntity.Height,
+                Length = existingEntity.Length,
+                Diameter = existingEntity.Diameter,
+                Weight = existingEntity.Weight,
+                PersonalIdentificationNumber = existingEntity.PersonalIdentificationNumber,
+                FilingLocation = existingEntity.FilingLocation,
+                DeliveryAdress = existingEntity.DeliveryAdress,
+                DeliveryPrice = existingEntity.DeliveryPrice,
+                DeliveryDate = existingEntity.DeliveryDate
+            };
+        }
+
         public (int statusCode, string statusMessage) Delete(int id)
         {
-            CollectionItemDisplayDTO? existingOperationParameterModel = GetWithPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [id] }).FirstOrDefault();
-            if (existingOperationParameterModel == null)
+            CollectionItemEntity? existingCollectionItem = GetEntityListViaPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [id] }).FirstOrDefault();
+            if (existingCollectionItem == null)
             {
                 return (400, "Error_CollectionItemEntity_NotFound");
             }
@@ -536,36 +544,31 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             {
                 using TransactionScope scope = new();
 
-                for (int i = existingOperationParameterModel.CollectionItemNParticipantList.Count - 1; i == 0; i--)
+                for (int i = existingCollectionItem.CollectionItemNParticipantList.Count - 1; i == 0; i--)
                 {
-                    DisconnectParticipantConnection(existingOperationParameterModel.CollectionItemEntity, existingOperationParameterModel.CollectionItemNParticipantList[i].ParticipantID);
+                    DisconnectParticipantConnection(existingCollectionItem, existingCollectionItem.CollectionItemNParticipantList[i].ParticipantID);
                 }
-                for (int i = existingOperationParameterModel.CollectionItemNPlaceList.Count - 1; i == 0; i--)
+                for (int i = existingCollectionItem.CollectionItemNPlaceList.Count - 1; i == 0; i--)
                 {
-                    DisconnectPlaceConnection(existingOperationParameterModel.CollectionItemEntity, existingOperationParameterModel.CollectionItemNPlaceList[i].PlaceID);
+                    DisconnectPlaceConnection(existingCollectionItem, existingCollectionItem.CollectionItemNPlaceList[i].PlaceID);
                 }
-                for (int i = existingOperationParameterModel.CollectionItemPictureList.Count - 1; i == 0; i--)
+                for (int i = existingCollectionItem.CollectionItemPictureList.Count - 1; i == 0; i--)
                 {
-                    collectionItemPictureList.Add(existingOperationParameterModel.CollectionItemPictureList[i].CollectionItemPictureID);
-                    (int statuscode, string statusmessage) = processCollectionItemPicture.Delete(existingOperationParameterModel.CollectionItemPictureList[i]);
+                    collectionItemPictureList.Add(existingCollectionItem.CollectionItemPictureList[i].CollectionItemPictureID);
+                    (int statuscode, string statusmessage) = processCollectionItemPicture.Delete(existingCollectionItem.CollectionItemPictureList[i]);
                     if (statuscode != 200)
                     {
                         scope.Dispose();
                         return (statuscode, statusmessage);
                     }
                 }
-                for (int i = existingOperationParameterModel.ConceptValueList.Count - 1; i == 0; i--)
+                for (int i = existingCollectionItem.ConceptValueList.Count - 1; i == 0; i--)
                 {
-                    (int statuscode, string statusmessage) = processConceptValue.Delete(existingOperationParameterModel.ConceptValueList[i].ConceptValueID);
-                    if (statuscode != 200)
-                    {
-                        scope.Dispose();
-                        return (statuscode, statusmessage);
-                    }
+                    processConceptValue.Delete(existingCollectionItem.ConceptValueList[i].ConceptValueID);
                 }
                 processCollectionItemEmbedding.Delete(id);
 
-                unitOfWork.CollectionItemEntityRepository.Delete(existingOperationParameterModel.CollectionItemEntity);
+                unitOfWork.CollectionItemEntityRepository.Delete(existingCollectionItem);
                 unitOfWork.Save();
 
                 foreach (int pictureID in collectionItemPictureList)
@@ -592,168 +595,167 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             }
         }
 
-        public List<CollectionItemDisplayDTO> GetWithPredicates(CollectionItemSearchParameterModel model)
+        public List<CollectionItemDisplayDTO> GetWithTranslationsListViaPredicates(CollectionItemSearchParameterModel model, int? topK = null)
         {
-            IEnumerable<CollectionItemEntity> collectionItemIEnumberable = unitOfWork.CollectionItemEntityRepository.Get(
+            IQueryable<CollectionItemDisplayDTO> collectionItemIQueryable = unitOfWork.CollectionItemEntityRepository.Get(
+                filter: SearchPredicateBuilder.BuildPredicate<CollectionItemEntity>(model),
+                includeProperties: GetIncludeProperties())
+                .Select(b => SetMembersofEntity(b));
+            collectionItemIQueryable = collectionItemIQueryable.AsNoTracking();
+            if (topK != null)
+                collectionItemIQueryable = collectionItemIQueryable.Take(topK.Value);
+
+            List<CollectionItemDisplayDTO> collectionItemList = SetTranslations([.. collectionItemIQueryable]);
+
+            return collectionItemList;
+        }
+
+        public List<CollectionItemEntity> GetEntityListViaPredicates(CollectionItemSearchParameterModel model, int? topK = null)
+        {
+            IQueryable<CollectionItemEntity> collectionItemIQueryable = unitOfWork.CollectionItemEntityRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<CollectionItemEntity>(model),
                 includeProperties: GetIncludeProperties());
-
-            List<CollectionItemDisplayDTO> collectionItemList = [..from b in collectionItemIEnumberable
-                      select SetMembersofEntity(b)];
-
-            collectionItemList = SetTranslations(collectionItemList);
-
-            return [.. collectionItemList.OrderBy(x => x.CollectionItemEntity.PersonalIdentificationNumber).ThenBy(x => x.CollectionItemEntity.CollectionItemEntityID)];
+            collectionItemIQueryable = collectionItemIQueryable.AsNoTracking();
+            return [.. collectionItemIQueryable];
         }
-        //public List<CollectionItemDisplayDTO> GetTraditionalTextSearch(CollectionItemSearchParameterModel model)
-        //{
-        //    trackEvents.TrackInfo("GetTraditionalTextSearch_Started", new Dictionary<string, object>
-        //    {
-        //        { "SemanticSearchQuery", model.SemanticSearchQuery ?? "null" }
-        //    });
-
-        //    if (string.IsNullOrEmpty(model.SemanticSearchQuery))
-        //        return GetWithPredicates(model);
-
-        //    string[] allTerms = model.SemanticSearchQuery.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-        //    List<int> searchTermsInt = [.. allTerms
-        //        .Where(term => int.TryParse(term, out _))
-        //        .Select(int.Parse)];
-
-        //    List<string> searchTermsString = [.. allTerms
-        //        .Where(term => !int.TryParse(term, out _))];
-        //    Dictionary<string, int> translationIds = translationStore.GetIdFromAllEntityTypes(searchTermsString);
-
-        //    //Notwendig, da sonst Abfrage zu verzeigt für GenericSearch
-        //    var placeList = processPlace.GetListWithPredicate(new PlaceSearchParameterModel { PlaceNToponymyList_Toponymy_ToponymyName = searchTermsString });
-
-        //    var baseSearchModel = new CollectionItemSearchParameterModel
-        //    {
-        //        UniqueName = searchTermsString,
-        //        CollectionAreaID = translationIds.TryGetValue("CollectionArea", out int value5) ? [value5] : [],
-        //        EraID = translationIds.TryGetValue("Era", out int value) ? [value] : [],
-        //        StatePreservationID = translationIds.TryGetValue("StatePreservation", out int value1) ? [value1] : [],
-        //        CollectionItemNParticipantList_ParticipantID = translationIds.TryGetValue("Participant", out int value2) ? [value2] : [],
-        //        CollectionItemNPlaceList_PlaceID = [.. placeList.Select(p => p.PlaceID)],
-        //        CollectionItemEntityID = searchTermsInt
-        //    };
-
-        //    return GetWithPredicates(baseSearchModel);
-        //}
         private static string GetIncludeProperties()
         {
             return nameof(CollectionItemEntity.CollectionItemPictureList) + "," +
                    nameof(CollectionItemEntity.UsingIdentityUser) + "," +
-                   nameof(CollectionItemEntity.CollectionArea) + "," +
                    nameof(CollectionItemEntity.CollectionItemNPlaceList) + "." + nameof(CollectionItemNPlace.Place) +
                        "." + nameof(Place.PlaceNToponymyList) + "." + nameof(PlaceNToponymy.Toponymy) + "," +
-                   nameof(CollectionItemEntity.CollectionItemNPlaceList) + "." + nameof(CollectionItemNPlace.RelationType) + "," +
                    nameof(CollectionItemEntity.CollectionItemNParticipantList) + "." + nameof(CollectionItemNParticipant.Participant) + "," +
-                   nameof(CollectionItemEntity.CollectionItemNParticipantList) + "." + nameof(CollectionItemNParticipant.RelationType) + "," +
                    nameof(CollectionItemEntity.ConceptValueList);
         }
-        private CollectionItemDisplayDTO SetMembersofEntity(CollectionItemEntity b)
+        private static CollectionItemDisplayDTO SetMembersofEntity(CollectionItemEntity b)
         {
-            var conceptList = processConcept.Get(new ConceptualRelationshipSearchParameterModel { }).Select(x => x.ConceptViewModel).ToList();
-            List<ConceptValue> cvL = b.ConceptValueList;
-            foreach (var cv in cvL)
-            {
-                cv.ConceptName = conceptList.FirstOrDefault(x => x.Id == cv.ConceptID)?.Name;
-            }
             return new CollectionItemDisplayDTO
             {
-                CollectionItemEntity = b,
+                CollectionItemEntityID = b.CollectionItemEntityID,
+                CollectionAreaID = b.CollectionAreaID,
+                Fake = b.Fake,
+                StatePreservationID = b.StatePreservationID,
+                Inscription = b.Inscription,
+                SerialNumber = b.SerialNumber,
+                ExactYear = b.ExactYear,
+                StartYear = b.StartYear,
+                EndYear = b.EndYear,
+                IsApproximate = b.IsApproximate,
+                EraID = b.EraID,
+                Width = b.Width,
+                Height = b.Height,
+                Length = b.Length,
+                Diameter = b.Diameter,
+                Weight = b.Weight,
+                PersonalIdentificationNumber = b.PersonalIdentificationNumber,
+                FilingLocation = b.FilingLocation,
+                DeliveryAdress = b.DeliveryAdress,
+                DeliveryPrice = b.DeliveryPrice,
+                DeliveryDate = b.DeliveryDate,
                 CollectionItemPictureList = b.CollectionItemPictureList,
-                StatePreservationList = [.. unitOfWork.StateRepository.Get()],
-                ConceptValueList = cvL,
-                CollectionItemNParticipantList = b.CollectionItemNParticipantList,
-                CollectionItemNPlaceList = b.CollectionItemNPlaceList,
-                Era = b.Era ?? new() { EraName = string.Empty },
-                CvmList = [.. conceptList.Where(x => x.CollectionAreaID == b.CollectionAreaID || x.CollectionAreaID == 0)]
+                ConceptValueList = b.ConceptValueList,
+                CollectionItemNParticipantList = [.. b.CollectionItemNParticipantList.Select(p => new CollectionItemNParticipantDisplayDTO
+                {
+                    ParticipantID = p.ParticipantID,
+                    Name = p.Participant?.ParticipantName ?? string.Empty,
+                    RelationshipId = p.RelationTypeId
+                })],
+                CollectionItemNPlaceList = [.. b.CollectionItemNPlaceList.Select(p => new CollectionItemNPlaceDisplayDTO
+                {
+                    PlaceID = p.PlaceID,
+                    ToponymyList = p.Place?.PlaceNToponymyList.Select(pt => new ToponymyDisplayDTO
+                    {
+                        Id = pt.ToponymyID,
+                        Name = pt.Toponymy?.ToponymyName ?? string.Empty
+                    }).ToList() ?? [],
+                    RelationshipId = p.RelationTypeId
+                })]
             };
         }
         private List<CollectionItemDisplayDTO> SetTranslations(List<CollectionItemDisplayDTO> operationParameterList)
         {
-            List<CollectionItemDisplayDTO> ciopList = operationParameterList;
+            var culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name);
+            var allTranslations = unitOfWork.EntityTranslationRepository
+                .Get(filter: x => x.Culture == culture)
+                .ToList();
+
+            // Dictionary für schnellen Zugriff
+            var translationDict = allTranslations
+                .GroupBy(x => (x.EntityName, x.EntityId, x.PropertyName))
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.First().TranslatedText
+                );
+
             foreach (var ciop in operationParameterList)
             {
-                ciop.CollectionItemEntity.CollectionArea.CollectionAreaName = translationStore.GetTranslation(
-                    nameof(CollectionArea),
-                    ciop.CollectionItemEntity.CollectionAreaID,
-                    nameof(CollectionArea.CollectionAreaName),
-                    translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                    ?? string.Empty;
-                ciop.CollectionItemEntity.UniqueName = translationStore.GetTranslation(
-                    nameof(CollectionItemEntity),
-                    ciop.CollectionItemEntity.CollectionItemEntityID,
-                    nameof(CollectionItemEntity.UniqueName),
-                    translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                    ?? string.Empty;
-                ciop.CollectionItemEntity.InscriptionTranslated = translationStore.GetTranslation(
-                    nameof(CollectionItemEntity),
-                    ciop.CollectionItemEntity.CollectionItemEntityID,
-                    nameof(CollectionItemEntity.InscriptionTranslated),
-                    translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                    ?? string.Empty;
-                ciop.CollectionItemEntity.Comment = translationStore.GetTranslation(
-                    nameof(CollectionItemEntity),
-                    ciop.CollectionItemEntity.CollectionItemEntityID,
-                    nameof(CollectionItemEntity.Comment),
-                    translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                    ?? string.Empty;
-                if (ciop.CollectionItemEntity.EraID > 0)
+                // CollectionArea
+                var areaKey = (nameof(CollectionArea), ciop.CollectionAreaID, nameof(CollectionItemDisplayDTO.CollectionAreaName));
+                ciop.CollectionAreaName = translationDict.TryGetValue(areaKey, out var value) ? value : string.Empty;
+
+                // CollectionItemEntity Übersetzungen
+                var entityId = ciop.CollectionItemEntityID;
+
+                var uniqueNameKey = (nameof(CollectionItemEntity), entityId, nameof(CollectionItemDisplayDTO.UniqueName));
+                ciop.UniqueName = translationDict.TryGetValue(uniqueNameKey, out var uniqueName) ? uniqueName : string.Empty;
+
+                var inscriptionKey = (nameof(CollectionItemEntity), entityId, nameof(CollectionItemDisplayDTO.InscriptionTranslated));
+                ciop.InscriptionTranslated = translationDict.TryGetValue(inscriptionKey, out var inscription) ? inscription : string.Empty;
+
+                var commentKey = (nameof(CollectionItemEntity), entityId, nameof(CollectionItemDisplayDTO.Comment));
+                ciop.Comment = translationDict.TryGetValue(commentKey, out var comment) ? comment : string.Empty;
+
+                // Era
+                if (ciop.EraID > 0)
                 {
-                    ciop.Era.EraName = translationStore.GetTranslation(
-                        nameof(Era),
-                        (int)ciop.CollectionItemEntity.EraID,
-                        nameof(Era.EraName),
-                        translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                        ?? string.Empty;
+                    var eraKey = (nameof(Era), ciop.EraID.Value, nameof(EraDisplayDTO.EraName));
+                    ciop.EraName = translationDict.TryGetValue(eraKey, out var eraName) ? eraName : string.Empty;
                 }
-                if (ciop.CollectionItemEntity.StatePreservationID > 0)
+
+                // StatePreservation
+                if (ciop.StatePreservationID > 0)
                 {
-                    ciop.CollectionItemEntity.StatePreservation?.StatePreservationName = translationStore.GetTranslation(
-                        nameof(StatePreservation),
-                        (int)ciop.CollectionItemEntity.StatePreservationID,
-                        nameof(StatePreservation.StatePreservationName),
-                        translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)) ?? string.Empty;
+                    var stateKey = (nameof(StatePreservation), ciop.StatePreservationID.Value, nameof(CollectionItemDisplayDTO.StatePreservationName));
+                    ciop.StatePreservationName = translationDict.TryGetValue(stateKey, out var stateName) ? stateName : string.Empty;
                 }
+
+                // ConceptValueList
                 foreach (var cav in ciop.ConceptValueList)
                 {
-                    cav.ValueString = translationStore.GetTranslation(
-                        nameof(ConceptValue),
-                        cav.ConceptValueID,
-                        nameof(ConceptValue.ValueString),
-                        translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name));
+                    var cvKey = (nameof(ConceptValue), cav.ConceptValueID, nameof(ConceptValue.ValueString));
+                    cav.ValueString = translationDict.TryGetValue(cvKey, out var cvValue) ? cvValue : string.Empty;
+
+                    var conceptKey = (nameof(Concept), cav.ConceptID, nameof(ConceptViewModel.Name));
+                    cav.ConceptName = translationDict.TryGetValue(conceptKey, out var conceptName) ? conceptName : string.Empty;
                 }
+
+                // Places
                 foreach (var placeConnection in ciop.CollectionItemNPlaceList)
                 {
-                    placeConnection.RelationType.CollectionItemRelationshipName = translationStore.GetTranslation(
-                        nameof(CollectionItemRelationship),
-                        placeConnection.RelationTypeId,
-                        nameof(CollectionItemRelationship.CollectionItemRelationshipName),
-                        translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                        ?? string.Empty;
+                    var placeKey = (nameof(CollectionItemRelationship), placeConnection.RelationshipId, nameof(CIRelationshipDisplayDTO.CollectionItemRelationshipName));
+                    placeConnection.RelationshipName = translationDict.TryGetValue(placeKey, out var placeName) ? placeName : string.Empty;
                 }
+
+                // Participants
                 foreach (var participantConnection in ciop.CollectionItemNParticipantList)
                 {
-                    participantConnection.RelationType.CollectionItemRelationshipName = translationStore.GetTranslation(
-                        nameof(CollectionItemRelationship),
-                        participantConnection.RelationTypeId,
-                        nameof(CollectionItemRelationship.CollectionItemRelationshipName),
-                        translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name))
-                        ?? string.Empty;
+                    var participantKey = (nameof(CollectionItemRelationship), participantConnection.RelationshipId, nameof(CIRelationshipDisplayDTO.CollectionItemRelationshipName));
+                    participantConnection.RelationshipName = translationDict.TryGetValue(participantKey, out var participantName) ? participantName : string.Empty;
+                    if (participantConnection.IndustryId != null)
+                    {
+                        var industryKey = (nameof(Industry), participantConnection.IndustryId.Value, nameof(CollectionItemNParticipantDisplayDTO.IndustryName));
+                        participantConnection.IndustryName = translationDict.TryGetValue(industryKey, out var industryName) ? industryName : string.Empty;
+                    }
                 }
             }
 
-            return ciopList;
+            return operationParameterList;
         }
 
-        public async Task<List<CollectionItemDisplayDTO>> GetWithVector(CollectionItemSearchParameterModel model)
+        public async Task<List<CollectionItemDisplayDTO>> GetWithVector(CollectionItemSearchParameterModel model, int? topK = null)
         {
             if (string.IsNullOrEmpty(model.SemanticSearchQuery))
-                return GetWithPredicates(model);
+                return GetWithTranslationsListViaPredicates(model, topK);
 
             var vectorResults = await processCollectionItemEmbedding.SearchAsync(model.SemanticSearchQuery);
             if (vectorResults.Count == 0)
@@ -762,7 +764,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             }
 
             model.CollectionItemEntityID = [.. vectorResults.Select(x => x.CollectionItemEntityID)];
-            return GetWithPredicates(model);
+            return GetWithTranslationsListViaPredicates(model, topK);
         }
 
         /// <summary>
@@ -773,25 +775,25 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         /// <param name="relationship"></param>
         /// <returns></returns>
 
-        private List<string> ConnectParticipantToCollectionItemEntity(CollectionItemEntity collectionItemEntity, int participantID, string relationship)
+        private string ConnectParticipantToCollectionItemEntity(CollectionItemEntity collectionItemEntity, int participantID, string relationship)
         {
             if (participantID <= 0)
             {
-                return [];
+                return string.Empty;
             }
             Participant? participant = unitOfWork.ParticipantRepository.GetByID(participantID);
             if (participant is null)
             {
-                return [];
+                return string.Empty;
             }
 
-            List<CollectionItemRelationship> relationshipList = processRelationship.GetListWithPredicates(new CIRelationshipSearchParameterModel
+            List<CollectionItemRelationship> relationshipList = processRelationship.GetEntityListViaPredicates(new CIRelationshipSearchParameterModel
             {
                 CollectionItemRelationshipName = [relationship]
             });
             if (relationshipList.Count == 0 || relationshipList.Count > 1)
             {
-                return [];
+                return string.Empty;
             }
 
             CollectionItemNParticipant collectionItemEntityNParticipant = new()
@@ -803,9 +805,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             _ = unitOfWork.CollectionItemNParticipantRepository.Insert(collectionItemEntityNParticipant);
             unitOfWork.Save();
 
-            return translationStore.GetById<Participant>(participantID);
+            return participant.ParticipantName;
         }
-        private List<string> SyncParticipantConnections(CollectionItemEntity existingCollectionItemEntity, List<ParticipantToCollectionItemCreateDTO> newConnections)
+        private Dictionary<string, string> SyncParticipantConnections(CollectionItemEntity existingCollectionItemEntity, List<ParticipantToCollectionItemCreateDTO> newConnections)
         {
             List<CollectionItemNParticipant> currentConnections = existingCollectionItemEntity.CollectionItemNParticipantList;
 
@@ -823,13 +825,13 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 }
             }
 
-            List<string> translationList = [];
+            Dictionary<string, string> translationList = [];
             foreach (ParticipantToCollectionItemCreateDTO newItem in newConnections)
             {
                 bool exists = currentConnections.Any(x => x.ParticipantID == newItem.Id);
                 if (!exists)
                 {
-                    translationList.AddRange(ConnectParticipantToCollectionItemEntity(existingCollectionItemEntity, newItem.Id, newItem.Relationship));
+                    translationList.Add(nameof(Participant.ParticipantName), ConnectParticipantToCollectionItemEntity(existingCollectionItemEntity, newItem.Id, newItem.Relationship));
                 }
             }
 
@@ -837,7 +839,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
         }
         private void UpdateCollectionItemNParticipant(CollectionItemEntity existingCollectionItemEntity, ParticipantToCollectionItemCreateDTO updated)
         {
-            List<CollectionItemRelationship> relationshipList = processRelationship.GetListWithPredicates(new CIRelationshipSearchParameterModel
+            List<CollectionItemRelationship> relationshipList = processRelationship.GetEntityListViaPredicates(new CIRelationshipSearchParameterModel
             {
                 CollectionItemRelationshipName = [updated.Relationship]
             });
@@ -846,15 +848,15 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 return;
             }
 
+            CIRelationshipDisplayDTO? relationship = processRelationship.GetWithTranslationsListViaPredicates(new CIRelationshipSearchParameterModel { CollectionItemRelationshipName = [updated.Relationship] }).FirstOrDefault();
             CollectionItemNParticipant? collectionItemNParticipant = (from bep in unitOfWork.CollectionItemNParticipantRepository.Get(includeProperties: nameof(Participant))
                                                                       where bep.ParticipantID == updated.Id && bep.CollectionItemEntity == existingCollectionItemEntity
                                                                       select bep).FirstOrDefault();
-
-            if (collectionItemNParticipant != null)
+            if (collectionItemNParticipant != null && relationship != null)
             {
-                if (collectionItemNParticipant.RelationType.CollectionItemRelationshipName != updated.Relationship)
+                if (relationship.Id != collectionItemNParticipant.RelationTypeId)
                 {
-                    collectionItemNParticipant.RelationTypeId = relationshipList.First().CollectionItemRelationshipId;
+                    collectionItemNParticipant.RelationTypeId = relationship.Id;
                     unitOfWork.Save();
                 }
             }
@@ -887,7 +889,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 return [];
             }
 
-            List<CollectionItemRelationship> relationshipList = processRelationship.GetListWithPredicates(new CIRelationshipSearchParameterModel
+            List<CollectionItemRelationship> relationshipList = processRelationship.GetEntityListViaPredicates(new CIRelationshipSearchParameterModel
             {
                 CollectionItemRelationshipName = [relationship]
             });
@@ -905,9 +907,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             _ = unitOfWork.CollectionItemNPlaceRepository.Insert(collectionItemEntityNPlace);
             unitOfWork.Save();
 
-            return translationStore.GetById<Place>(placeID);
+            return [.. place.PlaceNToponymyList.Select(x => x.Toponymy.ToponymyName)];
         }
-        private List<string> SyncPlaceConnections(CollectionItemEntity existingCollectionItemEntity, List<PlaceToCollectionItemCreateDTO> newConnections)
+        private Dictionary<string, string> SyncPlaceConnections(CollectionItemEntity existingCollectionItemEntity, List<PlaceToCollectionItemCreateDTO> newConnections)
         {
             List<CollectionItemNPlace> currentConnections = existingCollectionItemEntity.CollectionItemNPlaceList;
 
@@ -925,21 +927,21 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 }
             }
 
-            List<string> translationList = [];
+            Dictionary<string, string> toponymyList = [];
             foreach (PlaceToCollectionItemCreateDTO newItem in newConnections)
             {
                 bool exists = currentConnections.Any(x => x.PlaceID == newItem.Id);
                 if (!exists)
                 {
-                    translationList.AddRange(ConnectPlaceToCollectionItemEntity(existingCollectionItemEntity, newItem.Id, newItem.Relationship));
+                    toponymyList.Add(nameof(Toponymy.ToponymyName), string.Join(", ", ConnectPlaceToCollectionItemEntity(existingCollectionItemEntity, newItem.Id, newItem.Relationship)));
                 }
             }
 
-            return translationList;
+            return toponymyList;
         }
         private void UpdateCollectionItemNPlace(CollectionItemEntity existingCollectionItemEntity, PlaceToCollectionItemCreateDTO updated)
         {
-            List<CollectionItemRelationship> relationshipList = processRelationship.GetListWithPredicates(new CIRelationshipSearchParameterModel
+            List<CollectionItemRelationship> relationshipList = processRelationship.GetEntityListViaPredicates(new CIRelationshipSearchParameterModel
             {
                 CollectionItemRelationshipName = [updated.Relationship]
             });
@@ -948,14 +950,15 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 return;
             }
 
-            CollectionItemNPlace? collectionItemNPlace = (from bec in unitOfWork.CollectionItemNPlaceRepository.Get(includeProperties: "Place")
+            CIRelationshipDisplayDTO? relationship = processRelationship.GetWithTranslationsListViaPredicates(new CIRelationshipSearchParameterModel { CollectionItemRelationshipName = [updated.Relationship] }).FirstOrDefault();
+            CollectionItemNPlace? collectionItemNPlace = (from bec in unitOfWork.CollectionItemNPlaceRepository.Get(includeProperties: nameof(Place))
                                                           where bec.PlaceID == updated.Id && bec.CollectionItemEntity == existingCollectionItemEntity
                                                           select bec).FirstOrDefault();
-            if (collectionItemNPlace != null)
+            if (collectionItemNPlace != null && relationship != null)
             {
-                if (collectionItemNPlace.RelationType.CollectionItemRelationshipName != updated.Relationship)
+                if (collectionItemNPlace.RelationTypeId != relationship.Id)
                 {
-                    collectionItemNPlace.RelationTypeId = relationshipList.First().CollectionItemRelationshipId;
+                    collectionItemNPlace.RelationTypeId = relationship.Id;
                     unitOfWork.Save();
                 }
             }
@@ -1034,11 +1037,9 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             return (pictureResults, 200, "Success_CollectionItemPicture_Synchronized");
         }
 
-        private (int Statuscode, string Statusmessage, List<string> TranslationList) SyncConceptValueConnections(CollectionItemEntity existingCollectionItemEntity, List<ConceptValue> newConnections)
+        private List<string> SyncConceptValueConnections(CollectionItemEntity existingCollectionItemEntity, List<ConceptValue> newConnections)
         {
             List<ConceptValue> currentConnections = existingCollectionItemEntity.ConceptValueList;
-            int statusCode;
-            string statusMessage;
             List<string> translationList = [];
 
             for (int i = 0; i < currentConnections.Count; i++)
@@ -1047,19 +1048,11 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 
                 if (updated == null)
                 {
-                    (statusCode, statusMessage) = processConceptValue.Delete(currentConnections[i].ConceptValueID);
-                    if (statusCode != 200)
-                    {
-                        return (statusCode, statusMessage, translationList);
-                    }
+                    processConceptValue.Delete(currentConnections[i].ConceptValueID);
                 }
                 else if (updated != null)
                 {
-                    (statusCode, statusMessage, translationList) = processConceptValue.Update(updated);
-                    if (statusCode != 200)
-                    {
-                        return (statusCode, statusMessage, translationList);
-                    }
+                    translationList.AddRange(processConceptValue.Update(updated));
                 }
             }
 
@@ -1068,14 +1061,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
                 bool exists = currentConnections.Any(x => x.ConceptID == newItem.ConceptID);
                 if (!exists)
                 {
-                    (statusCode, statusMessage, translationList) = processConceptValue.Insert(newItem, existingCollectionItemEntity.CollectionItemEntityID);
-                    if (statusCode != 200)
-                    {
-                        return (statusCode, statusMessage, translationList);
-                    }
+                    translationList.AddRange(processConceptValue.Insert(newItem, existingCollectionItemEntity.CollectionItemEntityID));
                 }
             }
-            return (200, "Success_ConceptValue_Synchronized", translationList);
+            return translationList;
         }
     }
 }

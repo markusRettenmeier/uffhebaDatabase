@@ -215,10 +215,6 @@ public class DbIdentityContext(DbContextOptions<DbIdentityContext> options) : Id
             .HasMany(u => u.TopicList)
             .WithOne(t => t.Author)
             .HasForeignKey(t => t.UserId);
-        //_ = builder.Entity<Topic>()
-        //    .HasOne(t => t.Author)
-        //    .WithMany(u => u.TopicList)
-        //    .IsRequired(true);
 
         _ = builder.Entity<FidoCredential>()
                 .HasOne(f => f.User)

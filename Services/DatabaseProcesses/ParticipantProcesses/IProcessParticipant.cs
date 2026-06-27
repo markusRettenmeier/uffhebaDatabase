@@ -2,17 +2,19 @@
 using Sammlerplattform.Models.EraDatabase;
 using Sammlerplattform.Models.ParticipantDatabase;
 using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase;
+using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase.IndustryDatabase;
 using Sammlerplattform.Models.PlaceDatabase;
 using Sammlerplattform.Models.PlaceDatabase.Toponymy;
 using Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses;
-using Sammlerplattform.Services.Translation;
+using System.Data.Entity;
 using System.Globalization;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
 {
     public interface IProcessParticipant
     {
-        List<Participant> GetListWithPredicate(ParticipantSearchParameterModel participantSearchParameterModel);
+        List<Participant> GetEntityListViaPredicate(ParticipantSearchParameterModel participantSearchParameterModel);
+        List<ParticipantDisplayDTO> GetTranslationsListViaPredicate(ParticipantSearchParameterModel participantSearchParameterModel);
         (int Statuscode, string Message, Participant Participant) Insert(ParticipantOperationParameterModel participantOperationParameterModel);
         (int Statuscode, string Message, Participant Participant) Update(ParticipantOperationParameterModel participantOperationParameterModel);
         (int Statuscode, string Message) Delete(Participant participant);
@@ -22,8 +24,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
         , IProcessPlace processPlace
         , IProcessEra processEra
         , IProcessTranslations processTranslations
-        , IDeeplTranslationService deeplTranslationService
-        , ITrackEventsCSV trackEvents) : IProcessParticipant
+        , ITrackEventsText trackEvents) : IProcessParticipant
     {
         public (int Statuscode, string Message, Participant Participant) Insert(ParticipantOperationParameterModel participantOperationParameterModel)
         {
@@ -70,7 +71,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
 
         public (int Statuscode, string Message, Participant Participant) Update(ParticipantOperationParameterModel participantOperationParameterModel)
         {
-            Participant? existingParticipant = GetListWithPredicate(
+            Participant? existingParticipant = GetEntityListViaPredicate(
                 new ParticipantSearchParameterModel { ParticipantID = [participantOperationParameterModel.Participant.ParticipantID] }
                 ).FirstOrDefault();
             if (existingParticipant == null)
@@ -110,43 +111,81 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
             return (200, "Success_Participant_Updated", existingParticipant);
         }
 
-        public List<Participant> GetListWithPredicate(ParticipantSearchParameterModel searchParameterModel)
+        public List<Participant> GetEntityListViaPredicate(ParticipantSearchParameterModel searchParameterModel)
         {
-            IEnumerable<Participant> participantIEnumerable = unitOfWork.ParticipantRepository.Get(
+            IQueryable<Participant> participantIQueryable = unitOfWork.ParticipantRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<Participant>(searchParameterModel),
                 includeProperties: $"{nameof(Participant.Individual)}," +
                                    $"{nameof(Participant.Organization)}.{nameof(Organization.Industry)}," +
                                    $"{nameof(Participant.ParticipantNPlaceList)}.{nameof(ParticipantNPlace.Place)}.{nameof(Place.PlaceNToponymyList)}.{nameof(PlaceNToponymy.Toponymy)}," +
                                    $"{nameof(Participant.ParticipantNEraList)}.{nameof(ParticipantNEra.Era)}");
-
-            List<Participant> participantList = [.. participantIEnumerable.OrderBy(x => x.ParticipantName)];
-
-            foreach (Industry industry in participantList.Where(i => i.Organization != null && i.Organization.IndustryID != null).Select(i => i.Organization!.Industry!))
-            {
-                industry.IndustryName = processTranslations.GetWithFallback(new Models.Translations.EntityTranslationSearchParameter
+            return [.. participantIQueryable];
+        }
+        public List<ParticipantDisplayDTO> GetTranslationsListViaPredicate(ParticipantSearchParameterModel searchParameterModel)
+        {
+            List<ParticipantDisplayDTO> participantList = [.. unitOfWork.ParticipantRepository.Get(
+                filter: SearchPredicateBuilder.BuildPredicate<Participant>(searchParameterModel),
+                orderBy: q => q.OrderBy(x => x.ParticipantName),
+                includeProperties: $"{nameof(Participant.Individual)}," +
+                                   $"{nameof(Participant.Organization)}.{nameof(Organization.Industry)}," +
+                                   $"{nameof(Participant.ParticipantNPlaceList)}.{nameof(ParticipantNPlace.Place)}.{nameof(Place.PlaceNToponymyList)}.{nameof(PlaceNToponymy.Toponymy)}," +
+                                   $"{nameof(Participant.ParticipantNEraList)}.{nameof(ParticipantNEra.Era)}")
+                .AsNoTracking()
+                .Select(p => new ParticipantDisplayDTO
                 {
-                    EntityId = [industry.Id],
-                    EntityType = [nameof(Industry)],
-                    FieldName = [nameof(Industry.IndustryName)],
-                    Culture = [deeplTranslationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)]
-                }).FirstOrDefault()?.TranslatedText ?? industry.IndustryName;
-            }
-            foreach (Era era in participantList.Where(p => p.ParticipantNEraList != null)
-                .SelectMany(p => p.ParticipantNEraList.Select(pe => pe.Era)))
+                    ParticipantID = p.ParticipantID,
+                    Name = p.ParticipantName,
+                    Pseudonym = p.Individual != null ? p.Individual.Pseudonym : null,
+                    Signature = p.Individual != null ? p.Individual.Signature : null,
+                    IndustryId = p.Organization != null ? p.Organization.IndustryID : null,
+                    StartYear = p.StartYear,
+                    EndYear = p.EndYear,
+                    WikipediaUrl = p.WikipediaUrl,
+                    ConnectedEraList = p.ParticipantNEraList.Select(pe => new EraDisplayDTO
+                    {
+                        EraID = pe.EraId
+                    }),
+                    ConnectedPlaceList = p.ParticipantNPlaceList.Select(pp => new PlaceDisplayDTO
+                    {
+                        PlaceID = pp.PlaceID,
+                        ToponymyList = pp.Place.PlaceNToponymyList.Select(x => new ToponymyDisplayDTO
+                        {
+                            Id = x.ToponymyID,
+                            Name = x.Toponymy.ToponymyName,
+                            IsCurrentName = x.IsCurrentName
+                        }).ToList()
+                    }),
+                    CollectionItemNParticipantList = p.CollectionItemNParticipantList
+                })];
+
+            SetTranslationsAndCultureDate(participantList);
+
+            return [.. participantList];
+        }
+
+        private void SetTranslationsAndCultureDate(List<ParticipantDisplayDTO> participantList)
+        {
+            var allTranslations = processTranslations.GetWithFallback(new Models.Translations.EntityTranslationSearchParameter()).ToList();
+            foreach (ParticipantDisplayDTO participant in participantList)
             {
-                era.EraName = processTranslations.GetWithFallback(new Models.Translations.EntityTranslationSearchParameter
+                if (participant.IndustryId != null)
                 {
-                    EntityId = [era.EraID],
-                    EntityType = [nameof(Era)],
-                    FieldName = [nameof(Era.EraName)],
-                    Culture = [deeplTranslationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)]
-                }).FirstOrDefault()?.TranslatedText ?? era.EraName;
+                    participant.IndustryName = allTranslations.FirstOrDefault(
+                        t => t.EntityId == participant.IndustryId.Value && 
+                        t.PropertyName == nameof(ParticipantDisplayDTO.IndustryName))?.TranslatedText;
+                }
+                foreach (EraDisplayDTO eraDisplayDTO in participant.ConnectedEraList)
+                {
+                    eraDisplayDTO.EraName = allTranslations.FirstOrDefault(
+                        t => t.EntityId == eraDisplayDTO.EraID && 
+                        t.PropertyName == nameof(EraDisplayDTO.EraName))?.TranslatedText ?? string.Empty;
+                }
             }
 
             if (CultureInfo.CurrentCulture.Name.Contains("zh"))
             {
                 ChineseLunisolarCalendar lunisolarCalendar = new();
-                foreach (Participant participant in participantList)
+                foreach (ParticipantDisplayDTO participant in participantList)
                 {
                     if (participant.StartYear != null)
                         participant.StartYear = lunisolarCalendar.GetYear(new DateTime((int)participant.StartYear, 01, 1));
@@ -154,10 +193,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                         participant.EndYear = lunisolarCalendar.GetYear(new DateTime((int)participant.EndYear, 12, 31));
                 }
             }
-            if (CultureInfo.CurrentCulture.Name.Contains("ja"))
+            else if (CultureInfo.CurrentCulture.Name.Contains("ja"))
             {
                 JapaneseLunisolarCalendar japaneseLunisolarCalendar = new();
-                foreach (Participant participant in participantList)
+                foreach (ParticipantDisplayDTO participant in participantList)
                 {
                     if (participant.StartYear != null)
                         participant.StartYear = japaneseLunisolarCalendar.GetYear(new DateTime((int)participant.StartYear, 01, 1));
@@ -165,12 +204,11 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                         participant.EndYear = japaneseLunisolarCalendar.GetYear(new DateTime((int)participant.EndYear, 12, 31));
                 }
             }
-            return participantList;
         }
 
         private void ConnectPlaceToParticipant(Participant participant, int placeID)
         {
-            Place? place = processPlace.GetListWithPredicate(
+            Place? place = processPlace.GetEntityListViaPredicate(
                 new PlaceSearchParameterModel { PlaceID = [placeID] }
                 ).FirstOrDefault();
             if (place == null)
@@ -215,7 +253,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
 
         private void ConnectEraToParticipant(Participant participant, int eraId)
         {
-            Era? era = processEra.GetWithPredicates(new EraSearchParameterModel { EraID = [eraId] })
+            Era? era = processEra.GetEntityListViaPredicates(new EraSearchParameterModel { EraID = [eraId] })
                 .FirstOrDefault();
             if (era == null)
             {

@@ -66,7 +66,7 @@ namespace Sammlerplattform.Models.ConceptualRelationshipDatabase.ConceptValueDat
         public string? ConceptName { get; set; }
 
         [Display(Name = "CollectionItemEntityID", ResourceType = typeof(SharedResources))]
-        public int? CollectionItemEntityID { get; set; }
+        public int CollectionItemEntityID { get; set; }
 
         [Display(Name = "CollectionItemEntity", ResourceType = typeof(SharedResources))]
         public CollectionItemEntity? CollectionItemEntity { get; set; }

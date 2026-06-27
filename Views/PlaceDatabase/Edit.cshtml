@@ -7,7 +7,7 @@
     ViewData["Title"] = @Localizer["Place_Edit"];
     Layout = "~/Views/Shared/_LayoutSettingsDimensions.cshtml";
 
-    List<Place>? connectedPlaceList = ViewData["ConnectedPlaces"] as List<Place>;
+    List<PlaceDisplayDTO>? connectedPlaceList = ViewData["ConnectedPlaces"] as List<PlaceDisplayDTO>;
 }
 
 <h1>@ViewData["Title"]</h1>

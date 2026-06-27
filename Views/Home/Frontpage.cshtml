@@ -147,14 +147,14 @@
                 string imageSmall = $"/images/Klein/{item.CollectionItemPictureList[i].CollectionItemPictureID}.webp";
                 @if (i == 0)
                 {
-                    <a class="photo" data-fancybox="gallery_@item.CollectionItemEntity.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntity.CollectionItemEntityID">
+                    <a class="photo" data-fancybox="gallery_@item.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntityID">
                         <img src="@imageSmall" alt="@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]" class="img-fluid" loading="lazy">
                         <span hidden>@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]</span>
                     </a>
                 }
                 else
                 {
-                    <a class="photo d-none" data-fancybox="gallery_@item.CollectionItemEntity.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntity.CollectionItemEntityID">
+                    <a class="photo d-none" data-fancybox="gallery_@item.CollectionItemEntityID" href="@imageNormal" data-caption="Nummer @item.CollectionItemEntityID">
                         <span hidden>@Localizer["FullView", item.CollectionItemPictureList[i].CollectionItemPictureID]</span>
                     </a>
                 }
@@ -165,33 +165,30 @@
         <div class="item-details">
             <ul>
                 <li>
-                    <strong>@Html.DisplayNameFor(modelItem => item.CollectionItemEntity.CollectionArea):</strong>
-                    @Html.DisplayFor(modelItem => item.CollectionItemEntity.CollectionArea.CollectionAreaName)
+                    <strong>@Html.DisplayNameFor(modelItem => item.CollectionAreaName):</strong>
+                    @Html.DisplayFor(modelItem => item.CollectionAreaName)
                 </li>
                 <li>
                     <strong>@Html.DisplayNameFor(modelItem => item.DisplayName):</strong>
                     @Html.DisplayFor(modelItem => item.DisplayName)
                 </li>
                 <li>
-                    @{
-                        var statenameValue = item.CollectionItemEntity.StatePreservation != null ? item.CollectionItemEntity.StatePreservation.StatePreservationName : "N/A";
-                    }
-                    <strong>@Html.DisplayNameFor(modelItem => item.CollectionItemEntity.StatePreservation!.StatePreservationName):</strong>
-                    @statenameValue
+                    <strong>@Html.DisplayNameFor(modelItem => item.StatePreservationName):</strong>
+                    @Html.DisplayFor(modelItem => item.StatePreservationName)
                 </li>
                 <li>
-                    <strong>@Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Time):</strong>
-                    @Html.DisplayFor(modelItem => item.CollectionItemEntity.Time),
-                    <strong>@Html.DisplayNameFor(modelItem => item.CollectionItemEntity.Era):</strong>
-                    @Html.DisplayFor(modelItem => item.Era.EraName)
+                    <strong>@Html.DisplayNameFor(modelItem => item.Time):</strong>
+                    @Html.DisplayFor(modelItem => item.Time),
+                    <strong>@Html.DisplayNameFor(modelItem => item.EraName):</strong>
+                    @Html.DisplayFor(modelItem => item.EraName)
                 </li>
                 <li>
                     <strong>@Html.DisplayNameFor(modelItem => item.CollectionItemNParticipantList):</strong>
                     <ul class="participant-list">
                         @foreach (var participant in item.CollectionItemNParticipantList)
                         {
-                            var vm = ParticipantViewModelHelper.FromDomainModel(participant.Participant);
-                            string content = $"{vm.Name}, {vm.FurtherSpecs} {Localizer["As"].Value} {participant.RelationType.CollectionItemRelationshipName}";
+                            var vm = ParticipantViewModelHelper.FromDomainModel(participant);
+                            string content = $"{vm.Name}, {vm.FurtherSpecs} {Localizer["As"].Value} {participant.RelationshipName}";
                             <li>@Html.Raw(content)</li>
                         }
                     </ul>
@@ -201,8 +198,8 @@
                     <ul class="place-list">
                         @foreach (var place in item.CollectionItemNPlaceList)
                         {
-                            var vm = PlaceViewModelHelper.FromDomainModel(place.Place);
-                            var content = $"{vm.Toponymy} {Localizer["As"].Value} {place.RelationType.CollectionItemRelationshipName}";
+                            var vm = PlaceViewModelHelper.FromDomainModel(place);
+                            var content = $"{vm.Toponymy} {Localizer["As"].Value} {place.RelationshipName}";
                             <li>@Html.Raw(content)</li>
                         }
                     </ul>
@@ -212,7 +209,7 @@
 
         <!-- Buttonbereich -->
         <div class="btn-details">
-            <a class="btn btn-primary w-100" asp-action="Details" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID">
+            <a class="btn btn-primary w-100" asp-action="Details" asp-route-entityId="@item.CollectionItemEntityID">
                 @Localizer["Details"]: @item.DisplayName
             </a>
         </div>

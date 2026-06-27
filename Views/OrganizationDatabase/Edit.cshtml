@@ -2,6 +2,7 @@
 @using Sammlerplattform.Models.EraDatabase
 @using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase
 @using Sammlerplattform.Models.PlaceDatabase
+@using Sammlerplattform.Models.ParticipantDatabase
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
@@ -9,8 +10,8 @@
     ViewData["Title"] = Localizer["Organization_Edit"];
     Layout = "~/Views/Shared/_LayoutSettingsDimensions.cshtml";
 
-    List<Place>? connectedPlaceList = ViewData["ConnectedPlaces"] as List<Place>;
-    List<Era>? connectedEraList = ViewData["ConnectedEras"] as List<Era>;
+    List<PlaceDisplayDTO>? connectedPlaceList = ViewData["ConnectedPlaces"] as List<PlaceDisplayDTO>;
+    List<EraDisplayDTO>? connectedEraList = ViewData["ConnectedEras"] as List<EraDisplayDTO>;
 }
 
 <h1>@ViewData["Title"]</h1>

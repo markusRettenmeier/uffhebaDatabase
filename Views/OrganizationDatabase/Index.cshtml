@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Participant>
+﻿@model IEnumerable<ParticipantDisplayDTO>
 @using Sammlerplattform.Models.ParticipantDatabase
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
@@ -22,13 +22,13 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.ParticipantName)
+                @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Organization!.Industry)
+                @Html.DisplayNameFor(model => model.IndustryName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ParticipantNPlaceList)
+                @Html.DisplayNameFor(model => model.ConnectedPlaceList)
             </th>
             <th>@Localizer["Actions"]</th>
         </tr>

@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Sammlerplattform.Services
 {
-    public interface ITrackEventsCSV
+    public interface ITrackEventsText
     {
         void TrackException(Exception exception, string context = "", Dictionary<string, object>? metrics = null, string? userId = null);
         void TrackError(string context = "", Dictionary<string, object>? metrics = null, string? userId = null);
@@ -13,7 +13,7 @@ namespace Sammlerplattform.Services
         void TrackEmailResponse(Response response, string toEmail, string subject);
     }
 
-    public class EventTracker : ITrackEventsCSV
+    public class EventTracker : ITrackEventsText
     {
         private readonly string _logDirectory;
         private readonly bool _enableConsoleOutput;

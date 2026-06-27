@@ -1,20 +1,18 @@
 ﻿using Sammlerplattform.Data;
-using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase;
+using Sammlerplattform.Models.ParticipantDatabase.OrganizationDatabase.IndustryDatabase;
 using Sammlerplattform.Models.Translations;
-using Sammlerplattform.Services.Translation;
-using System.Globalization;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
 {
     public interface IProcessIndustry
     {
-        (int Statuscode, string Message, int id) Insert(Industry industry);
+        (int Statuscode, string Message, int id) Insert(IndustryCreateDTO industryCreateDto);
         (int Statuscode, string Message) Delete(int id);
+        List<IndustryDisplayDTO> GetWithTranslationsListViaPredicates();
     }
 
     public class IndustryProcessor(IUnitOfWork unitOfWork
-        , IProcessTranslations processTranslations
-        , IDeeplTranslationService translationService) : IProcessIndustry
+        , IProcessTranslations processTranslations) : IProcessIndustry
     {
         public (int Statuscode, string Message) Delete(int id)
         {
@@ -23,26 +21,43 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
 
             processTranslations.Delete(new EntityTranslationSearchParameter
             {
-                EntityType = [nameof(Industry)],
+                EntityName = [nameof(Industry)],
                 EntityId = [id],
-                FieldName = [nameof(Industry.IndustryName)]
+                PropertyName = [nameof(IndustryDisplayDTO.IndustryName)]
             });
 
             return (200, "Success_Industry_Deleted");
         }
 
-        public (int Statuscode, string Message, int id) Insert(Industry industry)
+        public List<IndustryDisplayDTO> GetWithTranslationsListViaPredicates()
         {
-            Industry newIndustry = unitOfWork.IndustryRepository.Insert(industry);
+            IQueryable<IndustryDisplayDTO> query = unitOfWork.IndustryRepository.Get().Select(i => new IndustryDisplayDTO
+            {
+                Id = i.Id
+            });
+            foreach (IndustryDisplayDTO industry in query)
+            {
+                industry.IndustryName = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
+                {
+                    EntityName = [nameof(Industry)],
+                    EntityId = [industry.Id],
+                    PropertyName = [nameof(IndustryDisplayDTO.IndustryName)]
+                }).Select(t => t.TranslatedText).FirstOrDefault() ?? string.Empty;
+            }
+            return [.. query.OrderBy(x => x.IndustryName)];
+        }
+
+        public (int Statuscode, string Message, int id) Insert(IndustryCreateDTO industryCreateDto)
+        {
+            Industry newIndustry = unitOfWork.IndustryRepository.Insert(new Industry());
             unitOfWork.Save();
 
             processTranslations.Insert(new TranslationDTO
             {
-                TextToTranslate = industry.IndustryName,
-                EntityType = nameof(Industry),
+                TextToTranslate = industryCreateDto.IndustryName,
+                EntityName = nameof(Industry),
                 EntityId = newIndustry.Id,
-                FieldName = nameof(Industry.IndustryName),
-                Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)
+                PropertyName = nameof(IndustryDisplayDTO.IndustryName)
             });
 
             return (201, "Success_Industry_Created", newIndustry.Id);

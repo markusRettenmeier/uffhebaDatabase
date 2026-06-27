@@ -1564,4 +1564,7 @@
   <data name="Error_BackupCodeUsername_Invalid" xml:space="preserve">
     <value>バックアップコードまたはユーザー名が不正です。</value>
   </data>
+  <data name="Error_CookieConsent_Required" xml:space="preserve">
+    <value>クッキーの使用には同意が必要です。</value>
+  </data>
 </root>

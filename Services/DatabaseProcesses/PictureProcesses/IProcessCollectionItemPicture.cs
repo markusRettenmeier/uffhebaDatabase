@@ -6,13 +6,12 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
     public interface IProcessCollectionItemPicture
     {
         (int Statuscode, string Statusmessage, int PictureId) Insert(CollectionItemPicture collectionItemPicture);
-        //(int Statuscode, string Statusmessage) Update(CollectionItemPictureEditDTO editDto);
         (int Statuscode, string Statusmessage) Delete(CollectionItemPicture collectionItemPicture);
 
     }
 
     public class CollectionItemPictureProcessor(IUnitOfWork unitOfWork
-        , ITrackEventsCSV trackEvents) : IProcessCollectionItemPicture
+        , ITrackEventsText trackEvents) : IProcessCollectionItemPicture
     {
         public (int Statuscode, string Statusmessage, int PictureId) Insert(CollectionItemPicture collectionItemPicture)
         {
@@ -21,27 +20,6 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PictureProcesses
 
             return (200, "Success_CollectionItemPicture_Created", newCollectionItemPicture.CollectionItemPictureID);
         }
-
-        //public (int Statuscode, string Statusmessage) Update(CollectionItemPictureEditDTO editDto)
-        //{
-        //    CollectionItemPicture? existingCollectionItemPicture = unitOfWork.CollectionItemPictureRepository.GetByID(editDto.Id);
-        //    if (existingCollectionItemPicture == null)
-        //    {
-        //        trackEvents.TrackError("CollectionItemPictureProcessor.Update: CollectionItemPicture not found.", new Dictionary<string, object>
-        //        {
-        //            { "CollectionItemPicture", editDto }
-        //        });
-        //        return (302, "Error_CollectionItemPicture_NotFound");
-        //    }
-
-        //    if (existingCollectionItemPicture.PerspectiveInt != editDto.PerspectiveInt)
-        //    {
-        //        existingCollectionItemPicture.PerspectiveInt = editDto.PerspectiveInt;
-        //        unitOfWork.Save();
-        //    }
-
-        //    return (200, "Success_CollectionItemPicture_Created");
-        //}
         public (int Statuscode, string Statusmessage) Delete(CollectionItemPicture collectionItemPicture)
         {
             CollectionItemPictureSearchParameterModel searchParameterModel = ParametersOperationToSearch(collectionItemPicture);

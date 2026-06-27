@@ -4,10 +4,9 @@
     {
         public required string TextToTranslate { get; set; }
         public string? Abbreviation { get; set; }
-        public required string EntityType { get; set; }
+        public required string EntityName { get; set; }
         public int EntityId { get; set; }
-        public required string FieldName { get; set; }
-        public required string Culture { get; set; }
+        public required string PropertyName { get; set; }
         public bool IsTranslateable { get; set; } = true;
     }
 }

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Place>
+﻿@model IEnumerable<PlaceDisplayDTO>
 @using Sammlerplattform.Models.PlaceDatabase;
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
@@ -37,7 +37,9 @@
         {
             var vm = PlaceViewModelHelper.FromDomainModel(item);
             <tr>
-                <td>@Html.Raw(vm.Toponymy)</td>
+                <td>
+                    @Html.Raw(vm.Toponymy)
+                </td>
                 <td>
                     @Html.Raw(vm.ConnectedPlaces)
                 </td>

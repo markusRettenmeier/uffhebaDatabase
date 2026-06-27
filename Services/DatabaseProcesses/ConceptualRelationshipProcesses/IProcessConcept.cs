@@ -2,8 +2,6 @@
 using Sammlerplattform.Data;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.Translations;
-using Sammlerplattform.Services.Translation;
-using System.Globalization;
 using System.Transactions;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses
@@ -20,17 +18,16 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
         IUnitOfWork unitOfWork
         , DbIdentityContext context
         , IProcessConceptRelation processConceptRelation
-        , IDeeplTranslationService translationService
         , IProcessTranslations processTranslations
-        , ITrackEventsCSV trackEvents) : IProcessConcept
+        , ITrackEventsText trackEvents) : IProcessConcept
     {
         public (int RootConceptID, int? CollectionAreaID, int Statuscode, string StatusMessage) Insert(ConceptCreateDTO createDto)
         {
             ConceptualRelationshipSearchParameterModel searchParameterModel = new()
             {
                 Id = [.. unitOfWork.EntityTranslationRepository.Get(et =>
-                        et.EntityType == nameof(Concept) &&
-                        et.FieldName == nameof(ConceptViewModel.Name) &&
+                        et.EntityName == nameof(Concept) &&
+                        et.PropertyName == nameof(ConceptViewModel.Name) &&
                         et.TranslatedText == createDto.Name)
                         .Select(et => et.EntityId).Distinct()]
             };
@@ -65,11 +62,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                     new TranslationDTO
                     {
                         TextToTranslate = createDto.Name,
-                        EntityType = nameof(Concept),
-                        FieldName = nameof(ConceptViewModel.Name),
+                        EntityName = nameof(Concept),
+                        PropertyName = nameof(ConceptViewModel.Name),
                         EntityId = newConcept.Id,
                         Abbreviation = createDto.Abbreviation,
-                        Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name),
                         IsTranslateable = createDto.IsTranslateable
                     });
 
@@ -151,22 +147,6 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
             bool comingFromIndexGeneral = conceptSearchParameter.RootConceptID.Count == 1 && conceptSearchParameter.RootConceptID[0] == null; // In IndexGeneral, RootConceptID is explicitly set to null, in IndexSpecific it is not set at all (and thus also null, but the count is 0)
 
             var predicate = PredicateBuilder.New<ConceptViewModel>(true);
-            List<ConceptViewModel> cvmList = [.. context.Concept
-                            .AsGraphNode(c => new Concept
-                            {
-                                Id = c.Id,
-                                CollectionAreaID = c.CollectionAreaID,
-                                ConceptTypeInt = c.ConceptTypeInt,
-                                RootConceptID = c.RootConceptID
-                            })
-                            .Select(x => new ConceptViewModel
-                            {
-                                Id = x.Id,
-                                CollectionAreaID = x.CollectionAreaID,
-                                ConceptTypeInt = x.ConceptTypeInt,
-                                RootConceptID = x.RootConceptID
-                            })];
-
             if (conceptSearchParameter.ConceptTypeInt != null && conceptSearchParameter.ConceptTypeInt.Count > 0)
             {
                 predicate = predicate.And(c => c.ConceptTypeInt.Equals(conceptSearchParameter.ConceptTypeInt[0]));
@@ -200,25 +180,29 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 }
                 predicate = predicate.Or(c => c.CollectionAreaID == null);
             }
-            if (conceptSearchParameter.ConceptName != null && conceptSearchParameter.ConceptName.Count > 0)
-            {
-                // ConceptName filter will be applied at the end, after the translations are applied, because otherwise the search term might not match due to missing translations
-                conceptNameList = conceptSearchParameter.ConceptName;
-            }
-            if (predicate.IsStarted)
-            {
-                cvmList = [.. cvmList.Where(predicate)];
-            }
+            List<ConceptViewModel> cvmList = [.. context.Concept
+                            .AsGraphNode(c => new Concept
+                            {
+                                Id = c.Id,
+                                CollectionAreaID = c.CollectionAreaID,
+                                ConceptTypeInt = c.ConceptTypeInt,
+                                RootConceptID = c.RootConceptID
+                            })
+                            .Select(x => new ConceptViewModel
+                            {
+                                Id = x.Id,
+                                CollectionAreaID = x.CollectionAreaID,
+                                ConceptTypeInt = x.ConceptTypeInt,
+                                RootConceptID = x.RootConceptID
+                            }).Where(predicate)];
 
+            var translations = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
+            {
+                EntityName = [nameof(Concept)]
+            });
             foreach (ConceptViewModel concept in cvmList)
             {
-                EntityTranslation? translation = processTranslations.GetWithFallback(new EntityTranslationSearchParameter
-                {
-                    EntityType = [nameof(Concept)],
-                    EntityId = [concept.Id],
-                    FieldName = [nameof(ConceptViewModel.Name)],
-                    Culture = [translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)]
-                }).FirstOrDefault();
+                var translation = translations.Where(x => x.EntityId == concept.Id).FirstOrDefault();
                 if (translation != null)
                 {
                     concept.Abbreviation = translation.Abbreviation;
@@ -231,52 +215,18 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                     var subConceptList = Get(secondSearchParameters);
                     concept.SubConceptNameList.AddRange(subConceptList.Select(x => x.ConceptViewModel.Name));
                 }
-                // Im Code dann:
-                //if (concept.RootConceptID == null)
-                //{
-                //    var subConceptNames = GetSubConceptNames(concept.Id, conceptSearchParameter);
-                //    concept.SubConceptNameList.AddRange(subConceptNames);
-                //}
-                //if (concept.RootConceptID == null)
-                //{
-                //    // Speichere die aktuellen ConceptName-Werte
-                //    var originalConceptNames = conceptSearchParameter.ConceptName?.ToList();
-
-                //    ConceptualRelationshipSearchParameterModel secondSearchParameters = new()
-                //    {
-                //        RootConceptID = [concept.Id]
-                //    };
-
-                //    // Optionale: Falls Sie andere Filter beibehalten wollen
-                //    if (conceptSearchParameter.CollectionAreaID?.Count > 0)
-                //        secondSearchParameters.CollectionAreaID = [.. conceptSearchParameter.CollectionAreaID];
-                //    if (conceptSearchParameter.ConceptTypeInt?.Count > 0)
-                //        secondSearchParameters.ConceptTypeInt = [.. conceptSearchParameter.ConceptTypeInt];
-
-                //    var subConceptList = Get(secondSearchParameters);
-                //    concept.SubConceptNameList.AddRange(subConceptList.Select(x => x.ConceptViewModel.Name));
-
-                //    // Stelle die originalen ConceptName-Werte wieder her
-                //    if (originalConceptNames != null)
-                //        conceptSearchParameter.ConceptName = originalConceptNames;
-                //}
             }
 
-            //if(conceptSearchParameter.ConceptName.Count > 0)
-            //{
-            //    foreach (string conceptName in conceptSearchParameter.ConceptName)
-            //    {
-            //        cvmList = [.. cvmList.Where(c => (conceptSearchParameter.RootConceptID != null) 
-            //        ? c.Name.Contains(conceptName, StringComparison.CurrentCultureIgnoreCase) // In IndexGeneral, search for concept name in all concepts
-            //        : c.IsRootConcept || c.Name.Contains(conceptName, StringComparison.CurrentCultureIgnoreCase))]; // In IndexSpecific, also the rootconcept must be taken into account, even if the rootconcept name does not match the search term
-            //    }
-            //}
-
+            if (conceptSearchParameter.ConceptName != null && conceptSearchParameter.ConceptName.Count > 0)
+            {
+                // ConceptName filter will be applied at the end, after the translations are applied, because otherwise the search term might not match due to missing translations
+                conceptNameList = conceptSearchParameter.ConceptName;
+            }
             if (conceptNameList.Count > 0)
             {
                 foreach (string conceptName in conceptNameList)
                 {
-                    cvmList = [.. cvmList.Where(c => (comingFromIndexGeneral)
+                    cvmList = [.. cvmList.Where(c => comingFromIndexGeneral
                         ? c.Name.Contains(conceptName, StringComparison.CurrentCultureIgnoreCase) // In IndexGeneral, search for concept name in all concepts
                         : c.IsRootConcept || c.Name.Contains(conceptName, StringComparison.CurrentCultureIgnoreCase))]; // In IndexSpecific, also the rootconcept must be taken into account, even if the rootconcept name does not match the search term
                 }
@@ -310,11 +260,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                     new TranslationDTO
                     {
                         TextToTranslate = editDto.Name,
-                        EntityType = nameof(Concept),
+                        EntityName = nameof(Concept),
                         EntityId = existingConcept.Id,
-                        FieldName = nameof(ConceptViewModel.Name),
+                        PropertyName = nameof(ConceptViewModel.Name),
                         Abbreviation = editDto.Abbreviation,
-                        Culture = translationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name),
                         IsTranslateable = editDto.IsTranslateable
                     });
 
@@ -397,20 +346,5 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 }
             }
         }
-
-        //private List<string> GetSubConceptNames(int conceptId, ConceptualRelationshipSearchParameterModel originalParams)
-        //{
-        //    var searchParams = new ConceptualRelationshipSearchParameterModel
-        //    {
-        //        RootConceptID = [conceptId],
-        //        // Übernehmen Sie nur die Filter, die auch für Sub-Konzepte gelten sollen
-        //        CollectionAreaID = originalParams.CollectionAreaID,
-        //        ConceptTypeInt = originalParams.ConceptTypeInt
-        //        // ConceptName explizit NICHT übernehmen
-        //    };
-
-        //    var subConceptList = Get(searchParams);
-        //    return [.. subConceptList.Select(x => x.ConceptViewModel.Name)];
-        //}
     }
 }

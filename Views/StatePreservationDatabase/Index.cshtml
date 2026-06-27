@@ -1,4 +1,4 @@
-﻿@model IEnumerable<StatePreservation>
+﻿@model IEnumerable<StatePreservationDisplayDTO>
 @using Microsoft.AspNetCore.Mvc.Localization
 @using Sammlerplattform.Models.CollectionItemDatabase.StatePreservationDatabase
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
@@ -20,7 +20,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.StatePreservationName)
+                @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.SortingOrder)
@@ -33,17 +33,17 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.StatePreservationName)
+                    @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.SortingOrder)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.StatePreservationID">@Localizer["Edit"]</a> |
+                    <a asp-action="Edit" asp-route-id="@item.Id">@Localizer["Edit"]</a> |
                     @{
-                        var isDeletable = item.CollectionItemEntityList.Count == 0;
-                        if(isDeletable){
-                            <a asp-action="Delete" asp-route-id="@item.StatePreservationID">@Localizer["Delete"]</a>
+                        if (item.IsDeletable)
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.Id">@Localizer["Delete"]</a>
                         }
                     }
                 </td>

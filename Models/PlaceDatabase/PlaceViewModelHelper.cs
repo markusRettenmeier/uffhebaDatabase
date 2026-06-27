@@ -2,14 +2,14 @@
 {
     public class PlaceViewModelHelper
     {
-        public static PlaceViewModel FromDomainModel(Place place)
+        public static PlaceViewModel FromDomainModel(PlaceDisplayDTO place)
         {
-            List<string> toponymys = [.. place.PlaceNToponymyList
+            List<string> toponymys = [.. place.ToponymyList
                 .Select(x => x.IsCurrentName
-                    ? $"<strong>{x.Toponymy.ToponymyName}</strong>"
-                    : x.Toponymy.ToponymyName)];
+                    ? $"<strong>{x.Name}</strong>"
+                    : x.Name)];
             List<string> connectedPlaces = [.. place.ConnectedPlaces
-                .Select(x => x.PlaceNToponymyList.First(x => x.IsCurrentName).Toponymy.ToponymyName)];
+                .Select(x => x.ToponymyList.First(x => x.IsCurrentName).Name)];
 
             PlaceViewModel placeViewModel = new()
             {

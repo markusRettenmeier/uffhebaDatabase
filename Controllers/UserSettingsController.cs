@@ -19,7 +19,7 @@ namespace Sammlerplattform.Controllers
         , SignInManager<UsingIdentityUser> signInManager
         , IEmailSender emailSender
         , IStringLocalizer<SharedResources> stringLocalizer
-        , ITrackEventsCSV trackEvents
+        , ITrackEventsText trackEvents
         , IProcessFidoCredential processFidoCredential
         , IProcessCollectionItemEntity processCollectionItemEntity) : Controller
     {
@@ -136,10 +136,9 @@ namespace Sammlerplattform.Controllers
 
             try
             {
-                List<CollectionItemDisplayDTO> collectionItemEntityList = processCollectionItemEntity.GetWithPredicates(new CollectionItemSearchParameterModel { UsingIdentityUsersID = [user.Id] });
-                foreach (var collectionItem in collectionItemEntityList)
+                foreach (var collectionItem in user.CollectionItemEntityList)
                 {
-                    processCollectionItemEntity.Delete(collectionItem.CollectionItemEntity.CollectionItemEntityID);
+                    processCollectionItemEntity.Delete(collectionItem.CollectionItemEntityID);
                 }
 
                 var credentiaList = processFidoCredential.GetCredentialsByUserId(user.Id);

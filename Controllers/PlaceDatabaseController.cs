@@ -8,12 +8,12 @@ namespace Sammlerplattform.Controllers
 {
     [Authorize]
     public class PlaceDatabaseController(IProcessPlace processPlace
-        , ITrackEventsCSV trackEvents) : Controller
+        , ITrackEventsText trackEvents) : Controller
     {
         [HandleStatus]
         public ActionResult Index(PlaceSearchParameterModel placeSearchParameter)
         {
-            List<Place> placeList = [.. processPlace.GetListWithPredicate(placeSearchParameter)];
+            List<PlaceDisplayDTO> placeList = [.. processPlace.GetWithTranslationsListViaPredicate(placeSearchParameter)];
             return View(placeList);
         }
 
@@ -50,8 +50,8 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public ActionResult Edit(int id)
         {
-            Place? existingPlace = processPlace
-                .GetListWithPredicate(new PlaceSearchParameterModel { PlaceID = [id] }).FirstOrDefault();
+            PlaceDisplayDTO? existingPlace = processPlace
+                .GetWithTranslationsListViaPredicate(new PlaceSearchParameterModel { PlaceID = [id] }).FirstOrDefault();
 
             if (existingPlace == null)
             {
@@ -63,17 +63,17 @@ namespace Sammlerplattform.Controllers
                 PlaceID = existingPlace.PlaceID,
                 FurtherSpecs = existingPlace.FurtherSpecs,
                 WikipediaUrl = existingPlace.WikipediaUrl,
-                ToponymyList = [.. existingPlace.PlaceNToponymyList.Select(pnt =>  new PlaceNToponymyEditDTO
+                ToponymyList = [.. existingPlace.ToponymyList.Select(pnt =>  new PlaceNToponymyEditDTO
                 {
                     PlaceNToponymyID = pnt.PlaceNToponymyID,
-                    Name = pnt.Toponymy.ToponymyName,
+                    Name = pnt.Name,
                     IsCurrentName = pnt.IsCurrentName
                 })]
             };
-            ViewData["ConnectedPlaces"] = existingPlace.ConnectedPlaces.Select(cp => new Place
+            ViewData["ConnectedPlaces"] = existingPlace.ConnectedPlaces.Select(cp => new PlaceDisplayDTO
             {
                 PlaceID = cp.PlaceID,
-                PlaceNToponymyList = cp.PlaceNToponymyList,
+                ToponymyList = cp.ToponymyList,
                 FurtherSpecs = cp.FurtherSpecs
             }).ToList();
             return View(editDTO);
@@ -104,8 +104,8 @@ namespace Sammlerplattform.Controllers
 
         public ActionResult Delete(int id)
         {
-            Place? existingPlace = processPlace
-                .GetListWithPredicate(new PlaceSearchParameterModel { PlaceID = [id] }).FirstOrDefault();
+            PlaceDisplayDTO? existingPlace = processPlace
+                .GetWithTranslationsListViaPredicate(new PlaceSearchParameterModel { PlaceID = [id] }).FirstOrDefault();
             return existingPlace == null
                 ? RedirectToAction(nameof(Index), new { statusMessage = "Error_Place_NotFound" })
                 : View(existingPlace);

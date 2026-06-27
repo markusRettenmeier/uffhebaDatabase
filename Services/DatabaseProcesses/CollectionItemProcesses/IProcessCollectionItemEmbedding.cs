@@ -2,28 +2,30 @@
 using Sammlerplattform.Models.CollectionAreaDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase;
 using Sammlerplattform.Models.CollectionItemDatabase.VectorSearch;
+using Sammlerplattform.Models.ParticipantDatabase;
+using Sammlerplattform.Models.PlaceDatabase.Toponymy;
 using Sammlerplattform.Services.ML.VectorSearch;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 {
     public interface IProcessCollectionItemEmbedding
     {
-        (int Statuscode, string Statusmessage) Insert(CollectionItemEntity collectionItemEntity, List<string> translatedTeextList);
-        (int Statuscode, string Statusmessage) Update(CollectionItemEntity collectionItemEntity, List<string> translatedTeextList);
+        (int Statuscode, string Statusmessage) Insert(CollectionItemDisplayDTO collectionItemEntity, Dictionary<string, string> translatedTextList);
+        (int Statuscode, string Statusmessage) Update(CollectionItemDisplayDTO collectionItemEntity, Dictionary<string, string> translatedTextList);
         (int Statuscode, string Statusmessage) Delete(int collectionItemEntityID);
         Task<List<CollectionItemSearchResultDTO>> SearchAsync(string query);
     }
     public class CollectionItemEmbeddingProcessor(IUnitOfWork unitOfWork
         , M3Embedder m3Embedder) : IProcessCollectionItemEmbedding
     {
-        public (int Statuscode, string Statusmessage) Insert(CollectionItemEntity collectionItemEntity, List<string> translatedTextList)
+        public (int Statuscode, string Statusmessage) Insert(CollectionItemDisplayDTO collectionItemEntity, Dictionary<string, string> translatedTextList)
         {
             if (collectionItemEntity.CollectionItemEntityID == 0)
             {
                 return (400, "Error_CollectionItemEntity_IDMissing");
             }
 
-            var textToEmbed = CombineTranslations(collectionItemEntity);
+            var textToEmbed = CombineTranslations(collectionItemEntity, translatedTextList);
             var generateEmbeddings = m3Embedder.GenerateEmbeddings(textToEmbed);
             unitOfWork.CollectionItemEmbeddingRepository.Insert(new CollectionItemEmbedding
             {
@@ -37,7 +39,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             return (200, "Embedding created successfully");
         }
 
-        public (int Statuscode, string Statusmessage) Update(CollectionItemEntity collectionItemEntity, List<string> translatedTextList)
+        public (int Statuscode, string Statusmessage) Update(CollectionItemDisplayDTO collectionItemEntity, Dictionary<string, string> translatedTextList)
         {
             if (collectionItemEntity.CollectionItemEntityID == 0)
             {
@@ -45,10 +47,10 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
             }
 
             var existingEmbedding = unitOfWork.CollectionItemEmbeddingRepository.Get(
-                filter: x => x.CollectionItemEntityID == collectionItemEntity.CollectionItemEntityID
-                , includeProperties: "CollectionItemEntity").FirstOrDefault();
+                filter: x => x.CollectionItemEntityID == collectionItemEntity.CollectionItemEntityID,
+                includeProperties: "CollectionItemEntity").FirstOrDefault();
 
-            var textToEmbed = CombineTranslations(collectionItemEntity);
+            var textToEmbed = CombineTranslations(collectionItemEntity, translatedTextList);
             var generateEmbeddings = m3Embedder.GenerateEmbeddings(textToEmbed);
 
             if (existingEmbedding == null)
@@ -75,7 +77,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 
         public (int Statuscode, string Statusmessage) Delete(int collectionItemEntityID)
         {
-            var existingEmbedding = unitOfWork.CollectionItemEmbeddingRepository.Get(x => x.CollectionItemEntityID == collectionItemEntityID, includeProperties: "CollectionItemEntity").FirstOrDefault();
+            var existingEmbedding = unitOfWork.CollectionItemEmbeddingRepository.Get(x => x.CollectionItemEntityID == collectionItemEntityID, 
+                includeProperties: nameof(CollectionItemEmbedding.CollectionItemEntity)).FirstOrDefault();
             if (existingEmbedding == null)
             {
                 return (404, "Error_Embedding_NotFound");
@@ -83,31 +86,26 @@ namespace Sammlerplattform.Services.DatabaseProcesses.CollectionItemProcesses
 
             unitOfWork.CollectionItemEmbeddingRepository.Delete(existingEmbedding);
             unitOfWork.Save();
+
             return (200, "Success_Embedding_Deleted");
         }
 
-        private string CombineTranslations(CollectionItemEntity item)
+        private static string CombineTranslations(CollectionItemDisplayDTO item, Dictionary<string, string> translatedTextList)
         {
             string combinedtext = string.Empty;
-
-            var translationList = unitOfWork.EntityTranslationRepository.Get(filter: x => x.EntityId == item.CollectionItemEntityID);
-            foreach (var translation in translationList)
+            foreach (var kvp in translatedTextList)
             {
-                combinedtext += " " + translation.FieldName + " " + translation.TranslatedText;
-                //AddTextEmbedding(new List<float[]>(), translation.TranslatedText);
+                combinedtext += " " + kvp.Key + ": " + kvp.Value;
             }
-
-            combinedtext += nameof(CollectionArea.CollectionAreaName) + ": " + item.CollectionArea.CollectionAreaName + "; ";
-            combinedtext += nameof(CollectionItemEntity.Inscription) + ": " + item.Inscription + "; ";
-            combinedtext += nameof(CollectionItemEntity.Time) + ": " + item.Time + "; ";
-            combinedtext += nameof(CollectionItemEntity.CollectionItemNParticipantList) + ": " + string.Join(", ", item.CollectionItemNParticipantList
-                .Select(p => p.Participant?.ParticipantName ?? "")) + "; ";
-            combinedtext += nameof(CollectionItemEntity.CollectionItemNPlaceList) + ": " + string.Join(", ", item.CollectionItemNPlaceList
-                .Select(p => p.Place?.PlaceNToponymyList.FirstOrDefault(x => x.IsCurrentName)?.Toponymy.ToponymyName ?? "")) + "; ";
-            combinedtext += nameof(CollectionItemEntity.ConceptValueList) + ": " + string.Join(", ", item.ConceptValueList
-                .Select(v => v.ValueDisplay)) + "; ";
-            combinedtext += nameof(CollectionItemEntity.Fake) + ": " + item.Fake + "; ";
-            combinedtext += nameof(CollectionItemEntity.SerialNumber) + ": " + item.SerialNumber + "; ";
+            combinedtext += nameof(CollectionItemDisplayDTO.CollectionAreaName) + ": " + item.CollectionAreaName + "; ";
+            combinedtext += nameof(CollectionItemDisplayDTO.Inscription) + ": " + item.Inscription + "; ";
+            combinedtext += nameof(CollectionItemDisplayDTO.Time) + ": " + item.Time + "; ";
+            combinedtext += nameof(Participant.ParticipantName) + ": " + string.Join(", ", item.CollectionItemNParticipantList
+                .Select(p => p.Name ?? "")) + "; ";
+            combinedtext += nameof(Toponymy.ToponymyName) + ": " + string.Join(", ", item.CollectionItemNPlaceList
+                .Select(p => p.ToponymyList.ToList().Select(x => x.Name))) + "; ";
+            combinedtext += nameof(CollectionItemDisplayDTO.Fake) + ": " + item.Fake + "; ";
+            combinedtext += nameof(CollectionItemDisplayDTO.SerialNumber) + ": " + item.SerialNumber + "; ";
 
             return combinedtext;
         }

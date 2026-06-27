@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Sammlerplattform.Models.CollectionItemDatabase.CollectionItemRelationshipDatabase.CollectionItemRelationship>
+﻿@model IEnumerable<Sammlerplattform.Models.CollectionItemDatabase.CollectionItemRelationshipDatabase.CIRelationshipDisplayDTO>
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
@@ -33,12 +33,12 @@
                     @Html.DisplayFor(modelItem => item.CollectionItemRelationshipName)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.CollectionItemRelationshipId">@Localizer["Edit"]</a> |
+                    <a asp-action="Edit" asp-route-id="@item.Id">@Localizer["Edit"]</a> |
                     @{
                         bool isDeletable = item.CollectionItemNParticipantList.Count == 0 || item.CollectionItemNPlaceList.Count == 0;
                         if (isDeletable)
                         {
-                            <a asp-action="Delete" asp-route-id="@item.CollectionItemRelationshipId">@Localizer["Delete"]</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id">@Localizer["Delete"]</a>
                         }
                     }
                 </td>

@@ -26,12 +26,14 @@ namespace Sammlerplattform.Controllers
         [HandleStatus]
         public ActionResult Index(CollectionItemSearchParameterModel model)
         {
-            ViewData["CollectionArea"] = processCollectionArea.GetListWithPredicate(new CollectionAreaSearchParameterModel() { CollectionAreaID = model.CollectionAreaID }).FirstOrDefault();
+            //Extra Abfrage falls processCollectionItem.GetWithTranslationsListViaPredicates(model) leer ist
+            ViewData["CollectionArea"] = processCollectionArea.GetWithTranslationsListViaPredicate(new CollectionAreaSearchParameterModel() { CollectionAreaID = model.CollectionAreaID }).FirstOrDefault();
 
             string userId = userManager.GetUserId(User) ?? throw new NullReferenceException();
             model.UsingIdentityUsersID.Add(userId);
 
-            return View(processCollectionItem.GetWithPredicates(model));
+            return View(processCollectionItem.GetWithTranslationsListViaPredicates(model).OrderBy(x => x.PersonalIdentificationNumber).ThenBy(x => x
+            .CollectionItemEntityID));
         }
 
         public ActionResult Create(int collectionAreaID)
@@ -39,8 +41,8 @@ namespace Sammlerplattform.Controllers
             List<ConceptViewModel> conceptViewModelList = [.. processConcept.Get(new ConceptualRelationshipSearchParameterModel() { CollectionAreaID = [collectionAreaID] }).Select(c => c.ConceptViewModel)];
             ViewData["ConceptWOBoolList"] = conceptViewModelList.Where(x => x.ConceptType.ToString() != "Bool").ToList();
 
-            ViewData["StatePreservationSchemaList"] = processState.GetWithPredicates(new StatePreservationSearchParameterModel() { CollectionArea_CollectionAreaID = [collectionAreaID] })
-                    .Select(s => new StatePreservationViewDTO { Id = s.StatePreservationID, Name = s.StatePreservationName }).ToList();
+            ViewData["StatePreservationSchemaList"] = processState.GetWithTranslationsListViaPredicates(new StatePreservationSearchParameterModel() { CollectionArea_CollectionAreaID = [collectionAreaID] })
+                    .Select(s => new StatePreservationViewDTO { Id = s.Id, Name = s.Name }).ToList();
 
             CollectionItemCreateDTO createDTO = new()
             {
@@ -68,49 +70,47 @@ namespace Sammlerplattform.Controllers
         public ActionResult Edit(int entityId)
         {
             CollectionItemDisplayDTO? existingCollectionItem = processCollectionItem
-                .GetWithPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [entityId] })
+                .GetWithTranslationsListViaPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [entityId] })
                 .FirstOrDefault();
             if (existingCollectionItem == null)
                 return RedirectToAction(nameof(Index), new { statusMessage = "Error_CollectionItemEntity_NotFound" });
 
-            List<Participant> list1 = [.. existingCollectionItem.CollectionItemNParticipantList.Select(x => x.Participant)];
-            List<Place> list2 = [.. existingCollectionItem.CollectionItemNPlaceList.Select(y => y.Place)];
-            ViewData["ParticipantList"] = list1;
-            ViewData["PlaceList"] = list2;
-            List<ConceptViewModel> conceptViewModelList = [.. processConcept.Get(new ConceptualRelationshipSearchParameterModel() { CollectionAreaID = [existingCollectionItem.CollectionItemEntity.CollectionAreaID] }).Select(c => c.ConceptViewModel)];
+            ViewData["ParticipantList"] = existingCollectionItem.CollectionItemNParticipantList;
+            ViewData["PlaceList"] = existingCollectionItem.CollectionItemNPlaceList;
+            List<ConceptViewModel> conceptViewModelList = [.. processConcept.Get(new ConceptualRelationshipSearchParameterModel() { CollectionAreaID = [existingCollectionItem.CollectionAreaID] }).Select(c => c.ConceptViewModel)];
             ViewData["ConceptList"] = conceptViewModelList.ToList();
 
-            ViewData["StatePreservationSchemaList"] = processState.GetWithPredicates(new StatePreservationSearchParameterModel() { CollectionArea_CollectionAreaID = [existingCollectionItem.CollectionItemEntity.CollectionAreaID] })
-                    .Select(s => new StatePreservationViewDTO { Id = s.StatePreservationID, Name = s.StatePreservationName }).ToList();
+            ViewData["StatePreservationSchemaList"] = processState.GetWithTranslationsListViaPredicates(new StatePreservationSearchParameterModel() { CollectionArea_CollectionAreaID = [existingCollectionItem.CollectionAreaID] })
+                    .Select(s => new StatePreservationViewDTO { Id = s.Id, Name = s.Name }).ToList();
 
             CollectionItemEditDTO editDTO = new()
             {
-                Id = existingCollectionItem.CollectionItemEntity.CollectionItemEntityID,
-                CollectionAreaId = existingCollectionItem.CollectionItemEntity.CollectionAreaID,
-                UniqueName = existingCollectionItem.CollectionItemEntity.UniqueName,
-                Fake = existingCollectionItem.CollectionItemEntity.Fake,
-                Comment = existingCollectionItem.CollectionItemEntity.Comment,
-                StatePreservationID = existingCollectionItem.CollectionItemEntity.StatePreservationID,
-                Inscription = existingCollectionItem.CollectionItemEntity.Inscription,
-                InscriptionTranslated = existingCollectionItem.CollectionItemEntity.InscriptionTranslated,
-                SerialNumber = existingCollectionItem.CollectionItemEntity.SerialNumber,
-                ExactYear = existingCollectionItem.CollectionItemEntity.ExactYear,
-                StartYear = existingCollectionItem.CollectionItemEntity.StartYear,
-                EndYear = existingCollectionItem.CollectionItemEntity.EndYear,
-                IsApproximate = existingCollectionItem.CollectionItemEntity.IsApproximate,
-                EraID = existingCollectionItem.CollectionItemEntity.EraID,
-                EraName = existingCollectionItem.Era.EraName,
-                Width = existingCollectionItem.CollectionItemEntity.Width,
-                Height = existingCollectionItem.CollectionItemEntity.Height,
-                Length = existingCollectionItem.CollectionItemEntity.Length,
-                Diameter = existingCollectionItem.CollectionItemEntity.Diameter,
-                Weight = existingCollectionItem.CollectionItemEntity.Weight,
-                PersonalIdentificationNumber = existingCollectionItem.CollectionItemEntity.PersonalIdentificationNumber,
-                FilingLocation = existingCollectionItem.CollectionItemEntity.FilingLocation,
-                DeliveryPrice = existingCollectionItem.CollectionItemEntity.DeliveryPrice,
-                DeliveryDate = existingCollectionItem.CollectionItemEntity.DeliveryDate,
-                DeliveryAdress = existingCollectionItem.CollectionItemEntity.DeliveryAdress,
-                IsCollectionItemPublic = existingCollectionItem.CollectionItemEntity.IsCollectionItemPublic,
+                Id = existingCollectionItem.CollectionItemEntityID,
+                CollectionAreaId = existingCollectionItem.CollectionAreaID,
+                UniqueName = existingCollectionItem.UniqueName,
+                Fake = existingCollectionItem.Fake,
+                Comment = existingCollectionItem.Comment,
+                StatePreservationID = existingCollectionItem.StatePreservationID,
+                Inscription = existingCollectionItem.Inscription,
+                InscriptionTranslated = existingCollectionItem.InscriptionTranslated,
+                SerialNumber = existingCollectionItem.SerialNumber,
+                ExactYear = existingCollectionItem.ExactYear,
+                StartYear = existingCollectionItem.StartYear,
+                EndYear = existingCollectionItem.EndYear,
+                IsApproximate = existingCollectionItem.IsApproximate,
+                EraID = existingCollectionItem.EraID,
+                EraName = existingCollectionItem.EraName,
+                Width = existingCollectionItem.Width,
+                Height = existingCollectionItem.Height,
+                Length = existingCollectionItem.Length,
+                Diameter = existingCollectionItem.Diameter,
+                Weight = existingCollectionItem.Weight,
+                PersonalIdentificationNumber = existingCollectionItem.PersonalIdentificationNumber,
+                FilingLocation = existingCollectionItem.FilingLocation,
+                DeliveryPrice = existingCollectionItem.DeliveryPrice,
+                DeliveryDate = existingCollectionItem.DeliveryDate,
+                DeliveryAdress = existingCollectionItem.DeliveryAdress,
+                IsCollectionItemPublic = existingCollectionItem.IsCollectionItemPublic,
                 CollectionItemPictureList = [.. existingCollectionItem.CollectionItemPictureList.Select(x => new PictureToCollectionItemEditDTO
                 {
                     Id = x.CollectionItemPictureID,
@@ -127,12 +127,12 @@ namespace Sammlerplattform.Controllers
                 ConnectedParticipantList = [.. existingCollectionItem.CollectionItemNParticipantList.Select(x => new ParticipantToCollectionItemCreateDTO
                 {
                     Id = x.ParticipantID,
-                    Relationship = x.RelationType.CollectionItemRelationshipName
+                    Relationship = x.RelationshipName
                 })],
                 ConnectedPlaceList = [.. existingCollectionItem.CollectionItemNPlaceList.Select(x => new PlaceToCollectionItemCreateDTO
                 {
                     Id = x.PlaceID,
-                    Relationship = x.RelationType.CollectionItemRelationshipName
+                    Relationship = x.RelationshipName
                 })],
             };
 
@@ -154,7 +154,7 @@ namespace Sammlerplattform.Controllers
         public ActionResult Delete(int entityId)
         {
             CollectionItemDisplayDTO? existingCollectionItem = processCollectionItem
-                .GetWithPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [entityId] })
+                .GetWithTranslationsListViaPredicates(new CollectionItemSearchParameterModel { CollectionItemEntityID = [entityId] })
                 .FirstOrDefault();
 
             return existingCollectionItem == null
@@ -190,7 +190,7 @@ namespace Sammlerplattform.Controllers
             }
             collectionItemSearch.UsingIdentityUsersID.Add(user.Id);
 
-            List<CollectionItemDisplayDTO> modelList = [.. processCollectionItem.GetWithPredicates(collectionItemSearch)];
+            List<CollectionItemDisplayDTO> modelList = [.. processCollectionItem.GetWithTranslationsListViaPredicates(collectionItemSearch)];
 
             MemoryStream memory = await YamlProcessor.CreateZipFile(modelList, user, hostEnvironment);
 

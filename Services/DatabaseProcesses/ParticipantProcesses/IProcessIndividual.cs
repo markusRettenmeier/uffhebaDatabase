@@ -14,7 +14,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
     }
     public class IndividualProcessor(IProcessParticipant processParticipant
         , IUnitOfWork unitOfWork
-        , ITrackEventsCSV trackEvents) : IProcessIndividual
+        , ITrackEventsText trackEvents) : IProcessIndividual
     {
         public (int Statuscode, string StatusMessage, int ParticipantID) Insert(IndividualCreateDTO createDTO)
         {
@@ -76,7 +76,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
                 searchParamters.Individual_Pseudonym = [createDTO.Pseudonym];
             if (createDTO.Signature != null)
                 searchParamters.Individual_Signature = [createDTO.Signature];
-            Participant? existingParticipant = processParticipant.GetListWithPredicate(searchParamters).FirstOrDefault();
+            Participant? existingParticipant = processParticipant.GetEntityListViaPredicate(searchParamters).FirstOrDefault();
             if (existingParticipant != null)
             {
                 trackEvents.TrackError("IndividualProcessor.Create: Individual already exists.", new Dictionary<string, object>
@@ -92,7 +92,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
         public (int Statuscode, string StatusMessage, int ParticipantID) Update(IndividualEditDTO editDTO)
         {
             Individual? individualToEdit = processParticipant
-                .GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [editDTO.Id] })
+                .GetEntityListViaPredicate(new ParticipantSearchParameterModel { ParticipantID = [editDTO.Id] })
                 .FirstOrDefault()?.Individual;
             if (individualToEdit == null)
             {
@@ -154,7 +154,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ParticipantProcesses
         public (int Statuscode, string StatusMessage) Delete(int id)
         {
             Participant? party = processParticipant
-                .GetListWithPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] })
+                .GetEntityListViaPredicate(new ParticipantSearchParameterModel { ParticipantID = [id] })
                 .FirstOrDefault();
             if (party == null || party.Individual == null)
             {

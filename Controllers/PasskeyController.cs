@@ -23,7 +23,7 @@ namespace Sammlerplattform.Controllers
         IStringLocalizer<SharedResources> stringLocalizer,
         UserManager<UsingIdentityUser> userManager,
         SignInManager<UsingIdentityUser> signInManager,
-        ITrackEventsCSV trackEvents,
+        ITrackEventsText trackEvents,
         IProcessFidoCredential processFidoCredential,
         IHttpContextAccessor httpContextAccessor,
         IDataProtectionProvider dataProtectionProvider,

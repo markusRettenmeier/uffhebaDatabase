@@ -1565,4 +1565,7 @@
   <data name="Error_BackupCodeUsername_Invalid" xml:space="preserve">
     <value>备用代码或用户名无效。</value>
   </data>
+  <data name="Error_CookieConsent_Required" xml:space="preserve">
+    <value>必须同意使用Cookie。</value>
+  </data>
 </root>

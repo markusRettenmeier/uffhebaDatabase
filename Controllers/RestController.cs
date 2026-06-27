@@ -32,6 +32,7 @@ namespace Sammlerplattform.Controllers
         IStringLocalizer<SharedResources> stringLocalizer,
         IProcessTranslations processTranslations,
         UserManager<UsingIdentityUser> userManager,
+        IProcessIndustry processIndustry,
         IProcessCIRelationship processCppRelationship) : Controller
     {
         [HttpPost("listPlaces")]
@@ -45,7 +46,7 @@ namespace Sammlerplattform.Controllers
                 model.PlaceNToponymyList_Toponymy_ToponymyName = [placeSearchDTO.Toponym];
             }
 
-            foreach (Place place in processPlace.GetListWithPredicate(model))
+            foreach (PlaceDisplayDTO place in processPlace.GetWithTranslationsListViaPredicate(model))
             {
                 var vm = PlaceViewModelHelper.FromDomainModel(place);
                 placeDTOList.Add(new PlaceDTO
@@ -74,20 +75,7 @@ namespace Sammlerplattform.Controllers
         {
             ParticipantSearchParameterModel model = new();
             if (participantSearchDTO != null)
-            {
-                if (participantSearchDTO.Name != null)
-                {
-                    List<int> entityIds = [.. processTranslations.GetWithFallback(
-                        new EntityTranslationSearchParameter
-                        {
-                            EntityType = [nameof(Participant)]
-                            , TranslatedText = [participantSearchDTO.Name]
-                        }).Select(x => x.EntityId)];
-                    if (entityIds.Count > 0)
-                    {
-                        model.ParticipantID = entityIds;
-                    }
-                }
+            {                
                 if (!string.IsNullOrEmpty(participantSearchDTO.Name))
                 {
                     model.ParticipantName = [participantSearchDTO.Name];
@@ -97,35 +85,28 @@ namespace Sammlerplattform.Controllers
                     model.ParticipantTypeInt = [(int)participantSearchDTO.Type];
                 }
             }
-            List<Participant> participantList = processParticipant.GetListWithPredicate(model);
+            List<ParticipantDisplayDTO> participantList = processParticipant.GetTranslationsListViaPredicate(model);
 
             List<ParticipantDTO> participantDTOList = [.. participantList.Select(x =>
             {
                 List<string> specs = [];
-                if (x.Individual != null)
+                if (!string.IsNullOrWhiteSpace(x.Pseudonym))
                 {
-                    if (!string.IsNullOrWhiteSpace(x.Individual.Pseudonym))
-                    {
-                        specs.Add(stringLocalizer["Pseudonym"] + ": " + x.Individual.Pseudonym);
-                    }
-                    if (!string.IsNullOrWhiteSpace(x.Individual.Signature))
-                    {
-                        specs.Add(stringLocalizer["Signature"] + ": " + x.Individual.Signature);
-                    }
+                    specs.Add(stringLocalizer["Pseudonym"] + ": " + x.Pseudonym);
                 }
-                if (x.Organization != null)
+                if (!string.IsNullOrWhiteSpace(x.Signature))
                 {
-                    string? industry = x.Organization.Industry?.IndustryName;
-                    if (!string.IsNullOrWhiteSpace(industry))
-                    {
-                        specs.Add(stringLocalizer["Industry"] + ": " + industry);
-                    }
+                    specs.Add(stringLocalizer["Signature"] + ": " + x.Signature);
+                }
+                if (!string.IsNullOrWhiteSpace(x.IndustryName))
+                {
+                    specs.Add(stringLocalizer["Industry"] + ": " + x.IndustryName);
                 }
 
                 return new ParticipantDTO
                 {
                     ParticipantID = x.ParticipantID,
-                    Name = x.ParticipantName,
+                    Name = x.Name,
                     Type = x.ParticipantTypeEnum.GetDisplayName(),
                     FurtherSpecs = string.Join("; ", specs)
                 };
@@ -153,14 +134,14 @@ namespace Sammlerplattform.Controllers
             EraSearchParameterModel eraSearchParameter = new();
             if (!string.IsNullOrEmpty(name))
             {
-                List<int> entityIds = [.. processTranslations.GetWithFallback(new EntityTranslationSearchParameter { EntityType = [nameof(Era)], TranslatedText = [name] }).Select(x => x.EntityId)];
+                List<int> entityIds = [.. processTranslations.GetWithFallback(new EntityTranslationSearchParameter { EntityName = [nameof(Era)], TranslatedText = [name] }).Select(x => x.EntityId)];
                 if (entityIds.Count > 0)
                 {
                     eraSearchParameter.EraID = entityIds;
                 }
             }
 
-            List<EraDTO> eraList = [.. processEra.GetWithPredicates(eraSearchParameter)
+            List<EraDTO> eraList = [.. processEra.GetTranslationsListViaPredicates(eraSearchParameter)
                 .OrderBy(x => x.EraName)
                 .Select(x => new EraDTO()
                 {
@@ -179,8 +160,7 @@ namespace Sammlerplattform.Controllers
         [HttpGet("listIndustries")]
         public IActionResult ListIndustries()
         {
-            List<IndustryDTO> industryList = [.. unitOfWork.IndustryRepository.Get()
-                .OrderBy(pf => pf.IndustryName)
+            List<IndustryDTO> industryList = [.. processIndustry.GetWithTranslationsListViaPredicates()
                 .Select(pf => new IndustryDTO
                 {
                     Name = pf.IndustryName
@@ -196,10 +176,10 @@ namespace Sammlerplattform.Controllers
         [HttpGet("listCollectionAreas")]
         public IActionResult ListCollectionAreas()
         {
-            List<CollectionAreaDTO> collectionAreas = [.. processCollectionArea.GetListWithPredicate(new Models.CollectionAreaDatabase.CollectionAreaSearchParameterModel())
+            List<CollectionAreaDTO> collectionAreas = [.. processCollectionArea.GetWithTranslationsListViaPredicate(new Models.CollectionAreaDatabase.CollectionAreaSearchParameterModel())
                 .Select(ca => new CollectionAreaDTO
                 {
-                    ID = ca.CollectionAreaID,
+                    ID = ca.Id,
                     Name = ca.CollectionAreaName
                 })];
             return Ok(collectionAreas);
@@ -268,7 +248,7 @@ namespace Sammlerplattform.Controllers
             {
                 List<int> entityIds = [.. processTranslations.GetWithFallback(new EntityTranslationSearchParameter
                 {
-                    EntityType = [nameof(Concept)],
+                    EntityName = [nameof(Concept)],
                     TranslatedText = [conceptName]
                 }).Select(x => x.EntityId)];
                 searchParameter.Id = entityIds;
@@ -364,7 +344,7 @@ namespace Sammlerplattform.Controllers
         [HttpGet("listCIRelationships")]
         public IActionResult ListCIRelationships()
         {
-            List<CollectionItemRelationship> relationships = processCppRelationship.GetListWithPredicates(new CIRelationshipSearchParameterModel());
+            List<CIRelationshipDisplayDTO> relationships = processCppRelationship.GetWithTranslationsListViaPredicates(new CIRelationshipSearchParameterModel());
 
             return Ok(relationships.Select(y => y.CollectionItemRelationshipName));
         }

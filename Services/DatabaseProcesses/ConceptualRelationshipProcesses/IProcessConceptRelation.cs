@@ -2,8 +2,6 @@
 using Sammlerplattform.Data;
 using Sammlerplattform.Models.ConceptualRelationshipDatabase;
 using Sammlerplattform.Models.Translations;
-using Sammlerplattform.Services.Translation;
-using System.Globalization;
 
 namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProcesses
 {
@@ -18,8 +16,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
     }
 
     public class ConceptRelationProcessor(DbIdentityContext dbIdentityContext,
-        IProcessTranslations processTranslation,
-        IDeeplTranslationService deeplTranslationService) : IProcessConceptRelation
+        IProcessTranslations processTranslation) : IProcessConceptRelation
     {
         public int Delete(ConceptRelationViewModel conceptRelation)
         {
@@ -77,10 +74,8 @@ namespace Sammlerplattform.Services.DatabaseProcesses.ConceptualRelationshipProc
                 {
                     Name = processTranslation.GetWithFallback(new EntityTranslationSearchParameter
                     {
-                        EntityType = [nameof(Concept)],
-                        FieldName = [nameof(ConceptViewModel.Name)],
-                        EntityId = [conceptRelation.ToConceptID],
-                        Culture = [deeplTranslationService.NetCultureToDeeplLanguage(CultureInfo.CurrentCulture.Name)]
+                        EntityName = [nameof(Concept)],
+                        EntityId = [conceptRelation.ToConceptID]
                     }).Select(x => x.TranslatedText).FirstOrDefault() ?? ""
                 };
                 conceptRelation.ToConcept = conceptView;

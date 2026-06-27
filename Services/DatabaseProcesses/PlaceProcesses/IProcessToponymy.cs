@@ -5,7 +5,6 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
 {
     public interface IProcessToponymy
     {
-        List<Toponymy> GetListWithPredicate(ToponymySearchParameterModel toponymySearchParameter);
         int Insert(string name);
         void Delete(int id);
     }
@@ -17,8 +16,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PlaceProcesses
             unitOfWork.ToponymyRepository.Delete(id);
             unitOfWork.Save();
         }
-
-        public List<Toponymy> GetListWithPredicate(ToponymySearchParameterModel toponymySearchParameter)
+        private List<Toponymy> GetListWithPredicate(ToponymySearchParameterModel toponymySearchParameter)
         {
             IEnumerable<Toponymy> toponymyQuery = unitOfWork.ToponymyRepository.Get(
                 filter: SearchPredicateBuilder.BuildPredicate<Toponymy>(toponymySearchParameter));

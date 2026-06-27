@@ -13,7 +13,7 @@ namespace Sammlerplattform.Services.DatabaseProcesses.PasskeyProcessees
     }
 
     public class FidoCredentialProcessor(IUnitOfWork unitOfWork
-        , ITrackEventsCSV trackEvents
+        , ITrackEventsText trackEvents
         , DbIdentityContext dbIdentityContext) : IProcessFidoCredential
     {
         public (int Statuscode, string Statusmessage) Delete(byte[] credentialId, string userId)

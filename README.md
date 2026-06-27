@@ -1,6 +1,6 @@
 # README #
 
-This software is designed to create a database for collecting and sharing collectibels. The database is designed to be flexible and can be used for various types of collections, such as coins, stamps, or any other type of collectible items. The software allows users to create their own collections, add items to their collections, and share their collections with others. The software is open source and can be used by anyone who wants to contribute to the project.
+This software is designed to create a online database for collecting and sharing collectibels. Its domain is https://uffheba.online. The database is designed to be flexible and can be used for various types of collections, such as coins, stamps, or any other type of collectible items. The software allows users to create their own collections, add items to their collections, and share their collections with others. The software is open source and can be used by anyone who wants to contribute to the project.
 Right now, all features and AI-integrations are 100% free for the community to use and develop. As there are more users interested in using this platform, heavy usage of the servers, advanced modules are required and additional features are added, it becomes increasingly expensive to maintain. So later the project must be financed either by donations, "Bring your own key" (BYOK), adds or by a subscription model, depending on what fits and is accepted. We promise to always keep the core open-source engine free!
 
 ### What is this repository for? ###

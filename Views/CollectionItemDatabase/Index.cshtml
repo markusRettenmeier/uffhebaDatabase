@@ -4,7 +4,7 @@
 @inject IHtmlLocalizer<Sammlerplattform.Resources.SharedResources> Localizer
 
 @{
-    CollectionArea? collectionArea = ViewData["collectionArea"] as CollectionArea;
+    CollectionAreaDisplayDTO? collectionArea = ViewData["collectionArea"] as CollectionAreaDisplayDTO;
     ViewData["Title"] = Localizer["CollectionItemEntity_Administration", collectionArea?.CollectionAreaName ?? "Unknown"];
     Layout = "~/Views/Shared/_LayoutSettingsCollectionItem.cshtml";
     int count = 0;
@@ -20,7 +20,7 @@ else
 <hr />
 <div class="btn-group">
     @if(collectionArea != null) {
-        <a type="button" href="/CollectionItemDatabase/Create?collectionAreaID=@collectionArea.CollectionAreaID" class="btn btn-success">@Localizer["Create"]</a>
+        <a type="button" href="/CollectionItemDatabase/Create?collectionAreaID=@collectionArea.Id" class="btn btn-success">@Localizer["Create"]</a>
     }
     <button id="openSidebarButton" class="btn btn-info" data-toggle="tooltip" data-placement="under" title="Öffne Suchleiste" type="button" onclick="openNav()"><i class="bi bi-search"></i></button>
     <a type="button" href="/CollectionItemDatabase/DownloadSubmit?userId=@ViewData["userId"]" class="btn btn-success">@Localizer["CollectionItemEntity_Download_All"]</a>
@@ -32,10 +32,10 @@ else
         <tr>
             <th>@Localizer["Pictures"]</th>
             <th>
-                @Html.DisplayNameFor(model => model.CollectionItemEntity.PersonalIdentificationNumber)
+                @Html.DisplayNameFor(model => model.PersonalIdentificationNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CollectionItemEntity.CollectionItemEntityID)
+                @Html.DisplayNameFor(model => model.CollectionItemEntityID)
             </th>
             <th>
                 @Localizer["Actions"]
@@ -51,16 +51,16 @@ else
                     <img src="@image" width="240" height="153" alt="@Localizer["PreViewOf", item.DisplayName]" id="simplePic_@count" class="IndexMobile-Picture" />
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.CollectionItemEntity.PersonalIdentificationNumber)
+                    @Html.DisplayFor(modelItem => item.PersonalIdentificationNumber)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.CollectionItemEntity.CollectionItemEntityID)
+                    @Html.DisplayFor(modelItem => item.CollectionItemEntityID)
                 </td>
                 <td>
                     <div>
-                        <a asp-action="Edit" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID">@Localizer["Edit"]</a>
-                        | <a asp-action="Delete" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID">@Localizer["Delete"]</a>
-                        | <a asp-action="DownloadSubmit" asp-route-entityId="@item.CollectionItemEntity.CollectionItemEntityID" asp-route-userId="@ViewData["userId"]">@Localizer["CollectionItemEntity_Download_One"]</a>
+                        <a asp-action="Edit" asp-route-entityId="@item.CollectionItemEntityID">@Localizer["Edit"]</a>
+                        | <a asp-action="Delete" asp-route-entityId="@item.CollectionItemEntityID">@Localizer["Delete"]</a>
+                        | <a asp-action="DownloadSubmit" asp-route-entityId="@item.CollectionItemEntityID" asp-route-userId="@ViewData["userId"]">@Localizer["CollectionItemEntity_Download_One"]</a>
                     </div>
                 </td>
             </tr>
